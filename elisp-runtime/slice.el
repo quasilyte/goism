@@ -37,7 +37,7 @@
          (+ ,index (Go-slice-offset ,slice))
          ,val))
 
-;; Specialized for slice[offset:].
+;; Specialization for slice[offset:].
 (defmacro Go-subslice-offset (slice offset)
   `(vector (Go-slice-data ,slice)
            ,offset
