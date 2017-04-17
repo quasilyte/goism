@@ -28,17 +28,21 @@
 (defmacro Go-slices-fast? (a b)
   `(= 0 (Go-slice-offset ,a) (Go-slice-offset ,b)))
 
+(defmacro Go-slice-get/fast (slice index)
+  `(aref (Go-slice-data ,slice) ,index))
 (defmacro Go-slice-get (slice index)
   `(aref (Go-slice-data ,slice)
          (+ ,index (Go-slice-offset ,slice))))
 
+(defmacro Go-slice-set/fast (slice index val)
+  `(aset (Go-slice-data ,slice) ,index ,val))
 (defmacro Go-slice-set (slice index val)
   `(aset (Go-slice-data ,slice)
          (+ ,index (Go-slice-offset ,slice))
          ,val))
 
 ;; Specialization for slice[offset:].
-(defmacro Go-subslice-offset (slice offset)
+(defmacro Go-subslice/offset (slice offset)
   `(vector (Go-slice-data ,slice)
            ,offset
            (- (Go-slice-len ,slice) ,offset)

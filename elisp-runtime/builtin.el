@@ -1,7 +1,7 @@
 ;; #FIXME: need to check if functions behavior conforms to specs. 
 
 ;; Specialization that is appliable if both `dst' and `src' are `fast'.
-(defun Go-copy-fast (dst src)
+(defun Go-copy/fast (dst src)
   (let ((dst-data (Go-slice-data dst))
         (src-data (Go-slice-data src)))
     (dotimes (i (min (Go-slice-len dst)
@@ -18,7 +18,7 @@
                     (Go-slice-get src i)))))
 
 ;; Specialization for append(slice, elem)
-(defun Go-append-elem (slice elem)
+(defun Go-append/elem (slice elem)
   (let ((pos (Go-slice-len slice)))
     (Go-slice-len! slice (1+ pos))
     (if (= pos (Go-slice-cap slice))
@@ -33,7 +33,7 @@
 
 ;; Specialization for append(dst, src...)
 ;; #FIXME: optimize me.
-(defun Go-append-slice (dst src)
+(defun Go-append/slice (dst src)
   (let ((dst-len (Go-slice-len dst))
         (src-len (Go-slice-len src)))
     (Go-slice-len! dst (+ dst-len src-len))
