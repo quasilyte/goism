@@ -1,0 +1,27 @@
+https://en.wikipedia.org/wiki/Category:Compiler_optimizations
+
+While we have Go AST and type information, we can (potentially)
+optimize better than in Emacs Lisp land.
+This opportunity should be used because without it, generated
+code will be slower than idiomatic Emacs Lisp.
+
+This table contains operations that should be performed during
+optimization passes over typechecked code
+| Kind                 | Requirement                                |
+|----------------------+--------------------------------------------|
+| constexpr evaluation | destinguish constexpr; operands value      |
+| constant propagation | scope symbol table                         |
+| call inlining        | inlineable function bodies                 |
+| loop unrolling       | loop body; loop header                     |
+| loop optimization    |                                            |
+| strength reduction   | good table of operations computation costs |
+|                      |                                            |
+
+List below mentions what else should be done
+to make generated code faster
+| Description                                         | Scope            |
+|-----------------------------------------------------+------------------|
+| use preallocated vector for multiple value returns  | return statement |
+| (cons X Y) for 1 and 2 member objects               | structs          |
+| if needed, reorder struct members for better layout | structs          |
+| recognize fast paths for operations like "append"   | builtin funtions |
