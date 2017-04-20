@@ -1,4 +1,4 @@
-;; #FIXME: need to check if functions behavior conforms to specs. 
+;; #FIXME: need to check if functions behavior conforms to specs.
 
 ;; Specialization that is appliable if both `dst' and `src' are `fast'.
 (defun Go-copy/fast (dst src)

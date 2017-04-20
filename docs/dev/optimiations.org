@@ -7,15 +7,16 @@ code will be slower than idiomatic Emacs Lisp.
 
 This table contains operations that should be performed during
 optimization passes over typechecked code
-| Kind                 | Requirement                                |
-|----------------------+--------------------------------------------|
-| constexpr evaluation | destinguish constexpr; operands value      |
-| constant propagation | scope symbol table                         |
-| call inlining        | inlineable function bodies                 |
-| loop unrolling       | loop body; loop header                     |
-| loop optimization    |                                            |
-| strength reduction   | good table of operations computation costs |
-|                      |                                            |
+| Kind                       | Requirement                                |
+|----------------------------+--------------------------------------------|
+| elisp-aware optimizations  | IR should resemble elisp code              |
+| constexpr evaluation       | destinguish constexpr; operands value      |
+| constant propagation       | scope symbol table                         |
+| call inlining              | inlineable function bodies                 |
+| loop unrolling             | loop body; loop header                     |
+| loop optimization          |                                            |
+| strength reduction         | good table of operations computation costs |
+| runtime forms optimization | distinguishable slices and other builtins  |
 
 List below mentions what else should be done
 to make generated code faster
