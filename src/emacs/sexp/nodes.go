@@ -1,9 +1,12 @@
+// Package sexp provides a high level intermediate representation
+// that contains both Go and Emacs Lisp traits.
 package sexp
 
 import (
 	"io"
 )
 
+// Node is a interface that every S-expr implements.
 type Node interface {
 	WriteTo(io.Writer) (int64, error)
 }
