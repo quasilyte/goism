@@ -119,6 +119,9 @@ func (sw *sexpWriter) writeByte(b byte) {
 func (sw *sexpWriter) writeForm(form interface{}) {
 	switch form := form.(type) {
 	case []Node:
+		if len(form) == 0 {
+			return
+		}
 		for i := 0; i < len(form)-1; i++ {
 			sw.writeWith(form[i])
 			sw.writeByte(' ')
