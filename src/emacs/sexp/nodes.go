@@ -33,7 +33,11 @@ type Var struct {
 // Category 2.
 // Compound literals.
 
-type SliceLit struct {
+type ArrayLit struct {
+	Vals []Node
+}
+
+type QuotedArray struct {
 	Vals []Node
 }
 
