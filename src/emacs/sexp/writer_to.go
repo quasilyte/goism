@@ -55,7 +55,11 @@ func (node *Return) WriteTo(w io.Writer) (int64, error) {
 	return writeList(w, "return", node.Result)
 }
 
-var opTypeStrings = []string{
+var binaryOpHead = []string{
+	OpRem: "%",
+}
+
+var variadicOpHead = []string{
 	OpBitOr:  "bit-or",
 	OpBitAnd: "bit-and",
 	OpBitXor: "bit-xor",
@@ -71,7 +75,11 @@ var opTypeStrings = []string{
 }
 
 func (op *VariadicOp) WriteTo(w io.Writer) (int64, error) {
-	return writeList(w, opTypeStrings[op.Type], op.Args)
+	return writeList(w, variadicOpHead[op.Type], op.Args)
+}
+
+func (op *BinaryOp) WriteTo(w io.Writer) (int64, error) {
+	return writeList(w, binaryOpHead[op.Type], op.Arg1, op.Arg2)
 }
 
 func (call *Call) WriteTo(w io.Writer) (int64, error) {

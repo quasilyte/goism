@@ -4,10 +4,6 @@ import (
 	"emacs/sexp"
 )
 
-const (
-	maxInt64 int64 = (1 << 63) - 1
-)
-
 func isCommutative(op *sexp.VariadicOp) bool {
 	switch op.Type {
 	case sexp.OpBitOr, sexp.OpBitAnd, sexp.OpBitXor:
@@ -42,24 +38,48 @@ func opFlatten(op *sexp.VariadicOp) *sexp.VariadicOp {
 
 type intReducer func(int64, int64) int64
 
-func intFold(op *sexp.VariadicOp, initial int64, reducer intReducer) sexp.Node {
+func intEval(op *sexp.BinaryOp, reducer intReducer) sexp.Node {
+	op.Arg1 = ConstFold(op.Arg1)
+	op.Arg2 = ConstFold(op.Arg2)
+
+	arg1int, ok1 := op.Arg1.(*sexp.Int)
+	arg2int, ok2 := op.Arg2.(*sexp.Int)
+	if !(ok1 && ok2) {
+		return op
+	}
+
+	return &sexp.Int{reducer(arg1int.Val, arg2int.Val)}
+}
+
+func intFoldEval(op *sexp.VariadicOp, reducer intReducer) sexp.Node {
 	newArgs := []sexp.Node{}
-	res := initial
+	toReduce := []int64{}
+
 	for _, arg := range op.Args {
-		optArg := ConstFold(arg)
-		if intArg, ok := optArg.(*sexp.Int); ok {
-			res = reducer(res, intArg.Val)
+		arg = ConstFold(arg)
+
+		if intArg, ok := arg.(*sexp.Int); ok {
+			toReduce = append(toReduce, intArg.Val)
 		} else {
-			newArgs = append(newArgs, optArg)
+			newArgs = append(newArgs, arg)
 		}
 	}
+
+	op.Args = newArgs
+
+	if len(toReduce) == 0 {
+		return op
+	}
+
+	res := toReduce[0]
+	for _, x := range toReduce[1:] {
+		res = reducer(res, x)
+	}
+
 	if len(newArgs) == 0 {
 		return &sexp.Int{res}
 	}
-	if res != initial {
-		newArgs = append(newArgs, &sexp.Int{res})
-	}
-	op.Args = newArgs
+	op.Args = append(op.Args, &sexp.Int{res})
 	return op
 }
 
@@ -70,19 +90,29 @@ func foldVariadicOp(op *sexp.VariadicOp) sexp.Node {
 
 	switch op.Type {
 	case sexp.OpBitOr:
-		return intFold(op, 0, func(x, y int64) int64 { return x | y })
+		return intFoldEval(op, func(x, y int64) int64 { return x | y })
 	case sexp.OpBitAnd:
-		return intFold(op, maxInt64, func(x, y int64) int64 { return x & y })
+		return intFoldEval(op, func(x, y int64) int64 { return x & y })
 	case sexp.OpBitXor:
-		return intFold(op, 0, func(x, y int64) int64 { return x ^ y })
+		return intFoldEval(op, func(x, y int64) int64 { return x ^ y })
 	case sexp.OpAdd:
-		return intFold(op, 0, func(x, y int64) int64 { return x + y })
+		return intFoldEval(op, func(x, y int64) int64 { return x + y })
 	case sexp.OpSub:
-		return intFold(op, 0, func(x, y int64) int64 { return x - y })
+		return intFoldEval(op, func(x, y int64) int64 { return x - y })
 	case sexp.OpMul:
-		return intFold(op, 1, func(x, y int64) int64 { return x * y })
+		return intFoldEval(op, func(x, y int64) int64 { return x * y })
 	case sexp.OpDiv:
-		return intFold(op, 1, func(x, y int64) int64 { return x / y })
+		return intFoldEval(op, func(x, y int64) int64 { return x / y })
+
+	default:
+		return op
+	}
+}
+
+func foldBinaryOp(op *sexp.BinaryOp) sexp.Node {
+	switch op.Type {
+	case sexp.OpRem:
+		return intEval(op, func(x, y int64) int64 { return x % y })
 
 	default:
 		return op

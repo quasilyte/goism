@@ -70,11 +70,17 @@ type Return struct {
 // Category 4.
 // Primitive operations.
 
-type OpType int
+type VariadicOpType int
+type BinaryOpType int
+
+const (
+	// Int, Float ops:
+	OpRem BinaryOpType = iota
+)
 
 const (
 	// Int ops:
-	OpBitOr OpType = iota
+	OpBitOr VariadicOpType = iota
 	OpBitAnd
 	OpBitXor
 	// Int, Float ops:
@@ -91,8 +97,14 @@ const (
 )
 
 type VariadicOp struct {
-	Type OpType
+	Type VariadicOpType
 	Args []Node
+}
+
+type BinaryOp struct {
+	Type BinaryOpType
+	Arg1 Node
+	Arg2 Node
 }
 
 type TakeAddr struct {

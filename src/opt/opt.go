@@ -12,6 +12,8 @@ func ConstFold(node sexp.Node) sexp.Node {
 	switch node := node.(type) {
 	case *sexp.VariadicOp:
 		return foldVariadicOp(node)
+	case *sexp.BinaryOp:
+		return foldBinaryOp(node)
 
 	default:
 		return node
