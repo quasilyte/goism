@@ -5,6 +5,13 @@ import (
 	"io"
 )
 
+func (atom *Bool) WriteTo(w io.Writer) (int64, error) {
+	if atom.Val {
+		return fprint(w, "t")
+	}
+	return fprint(w, "nil")
+}
+
 func (atom *Int) WriteTo(w io.Writer) (int64, error) {
 	return fprintf(w, "%d", atom.Val)
 }
@@ -49,15 +56,18 @@ func (node *Return) WriteTo(w io.Writer) (int64, error) {
 }
 
 var opTypeStrings = []string{
-	OpAdd: "+",
-	OpSub: "-",
-	OpMul: "*",
-	OpDiv: "/",
-	OpEq:  "=",
-	OpGt:  ">",
-	OpGte: ">=",
-	OpLt:  "<",
-	OpLte: "<=",
+	OpBitOr:  "bit-or",
+	OpBitAnd: "bit-and",
+	OpBitXor: "bit-xor",
+	OpAdd:    "+",
+	OpSub:    "-",
+	OpMul:    "*",
+	OpDiv:    "/",
+	OpEq:     "=",
+	OpGt:     ">",
+	OpGte:    ">=",
+	OpLt:     "<",
+	OpLte:    "<=",
 }
 
 func (op *VariadicOp) WriteTo(w io.Writer) (int64, error) {
@@ -113,6 +123,11 @@ func (sw *sexpWriter) writeForm(form interface{}) {
 	default:
 		panic("Invalid value passed")
 	}
+}
+
+func fprint(w io.Writer, data string) (int64, error) {
+	n, err := w.Write([]byte(data))
+	return int64(n), err
 }
 
 func fprintf(w io.Writer, format string, a ...interface{}) (int64, error) {

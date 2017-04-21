@@ -14,6 +14,10 @@ type Node interface {
 // Category 1.
 // Atoms.
 
+type Bool struct {
+	Val bool
+}
+
 type Int struct {
 	Val int64
 }
@@ -69,8 +73,12 @@ type Return struct {
 type OpType int
 
 const (
+	// Int ops:
+	OpBitOr OpType = iota
+	OpBitAnd
+	OpBitXor
 	// Int, Float ops:
-	OpAdd OpType = iota
+	OpAdd
 	OpSub
 	OpMul
 	OpDiv
