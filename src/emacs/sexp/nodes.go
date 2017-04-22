@@ -3,12 +3,14 @@
 package sexp
 
 import (
+	"go/types"
 	"io"
 )
 
 // Node is a interface that every S-expr implements.
 type Node interface {
 	WriteTo(io.Writer) (int64, error)
+	Type() types.Type
 }
 
 // Category 1.
@@ -32,6 +34,7 @@ type String struct {
 
 type Var struct {
 	Name string
+	Typ  types.Type
 }
 
 // Category 2.
@@ -39,10 +42,12 @@ type Var struct {
 
 type ArrayLit struct {
 	Vals []Node
+	Typ  types.Type
 }
 
 type QuotedArray struct {
 	Vals []Node
+	Typ  types.Type
 }
 
 // Category 3.
@@ -70,50 +75,54 @@ type Return struct {
 // Category 4.
 // Primitive operations.
 
-type VariadicOpType int
-type BinaryOpType int
+type OpKind int
 
 const (
-	// Int, Float ops:
-	OpRem BinaryOpType = iota
-)
+	// Variadic ops:
 
-const (
-	// Int ops:
-	OpBitOr VariadicOpType = iota
+	OpBitOr OpKind = iota
 	OpBitAnd
 	OpBitXor
-	// Int, Float ops:
 	OpAdd
 	OpSub
 	OpMul
 	OpDiv
-	// Int, Float, String ops:
+	OpConcat
+
+	// Binary ops:
+
+	OpRem
+
+	// Cmp ops:
+
 	OpEq
-	OpGt
-	OpGte
-	OpLt
-	OpLte
+	OpNotEq
+	OpLess
+	OpLessEq
+	OpGreater
+	OpGreaterEq
 )
 
 type VariadicOp struct {
-	Type VariadicOpType
-	Args []Node
+	OpKind OpKind
+	Args   []Node
+	Typ    *types.Basic
 }
 
 type BinaryOp struct {
-	Type BinaryOpType
-	Arg1 Node
-	Arg2 Node
+	OpKind OpKind
+	Arg1   Node
+	Arg2   Node
+	Typ    *types.Basic
 }
 
-type TakeAddr struct {
-	Arg Node
-}
+// type TakeAddr struct {
+// 	Arg Node
+// }
 
-type DerefAddr struct {
-	Arg Node
-}
+// type DerefAddr struct {
+// 	Arg Node
+// }
 
 // Category 5.
 // Call expressions.
@@ -121,4 +130,5 @@ type DerefAddr struct {
 type Call struct {
 	Fn   string
 	Args []Node
+	Typ  types.Type
 }

@@ -2,6 +2,7 @@ package sexp
 
 import (
 	"fmt"
+	"go/types"
 	"io"
 )
 
@@ -17,7 +18,7 @@ func (atom Int) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (atom Float) WriteTo(w io.Writer) (int64, error) {
-	return fprintf(w, "%f", atom.Val)
+	return fprintf(w, "%#v", atom.Val)
 }
 
 func (atom String) WriteTo(w io.Writer) (int64, error) {
@@ -55,11 +56,7 @@ func (node *Return) WriteTo(w io.Writer) (int64, error) {
 	return writeList(w, "return", node.Result)
 }
 
-var binaryOpHead = []string{
-	OpRem: "%",
-}
-
-var variadicOpHead = []string{
+var intOpHead = [...]string{
 	OpBitOr:  "bit-or",
 	OpBitAnd: "bit-and",
 	OpBitXor: "bit-xor",
@@ -67,19 +64,59 @@ var variadicOpHead = []string{
 	OpSub:    "-",
 	OpMul:    "*",
 	OpDiv:    "/",
-	OpEq:     "=",
-	OpGt:     ">",
-	OpGte:    ">=",
-	OpLt:     "<",
-	OpLte:    "<=",
+
+	OpRem: "%",
+
+	OpEq:        "=",
+	OpNotEq:     "!=",
+	OpLess:      "<",
+	OpLessEq:    "<=",
+	OpGreater:   ">",
+	OpGreaterEq: ">=",
+}
+
+var floatOpHead = [...]string{
+	OpAdd: "f+",
+	OpSub: "f-",
+	OpMul: "f*",
+	OpDiv: "f/",
+
+	OpEq:        "f=",
+	OpNotEq:     "f!=",
+	OpLess:      "f<",
+	OpLessEq:    "f<=",
+	OpGreater:   "f>",
+	OpGreaterEq: "f>=",
+}
+
+var stringOpHead = [...]string{
+	OpConcat: "s+",
+
+	OpEq:        "s=",
+	OpNotEq:     "s!=",
+	OpLess:      "s<",
+	OpLessEq:    "s<=",
+	OpGreater:   "s>",
+	OpGreaterEq: "s>=",
 }
 
 func (op *VariadicOp) WriteTo(w io.Writer) (int64, error) {
-	return writeList(w, variadicOpHead[op.Type], op.Args)
+	var head string
+	switch op.Typ.Kind() {
+	case types.Int64:
+		head = intOpHead[op.OpKind]
+	case types.Float64:
+		head = floatOpHead[op.OpKind]
+	case types.String:
+		head = stringOpHead[op.OpKind]
+	default:
+		panic("unexpected type")
+	}
+	return writeList(w, head, op.Args)
 }
 
 func (op *BinaryOp) WriteTo(w io.Writer) (int64, error) {
-	return writeList(w, binaryOpHead[op.Type], op.Arg1, op.Arg2)
+	return writeList(w, intOpHead[op.OpKind], op.Arg1, op.Arg2)
 }
 
 func (call *Call) WriteTo(w io.Writer) (int64, error) {
