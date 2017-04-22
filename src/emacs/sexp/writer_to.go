@@ -5,26 +5,26 @@ import (
 	"io"
 )
 
-func (atom *Bool) WriteTo(w io.Writer) (int64, error) {
+func (atom Bool) WriteTo(w io.Writer) (int64, error) {
 	if atom.Val {
 		return fprint(w, "t")
 	}
 	return fprint(w, "nil")
 }
 
-func (atom *Int) WriteTo(w io.Writer) (int64, error) {
+func (atom Int) WriteTo(w io.Writer) (int64, error) {
 	return fprintf(w, "%d", atom.Val)
 }
 
-func (atom *Float) WriteTo(w io.Writer) (int64, error) {
+func (atom Float) WriteTo(w io.Writer) (int64, error) {
 	return fprintf(w, "%f", atom.Val)
 }
 
-func (atom *String) WriteTo(w io.Writer) (int64, error) {
+func (atom String) WriteTo(w io.Writer) (int64, error) {
 	return fprintf(w, "%s", atom.Val)
 }
 
-func (atom *Var) WriteTo(w io.Writer) (int64, error) {
+func (atom Var) WriteTo(w io.Writer) (int64, error) {
 	return fprintf(w, "%s", atom.Name)
 }
 

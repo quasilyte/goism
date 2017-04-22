@@ -18,15 +18,15 @@ func nodeString(node sexp.Node) string {
 func toNode(x interface{}) sexp.Node {
 	switch x := x.(type) {
 	case bool:
-		return &sexp.Bool{x}
+		return sexp.Bool{x}
 	case int:
-		return &sexp.Int{int64(x)}
+		return sexp.Int{int64(x)}
 	case int64:
-		return &sexp.Int{x}
+		return sexp.Int{x}
 	case float64:
-		return &sexp.Float{x}
+		return sexp.Float{x}
 	case string:
-		return &sexp.Var{x}
+		return sexp.Var{x}
 	case sexp.Node:
 		return x
 	default:

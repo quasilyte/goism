@@ -42,8 +42,8 @@ func intEval(op *sexp.BinaryOp, reducer intReducer) sexp.Node {
 	op.Arg1 = ConstFold(op.Arg1)
 	op.Arg2 = ConstFold(op.Arg2)
 
-	arg1int, ok1 := op.Arg1.(*sexp.Int)
-	arg2int, ok2 := op.Arg2.(*sexp.Int)
+	arg1int, ok1 := op.Arg1.(sexp.Int)
+	arg2int, ok2 := op.Arg2.(sexp.Int)
 	if !(ok1 && ok2) {
 		return op
 	}
@@ -58,7 +58,7 @@ func intFoldEval(op *sexp.VariadicOp, reducer intReducer) sexp.Node {
 	for _, arg := range op.Args {
 		arg = ConstFold(arg)
 
-		if intArg, ok := arg.(*sexp.Int); ok {
+		if intArg, ok := arg.(sexp.Int); ok {
 			toReduce = append(toReduce, intArg.Val)
 		} else {
 			newArgs = append(newArgs, arg)
@@ -77,9 +77,9 @@ func intFoldEval(op *sexp.VariadicOp, reducer intReducer) sexp.Node {
 	}
 
 	if len(newArgs) == 0 {
-		return &sexp.Int{res}
+		return sexp.Int{res}
 	}
-	op.Args = append(op.Args, &sexp.Int{res})
+	op.Args = append(op.Args, sexp.Int{res})
 	return op
 }
 
