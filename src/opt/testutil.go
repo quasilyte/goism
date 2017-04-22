@@ -3,8 +3,24 @@ package opt
 import (
 	"bytes"
 	"emacs/sexp"
+	"fmt"
+	"go/types"
 	"testing"
 )
+
+func inferType(x interface{}) types.Type {
+	switch x := x.(type) {
+	case int8, int16, int32, int64, int:
+		return types.Typ[types.Int64]
+	case string:
+		return types.Typ[types.String]
+	case sexp.Node:
+		return x.Type()
+
+	default:
+		panic(fmt.Sprintf("can not infer type for %#v (%T)\n", x, x))
+	}
+}
 
 func nodeString(node sexp.Node) string {
 	buf := bytes.Buffer{}
@@ -26,24 +42,36 @@ func toNode(x interface{}) sexp.Node {
 	case float64:
 		return sexp.Float{x}
 	case string:
-		return sexp.Var{x}
+		if x[0] == 'f' {
+			return sexp.Var{x, types.Typ[types.Float64]}
+		}
+		return sexp.Var{x, types.Typ[types.Int64]}
 	case sexp.Node:
 		return x
 	default:
-		panic("unexpected arg")
+		panic("can not convert to sexp.Node")
 	}
 }
 
-func variadicOp(typ sexp.VariadicOpType, xs []interface{}) *sexp.VariadicOp {
+func variadicOp(typ sexp.OpKind, xs []interface{}) *sexp.VariadicOp {
 	args := make([]sexp.Node, len(xs))
 	for i := range xs {
 		args[i] = toNode(xs[i])
 	}
-	return &sexp.VariadicOp{typ, args}
+	return &sexp.VariadicOp{
+		OpKind: typ,
+		Args:   args,
+		Typ:    inferType(args[0]).(*types.Basic),
+	}
 }
 
-func binaryOp(typ sexp.BinaryOpType, arg1, arg2 interface{}) *sexp.BinaryOp {
-	return &sexp.BinaryOp{typ, toNode(arg1), toNode(arg2)}
+func binaryOp(typ sexp.OpKind, arg1, arg2 interface{}) *sexp.BinaryOp {
+	return &sexp.BinaryOp{
+		OpKind: typ,
+		Arg1:   toNode(arg1),
+		Arg2:   toNode(arg2),
+		Typ:    inferType(arg1).(*types.Basic),
+	}
 }
 
 func add(xs ...interface{}) *sexp.VariadicOp {
