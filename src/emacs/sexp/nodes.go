@@ -78,22 +78,16 @@ type Return struct {
 type OpKind int
 
 const (
-	// Variadic ops:
-
-	OpBitOr OpKind = iota
-	OpBitAnd
-	OpBitXor
-	OpAdd
+	OpAdd OpKind = iota
 	OpSub
 	OpMul
 	OpDiv
+
+	OpBitOr
+	OpBitAnd
+	OpBitXor
 	OpConcat
-
-	// Binary ops:
-
 	OpRem
-
-	// Cmp ops:
 
 	OpEq
 	OpNotEq
@@ -103,16 +97,9 @@ const (
 	OpGreaterEq
 )
 
-type VariadicOp struct {
+type Operation struct {
 	OpKind OpKind
 	Args   []Node
-	Typ    *types.Basic
-}
-
-type BinaryOp struct {
-	OpKind OpKind
-	Arg1   Node
-	Arg2   Node
 	Typ    *types.Basic
 }
 

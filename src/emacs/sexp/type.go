@@ -26,7 +26,6 @@ func (form *If) Type() types.Type     { return invalidType }
 func (form *Bind) Type() types.Type   { return invalidType }
 func (form *Return) Type() types.Type { return form.Result.Type() }
 
-func (op *VariadicOp) Type() types.Type { return op.Typ }
-func (op *BinaryOp) Type() types.Type   { return op.Typ }
+func (op *Operation) Type() types.Type { return op.Typ }
 
 func (call *Call) Type() types.Type { return call.Typ }

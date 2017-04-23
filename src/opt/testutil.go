@@ -39,6 +39,8 @@ func toNode(x interface{}) sexp.Node {
 		return sexp.Int{int64(x)}
 	case int64:
 		return sexp.Int{x}
+	case float32:
+		return sexp.Float{float64(x)}
 	case float64:
 		return sexp.Float{x}
 	case string:
@@ -53,45 +55,36 @@ func toNode(x interface{}) sexp.Node {
 	}
 }
 
-func variadicOp(typ sexp.OpKind, xs []interface{}) *sexp.VariadicOp {
+func variadicOp(typ sexp.OpKind, xs []interface{}) *sexp.Operation {
 	args := make([]sexp.Node, len(xs))
 	for i := range xs {
 		args[i] = toNode(xs[i])
 	}
-	return &sexp.VariadicOp{
+	return &sexp.Operation{
 		OpKind: typ,
 		Args:   args,
 		Typ:    inferType(args[0]).(*types.Basic),
 	}
 }
 
-func binaryOp(typ sexp.OpKind, arg1, arg2 interface{}) *sexp.BinaryOp {
-	return &sexp.BinaryOp{
-		OpKind: typ,
-		Arg1:   toNode(arg1),
-		Arg2:   toNode(arg2),
-		Typ:    inferType(arg1).(*types.Basic),
-	}
-}
-
-func add(xs ...interface{}) *sexp.VariadicOp {
+func add(xs ...interface{}) *sexp.Operation {
 	return variadicOp(sexp.OpAdd, xs)
 }
 
-func sub(xs ...interface{}) *sexp.VariadicOp {
+func sub(xs ...interface{}) *sexp.Operation {
 	return variadicOp(sexp.OpSub, xs)
 }
 
-func mul(xs ...interface{}) *sexp.VariadicOp {
+func mul(xs ...interface{}) *sexp.Operation {
 	return variadicOp(sexp.OpMul, xs)
 }
 
-func div(xs ...interface{}) *sexp.VariadicOp {
+func div(xs ...interface{}) *sexp.Operation {
 	return variadicOp(sexp.OpDiv, xs)
 }
 
-func rem(arg1, arg2 interface{}) *sexp.BinaryOp {
-	return binaryOp(sexp.OpRem, arg1, arg2)
+func rem(xs ...interface{}) *sexp.Operation {
+	return variadicOp(sexp.OpRem, xs)
 }
 
 func blame(t *testing.T, given, expected, got string) {

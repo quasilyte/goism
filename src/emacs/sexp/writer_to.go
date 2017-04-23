@@ -100,7 +100,7 @@ var stringOpHead = [...]string{
 	OpGreaterEq: "s>=",
 }
 
-func (op *VariadicOp) WriteTo(w io.Writer) (int64, error) {
+func (op *Operation) WriteTo(w io.Writer) (int64, error) {
 	var head string
 	switch op.Typ.Kind() {
 	case types.Int64:
@@ -113,10 +113,6 @@ func (op *VariadicOp) WriteTo(w io.Writer) (int64, error) {
 		panic("unexpected type")
 	}
 	return writeList(w, head, op.Args)
-}
-
-func (op *BinaryOp) WriteTo(w io.Writer) (int64, error) {
-	return writeList(w, intOpHead[op.OpKind], op.Arg1, op.Arg2)
 }
 
 func (call *Call) WriteTo(w io.Writer) (int64, error) {

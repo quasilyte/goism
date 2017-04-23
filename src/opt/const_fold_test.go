@@ -39,7 +39,7 @@ func TestFlatten(t *testing.T) {
 
 	for _, x := range items {
 		given := nodeString(x.given)
-		got := nodeString(flattenIntVariadicOp(x.given.(*sexp.VariadicOp)))
+		got := nodeString(flattenIntVariadicOp(x.given.(*sexp.Operation)))
 		if got != x.expected {
 			blame(t, given, x.expected, got)
 		}
@@ -48,19 +48,16 @@ func TestFlatten(t *testing.T) {
 
 func TestConstFoldInt(t *testing.T) {
 	items := []testEntry{
+		// Can not fold any constants:
 		{add("x", "y"), "(+ x y)"},
-		{add(1, 1), "2"},
-		{add(1, 1, "x"), "(+ x 2)"},
-		{add(2, sub("x", "y"), 3), "(+ (- x y) 5)"},
-		{add(add(add(1, 1), 1), 1), "4"},
-		{add(add(1, "x", "y", 1), "z", 1), "(+ x y z 3)"},
+		{add("x", 5, "y"), "(+ x y 5)"},
+		{add("x", add("y", 1)), "(+ x y 1)"},
 
-		{mul(2, 2, 1), "4"},
-		{div(4, 2, 1), "2"},
-		{mul(add(1, div(10, 2)), "x", "y"), "(* x y 6)"},
-
-		{rem(4, 2), "0"},
-		{rem(rem(5, add(1, 1, 1)), "x"), "(% 2 x)"},
+		// Commutative ops fold:
+		{add(1, 2), "3"},
+		{add(1, 2, "x"), "(+ x 3)"},
+		{add(add(1, add(2, "x")), add(1, 2)), "(+ x 6)"},
+		{mul("x", 2, 2, 2), "(* x 8)"},
 	}
 
 	for _, x := range items {
@@ -74,16 +71,16 @@ func TestConstFoldInt(t *testing.T) {
 
 func TestConstFoldFloat(t *testing.T) {
 	items := []testEntry{
-		{add(1.5, 1.0), "2.5"},
-		{sub(1.5, 1.0), "0.5"},
-		{mul(2.1, 2.0), "4.2"},
-		{div(4.2, 2.0), "2.1"},
+		// Can not fold any constants:
+		{add("fx", "fy"), "(f+ fx fy)"},
+		{add("fx", 5.1, "fy"), "(f+ fx fy 5.1)"},
+		{add("fx", add("fy", 1.1)), "(f+ fx fy 1.1)"},
 
-		{add(1.1, add(1.1, 1.1, 1.1), 1.1), "5.5"},
-		{mul(0.0, 2.0, 1.5), "0"},
-
+		// Commutative ops fold:
+		{add(1.1, 2.1), "3.2"},
 		{add(1.1, 2.1, "fx"), "(f+ fx 3.2)"},
-		{add(add(1.0, "fx", "fy", 1.0), "fz", 1.0), "(f+ fx fy fz 3)"},
+		{add(add(1.1, add(2.1, "fx")), add(1.1, 2.1)), "(f+ fx 6.4)"},
+		{mul("fx", 2.0, 2.0, 2.0), "(f* fx 8)"},
 	}
 
 	for _, x := range items {
