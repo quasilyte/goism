@@ -1,6 +1,7 @@
 package sexp
 
 func (atom Bool) private()   {}
+func (atom Char) private()   {}
 func (atom Int) private()    {}
 func (atom Float) private()  {}
 func (atom String) private() {}

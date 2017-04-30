@@ -12,6 +12,7 @@ type Node interface {
 /* Atoms */
 
 type Bool struct{ Val bool }
+type Char struct{ Val rune }
 type Int struct{ Val int64 }
 type Float struct{ Val float64 }
 type String struct{ Val string }

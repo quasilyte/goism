@@ -7,6 +7,7 @@ import (
 	"go/types"
 	"sexp"
 	"strconv"
+	"unicode/utf8"
 )
 
 type visitor struct {
@@ -55,12 +56,21 @@ func (v *visitor) visitLiteral(node *ast.BasicLit) sexp.Node {
 			panic(err)
 		}
 		return sexp.Int{Val: val}
+
 	case token.FLOAT:
 		val, err := strconv.ParseFloat(node.Value, 64)
 		if err != nil {
 			panic(err)
 		}
 		return sexp.Float{Val: val}
+
+	case token.STRING:
+		val := node.Value[1 : len(node.Value)-1]
+		return sexp.String{Val: val}
+
+	case token.CHAR:
+		val, _ := utf8.DecodeRuneInString(node.Value[1:])
+		return sexp.Char{Val: val}
 
 	default:
 		panic(fmt.Sprintf("unexpected literal: %#v", node))

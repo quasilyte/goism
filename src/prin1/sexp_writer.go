@@ -4,6 +4,7 @@ import (
 	"io"
 	"sexp"
 	"strconv"
+	"unicode/utf8"
 )
 
 type sexpWriter struct {
@@ -25,6 +26,12 @@ func (sw *sexpWriter) write(data []byte) {
 
 func (sw *sexpWriter) writeByte(x byte)     { sw.write([]byte{x}) }
 func (sw *sexpWriter) writeString(x string) { sw.write([]byte(x)) }
+
+func (sw *sexpWriter) writeCharAtom(x rune) {
+	sw.writeByte('?')
+	n := utf8.EncodeRune(sw.buf[:4], x)
+	sw.write(sw.buf[:n])
+}
 
 func (sw *sexpWriter) writeIntAtom(x int64) {
 	sw.writeString(strconv.FormatInt(x, 10))
@@ -66,6 +73,8 @@ func (sw *sexpWriter) writeSexp(object sexp.Node) {
 		} else {
 			sw.writeString("nil")
 		}
+	case sexp.Char:
+		sw.writeCharAtom(object.Val)
 	case sexp.Int:
 		sw.writeIntAtom(object.Val)
 	case sexp.Float:
