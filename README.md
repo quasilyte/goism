@@ -38,3 +38,7 @@ You can use existing Go code in your `Go.el` packages,
 including most of the Go standard library.
 Limitations will be posted later; support range is going
 to be extended over time.
+
+## Limitations
+
+See [limitations](docs/limitations.md).
