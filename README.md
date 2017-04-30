@@ -8,9 +8,9 @@ into Emacs Lisp sources that can be used inside Emacs.
 
 Emacs `Go` (first letter is capital, thats important) package
 implements Go runtime, so translated code behaves as
-close to the specs as possible.
+close to the [specs](https://golang.org/ref/spec) as possible.
 
-To run Go inside Emacs, you need to run 
+To run Go inside Emacs, you need to evaluate 
 `(Go-load-package PKG-NAME)` and all functions,
 types and constants become available.
 
@@ -31,3 +31,8 @@ you can call any Lisp function from you code.
 Emacs package is pretty special, it has stub source files
 with commentaries, but the implementation is external 
 (compiler generates special code for them).
+
+You can use existing Go code in your `Go.el` packages,
+including most of the Go standard library.
+Limitations will be posted later; support range is going
+to be extended over time.
