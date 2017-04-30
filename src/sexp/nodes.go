@@ -2,8 +2,6 @@
 // that contains both Go and Emacs Lisp traits.
 package sexp
 
-import "sizes"
-
 type Node interface {
 	// This method will be removed when Node will have
 	// non-dummy method. Used to avoid arbitrary types
@@ -59,38 +57,14 @@ type Return struct {
 /* Builtin ops */
 
 type (
-	IntAdd struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntSub struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntMul struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntDiv struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntBitOr struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntBitAnd struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntBitXor struct {
-		Args []Node
-		Size sizes.Enum
-	}
-	IntRem struct {
-		Args []Node
-		Size sizes.Enum
-	}
+	IntAdd       struct{ Args []Node }
+	IntSub       struct{ Args []Node }
+	IntMul       struct{ Args []Node }
+	IntDiv       struct{ Args []Node }
+	IntBitOr     struct{ Args []Node }
+	IntBitAnd    struct{ Args []Node }
+	IntBitXor    struct{ Args []Node }
+	IntRem       struct{ Args []Node }
 	IntEq        struct{ Args []Node }
 	IntNotEq     struct{ Args []Node }
 	IntLess      struct{ Args []Node }

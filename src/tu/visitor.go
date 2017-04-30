@@ -6,7 +6,6 @@ import (
 	"go/token"
 	"go/types"
 	"sexp"
-	"sizes"
 	"strconv"
 )
 
@@ -73,17 +72,16 @@ func (v *visitor) visitBinaryExpr(node *ast.BinaryExpr) sexp.Node {
 		v.visit(node.X),
 		v.visit(node.Y),
 	}
-	typ := v.info.Types[node].Type.(*types.Basic)
 
 	switch node.Op {
 	case token.ADD:
-		return &sexp.IntAdd{Args: args, Size: sizes.New(typ)}
+		return &sexp.IntAdd{Args: args}
 	case token.SUB:
-		return &sexp.IntSub{Args: args, Size: sizes.New(typ)}
+		return &sexp.IntSub{Args: args}
 	case token.MUL:
-		return &sexp.IntMul{Args: args, Size: sizes.New(typ)}
+		return &sexp.IntMul{Args: args}
 	case token.QUO:
-		return &sexp.IntDiv{Args: args, Size: sizes.New(typ)}
+		return &sexp.IntDiv{Args: args}
 	// #TODO: other arith ops
 
 	case token.EQL:
