@@ -3,11 +3,18 @@
 package sexp
 
 type Node interface {
-	// This method will be removed when Node will have
-	// non-dummy method. Used to avoid arbitrary types
-	// being passed as Node.
-	private()
+	// IsAtom returns true if underlying implementations
+	// belongs to atom category.
+	//
+	// #FIXME: this method can be obsolete.
+	// Its currently unused and probably should be
+	// as free function if ever needed.
+	IsAtom() bool
 }
+
+// Var - reference to lexical variable.
+// #FIXME: what category does Var belong to?
+type Var struct{ Name string }
 
 /* Atoms */
 
@@ -16,7 +23,6 @@ type Char struct{ Val rune }
 type Int struct{ Val int64 }
 type Float struct{ Val float64 }
 type String struct{ Val string }
-type Var struct{ Name string }
 
 /* Composite literals */
 
