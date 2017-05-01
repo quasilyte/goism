@@ -7,8 +7,9 @@ import (
 
 // Package contains information about parsed code.
 type Package struct {
-	Name  string
-	Funcs []*Func
+	Name      string
+	Funcs     []*Func
+	Constants map[string]sexp.Node
 }
 
 // Func is a Sexp function.
