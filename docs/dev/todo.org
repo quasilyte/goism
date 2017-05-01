@@ -1,4 +1,6 @@
-| Task                          | Severity |
-|-------------------------------+----------|
-| Write tests for prin1 package | 3/5      |
-|                               |          |
+| Task                             | Severity |
+|----------------------------------+----------|
+| Unsigned type emulation in Elisp | 4/5      |
+| Unsigned type in translator      | 4/5      |
+| Write tests for prin1 package    | 3/5      |
+| Complex64, Complex128            | 1/5      |
