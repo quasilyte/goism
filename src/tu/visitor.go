@@ -123,64 +123,35 @@ func (v *visitor) visitBinaryExpr(node *ast.BinaryExpr) sexp.Node {
 	// #FIXME: size information is unused.
 	kind := mapKind(v.info.Types[node].Type.(*types.Basic))
 
-	// This switch looks ill, but seems like there is not
-	// much can be done with it.
-	switch node.Op {
-	case token.ADD:
-		switch kind.tag {
-		case kindInt:
-			return &sexp.IntAdd{Args: args}
-		case kindFloat:
-			return &sexp.FloatAdd{Args: args}
-		case kindString:
-			return &sexp.Concat{Args: args}
-		default:
-			panic("unimplemented")
-		}
+	switch kind.tag + int64(node.Op)<<32 {
+	case int64(token.ADD)<<32 + kindInt:
+		return &sexp.IntAdd{Args: args}
+	case int64(token.ADD)<<32 + kindFloat:
+		return &sexp.FloatAdd{Args: args}
+	case int64(token.ADD)<<32 + kindString:
+		return &sexp.Concat{Args: args}
 
-	case token.SUB:
-		switch kind.tag {
-		case kindInt:
-			return &sexp.IntSub{Args: args}
-		case kindFloat:
-			return &sexp.FloatSub{Args: args}
-		default:
-			panic("unimplemented")
-		}
+	case int64(token.SUB)<<32 + kindInt:
+		return &sexp.IntSub{Args: args}
+	case int64(token.SUB)<<32 + kindFloat:
+		return &sexp.FloatSub{Args: args}
 
-	case token.MUL:
-		switch kind.tag {
-		case kindInt:
-			return &sexp.IntMul{Args: args}
-		case kindFloat:
-			return &sexp.FloatMul{Args: args}
-		default:
-			panic("unimplemented")
-		}
+	case int64(token.MUL)<<32 + kindInt:
+		return &sexp.IntMul{Args: args}
+	case int64(token.MUL)<<32 + kindFloat:
+		return &sexp.FloatMul{Args: args}
 
-	case token.QUO:
-		switch kind.tag {
-		case kindInt:
-			return &sexp.IntDiv{Args: args}
-		case kindFloat:
-			return &sexp.FloatDiv{Args: args}
-		default:
-			panic("unimplemented")
-		}
+	case int64(token.QUO)<<32 + kindInt:
+		return &sexp.IntDiv{Args: args}
+	case int64(token.QUO)<<32 + kindFloat:
+		return &sexp.FloatDiv{Args: args}
 
-	// #TODO: other arith ops
-
-	case token.EQL:
-		switch kind.tag {
-		case kindInt:
-			return &sexp.IntEq{Args: args}
-		case kindFloat:
-			return &sexp.FloatEq{Args: args}
-		case kindString:
-			return &sexp.StringEq{Args: args}
-		default:
-			panic("unimplemented")
-		}
+	case int64(token.EQL)<<32 + kindInt:
+		return &sexp.IntEq{Args: args}
+	case int64(token.EQL)<<32 + kindFloat:
+		return &sexp.FloatEq{Args: args}
+	case int64(token.EQL)<<32 + kindString:
+		return &sexp.StringEq{Args: args}
 
 	default:
 		panic(fmt.Sprintf("unexpected op: %v", node.Op))

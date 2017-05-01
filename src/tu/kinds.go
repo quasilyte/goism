@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	kindInt = iota
+	kindInt int64 = iota
 	kindUint
 	kindFloat
 	kindComplex
@@ -15,7 +15,7 @@ const (
 )
 
 type kind struct {
-	tag  int
+	tag  int64
 	size sizes.Enum
 }
 
@@ -46,7 +46,7 @@ func mapKind(typ *types.Basic) kind {
 		panic("unimplemented")
 	}
 
-	// #FIXME: this one should go away ASAP.
+	// #FIXME: this one should be checked and go away ASAP.
 	if typ.Info()&types.IsUntyped != 0 {
 		panic("unimplemented")
 	}
