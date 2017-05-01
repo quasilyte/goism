@@ -83,31 +83,6 @@ func (v *visitor) visitLiteral(node *ast.BasicLit) sexp.Node {
 	}
 }
 
-func (v *visitor) visitBinaryExpr(node *ast.BinaryExpr) sexp.Node {
-	args := []sexp.Node{
-		v.visit(node.X),
-		v.visit(node.Y),
-	}
-
-	switch node.Op {
-	case token.ADD:
-		return &sexp.IntAdd{Args: args}
-	case token.SUB:
-		return &sexp.IntSub{Args: args}
-	case token.MUL:
-		return &sexp.IntMul{Args: args}
-	case token.QUO:
-		return &sexp.IntDiv{Args: args}
-	// #TODO: other arith ops
-
-	case token.EQL:
-		return &sexp.IntEq{Args: args}
-
-	default:
-		panic(fmt.Sprintf("unexpected op: %v", node.Op))
-	}
-}
-
 func (v *visitor) visitIfStmt(node *ast.IfStmt) sexp.Node {
 	if node.Init != nil {
 		panic("If.Init unimplemented")
@@ -137,4 +112,77 @@ func (v *visitor) visitStmtList(nodes []ast.Stmt) []sexp.Node {
 		forms[i] = v.visit(node)
 	}
 	return forms
+}
+
+func (v *visitor) visitBinaryExpr(node *ast.BinaryExpr) sexp.Node {
+	args := []sexp.Node{
+		v.visit(node.X),
+		v.visit(node.Y),
+	}
+
+	// #FIXME: size information is unused.
+	kind := mapKind(v.info.Types[node].Type.(*types.Basic))
+
+	// This switch looks ill, but seems like there is not
+	// much can be done with it.
+	switch node.Op {
+	case token.ADD:
+		switch kind.tag {
+		case kindInt:
+			return &sexp.IntAdd{Args: args}
+		case kindFloat:
+			return &sexp.FloatAdd{Args: args}
+		case kindString:
+			return &sexp.Concat{Args: args}
+		default:
+			panic("unimplemented")
+		}
+
+	case token.SUB:
+		switch kind.tag {
+		case kindInt:
+			return &sexp.IntSub{Args: args}
+		case kindFloat:
+			return &sexp.FloatSub{Args: args}
+		default:
+			panic("unimplemented")
+		}
+
+	case token.MUL:
+		switch kind.tag {
+		case kindInt:
+			return &sexp.IntMul{Args: args}
+		case kindFloat:
+			return &sexp.FloatMul{Args: args}
+		default:
+			panic("unimplemented")
+		}
+
+	case token.QUO:
+		switch kind.tag {
+		case kindInt:
+			return &sexp.IntDiv{Args: args}
+		case kindFloat:
+			return &sexp.FloatDiv{Args: args}
+		default:
+			panic("unimplemented")
+		}
+
+	// #TODO: other arith ops
+
+	case token.EQL:
+		switch kind.tag {
+		case kindInt:
+			return &sexp.IntEq{Args: args}
+		case kindFloat:
+			return &sexp.FloatEq{Args: args}
+		case kindString:
+			return &sexp.StringEq{Args: args}
+		default:
+			panic("unimplemented")
+		}
+
+	default:
+		panic(fmt.Sprintf("unexpected op: %v", node.Op))
+	}
 }
