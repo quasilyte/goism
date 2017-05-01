@@ -1,37 +1,59 @@
 package tu
 
 import (
+	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/types"
+	"sexp"
 )
 
 type goPackage struct {
-	info *types.Info
-	pkg  *ast.Package
+	info     *types.Info
+	pkg      *ast.Package
+	topLevel *types.Scope
 }
 
 func translatePackage(goPkg *goPackage) *Package {
-	files := goPkg.pkg.Files
-	pkg := &Package{Name: goPkg.pkg.Name}
+	pkg := &Package{
+		Name:      goPkg.pkg.Name,
+		Constants: make(map[string]sexp.Node),
+	}
 
-	for _, file := range files {
+	// Collect global constants and types.
+	topLevel := goPkg.topLevel
+	for _, objName := range topLevel.Names() {
+		obj := topLevel.Lookup(objName)
+
+		switch obj := obj.(type) {
+		case *types.Const:
+			pkg.Constants[objName] = translateConstValue(obj.Val())
+
+		case *types.TypeName:
+			panic("unimplemented")
+		}
+	}
+
+	// Collect global vars.
+	// #TODO
+
+	// Collect functions.
+	for _, file := range goPkg.pkg.Files {
 		for _, decl := range file.Decls {
-			translateDecl(pkg, goPkg.info, decl)
+			if decl, ok := decl.(*ast.FuncDecl); ok {
+				translateFunc(pkg, goPkg.info, decl)
+			}
 		}
 	}
 
 	return pkg
 }
 
-func translateDecl(pkg *Package, info *types.Info, decl ast.Decl) {
-	switch decl := decl.(type) {
-	case *ast.FuncDecl:
-		translateFunc(pkg, info, decl)
-	}
-}
-
 func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
-	visitor := &visitor{info: info}
+	visitor := &visitor{
+		info:         info,
+		globalValues: pkg.Constants,
+	}
 	forms := visitor.visitStmtList(decl.Body.List)
 
 	// Collect flat list of param names.
@@ -48,4 +70,22 @@ func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
 		Params: paramNames,
 		Body:   forms,
 	})
+}
+
+func translateConstValue(val constant.Value) sexp.Node {
+	switch val.Kind() {
+	case constant.Int:
+		val, _ := constant.Int64Val(val)
+		return sexp.Int{Val: val}
+
+	case constant.Float:
+		val, _ := constant.Float64Val(val)
+		return sexp.Float{Val: val}
+
+	case constant.String:
+		return sexp.String{Val: constant.StringVal(val)}
+
+	default:
+		panic(fmt.Sprintf("unexpected constant: %#v", val))
+	}
 }

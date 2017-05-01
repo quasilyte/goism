@@ -15,10 +15,9 @@ var typeCheckCfg = types.Config{
 
 func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, error) {
 	info := &types.Info{
-		Types:  make(map[ast.Expr]types.TypeAndValue),
-		Defs:   make(map[*ast.Ident]types.Object),
-		Scopes: make(map[ast.Node]*types.Scope),
-		Uses:   make(map[*ast.Ident]types.Object),
+		Types: make(map[ast.Expr]types.TypeAndValue),
+		Defs:  make(map[*ast.Ident]types.Object),
+		Uses:  make(map[*ast.Ident]types.Object),
 	}
 
 	files := make([]*ast.File, 0, len(parsedPkg.Files))
@@ -26,10 +25,11 @@ func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, 
 		files = append(files, file)
 	}
 
-	_, err := typeCheckCfg.Check("$PATH", fSet, files, info)
+	checkedPkg, err := typeCheckCfg.Check("$PATH", fSet, files, info)
 	goPkg := &goPackage{
-		info: info,
-		pkg:  parsedPkg,
+		info:     info,
+		pkg:      parsedPkg,
+		topLevel: checkedPkg.Scope(),
 	}
 	return goPkg, err
 }

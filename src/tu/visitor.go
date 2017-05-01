@@ -11,8 +11,9 @@ import (
 )
 
 type visitor struct {
-	result sexp.Node
-	info   *types.Info
+	result       sexp.Node
+	info         *types.Info
+	globalValues map[string]sexp.Node
 }
 
 // Visit implements ast.Visitor interface.
@@ -31,7 +32,12 @@ func (v *visitor) Visit(node ast.Node) ast.Visitor {
 		v.result = v.visitBinaryExpr(node)
 
 	case *ast.Ident:
-		v.result = sexp.Var{Name: node.Name}
+		val := v.globalValues[node.Name]
+		if val == nil {
+			v.result = sexp.Var{Name: node.Name}
+		} else {
+			v.result = val
+		}
 
 	case *ast.BasicLit:
 		v.result = v.visitLiteral(node)
