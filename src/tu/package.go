@@ -7,9 +7,13 @@ import (
 
 // Package contains information about parsed code.
 type Package struct {
-	Name      string
-	Funcs     []*Func
-	Constants map[string]sexp.Node
+	Name string
+
+	Funcs []*Func
+
+	// Vars are sorted in order that should be used
+	// during initialization.
+	Vars []*Var
 }
 
 // Func is a Sexp function.
@@ -17,6 +21,12 @@ type Func struct {
 	Name   string
 	Body   []sexp.Node
 	Params []string
+}
+
+// Var is a package-level (global) variable.
+type Var struct {
+	Name string
+	Init sexp.Node
 }
 
 // TranslatePackage converts Go package into Sexp package.

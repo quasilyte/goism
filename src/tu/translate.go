@@ -1,44 +1,49 @@
 package tu
 
 import (
-	"fmt"
 	"go/ast"
-	"go/constant"
 	"go/types"
-	"sexp"
+	"sexpconv"
 )
 
-type goPackage struct {
-	info     *types.Info
-	pkg      *ast.Package
-	topLevel *types.Scope
-}
-
 func translatePackage(goPkg *goPackage) *Package {
-	pkg := &Package{
-		Name:      goPkg.pkg.Name,
-		Constants: make(map[string]sexp.Node),
+	pkg := &Package{Name: goPkg.Name}
+	varsWithInit := make(map[string]struct{})
+
+	for _, init := range goPkg.info.InitOrder {
+		if len(init.Lhs) != 1 {
+			// #FIXME: handle "x, y := f()" assignments.
+			panic("unimplemented")
+		}
+
+		name := init.Lhs[0].Name()
+		varsWithInit[name] = struct{}{}
+		pkg.Vars = append(pkg.Vars, &Var{
+			Name: name,
+			Init: sexpconv.Expr(goPkg.info, init.Rhs),
+		})
 	}
 
-	// Collect global constants and types.
 	topLevel := goPkg.topLevel
 	for _, objName := range topLevel.Names() {
 		obj := topLevel.Lookup(objName)
 
-		switch obj := obj.(type) {
-		case *types.Const:
-			pkg.Constants[objName] = translateConstValue(obj.Val())
+		switch obj.(type) {
+		case *types.Var:
+			// info.InitOrder misses entries for variables
+			// without initializers. We need to collect them here.
+			if _, ok := varsWithInit[objName]; !ok {
+				pkg.Vars = append(pkg.Vars, &Var{Name: objName, Init: nil})
+			}
 
 		case *types.TypeName:
+			// #FIXME: collect types.
 			panic("unimplemented")
 		}
 	}
 
-	// Collect global vars.
-	// #TODO
-
 	// Collect functions.
-	for _, file := range goPkg.pkg.Files {
+	for _, file := range goPkg.Files {
 		for _, decl := range file.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
 				translateFunc(pkg, goPkg.info, decl)
@@ -50,12 +55,6 @@ func translatePackage(goPkg *goPackage) *Package {
 }
 
 func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
-	visitor := &visitor{
-		info:         info,
-		globalValues: pkg.Constants,
-	}
-	forms := visitor.visitStmtList(decl.Body.List)
-
 	// Collect flat list of param names.
 	params := decl.Type.Params
 	paramNames := make([]string, 0, params.NumFields())
@@ -68,24 +67,6 @@ func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
 	pkg.Funcs = append(pkg.Funcs, &Func{
 		Name:   decl.Name.Name,
 		Params: paramNames,
-		Body:   forms,
+		Body:   sexpconv.BlockStmt(info, decl.Body).Nodes,
 	})
-}
-
-func translateConstValue(val constant.Value) sexp.Node {
-	switch val.Kind() {
-	case constant.Int:
-		val, _ := constant.Int64Val(val)
-		return sexp.Int{Val: val}
-
-	case constant.Float:
-		val, _ := constant.Float64Val(val)
-		return sexp.Float{Val: val}
-
-	case constant.String:
-		return sexp.String{Val: constant.StringVal(val)}
-
-	default:
-		panic(fmt.Sprintf("unexpected constant: %#v", val))
-	}
 }
