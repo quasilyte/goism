@@ -101,7 +101,9 @@ const (
 	/* Number ops */
 
 	OpNumAdd
+	OpNumAdd1
 	OpNumSub
+	OpNumSub1
 	OpNumMul
 	OpNumDiv
 	OpNumEq
@@ -151,5 +153,5 @@ const (
 
 type Instr struct {
 	Op  Opcode
-	Arg int16
+	Arg uint16
 }
