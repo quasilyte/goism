@@ -144,13 +144,13 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 		sw.writeCall("=", object.Args)
 	case *sexp.IntNotEq:
 		sw.writeCall("!=", object.Args)
-	case *sexp.IntLess:
+	case *sexp.IntLt:
 		sw.writeCall("<", object.Args)
-	case *sexp.IntLessEq:
+	case *sexp.IntLte:
 		sw.writeCall("<=", object.Args)
-	case *sexp.IntGreater:
+	case *sexp.IntGt:
 		sw.writeCall(">", object.Args)
-	case *sexp.IntGreaterEq:
+	case *sexp.IntGte:
 		sw.writeCall(">=", object.Args)
 	case *sexp.FloatAdd:
 		sw.writeCall("f+", object.Args)
@@ -164,13 +164,13 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 		sw.writeCall("f=", object.Args)
 	case *sexp.FloatNotEq:
 		sw.writeCall("f!=", object.Args)
-	case *sexp.FloatLess:
+	case *sexp.FloatLt:
 		sw.writeCall("f<", object.Args)
-	case *sexp.FloatLessEq:
+	case *sexp.FloatLte:
 		sw.writeCall("f<=", object.Args)
-	case *sexp.FloatGreater:
+	case *sexp.FloatGt:
 		sw.writeCall("f>", object.Args)
-	case *sexp.FloatGreaterEq:
+	case *sexp.FloatGte:
 		sw.writeCall("f>=", object.Args)
 	case *sexp.Concat:
 		sw.writeCall("concat", object.Args)
@@ -178,13 +178,13 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 		sw.writeCall("s=", object.Args)
 	case *sexp.StringNotEq:
 		sw.writeCall("s!=", object.Args)
-	case *sexp.StringLess:
+	case *sexp.StringLt:
 		sw.writeCall("s<", object.Args)
-	case *sexp.StringLessEq:
+	case *sexp.StringLte:
 		sw.writeCall("s<=", object.Args)
-	case *sexp.StringGreater:
+	case *sexp.StringGt:
 		sw.writeCall("s>", object.Args)
-	case *sexp.StringGreaterEq:
+	case *sexp.StringGte:
 		sw.writeCall("s>=", object.Args)
 
 	case *sexp.Call:

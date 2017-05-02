@@ -64,39 +64,39 @@ type Return struct {
 /* Builtin ops */
 
 type (
-	IntAdd       struct{ Args []Form }
-	IntSub       struct{ Args []Form }
-	IntMul       struct{ Args []Form }
-	IntDiv       struct{ Args []Form }
-	IntBitOr     struct{ Args []Form }
-	IntBitAnd    struct{ Args []Form }
-	IntBitXor    struct{ Args []Form }
-	IntRem       struct{ Args []Form }
-	IntEq        struct{ Args []Form }
-	IntNotEq     struct{ Args []Form }
-	IntLess      struct{ Args []Form }
-	IntLessEq    struct{ Args []Form }
-	IntGreater   struct{ Args []Form }
-	IntGreaterEq struct{ Args []Form }
+	IntAdd    struct{ Args []Form }
+	IntSub    struct{ Args []Form }
+	IntMul    struct{ Args []Form }
+	IntDiv    struct{ Args []Form }
+	IntBitOr  struct{ Args []Form }
+	IntBitAnd struct{ Args []Form }
+	IntBitXor struct{ Args []Form }
+	IntRem    struct{ Args []Form }
+	IntEq     struct{ Args []Form }
+	IntNotEq  struct{ Args []Form }
+	IntLt     struct{ Args []Form }
+	IntLte    struct{ Args []Form }
+	IntGt     struct{ Args []Form }
+	IntGte    struct{ Args []Form }
 
-	FloatAdd       struct{ Args []Form }
-	FloatSub       struct{ Args []Form }
-	FloatMul       struct{ Args []Form }
-	FloatDiv       struct{ Args []Form }
-	FloatEq        struct{ Args []Form }
-	FloatNotEq     struct{ Args []Form }
-	FloatLess      struct{ Args []Form }
-	FloatLessEq    struct{ Args []Form }
-	FloatGreater   struct{ Args []Form }
-	FloatGreaterEq struct{ Args []Form }
+	FloatAdd   struct{ Args []Form }
+	FloatSub   struct{ Args []Form }
+	FloatMul   struct{ Args []Form }
+	FloatDiv   struct{ Args []Form }
+	FloatEq    struct{ Args []Form }
+	FloatNotEq struct{ Args []Form }
+	FloatLt    struct{ Args []Form }
+	FloatLte   struct{ Args []Form }
+	FloatGt    struct{ Args []Form }
+	FloatGte   struct{ Args []Form }
 
-	Concat          struct{ Args []Form }
-	StringEq        struct{ Args []Form }
-	StringNotEq     struct{ Args []Form }
-	StringLess      struct{ Args []Form }
-	StringLessEq    struct{ Args []Form }
-	StringGreater   struct{ Args []Form }
-	StringGreaterEq struct{ Args []Form }
+	Concat      struct{ Args []Form }
+	StringEq    struct{ Args []Form }
+	StringNotEq struct{ Args []Form }
+	StringLt    struct{ Args []Form }
+	StringLte   struct{ Args []Form }
+	StringGt    struct{ Args []Form }
+	StringGte   struct{ Args []Form }
 )
 
 /* Call expressions */
