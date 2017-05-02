@@ -19,14 +19,14 @@ type Package struct {
 // Func is a Sexp function.
 type Func struct {
 	Name   string
-	Body   []sexp.Node
+	Body   []sexp.Form
 	Params []string
 }
 
 // Var is a package-level (global) variable.
 type Var struct {
 	Name string
-	Init sexp.Node
+	Init sexp.Form
 }
 
 // TranslatePackage converts Go package into Sexp package.

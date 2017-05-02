@@ -7,7 +7,7 @@ import (
 	"sexp"
 )
 
-func Stmt(info *types.Info, node ast.Stmt) sexp.Node {
+func Stmt(info *types.Info, node ast.Stmt) sexp.Form {
 	switch node := node.(type) {
 	case *ast.IfStmt:
 		return IfStmt(info, node)
@@ -21,7 +21,7 @@ func Stmt(info *types.Info, node ast.Stmt) sexp.Node {
 	}
 }
 
-func IfStmt(info *types.Info, node *ast.IfStmt) sexp.Node {
+func IfStmt(info *types.Info, node *ast.IfStmt) sexp.Form {
 	if node.Init != nil {
 		panic("unimplemented")
 	}
@@ -36,10 +36,10 @@ func IfStmt(info *types.Info, node *ast.IfStmt) sexp.Node {
 	return form
 }
 
-func ReturnStmt(info *types.Info, node *ast.ReturnStmt) sexp.Node {
+func ReturnStmt(info *types.Info, node *ast.ReturnStmt) sexp.Form {
 	return &sexp.Return{Results: exprList(info, node.Results)}
 }
 
 func BlockStmt(info *types.Info, node *ast.BlockStmt) *sexp.Block {
-	return &sexp.Block{Nodes: stmtList(info, node.List)}
+	return &sexp.Block{Forms: stmtList(info, node.List)}
 }

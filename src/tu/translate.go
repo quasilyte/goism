@@ -67,6 +67,6 @@ func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
 	pkg.Funcs = append(pkg.Funcs, &Func{
 		Name:   decl.Name.Name,
 		Params: paramNames,
-		Body:   sexpconv.BlockStmt(info, decl.Body).Nodes,
+		Body:   sexpconv.BlockStmt(info, decl.Body).Forms,
 	})
 }

@@ -8,7 +8,7 @@ import (
 	"sexp"
 )
 
-func Expr(info *types.Info, node ast.Expr) sexp.Node {
+func Expr(info *types.Info, node ast.Expr) sexp.Form {
 	switch node := node.(type) {
 	case *ast.Ident:
 		return Ident(info, node)
@@ -24,7 +24,7 @@ func Expr(info *types.Info, node ast.Expr) sexp.Node {
 	}
 }
 
-func Ident(info *types.Info, node *ast.Ident) sexp.Node {
+func Ident(info *types.Info, node *ast.Ident) sexp.Form {
 	// Identifier can be a constant.
 	// If it is so, inline constant value.
 	if tv := info.Types[node]; tv.Value != nil {
@@ -33,7 +33,7 @@ func Ident(info *types.Info, node *ast.Ident) sexp.Node {
 	return sexp.Var{Name: node.Name}
 }
 
-func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Node {
+func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Form {
 	switch node.Kind {
 	case token.INT:
 		return constantInt(info.Types[node].Value)
@@ -49,7 +49,7 @@ func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Node {
 	}
 }
 
-func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Node {
+func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
 	tv := info.Types[node]
 	if tv.Value != nil {
 		return Constant(tv.Value) // Expr result.
@@ -57,7 +57,7 @@ func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Node {
 
 	// #FIXME: size information is unused.
 	kind := mapKind(tv.Type.(*types.Basic))
-	args := []sexp.Node{
+	args := []sexp.Form{
 		Expr(info, node.X),
 		Expr(info, node.Y),
 	}

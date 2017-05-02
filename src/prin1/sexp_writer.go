@@ -55,7 +55,7 @@ func (sw *sexpWriter) writeStringAtom(x string) {
 	}
 }
 
-func (sw *sexpWriter) writeCall(f string, args []sexp.Node) {
+func (sw *sexpWriter) writeCall(f string, args []sexp.Form) {
 	sw.writeByte('(')
 	sw.writeString(f)
 	for _, arg := range args {
@@ -65,7 +65,7 @@ func (sw *sexpWriter) writeCall(f string, args []sexp.Node) {
 	sw.writeByte(')')
 }
 
-func (sw *sexpWriter) writeSexp(object sexp.Node) {
+func (sw *sexpWriter) writeSexp(object sexp.Form) {
 	switch object := object.(type) {
 	case sexp.Bool:
 		if object.Val {
@@ -95,7 +95,7 @@ func (sw *sexpWriter) writeSexp(object sexp.Node) {
 		// but this is the only problematic place at the moment,
 		// so no attempts to refactor it were made.
 		if len(object.Locals) == 0 {
-			sw.writeCall("block ()", object.Nodes)
+			sw.writeCall("block ()", object.Forms)
 		} else {
 			sw.writeString("(block (")
 			for _, binding := range object.Locals {
@@ -105,9 +105,9 @@ func (sw *sexpWriter) writeSexp(object sexp.Node) {
 				sw.writeSexp(binding.Init)
 				sw.writeByte(')')
 			}
-			for _, node := range object.Nodes {
+			for _, form := range object.Forms {
 				sw.writeByte(' ')
-				sw.writeSexp(node)
+				sw.writeSexp(form)
 			}
 			sw.writeByte(')')
 		}

@@ -6,16 +6,16 @@ import (
 	"sexp"
 )
 
-func exprList(info *types.Info, nodes []ast.Expr) []sexp.Node {
-	forms := make([]sexp.Node, len(nodes))
+func exprList(info *types.Info, nodes []ast.Expr) []sexp.Form {
+	forms := make([]sexp.Form, len(nodes))
 	for i, node := range nodes {
 		forms[i] = Expr(info, node)
 	}
 	return forms
 }
 
-func stmtList(info *types.Info, nodes []ast.Stmt) []sexp.Node {
-	forms := make([]sexp.Node, len(nodes))
+func stmtList(info *types.Info, nodes []ast.Stmt) []sexp.Form {
+	forms := make([]sexp.Form, len(nodes))
 	for i, node := range nodes {
 		forms[i] = Stmt(info, node)
 	}

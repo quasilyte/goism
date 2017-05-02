@@ -2,7 +2,7 @@
 // that contains both Go and Emacs Lisp traits.
 package sexp
 
-type Node interface {
+type Form interface {
 	// IsAtom returns true if underlying implementations
 	// belongs to atom category.
 	//
@@ -27,11 +27,11 @@ type String struct{ Val string }
 /* Composite literals */
 
 type ArrayLit struct {
-	Vals []Node
+	Vals []Form
 }
 
 type QuotedArray struct {
-	Vals []Node
+	Vals []Form
 }
 
 /* Special forms */
@@ -40,8 +40,8 @@ type QuotedArray struct {
 // but unlike classical Lisp let, it is a statement,
 // not expression.
 type Block struct {
-	// Nodes form block body.
-	Nodes []Node
+	// Forms form block body.
+	Forms []Form
 	// Bindings that extend block lexical environment.
 	Locals []Binding
 }
@@ -50,53 +50,53 @@ type Block struct {
 // depending on the result, one of the branches gets
 // executed. Else branch is optional.
 type If struct {
-	Test Node
-	Then Node
-	Else Node
+	Test Form
+	Then Form
+	Else Form
 }
 
 // Return statement exits the function and returns
 // one or more values to the caller.
 type Return struct {
-	Results []Node
+	Results []Form
 }
 
 /* Builtin ops */
 
 type (
-	IntAdd       struct{ Args []Node }
-	IntSub       struct{ Args []Node }
-	IntMul       struct{ Args []Node }
-	IntDiv       struct{ Args []Node }
-	IntBitOr     struct{ Args []Node }
-	IntBitAnd    struct{ Args []Node }
-	IntBitXor    struct{ Args []Node }
-	IntRem       struct{ Args []Node }
-	IntEq        struct{ Args []Node }
-	IntNotEq     struct{ Args []Node }
-	IntLess      struct{ Args []Node }
-	IntLessEq    struct{ Args []Node }
-	IntGreater   struct{ Args []Node }
-	IntGreaterEq struct{ Args []Node }
+	IntAdd       struct{ Args []Form }
+	IntSub       struct{ Args []Form }
+	IntMul       struct{ Args []Form }
+	IntDiv       struct{ Args []Form }
+	IntBitOr     struct{ Args []Form }
+	IntBitAnd    struct{ Args []Form }
+	IntBitXor    struct{ Args []Form }
+	IntRem       struct{ Args []Form }
+	IntEq        struct{ Args []Form }
+	IntNotEq     struct{ Args []Form }
+	IntLess      struct{ Args []Form }
+	IntLessEq    struct{ Args []Form }
+	IntGreater   struct{ Args []Form }
+	IntGreaterEq struct{ Args []Form }
 
-	FloatAdd       struct{ Args []Node }
-	FloatSub       struct{ Args []Node }
-	FloatMul       struct{ Args []Node }
-	FloatDiv       struct{ Args []Node }
-	FloatEq        struct{ Args []Node }
-	FloatNotEq     struct{ Args []Node }
-	FloatLess      struct{ Args []Node }
-	FloatLessEq    struct{ Args []Node }
-	FloatGreater   struct{ Args []Node }
-	FloatGreaterEq struct{ Args []Node }
+	FloatAdd       struct{ Args []Form }
+	FloatSub       struct{ Args []Form }
+	FloatMul       struct{ Args []Form }
+	FloatDiv       struct{ Args []Form }
+	FloatEq        struct{ Args []Form }
+	FloatNotEq     struct{ Args []Form }
+	FloatLess      struct{ Args []Form }
+	FloatLessEq    struct{ Args []Form }
+	FloatGreater   struct{ Args []Form }
+	FloatGreaterEq struct{ Args []Form }
 
-	Concat          struct{ Args []Node }
-	StringEq        struct{ Args []Node }
-	StringNotEq     struct{ Args []Node }
-	StringLess      struct{ Args []Node }
-	StringLessEq    struct{ Args []Node }
-	StringGreater   struct{ Args []Node }
-	StringGreaterEq struct{ Args []Node }
+	Concat          struct{ Args []Form }
+	StringEq        struct{ Args []Form }
+	StringNotEq     struct{ Args []Form }
+	StringLess      struct{ Args []Form }
+	StringLessEq    struct{ Args []Form }
+	StringGreater   struct{ Args []Form }
+	StringGreaterEq struct{ Args []Form }
 )
 
 /* Call expressions */
@@ -104,13 +104,13 @@ type (
 // Call expression is normal (direct) function invocation.
 type Call struct {
 	Fn   string
-	Args []Node
+	Args []Form
 }
 
-/* Helper types (not nodes themself) */
+/* Helper types (not forms themself) */
 
 // Binding represents named value.
 type Binding struct {
 	Name string
-	Init Node
+	Init Form
 }
