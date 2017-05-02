@@ -27,7 +27,7 @@ func IfStmt(info *types.Info, node *ast.IfStmt) *sexp.If {
 	}
 
 	test := Expr(info, node.Cond)
-	then := Stmt(info, node.Body)
+	then := BlockStmt(info, node.Body)
 	form := &sexp.If{Test: test, Then: then}
 	if node.Else != nil {
 		form.Else = Stmt(info, node.Else)

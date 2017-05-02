@@ -51,7 +51,7 @@ type Block struct {
 // executed. Else branch is optional.
 type If struct {
 	Test Form
-	Then Form
+	Then *Block
 	Else Form
 }
 
