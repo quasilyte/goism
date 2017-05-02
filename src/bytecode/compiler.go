@@ -76,7 +76,7 @@ func (cl *Compiler) compileBlock(bb *BasicBlock) {
 			cl.writeOp(73)
 		case ir.OpSubstr:
 			cl.writeOp(79)
-		case ir.OpConcatN:
+		case ir.OpConcat:
 			cl.writeConcat(instr.Arg)
 		case ir.OpStringEq:
 			cl.writeOp(152)
