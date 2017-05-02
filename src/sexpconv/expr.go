@@ -50,13 +50,13 @@ func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Form {
 }
 
 func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
-	tv := info.Types[node]
-	if tv.Value != nil {
-		return Constant(tv.Value) // Expr result.
+	cv := info.Types[node].Value
+	if cv != nil {
+		return Constant(cv) // Expr result.
 	}
 
 	// #FIXME: size information is unused.
-	kind := mapKind(tv.Type.(*types.Basic))
+	kind := mapKind(info.Types[node.X].Type.(*types.Basic))
 	args := []sexp.Form{
 		Expr(info, node.X),
 		Expr(info, node.Y),

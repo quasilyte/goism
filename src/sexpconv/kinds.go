@@ -20,7 +20,8 @@ type kind struct {
 }
 
 var mappedKinds = [...]kind{
-	types.Bool: {tag: kindBool, size: sizes.X8},
+	types.UntypedBool: {tag: kindBool, size: sizes.X8},
+	types.Bool:        {tag: kindBool, size: sizes.X8},
 
 	types.Int:   {tag: kindInt, size: sizes.WordSize},
 	types.Int8:  {tag: kindInt, size: sizes.X8},
@@ -47,11 +48,11 @@ func mapKind(typ *types.Basic) kind {
 	}
 
 	// #FIXME: this one should be checked and go away ASAP.
-	// Upd.: simple case to reproduce is any non-constexpr
-	// that involves numeric literals.
-	// e.g.: "x == 1".
 	if typ.Info()&types.IsUntyped != 0 {
-		panic("unimplemented")
+		// Implemented for bool's.
+		if typ.Kind() != types.UntypedBool {
+			panic("unimplemented")
+		}
 	}
 
 	return mappedKinds[typ.Kind()]
