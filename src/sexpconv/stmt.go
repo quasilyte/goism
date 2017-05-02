@@ -21,7 +21,7 @@ func Stmt(info *types.Info, node ast.Stmt) sexp.Form {
 	}
 }
 
-func IfStmt(info *types.Info, node *ast.IfStmt) sexp.Form {
+func IfStmt(info *types.Info, node *ast.IfStmt) *sexp.If {
 	if node.Init != nil {
 		panic("unimplemented")
 	}
@@ -36,7 +36,7 @@ func IfStmt(info *types.Info, node *ast.IfStmt) sexp.Form {
 	return form
 }
 
-func ReturnStmt(info *types.Info, node *ast.ReturnStmt) sexp.Form {
+func ReturnStmt(info *types.Info, node *ast.ReturnStmt) *sexp.Return {
 	return &sexp.Return{Results: exprList(info, node.Results)}
 }
 

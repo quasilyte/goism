@@ -20,21 +20,21 @@ func Constant(cv constant.Value) sexp.Form {
 	}
 }
 
-func constantChar(cv constant.Value) sexp.Form {
+func constantChar(cv constant.Value) sexp.Char {
 	val, _ := constant.Int64Val(cv)
 	return sexp.Char{Val: rune(val)}
 }
 
-func constantString(cv constant.Value) sexp.Form {
+func constantString(cv constant.Value) sexp.String {
 	return sexp.String{Val: constant.StringVal(cv)}
 }
 
-func constantInt(cv constant.Value) sexp.Form {
+func constantInt(cv constant.Value) sexp.Int {
 	val, _ := constant.Int64Val(cv)
 	return sexp.Int{Val: val}
 }
 
-func constantFloat(cv constant.Value) sexp.Form {
+func constantFloat(cv constant.Value) sexp.Float {
 	val, _ := constant.Float64Val(cv)
 	return sexp.Float{Val: val}
 }
