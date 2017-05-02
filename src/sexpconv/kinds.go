@@ -47,6 +47,9 @@ func mapKind(typ *types.Basic) kind {
 	}
 
 	// #FIXME: this one should be checked and go away ASAP.
+	// Upd.: simple case to reproduce is any non-constexpr
+	// that involves numeric literals.
+	// e.g.: "x == 1".
 	if typ.Info()&types.IsUntyped != 0 {
 		panic("unimplemented")
 	}
