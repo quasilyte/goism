@@ -92,6 +92,20 @@ func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
 	case int64(token.EQL)<<32 + kindString:
 		return &sexp.StringEq{Args: args}
 
+	case int64(token.LSS)<<32 + kindInt:
+		return &sexp.IntLess{Args: args}
+	case int64(token.LSS)<<32 + kindFloat:
+		return &sexp.FloatLess{Args: args}
+	case int64(token.LSS)<<32 + kindString:
+		return &sexp.StringLess{Args: args}
+
+	case int64(token.GTR)<<32 + kindInt:
+		return &sexp.IntGreater{Args: args}
+	case int64(token.GTR)<<32 + kindFloat:
+		return &sexp.FloatGreater{Args: args}
+	case int64(token.GTR)<<32 + kindString:
+		return &sexp.StringGreater{Args: args}
+
 	default:
 		panic("unimplemented")
 	}
