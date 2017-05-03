@@ -7,7 +7,10 @@ import (
 )
 
 type addrHole struct {
-	pos      int
+	// Position (offset) inside bytecode where imm16
+	// address is missing.
+	pos int
+	// Basic block index; its offset is jump target.
 	dstBlock int
 }
 
@@ -157,6 +160,7 @@ func (asm *Assembler) assembleBlock(bb *BasicBlock) {
 	}
 }
 
+// Resolve all missing jump targets.
 func (asm *Assembler) fillHoles() {
 	buf := asm.buf.Bytes()
 
@@ -181,6 +185,12 @@ func (asm *Assembler) writeOp2(opcode byte, arg uint16) {
 }
 
 func (asm *Assembler) writeJmp(opcode byte, arg uint16) {
+	// Because we do linear processing, we can not
+	// resolve absolute forward jumps.
+	// For each such jump we save addrHole to fill
+	// address later on, when all offsets will be available.
+	//
+	// Note that is is possible to resolve backwards jumps here.
 	asm.addrHoles = append(asm.addrHoles, addrHole{
 		pos:      asm.buf.Len(),
 		dstBlock: int(arg),
@@ -231,7 +241,7 @@ func (asm *Assembler) writeMakeList(arg uint16) {
 	case 1, 2, 3, 4:
 		asm.writeOp(67 + byte(arg))
 	default:
-		asm.writeOp1(175, arg)
+		asm.writeOp1(175, arg) // listN
 	}
 }
 
@@ -240,7 +250,7 @@ func (asm *Assembler) writeConcat(arg uint16) {
 	case 2, 3, 4:
 		asm.writeOp(80 + byte(arg))
 	default:
-		asm.writeOp1(176, arg)
+		asm.writeOp1(176, arg) // concatN
 	}
 }
 
