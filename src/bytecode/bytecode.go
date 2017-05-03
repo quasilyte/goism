@@ -23,8 +23,5 @@ type Object struct {
 type Func struct {
 	Object
 
-	Arity    int
-	Variadic bool
-
 	DocString string
 }
