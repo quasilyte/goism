@@ -53,117 +53,121 @@ func (asm *Assembler) init(blocks []*BasicBlock) {
 
 func (asm *Assembler) assembleBlock(bb *BasicBlock) {
 	for _, instr := range bb.Instrs {
-		switch instr.Op {
-		case ir.OpReturn:
-			asm.writeOp(125)
-		case ir.OpCall:
-			asm.writeSpecOp(32, instr.Arg)
-		case ir.OpConstRef:
-			asm.writeConstRef(instr.Arg)
-		case ir.OpStackRef:
-			asm.writeStackRef(instr.Arg)
-		case ir.OpStackSet:
-			asm.writeStackSet(instr.Arg)
-		case ir.OpDrop:
-			asm.writeDrop(instr.Arg)
-		case ir.OpVarRef:
-			asm.writeSpecOp(8, instr.Arg)
-		case ir.OpVarSet:
-			asm.writeSpecOp(16, instr.Arg)
-		case ir.OpSetCar:
-			asm.writeOp(160)
-		case ir.OpSetCdr:
-			asm.writeOp(161)
-		case ir.OpArrayRef:
-			asm.writeOp(72)
-		case ir.OpArraySet:
-			asm.writeOp(73)
-		case ir.OpSubstr:
-			asm.writeOp(79)
-		case ir.OpConcat:
-			asm.writeConcat(instr.Arg)
-		case ir.OpStringEq:
-			asm.writeOp(152)
-		case ir.OpStringLt:
-			asm.writeOp(153)
-		case ir.OpToLower:
-			asm.writeOp(152)
-		case ir.OpToUpper:
-			asm.writeOp(151)
-		case ir.OpIsCons:
-			asm.writeOp(58)
-		case ir.OpIsString:
-			asm.writeOp(59)
-		case ir.OpIsNum:
-			asm.writeOp(167)
-		case ir.OpIsInt:
-			asm.writeOp(168)
-		case ir.OpNumAdd:
-			asm.writeOp(92)
-		case ir.OpNumAdd1:
-			asm.writeOp(84)
-		case ir.OpNumSub:
-			asm.writeOp(90)
-		case ir.OpNumSub1:
-			asm.writeOp(83)
-		case ir.OpNumMul:
-			asm.writeOp(95)
-		case ir.OpNumDiv:
-			asm.writeOp(165)
-		case ir.OpNumEq:
-			asm.writeOp(85)
-		case ir.OpNumLt:
-			asm.writeOp(87)
-		case ir.OpNumLte:
-			asm.writeOp(88)
-		case ir.OpNumGt:
-			asm.writeOp(86)
-		case ir.OpNumGte:
-			asm.writeOp(89)
-		case ir.OpNumNeg:
-			asm.writeOp(91)
-		case ir.OpNumMax:
-			asm.writeOp(93)
-		case ir.OpNumMin:
-			asm.writeOp(94)
-		case ir.OpRem:
-			asm.writeOp(166)
-		case ir.OpEq:
-			asm.writeOp(61)
-		case ir.OpEqual:
-			asm.writeOp(154)
-		case ir.OpNot:
-			asm.writeOp(63)
-		case ir.OpMakeList:
-			asm.writeMakeList(instr.Arg)
-		case ir.OpMakeCons:
-			asm.writeOp(66)
-		case ir.OpJmp:
-			asm.writeJmp(130, instr.Arg)
-		case ir.OpJmpNil:
-			asm.writeJmp(131, instr.Arg)
-		case ir.OpJmpNotNil:
-			asm.writeJmp(132, instr.Arg)
-		case ir.OpJmpNilElsePop:
-			asm.writeJmp(133, instr.Arg)
-		case ir.OpJmpNotNilElsePop:
-			asm.writeJmp(134, instr.Arg)
-		case ir.OpRelJmp:
-			asm.writeOp1(170, instr.Arg)
-		case ir.OpRelJmpNil:
-			asm.writeOp1(171, instr.Arg)
-		case ir.OpRelJmpNotNil:
-			asm.writeOp1(172, instr.Arg)
-		case ir.OpRelJmpNilElsePop:
-			asm.writeOp1(173, instr.Arg)
-		case ir.OpRelJmpNotNilElsePop:
-			asm.writeOp1(174, instr.Arg)
-		case ir.OpCatch:
-			asm.writeOp(141)
+		asm.assembleInstr(instr)
+	}
+}
 
-		default:
-			panic(fmt.Sprintf("unexpected instr: %#v\n", instr))
-		}
+func (asm *Assembler) assembleInstr(instr ir.Instr) {
+	switch instr.Op {
+	case ir.OpReturn:
+		asm.writeOp(125)
+	case ir.OpCall:
+		asm.writeSpecOp(32, instr.Arg)
+	case ir.OpConstRef:
+		asm.writeConstRef(instr.Arg)
+	case ir.OpStackRef:
+		asm.writeStackRef(instr.Arg)
+	case ir.OpStackSet:
+		asm.writeStackSet(instr.Arg)
+	case ir.OpDrop:
+		asm.writeDrop(instr.Arg)
+	case ir.OpVarRef:
+		asm.writeSpecOp(8, instr.Arg)
+	case ir.OpVarSet:
+		asm.writeSpecOp(16, instr.Arg)
+	case ir.OpSetCar:
+		asm.writeOp(160)
+	case ir.OpSetCdr:
+		asm.writeOp(161)
+	case ir.OpArrayRef:
+		asm.writeOp(72)
+	case ir.OpArraySet:
+		asm.writeOp(73)
+	case ir.OpSubstr:
+		asm.writeOp(79)
+	case ir.OpConcat:
+		asm.writeConcat(instr.Arg)
+	case ir.OpStringEq:
+		asm.writeOp(152)
+	case ir.OpStringLt:
+		asm.writeOp(153)
+	case ir.OpToLower:
+		asm.writeOp(152)
+	case ir.OpToUpper:
+		asm.writeOp(151)
+	case ir.OpIsCons:
+		asm.writeOp(58)
+	case ir.OpIsString:
+		asm.writeOp(59)
+	case ir.OpIsNum:
+		asm.writeOp(167)
+	case ir.OpIsInt:
+		asm.writeOp(168)
+	case ir.OpNumAdd:
+		asm.writeOp(92)
+	case ir.OpNumAdd1:
+		asm.writeOp(84)
+	case ir.OpNumSub:
+		asm.writeOp(90)
+	case ir.OpNumSub1:
+		asm.writeOp(83)
+	case ir.OpNumMul:
+		asm.writeOp(95)
+	case ir.OpNumDiv:
+		asm.writeOp(165)
+	case ir.OpNumEq:
+		asm.writeOp(85)
+	case ir.OpNumLt:
+		asm.writeOp(87)
+	case ir.OpNumLte:
+		asm.writeOp(88)
+	case ir.OpNumGt:
+		asm.writeOp(86)
+	case ir.OpNumGte:
+		asm.writeOp(89)
+	case ir.OpNumNeg:
+		asm.writeOp(91)
+	case ir.OpNumMax:
+		asm.writeOp(93)
+	case ir.OpNumMin:
+		asm.writeOp(94)
+	case ir.OpRem:
+		asm.writeOp(166)
+	case ir.OpEq:
+		asm.writeOp(61)
+	case ir.OpEqual:
+		asm.writeOp(154)
+	case ir.OpNot:
+		asm.writeOp(63)
+	case ir.OpMakeList:
+		asm.writeMakeList(instr.Arg)
+	case ir.OpMakeCons:
+		asm.writeOp(66)
+	case ir.OpJmp:
+		asm.writeJmp(130, instr.Arg)
+	case ir.OpJmpNil:
+		asm.writeJmp(131, instr.Arg)
+	case ir.OpJmpNotNil:
+		asm.writeJmp(132, instr.Arg)
+	case ir.OpJmpNilElsePop:
+		asm.writeJmp(133, instr.Arg)
+	case ir.OpJmpNotNilElsePop:
+		asm.writeJmp(134, instr.Arg)
+	case ir.OpRelJmp:
+		asm.writeOp1(170, instr.Arg)
+	case ir.OpRelJmpNil:
+		asm.writeOp1(171, instr.Arg)
+	case ir.OpRelJmpNotNil:
+		asm.writeOp1(172, instr.Arg)
+	case ir.OpRelJmpNilElsePop:
+		asm.writeOp1(173, instr.Arg)
+	case ir.OpRelJmpNotNilElsePop:
+		asm.writeOp1(174, instr.Arg)
+	case ir.OpCatch:
+		asm.writeOp(141)
+
+	default:
+		panic(fmt.Sprintf("unexpected instr: %#v\n", instr))
 	}
 }
 
