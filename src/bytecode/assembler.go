@@ -20,6 +20,7 @@ type Assembler struct {
 	offsets   []uint16
 }
 
+// Assemble creates executable Emacs Lisp bytecode.
 func (asm *Assembler) Assemble(blocks []*BasicBlock) []byte {
 	asm.init(blocks)
 
