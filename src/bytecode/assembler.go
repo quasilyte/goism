@@ -148,9 +148,16 @@ func (asm *Assembler) assembleBlock(bb *BasicBlock) {
 			asm.writeJmp(133, instr.Arg)
 		case ir.OpJmpNotNilElsePop:
 			asm.writeJmp(134, instr.Arg)
-
-		// #FIXME: implement rel jumps.
-
+		case ir.OpRelJmp:
+			asm.writeOp1(170, instr.Arg)
+		case ir.OpRelJmpNil:
+			asm.writeOp1(171, instr.Arg)
+		case ir.OpRelJmpNotNil:
+			asm.writeOp1(172, instr.Arg)
+		case ir.OpRelJmpNilElsePop:
+			asm.writeOp1(173, instr.Arg)
+		case ir.OpRelJmpNotNilElsePop:
+			asm.writeOp1(174, instr.Arg)
 		case ir.OpCatch:
 			asm.writeOp(141)
 
