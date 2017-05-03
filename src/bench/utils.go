@@ -26,8 +26,8 @@ func Run(b *testing.B, bench func(*int)) {
 	gScore = score
 }
 
-// RandIntSlice generates slice of 50 random int64 elements.
-func RandIntSlice() []int64 {
+// RandInt64Slice generates slice of 50 random int64 elements.
+func RandInt64Slice() []int64 {
 	res, ok := quick.Value(reflect.TypeOf([]int64{}), random)
 	if !ok {
 		panic("failed to create random []int64")
@@ -35,8 +35,8 @@ func RandIntSlice() []int64 {
 	return res.Interface().([]int64)
 }
 
-// RandFloatSlice generates slice of 50 random float64 elements.
-func RandFloatSlice() []float64 {
+// RandFloat64Slice generates slice of 50 random float64 elements.
+func RandFloat64Slice() []float64 {
 	res, ok := quick.Value(reflect.TypeOf([]float64{}), random)
 	if !ok {
 		panic("failed to create random []float64")
