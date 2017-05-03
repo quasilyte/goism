@@ -14,7 +14,7 @@ type BasicBlock struct {
 
 // Object is a compiled bytecode unit.
 type Object struct {
-	Code       []*BasicBlock
+	Blocks     []*BasicBlock
 	ConstPool  ConstPool
 	StackUsage int // Peak stack usage.
 }
