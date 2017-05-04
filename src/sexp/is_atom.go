@@ -12,6 +12,7 @@ func (lit *ArrayLit) IsAtom() bool    { return false }
 func (lit *QuotedArray) IsAtom() bool { return false }
 
 func (fomr *Bind) IsAtom() bool     { return false }
+func (fomr *Assign) IsAtom() bool   { return false }
 func (form *FormList) IsAtom() bool { return false }
 func (form *Block) IsAtom() bool    { return false }
 func (form *If) IsAtom() bool       { return false }

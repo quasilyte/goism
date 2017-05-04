@@ -46,6 +46,8 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileStmtList(form.Forms)
 	case *sexp.Bind:
 		cl.compileBind(form)
+	case *sexp.Assign:
+		cl.compileAssign(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -79,9 +81,9 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 func (cl *Compiler) compileOp(op ir.Opcode, args []sexp.Form) {
 	if len(args) == 2 {
 		cl.compileExprList(args)
-		cl.emitBinaryOp(op)
+		cl.emit(ir.Instr{Op: op})
 	} else {
-		cl.compileCall(opFunctions[op], args)
+		cl.compileCall(instrSpecs[op].fn, args)
 	}
 }
 
@@ -99,7 +101,7 @@ func (cl *Compiler) compileReturn(form *sexp.Return) {
 	if len(form.Results) != 0 {
 		cl.compileExpr(form.Results[0])
 	}
-	cl.emitReturn()
+	cl.emit(ir.Return())
 }
 
 func (cl *Compiler) compileIf(form *sexp.If) {
@@ -124,6 +126,12 @@ func (cl *Compiler) compileBind(form *sexp.Bind) {
 	cl.stack.vals[len(cl.stack.vals)-1] = form.Name
 }
 
+func (cl *Compiler) compileAssign(form *sexp.Assign) {
+	cl.compileExpr(form.Expr)
+	stIndex := cl.stack.findVar(form.Name)
+	cl.emit(ir.StackSet(stIndex))
+}
+
 func (cl *Compiler) compileStmtList(forms []sexp.Form) {
 	for _, form := range forms {
 		cl.compileStmt(form)
@@ -133,6 +141,16 @@ func (cl *Compiler) compileStmtList(forms []sexp.Form) {
 func (cl *Compiler) compileExprList(forms []sexp.Form) {
 	for _, form := range forms {
 		cl.compileExpr(form)
+	}
+}
+
+func (cl *Compiler) emit(instr ir.Instr) {
+	spec := instrSpecs[instr.Op]
+
+	cl.stack.drop(spec.argc)
+	cl.code.pushInstr(instr)
+	if spec.output {
+		cl.stack.pushTmp()
 	}
 }
 
@@ -157,17 +175,6 @@ func (cl *Compiler) emitCall(argc int) {
 	cl.stack.drop(argc + 1)
 	cl.code.pushInstr(ir.Call(argc))
 	cl.stack.pushTmp()
-}
-
-func (cl *Compiler) emitBinaryOp(op ir.Opcode) {
-	cl.stack.drop(2)
-	cl.code.pushOp(op)
-	cl.stack.pushTmp()
-}
-
-func (cl *Compiler) emitReturn() {
-	cl.stack.drop(1)
-	cl.code.pushOp(ir.OpReturn)
 }
 
 func (cl *Compiler) pushBlock(name string) {

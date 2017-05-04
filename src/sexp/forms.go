@@ -47,6 +47,12 @@ type Bind struct {
 	Init Form
 }
 
+// Assign re-binds symbol value.
+type Assign struct {
+	Name string
+	Expr Form
+}
+
 // FormList packs multiple forms together (like "progn").
 type FormList struct {
 	Forms []Form
