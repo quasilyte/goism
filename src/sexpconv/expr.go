@@ -29,10 +29,8 @@ func Expr(info *types.Info, node ast.Expr) sexp.Form {
 }
 
 func Ident(info *types.Info, node *ast.Ident) sexp.Form {
-	// Identifier can be a constant.
-	// If it is so, inline constant value.
-	if tv := info.Types[node]; tv.Value != nil {
-		return Constant(tv.Value)
+	if cv := info.Types[node].Value; cv != nil {
+		return Constant(cv)
 	}
 	return sexp.Var{Name: node.Name}
 }
