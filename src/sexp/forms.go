@@ -43,7 +43,7 @@ type Block struct {
 	// Forms form block body.
 	Forms []Form
 	// Bindings that extend block lexical environment.
-	Locals []Binding
+	Locals []Binding // #FIXME: deprecated?
 }
 
 // If statement evaluates test expression and,
