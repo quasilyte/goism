@@ -152,8 +152,8 @@ const (
 )
 
 type Instr struct {
-	Op  Opcode
-	Arg uint16
+	Op   Opcode
+	Data uint16
 }
 
 func Return() Instr              { return instr(OpReturn, 0) }
@@ -231,6 +231,6 @@ func RelJmpNotNilElsePop() Instr {
 	return instr(OpRelJmpNotNilElsePop, 0)
 }
 
-func instr(op Opcode, arg int) Instr {
-	return Instr{Op: op, Arg: uint16(arg)}
+func instr(op Opcode, data int) Instr {
+	return Instr{Op: op, Data: uint16(data)}
 }

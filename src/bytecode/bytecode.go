@@ -25,3 +25,5 @@ type Func struct {
 
 	DocString string
 }
+
+type LispSym string

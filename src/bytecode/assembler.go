@@ -62,19 +62,19 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 	case ir.OpReturn:
 		asm.writeOp(125)
 	case ir.OpCall:
-		asm.writeSpecOp(32, instr.Arg)
+		asm.writeSpecOp(32, instr.Data)
 	case ir.OpConstRef:
-		asm.writeConstRef(instr.Arg)
+		asm.writeConstRef(instr.Data)
 	case ir.OpStackRef:
-		asm.writeStackRef(instr.Arg)
+		asm.writeStackRef(instr.Data)
 	case ir.OpStackSet:
-		asm.writeStackSet(instr.Arg)
+		asm.writeStackSet(instr.Data)
 	case ir.OpDrop:
-		asm.writeDrop(instr.Arg)
+		asm.writeDrop(instr.Data)
 	case ir.OpVarRef:
-		asm.writeSpecOp(8, instr.Arg)
+		asm.writeSpecOp(8, instr.Data)
 	case ir.OpVarSet:
-		asm.writeSpecOp(16, instr.Arg)
+		asm.writeSpecOp(16, instr.Data)
 	case ir.OpSetCar:
 		asm.writeOp(160)
 	case ir.OpSetCdr:
@@ -86,7 +86,7 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 	case ir.OpSubstr:
 		asm.writeOp(79)
 	case ir.OpConcat:
-		asm.writeConcat(instr.Arg)
+		asm.writeConcat(instr.Data)
 	case ir.OpStringEq:
 		asm.writeOp(152)
 	case ir.OpStringLt:
@@ -140,29 +140,29 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 	case ir.OpNot:
 		asm.writeOp(63)
 	case ir.OpMakeList:
-		asm.writeMakeList(instr.Arg)
+		asm.writeMakeList(instr.Data)
 	case ir.OpMakeCons:
 		asm.writeOp(66)
 	case ir.OpJmp:
-		asm.writeJmp(130, instr.Arg)
+		asm.writeJmp(130, instr.Data)
 	case ir.OpJmpNil:
-		asm.writeJmp(131, instr.Arg)
+		asm.writeJmp(131, instr.Data)
 	case ir.OpJmpNotNil:
-		asm.writeJmp(132, instr.Arg)
+		asm.writeJmp(132, instr.Data)
 	case ir.OpJmpNilElsePop:
-		asm.writeJmp(133, instr.Arg)
+		asm.writeJmp(133, instr.Data)
 	case ir.OpJmpNotNilElsePop:
-		asm.writeJmp(134, instr.Arg)
+		asm.writeJmp(134, instr.Data)
 	case ir.OpRelJmp:
-		asm.writeOp1(170, instr.Arg)
+		asm.writeOp1(170, instr.Data)
 	case ir.OpRelJmpNil:
-		asm.writeOp1(171, instr.Arg)
+		asm.writeOp1(171, instr.Data)
 	case ir.OpRelJmpNotNil:
-		asm.writeOp1(172, instr.Arg)
+		asm.writeOp1(172, instr.Data)
 	case ir.OpRelJmpNilElsePop:
-		asm.writeOp1(173, instr.Arg)
+		asm.writeOp1(173, instr.Data)
 	case ir.OpRelJmpNotNilElsePop:
-		asm.writeOp1(174, instr.Arg)
+		asm.writeOp1(174, instr.Data)
 	case ir.OpCatch:
 		asm.writeOp(141)
 
