@@ -22,6 +22,8 @@ func Expr(info *types.Info, node ast.Expr) sexp.Form {
 		return CallExpr(info, node)
 	case *ast.SelectorExpr:
 		return SelectorExpr(info, node)
+	case *ast.TypeAssertExpr:
+		return TypeAssertExpr(info, node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -145,4 +147,8 @@ func SelectorExpr(info *types.Info, node *ast.SelectorExpr) sexp.Form {
 	}
 
 	panic(fmt.Sprintf("unexpected selector: %#v", node))
+}
+
+func TypeAssertExpr(info *types.Info, node *ast.TypeAssertExpr) sexp.Form {
+	panic("unimplemented")
 }
