@@ -20,6 +20,8 @@ func Stmt(info *types.Info, node ast.Stmt) sexp.Form {
 		return DeclStmt(info, node)
 	case *ast.AssignStmt:
 		return AssignStmt(info, node)
+	case *ast.IncDecStmt:
+		return IncDecStmt(info, node)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", node))
@@ -102,4 +104,34 @@ func AssignStmt(info *types.Info, node *ast.AssignStmt) *sexp.FormList {
 	}
 
 	return &sexp.FormList{Forms: forms}
+}
+
+func IncDecStmt(info *types.Info, node *ast.IncDecStmt) sexp.Form {
+	// "x++" == "x = x + 1"
+	// "x--" == "x = x - 1"
+
+	tag := mapKind(info.Types[node.X].Type.(*types.Basic)).tag
+	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
+	var expr sexp.Form
+
+	if tag == kindInt {
+		args := []sexp.Form{Expr(info, target), sexp.Int{Val: 1}}
+		if node.Tok == token.INC {
+			expr = &sexp.IntAdd{Args: args}
+		} else {
+			expr = &sexp.IntSub{Args: args}
+		}
+	} else {
+		args := []sexp.Form{Expr(info, target), sexp.Float{Val: 1}}
+		if node.Tok == token.INC {
+			expr = &sexp.FloatAdd{Args: args}
+		} else {
+			expr = &sexp.FloatSub{Args: args}
+		}
+	}
+
+	return &sexp.Assign{
+		Name: target.Name,
+		Expr: expr,
+	}
 }
