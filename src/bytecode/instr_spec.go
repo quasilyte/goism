@@ -16,6 +16,10 @@ var instrSpecs = [...]instrSpec{
 	ir.OpReturn:   {argc: 1},
 
 	ir.OpNumAdd: {argc: 2, output: true, fn: "+"},
+	ir.OpNumSub: {argc: 2, output: true, fn: "-"},
+	ir.OpNumMul: {argc: 2, output: true, fn: "*"},
+	ir.OpNumDiv: {argc: 2, output: true, fn: "/"},
 	ir.OpNumGt:  {argc: 2, output: true, fn: ">"},
+	ir.OpNumLt:  {argc: 2, output: true, fn: ">"},
 	ir.OpNumEq:  {argc: 2, output: true, fn: "="},
 }

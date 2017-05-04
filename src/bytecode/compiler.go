@@ -58,9 +58,31 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 	switch form := form.(type) {
 	case *sexp.IntAdd:
 		cl.compileOp(ir.OpNumAdd, form.Args)
+	case *sexp.FloatAdd:
+		cl.compileOp(ir.OpNumAdd, form.Args)
+	case *sexp.IntSub:
+		cl.compileOp(ir.OpNumSub, form.Args)
+	case *sexp.FloatSub:
+		cl.compileOp(ir.OpNumSub, form.Args)
+	case *sexp.IntMul:
+		cl.compileOp(ir.OpNumMul, form.Args)
+	case *sexp.FloatMul:
+		cl.compileOp(ir.OpNumMul, form.Args)
+	case *sexp.IntDiv:
+		cl.compileOp(ir.OpNumDiv, form.Args)
+	case *sexp.FloatDiv:
+		cl.compileOp(ir.OpNumDiv, form.Args)
 	case *sexp.IntGt:
 		cl.compileOp(ir.OpNumGt, form.Args)
+	case *sexp.FloatGt:
+		cl.compileOp(ir.OpNumGt, form.Args)
+	case *sexp.IntLt:
+		cl.compileOp(ir.OpNumLt, form.Args)
+	case *sexp.FloatLt:
+		cl.compileOp(ir.OpNumLt, form.Args)
 	case *sexp.IntEq:
+		cl.compileOp(ir.OpNumEq, form.Args)
+	case *sexp.FloatEq:
 		cl.compileOp(ir.OpNumEq, form.Args)
 
 	case sexp.Int:
@@ -187,10 +209,4 @@ func (cl *Compiler) createObject() Object {
 		ConstPool:  cl.constPool,
 		StackUsage: cl.stack.maxSize,
 	}
-}
-
-var opFunctions = [...]emacs.Symbol{
-	ir.OpNumEq:  "=",
-	ir.OpNumGt:  ">",
-	ir.OpNumAdd: "+",
 }
