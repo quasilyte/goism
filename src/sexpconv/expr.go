@@ -10,14 +10,16 @@ import (
 
 func Expr(info *types.Info, node ast.Expr) sexp.Form {
 	switch node := node.(type) {
+	case *ast.ParenExpr:
+		return Expr(info, node.X)
 	case *ast.Ident:
 		return Ident(info, node)
 	case *ast.BasicLit:
 		return BasicLit(info, node)
 	case *ast.BinaryExpr:
 		return BinaryExpr(info, node)
-	case *ast.ParenExpr:
-		return Expr(info, node.X)
+	case *ast.CallExpr:
+		return CallExpr(info, node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -108,5 +110,27 @@ func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
 
 	default:
 		panic("unimplemented")
+	}
+}
+
+func CallExpr(info *types.Info, node *ast.CallExpr) sexp.Form {
+	// #REFS: 2.
+	switch fn := node.Fun.(type) {
+	case *ast.SelectorExpr:
+		if obj, ok := fn.X.(*ast.Ident); ok {
+			if obj.Name == "emacs" {
+				return intrinsic(info, fn.Sel.Name, node.Args)
+			}
+
+			qualName := obj.Name + "." + fn.Sel.Name
+			return &sexp.Call{Fn: qualName, Args: exprList(info, node.Args)}
+		}
+		panic(fmt.Sprintf("unexpected selector: %#v", fn))
+
+	case *ast.Ident:
+		return &sexp.Call{Fn: fn.Name, Args: exprList(info, node.Args)}
+
+	default:
+		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
 	}
 }

@@ -11,9 +11,9 @@ type emacsImporter struct {
 }
 
 func (ei emacsImporter) Import(path string) (*types.Package, error) {
-	if path == "emacs" {
-		return emacsPackage, nil
-	}
+	// if path == "emacs" {
+	// 	return emacsPackage, nil
+	// }
 	return ei.impl.Import(path)
 }
 

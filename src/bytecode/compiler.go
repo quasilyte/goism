@@ -64,6 +64,9 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 	case sexp.Var:
 		cl.emitVar(form.Name, cl.stack.findVar(form.Name))
 
+	case *sexp.Call:
+		cl.compileCall(emacs.Symbol(form.Fn), form.Args)
+
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", form))
 	}
@@ -87,7 +90,7 @@ func (cl *Compiler) compileCall(fn emacs.Symbol, args []sexp.Form) {
 
 func (cl *Compiler) compileReturn(form *sexp.Return) {
 	if len(form.Results) > 1 {
-		panic("unimplemented") // issue#1
+		panic("unimplemented") // #REFS: 1
 	}
 	if len(form.Results) != 0 {
 		cl.compileExpr(form.Results[0])
