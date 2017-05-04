@@ -20,6 +20,8 @@ func Expr(info *types.Info, node ast.Expr) sexp.Form {
 		return BinaryExpr(info, node)
 	case *ast.CallExpr:
 		return CallExpr(info, node)
+	case *ast.SelectorExpr:
+		return SelectorExpr(info, node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -52,9 +54,8 @@ func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Form {
 }
 
 func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
-	cv := info.Types[node].Value
-	if cv != nil {
-		return Constant(cv) // Expr result.
+	if cv := info.Types[node].Value; cv != nil {
+		return Constant(cv)
 	}
 
 	// #FIXME: size information is unused.
@@ -133,4 +134,17 @@ func CallExpr(info *types.Info, node *ast.CallExpr) sexp.Form {
 	default:
 		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
 	}
+}
+
+func SelectorExpr(info *types.Info, node *ast.SelectorExpr) sexp.Form {
+	if cv := info.Types[node].Value; cv != nil {
+		return Constant(cv)
+	}
+
+	sel := info.Selections[node]
+	if sel != nil {
+		panic("unimplemented")
+	}
+
+	panic(fmt.Sprintf("unexpected selector: %#v", node))
 }
