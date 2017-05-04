@@ -25,6 +25,7 @@ func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, 
 		Defs:       make(map[*ast.Ident]types.Object),
 		Uses:       make(map[*ast.Ident]types.Object),
 		Selections: make(map[*ast.SelectorExpr]*types.Selection),
+		Scopes:     make(map[ast.Node]*types.Scope),
 	}
 
 	files := make([]*ast.File, 0, len(parsedPkg.Files))

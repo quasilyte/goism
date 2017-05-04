@@ -89,8 +89,15 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 	case *sexp.QuotedArray:
 		sw.writeCall("quoted-array", object.Vals)
 
+	case *sexp.Bind:
+		sw.writeString("(bind " + object.Name + " ")
+		sw.writeSexp(object.Init)
+		sw.writeByte(')')
+
+	case *sexp.FormList:
+		sw.writeCall("form-list", object.Forms)
 	case *sexp.Block:
-		sw.writeCall("block ()", object.Forms)
+		sw.writeCall("block", object.Forms)
 
 	case *sexp.If:
 		sw.writeString("(if ")

@@ -2,6 +2,10 @@
 // that contains both Go and Emacs Lisp traits.
 package sexp
 
+import (
+	"go/types"
+)
+
 type Form interface {
 	// IsAtom returns true if underlying implementations
 	// belongs to atom category.
@@ -43,9 +47,16 @@ type Bind struct {
 	Init Form
 }
 
+// FormList packs multiple forms together (like "progn").
+type FormList struct {
+	Forms []Form
+}
+
 // Block is a list of statements.
+// Unlike FormList, it creates a new lexical scope.
 type Block struct {
 	Forms []Form
+	Scope *types.Scope
 }
 
 // If statement evaluates test expression and,

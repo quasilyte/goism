@@ -42,6 +42,10 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileIf(form)
 	case *sexp.Block:
 		cl.compileBlock(form)
+	case *sexp.FormList:
+		cl.compileStmtList(form.Forms)
+	case *sexp.Bind:
+		cl.compileBind(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -111,8 +115,13 @@ func (cl *Compiler) compileIf(form *sexp.If) {
 }
 
 func (cl *Compiler) compileBlock(form *sexp.Block) {
-	// #FIXME: compile locals.
 	cl.compileStmtList(form.Forms)
+	cl.stack.drop(form.Scope.Len())
+}
+
+func (cl *Compiler) compileBind(form *sexp.Bind) {
+	cl.compileExpr(form.Init)
+	cl.stack.vals[len(cl.stack.vals)-1] = form.Name
 }
 
 func (cl *Compiler) compileStmtList(forms []sexp.Form) {
