@@ -90,27 +90,8 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 		sw.writeCall("quoted-array", object.Vals)
 
 	case *sexp.Block:
-		// #FIXME:
-		// Special forms are hard to print,
-		// but this is the only problematic place at the moment,
-		// so no attempts to refactor it were made.
-		if len(object.Locals) == 0 {
-			sw.writeCall("block ()", object.Forms)
-		} else {
-			sw.writeString("(block (")
-			for _, binding := range object.Locals {
-				sw.writeByte('(')
-				sw.writeString(binding.Name)
-				sw.writeString(" . ")
-				sw.writeSexp(binding.Init)
-				sw.writeByte(')')
-			}
-			for _, form := range object.Forms {
-				sw.writeByte(' ')
-				sw.writeSexp(form)
-			}
-			sw.writeByte(')')
-		}
+		sw.writeCall("block ()", object.Forms)
+
 	case *sexp.If:
 		sw.writeString("(if ")
 		sw.writeSexp(object.Test)

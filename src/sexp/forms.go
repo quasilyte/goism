@@ -36,14 +36,16 @@ type QuotedArray struct {
 
 /* Special forms */
 
-// Block can be described as "let-like form",
-// but unlike classical Lisp let, it is a statement,
-// not expression.
+// Bind associates name with expression (initializer).
+// Binding has lexical scoping.
+type Bind struct {
+	Name string
+	Init Form
+}
+
+// Block is a list of statements.
 type Block struct {
-	// Forms form block body.
 	Forms []Form
-	// Bindings that extend block lexical environment.
-	Locals []Binding // #FIXME: deprecated?
 }
 
 // If statement evaluates test expression and,
