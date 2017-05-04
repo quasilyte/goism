@@ -5,12 +5,6 @@ even if it is innacurate generally.
 
 ## Constants
 
-Elisp has no real constants. Any symbol can be changed
-during runtime. 
-
-Constants can be inlined only if they are immutable.
-To make GE efficient, constants must be inlineable,
-thus compiler mangles constant symbols in a special way.
-
-To read exported Go constant value inside Elisp,
-`Go-const` macro is used.
+Go constants are inlined at the compilation time.
+They do not produce `defvar` or `defconst`,
+therefore can not be used inside Elisp.
