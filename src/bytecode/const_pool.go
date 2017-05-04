@@ -1,5 +1,9 @@
 package bytecode
 
+import (
+	"emacs"
+)
+
 type ConstPool struct {
 	vals []interface{}
 }
@@ -37,7 +41,7 @@ func (cp *ConstPool) InsertString(x string) int {
 	return len(cp.vals) - 1
 }
 
-func (cp *ConstPool) InsertSym(x LispSym) int {
+func (cp *ConstPool) InsertSym(x emacs.Symbol) int {
 	for i, val := range cp.vals {
 		if val == x {
 			return i
@@ -60,6 +64,6 @@ func (cp *ConstPool) GetString(index int) string {
 	return cp.vals[index].(string)
 }
 
-func (cp *ConstPool) GetSym(index int) LispSym {
-	return cp.vals[index].(LispSym)
+func (cp *ConstPool) GetSym(index int) emacs.Symbol {
+	return cp.vals[index].(emacs.Symbol)
 }
