@@ -14,6 +14,7 @@ type instrSpec struct {
 var instrSpecs = [...]instrSpec{
 	ir.OpStackSet: {argc: 1},
 	ir.OpReturn:   {argc: 1},
+	ir.OpDrop:     {argc: 0},
 
 	ir.OpNumAdd: {argc: 2, output: true, fn: "+"},
 	ir.OpNumSub: {argc: 2, output: true, fn: "-"},
