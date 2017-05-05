@@ -42,8 +42,8 @@ with arbitrary argument list and returns Elisp object
 You can create and use Elisp objects:
 `list := emacs.Call("cons", 1, 2)`.
 
-This snippet inserts `"hello world"` into your editor:
-`emacs.Call("insert", "hello, world!")`
+This snippet inserts `"hello world"` into current buffer:
+`emacs.Call("insert", "hello, world!")`.
 
 ## Docs
 
