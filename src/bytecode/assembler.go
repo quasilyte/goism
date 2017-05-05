@@ -27,8 +27,8 @@ type Assembler struct {
 func (asm *Assembler) Assemble(blocks []*BasicBlock) []byte {
 	asm.init(blocks)
 
-	for i, bb := range blocks {
-		asm.offsets[i] = uint16(asm.buf.Len())
+	for _, bb := range blocks {
+		asm.offsets = append(asm.offsets, uint16(asm.buf.Len()))
 		asm.assembleBlock(bb)
 	}
 	asm.fillHoles()
@@ -60,7 +60,7 @@ func (asm *Assembler) assembleBlock(bb *BasicBlock) {
 func (asm *Assembler) assembleInstr(instr ir.Instr) {
 	switch instr.Op {
 	case ir.OpReturn:
-		asm.writeOp(125)
+		asm.writeOp(135)
 	case ir.OpCall:
 		asm.writeSpecOp(32, instr.Data)
 	case ir.OpConstRef:
