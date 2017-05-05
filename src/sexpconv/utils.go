@@ -21,3 +21,14 @@ func stmtList(info *types.Info, nodes []ast.Stmt) []sexp.Form {
 	}
 	return forms
 }
+
+func call(info *types.Info, fn string, args ...ast.Expr) *sexp.Call {
+	sexpArgs := make([]sexp.Form, len(args))
+	for i, arg := range args {
+		sexpArgs[i] = Expr(info, arg)
+	}
+	return &sexp.Call{
+		Fn:   fn,
+		Args: sexpArgs,
+	}
+}
