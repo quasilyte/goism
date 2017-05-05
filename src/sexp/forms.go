@@ -47,8 +47,8 @@ type Bind struct {
 	Init Form
 }
 
-// Assign re-binds symbol value.
-type Assign struct {
+// Rebind changes symbol value.
+type Rebind struct {
 	Name string
 	Expr Form
 }
@@ -83,31 +83,50 @@ type Return struct {
 /* Builtin ops */
 
 type (
-	IntAdd    struct{ Args []Form }
-	IntSub    struct{ Args []Form }
-	IntMul    struct{ Args []Form }
-	IntDiv    struct{ Args []Form }
-	IntBitOr  struct{ Args []Form }
-	IntBitAnd struct{ Args []Form }
-	IntBitXor struct{ Args []Form }
-	IntRem    struct{ Args []Form }
-	IntEq     struct{ Args []Form }
-	IntNotEq  struct{ Args []Form }
-	IntLt     struct{ Args []Form }
-	IntLte    struct{ Args []Form }
-	IntGt     struct{ Args []Form }
-	IntGte    struct{ Args []Form }
+	BitOr  struct{ Args []Form }
+	BitAnd struct{ Args []Form }
+	BitXor struct{ Args []Form }
 
-	FloatAdd   struct{ Args []Form }
-	FloatSub   struct{ Args []Form }
-	FloatMul   struct{ Args []Form }
-	FloatDiv   struct{ Args []Form }
-	FloatEq    struct{ Args []Form }
-	FloatNotEq struct{ Args []Form }
-	FloatLt    struct{ Args []Form }
-	FloatLte   struct{ Args []Form }
-	FloatGt    struct{ Args []Form }
-	FloatGte   struct{ Args []Form }
+	NumAdd struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumSub struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumMul struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumQuo struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumEq struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumNotEq struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumLt struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumLte struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumGt struct {
+		Args []Form
+		Type *types.Basic
+	}
+	NumGte struct {
+		Args []Form
+		Type *types.Basic
+	}
 
 	Concat      struct{ Args []Form }
 	StringEq    struct{ Args []Form }

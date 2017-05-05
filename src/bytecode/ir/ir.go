@@ -105,7 +105,7 @@ const (
 	OpNumSub
 	OpNumSub1
 	OpNumMul
-	OpNumDiv
+	OpNumQuo
 	OpNumEq
 	OpNumLt
 	OpNumLte
@@ -183,7 +183,7 @@ func NumAdd1() Instr             { return instr(OpNumAdd1, 0) }
 func NumSub() Instr              { return instr(OpNumSub, 0) }
 func NumSub1() Instr             { return instr(OpNumSub1, 0) }
 func NumMul() Instr              { return instr(OpNumMul, 0) }
-func NumDiv() Instr              { return instr(OpNumDiv, 0) }
+func NumQuo() Instr              { return instr(OpNumQuo, 0) }
 func NumEq() Instr               { return instr(OpNumEq, 0) }
 func NumLt() Instr               { return instr(OpNumLt, 0) }
 func NumLte() Instr              { return instr(OpNumLte, 0) }

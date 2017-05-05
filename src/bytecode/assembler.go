@@ -113,7 +113,7 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 		asm.writeOp(83)
 	case ir.OpNumMul:
 		asm.writeOp(95)
-	case ir.OpNumDiv:
+	case ir.OpNumQuo:
 		asm.writeOp(165)
 	case ir.OpNumEq:
 		asm.writeOp(85)

@@ -58,60 +58,59 @@ func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
 		return Constant(cv)
 	}
 
-	// #FIXME: size information is unused.
-	kind := mapKind(info.Types[node.X].Type.(*types.Basic))
+	typ := info.TypeOf(node.X).(*types.Basic)
 	args := []sexp.Form{
 		Expr(info, node.X),
 		Expr(info, node.Y),
 	}
 
-	switch kind.tag + int64(node.Op)<<32 {
-	case int64(token.ADD)<<32 + kindInt:
-		return &sexp.IntAdd{Args: args}
-	case int64(token.ADD)<<32 + kindFloat:
-		return &sexp.FloatAdd{Args: args}
-	case int64(token.ADD)<<32 + kindString:
-		return &sexp.Concat{Args: args}
+	if typ.Info()&types.IsNumeric != 0 {
+		switch node.Op {
+		case token.ADD:
+			return &sexp.NumAdd{Type: typ, Args: args}
+		case token.SUB:
+			return &sexp.NumSub{Type: typ, Args: args}
+		case token.MUL:
+			return &sexp.NumMul{Type: typ, Args: args}
+		case token.QUO:
+			return &sexp.NumQuo{Type: typ, Args: args}
+		case token.EQL:
+			return &sexp.NumEq{Type: typ, Args: args}
+		case token.LSS:
+			return &sexp.NumLt{Type: typ, Args: args}
+		case token.GTR:
+			return &sexp.NumGt{Type: typ, Args: args}
+		case token.LEQ:
+			return &sexp.NumLte{Type: typ, Args: args}
+		case token.GEQ:
+			return &sexp.NumGte{Type: typ, Args: args}
 
-	case int64(token.SUB)<<32 + kindInt:
-		return &sexp.IntSub{Args: args}
-	case int64(token.SUB)<<32 + kindFloat:
-		return &sexp.FloatSub{Args: args}
-
-	case int64(token.MUL)<<32 + kindInt:
-		return &sexp.IntMul{Args: args}
-	case int64(token.MUL)<<32 + kindFloat:
-		return &sexp.FloatMul{Args: args}
-
-	case int64(token.QUO)<<32 + kindInt:
-		return &sexp.IntDiv{Args: args}
-	case int64(token.QUO)<<32 + kindFloat:
-		return &sexp.FloatDiv{Args: args}
-
-	case int64(token.EQL)<<32 + kindInt:
-		return &sexp.IntEq{Args: args}
-	case int64(token.EQL)<<32 + kindFloat:
-		return &sexp.FloatEq{Args: args}
-	case int64(token.EQL)<<32 + kindString:
-		return &sexp.StringEq{Args: args}
-
-	case int64(token.LSS)<<32 + kindInt:
-		return &sexp.IntLt{Args: args}
-	case int64(token.LSS)<<32 + kindFloat:
-		return &sexp.FloatLt{Args: args}
-	case int64(token.LSS)<<32 + kindString:
-		return &sexp.StringLt{Args: args}
-
-	case int64(token.GTR)<<32 + kindInt:
-		return &sexp.IntGt{Args: args}
-	case int64(token.GTR)<<32 + kindFloat:
-		return &sexp.FloatGt{Args: args}
-	case int64(token.GTR)<<32 + kindString:
-		return &sexp.StringGt{Args: args}
-
-	default:
-		panic("unimplemented")
+		default:
+			panic(fmt.Sprintf("unexpected num op: %#v", node.Op))
+		}
 	}
+
+	if typ.Kind() == types.String {
+		switch node.Op {
+		case token.ADD:
+			return &sexp.Concat{Args: args}
+		case token.EQL:
+			return &sexp.StringEq{Args: args}
+		case token.LSS:
+			return &sexp.StringLt{Args: args}
+		case token.GTR:
+			return &sexp.StringGt{Args: args}
+		case token.LEQ:
+			return &sexp.StringLte{Args: args}
+		case token.GEQ:
+			return &sexp.StringGte{Args: args}
+
+		default:
+			panic(fmt.Sprintf("unexpected string op: %#v", node.Op))
+		}
+	}
+
+	panic("unimplemented")
 }
 
 func CallExpr(info *types.Info, node *ast.CallExpr) sexp.Form {

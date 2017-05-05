@@ -82,55 +82,21 @@ func varDecl(info *types.Info, node *ast.GenDecl) *sexp.FormList {
 	return &sexp.FormList{Forms: forms}
 }
 
-func AssignStmt(info *types.Info, node *ast.AssignStmt) *sexp.FormList {
-	forms := make([]sexp.Form, 0, 1)
-
-	for i, lhs := range node.Lhs {
-		switch lhs := lhs.(type) {
-		case *ast.Ident:
-			def := info.Defs[lhs]
-			expr := Expr(info, node.Rhs[i])
-			name := lhs.Name
-
-			if def == nil {
-				forms = append(forms, &sexp.Assign{Name: name, Expr: expr})
-			} else {
-				forms = append(forms, &sexp.Bind{Name: name, Init: expr})
-			}
-
-		default:
-			panic("unimplemented")
-		}
-	}
-
-	return &sexp.FormList{Forms: forms}
-}
-
 func IncDecStmt(info *types.Info, node *ast.IncDecStmt) sexp.Form {
 	// "x++" == "x = x + 1"
 	// "x--" == "x = x - 1"
 
-	tag := mapKind(info.Types[node.X].Type.(*types.Basic)).tag
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
 	var expr sexp.Form
 
-	if tag == kindInt {
-		args := []sexp.Form{Expr(info, target), sexp.Int{Val: 1}}
-		if node.Tok == token.INC {
-			expr = &sexp.IntAdd{Args: args}
-		} else {
-			expr = &sexp.IntSub{Args: args}
-		}
+	args := []sexp.Form{Expr(info, target), sexp.Int{Val: 1}}
+	if node.Tok == token.INC {
+		expr = &sexp.NumAdd{Args: args}
 	} else {
-		args := []sexp.Form{Expr(info, target), sexp.Float{Val: 1}}
-		if node.Tok == token.INC {
-			expr = &sexp.FloatAdd{Args: args}
-		} else {
-			expr = &sexp.FloatSub{Args: args}
-		}
+		expr = &sexp.NumSub{Args: args}
 	}
 
-	return &sexp.Assign{
+	return &sexp.Rebind{
 		Name: target.Name,
 		Expr: expr,
 	}

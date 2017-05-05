@@ -46,8 +46,8 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileStmtList(form.Forms)
 	case *sexp.Bind:
 		cl.compileBind(form)
-	case *sexp.Assign:
-		cl.compileAssign(form)
+	case *sexp.Rebind:
+		cl.compileRebind(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -56,37 +56,25 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 
 func (cl *Compiler) compileExpr(form sexp.Form) {
 	switch form := form.(type) {
-	case *sexp.IntAdd:
+	case *sexp.NumAdd:
 		cl.compileOp(ir.OpNumAdd, form.Args)
-	case *sexp.FloatAdd:
-		cl.compileOp(ir.OpNumAdd, form.Args)
-	case *sexp.IntSub:
+	case *sexp.NumSub:
 		cl.compileOp(ir.OpNumSub, form.Args)
-	case *sexp.FloatSub:
-		cl.compileOp(ir.OpNumSub, form.Args)
-	case *sexp.IntMul:
+	case *sexp.NumMul:
 		cl.compileOp(ir.OpNumMul, form.Args)
-	case *sexp.FloatMul:
-		cl.compileOp(ir.OpNumMul, form.Args)
-	case *sexp.IntDiv:
-		cl.compileOp(ir.OpNumDiv, form.Args)
-	case *sexp.FloatDiv:
-		cl.compileOp(ir.OpNumDiv, form.Args)
-	case *sexp.IntGt:
+	case *sexp.NumQuo:
+		cl.compileOp(ir.OpNumQuo, form.Args)
+	case *sexp.NumGt:
 		cl.compileOp(ir.OpNumGt, form.Args)
-	case *sexp.FloatGt:
-		cl.compileOp(ir.OpNumGt, form.Args)
-	case *sexp.IntLt:
+	case *sexp.NumLt:
 		cl.compileOp(ir.OpNumLt, form.Args)
-	case *sexp.FloatLt:
-		cl.compileOp(ir.OpNumLt, form.Args)
-	case *sexp.IntEq:
-		cl.compileOp(ir.OpNumEq, form.Args)
-	case *sexp.FloatEq:
+	case *sexp.NumEq:
 		cl.compileOp(ir.OpNumEq, form.Args)
 
 	case sexp.Int:
 		cl.emitConst(cl.constPool.InsertInt(form.Val))
+	case sexp.Float:
+		cl.emitConst(cl.constPool.InsertFloat(form.Val))
 	case sexp.String:
 		cl.emitConst(cl.constPool.InsertString(form.Val))
 	case sexp.Var:
@@ -148,7 +136,7 @@ func (cl *Compiler) compileBind(form *sexp.Bind) {
 	cl.stack.vals[len(cl.stack.vals)-1] = form.Name
 }
 
-func (cl *Compiler) compileAssign(form *sexp.Assign) {
+func (cl *Compiler) compileRebind(form *sexp.Rebind) {
 	cl.compileExpr(form.Expr)
 	stIndex := cl.stack.findVar(form.Name)
 	cl.emit(ir.StackSet(stIndex))

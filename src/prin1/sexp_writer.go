@@ -89,8 +89,8 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 	case *sexp.QuotedArray:
 		sw.writeCall("quoted-array", object.Vals)
 
-	case *sexp.Assign:
-		sw.writeString("(assign " + object.Name + " ")
+	case *sexp.Rebind:
+		sw.writeString("(rebind " + object.Name + " ")
 		sw.writeSexp(object.Expr)
 		sw.writeByte(')')
 	case *sexp.Bind:
@@ -116,54 +116,32 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 	case *sexp.Return:
 		sw.writeCall("return", object.Results)
 
-	case *sexp.IntAdd:
+	case *sexp.NumAdd:
 		sw.writeCall("+", object.Args)
-	case *sexp.IntSub:
+	case *sexp.NumSub:
 		sw.writeCall("-", object.Args)
-	case *sexp.IntMul:
+	case *sexp.NumMul:
 		sw.writeCall("*", object.Args)
-	case *sexp.IntDiv:
+	case *sexp.NumQuo:
 		sw.writeCall("/", object.Args)
-	case *sexp.IntBitOr:
+	case *sexp.BitOr:
 		sw.writeCall("bitor", object.Args)
-	case *sexp.IntBitAnd:
+	case *sexp.BitAnd:
 		sw.writeCall("bitand", object.Args)
-	case *sexp.IntBitXor:
+	case *sexp.BitXor:
 		sw.writeCall("bitxor", object.Args)
-	case *sexp.IntRem:
-		sw.writeCall("%", object.Args)
-	case *sexp.IntEq:
+	case *sexp.NumEq:
 		sw.writeCall("=", object.Args)
-	case *sexp.IntNotEq:
+	case *sexp.NumNotEq:
 		sw.writeCall("!=", object.Args)
-	case *sexp.IntLt:
+	case *sexp.NumLt:
 		sw.writeCall("<", object.Args)
-	case *sexp.IntLte:
+	case *sexp.NumLte:
 		sw.writeCall("<=", object.Args)
-	case *sexp.IntGt:
+	case *sexp.NumGt:
 		sw.writeCall(">", object.Args)
-	case *sexp.IntGte:
+	case *sexp.NumGte:
 		sw.writeCall(">=", object.Args)
-	case *sexp.FloatAdd:
-		sw.writeCall("f+", object.Args)
-	case *sexp.FloatSub:
-		sw.writeCall("f-", object.Args)
-	case *sexp.FloatMul:
-		sw.writeCall("f*", object.Args)
-	case *sexp.FloatDiv:
-		sw.writeCall("f/", object.Args)
-	case *sexp.FloatEq:
-		sw.writeCall("f=", object.Args)
-	case *sexp.FloatNotEq:
-		sw.writeCall("f!=", object.Args)
-	case *sexp.FloatLt:
-		sw.writeCall("f<", object.Args)
-	case *sexp.FloatLte:
-		sw.writeCall("f<=", object.Args)
-	case *sexp.FloatGt:
-		sw.writeCall("f>", object.Args)
-	case *sexp.FloatGte:
-		sw.writeCall("f>=", object.Args)
 	case *sexp.Concat:
 		sw.writeCall("concat", object.Args)
 	case *sexp.StringEq:
