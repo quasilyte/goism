@@ -7,6 +7,7 @@ func (atom Char) IsAtom() bool   { return true }
 func (atom Int) IsAtom() bool    { return true }
 func (atom Float) IsAtom() bool  { return true }
 func (atom String) IsAtom() bool { return true }
+func (atom Symbol) IsAtom() bool { return true }
 
 func (lit *ArrayLit) IsAtom() bool    { return false }
 func (lit *QuotedArray) IsAtom() bool { return false }
@@ -18,6 +19,8 @@ func (form *Block) IsAtom() bool    { return false }
 func (form *If) IsAtom() bool       { return false }
 func (form *Return) IsAtom() bool   { return false }
 
+func (op MakeMap) IsAtom() bool      { return false }
+func (op *MapSet) IsAtom() bool      { return false }
 func (op *BitOr) IsAtom() bool       { return false }
 func (op *BitAnd) IsAtom() bool      { return false }
 func (op *BitXor) IsAtom() bool      { return false }

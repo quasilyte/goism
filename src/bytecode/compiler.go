@@ -48,6 +48,8 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileBind(form)
 	case *sexp.Rebind:
 		cl.compileRebind(form)
+	case *sexp.MapSet:
+		cl.compileMapSet(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -79,9 +81,14 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 		cl.emitConst(cl.constPool.InsertString(form.Val))
 	case sexp.Var:
 		cl.emitVar(form.Name, cl.stack.findVar(form.Name))
+	case sexp.Symbol:
+		cl.emitConst(cl.constPool.InsertSym(form.Val))
 
 	case *sexp.Call:
-		cl.compileCall(emacs.Symbol(form.Fn), form.Args)
+		cl.compileCall(emacs.Symbol(form.Fn), form.Args...)
+
+	case sexp.MakeMap:
+		cl.compileMakeMap(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", form))
@@ -93,11 +100,11 @@ func (cl *Compiler) compileOp(op ir.Opcode, args []sexp.Form) {
 		cl.compileExprList(args)
 		cl.emit(ir.Instr{Op: op})
 	} else {
-		cl.compileCall(instrSpecs[op].fn, args)
+		cl.compileCall(instrSpecs[op].fn, args...)
 	}
 }
 
-func (cl *Compiler) compileCall(fn emacs.Symbol, args []sexp.Form) {
+func (cl *Compiler) compileCall(fn emacs.Symbol, args ...sexp.Form) {
 	cpIndex := cl.constPool.InsertSym(fn)
 	cl.emitConst(cpIndex)
 	cl.compileExprList(args)
@@ -140,6 +147,19 @@ func (cl *Compiler) compileRebind(form *sexp.Rebind) {
 	cl.compileExpr(form.Expr)
 	stIndex := cl.stack.findVar(form.Name)
 	cl.emit(ir.StackSet(stIndex))
+}
+
+func (cl *Compiler) compileMakeMap(form sexp.MakeMap) {
+	cl.compileCall(
+		"make-hash-table",
+		sym(":size"), form.SizeHint,
+		sym(":test"), sym("equal"),
+	)
+}
+
+func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
+	cl.compileCall("puthash", form.Key, form.Val, form.Map)
+	cl.emit(ir.Drop(1))
 }
 
 func (cl *Compiler) compileStmtList(forms []sexp.Form) {
@@ -197,4 +217,8 @@ func (cl *Compiler) createObject() Object {
 		ConstPool:  cl.constPool,
 		StackUsage: cl.stack.maxSize,
 	}
+}
+
+func sym(val emacs.Symbol) sexp.Symbol {
+	return sexp.Symbol{Val: val}
 }

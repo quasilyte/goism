@@ -3,6 +3,7 @@
 package sexp
 
 import (
+	"emacs"
 	"go/types"
 )
 
@@ -27,6 +28,7 @@ type Char struct{ Val rune }
 type Int struct{ Val int64 }
 type Float struct{ Val float64 }
 type String struct{ Val string }
+type Symbol struct{ Val emacs.Symbol }
 
 /* Composite literals */
 
@@ -81,6 +83,16 @@ type Return struct {
 }
 
 /* Builtin ops */
+
+type MakeMap struct {
+	SizeHint Form
+}
+
+type MapSet struct {
+	Map Form
+	Key Form
+	Val Form
+}
 
 type (
 	BitOr  struct{ Args []Form }

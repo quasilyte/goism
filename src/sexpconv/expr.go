@@ -24,6 +24,8 @@ func Expr(info *types.Info, node ast.Expr) sexp.Form {
 		return SelectorExpr(info, node)
 	case *ast.TypeAssertExpr:
 		return TypeAssertExpr(info, node)
+	case *ast.IndexExpr:
+		return IndexExpr(info, node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -123,12 +125,15 @@ func CallExpr(info *types.Info, node *ast.CallExpr) sexp.Form {
 			}
 
 			qualName := obj.Name + "." + fn.Sel.Name
-			return &sexp.Call{Fn: qualName, Args: exprList(info, node.Args)}
+			return call(info, qualName, node.Args...)
 		}
 		panic(fmt.Sprintf("unexpected selector: %#v", fn))
 
 	case *ast.Ident:
-		return &sexp.Call{Fn: fn.Name, Args: exprList(info, node.Args)}
+		if fn.Name == "make" {
+			return makeBuiltin(info, node.Args)
+		}
+		return call(info, fn.Name, node.Args...)
 
 	default:
 		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
@@ -150,4 +155,15 @@ func SelectorExpr(info *types.Info, node *ast.SelectorExpr) sexp.Form {
 
 func TypeAssertExpr(info *types.Info, node *ast.TypeAssertExpr) sexp.Form {
 	panic("unimplemented")
+}
+
+func IndexExpr(info *types.Info, node *ast.IndexExpr) sexp.Form {
+	switch typ := info.Types[node.X].Type; typ.(type) {
+	case *types.Map:
+		return call(info, "gethash", node.Index, node.X)
+
+	// #TODO: arrays, slices, strings
+	default:
+		panic("unimplemented")
+	}
 }

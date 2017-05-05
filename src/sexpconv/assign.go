@@ -77,13 +77,28 @@ func singleValueAssign(info *types.Info, node *ast.AssignStmt) *sexp.FormList {
 }
 
 func assign(info *types.Info, lhs ast.Expr, expr sexp.Form) sexp.Form {
-	if lhs, ok := lhs.(*ast.Ident); ok {
+	switch lhs := lhs.(type) {
+	case *ast.Ident:
 		if def := info.Defs[lhs]; def == nil {
 			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
 		}
 		return &sexp.Bind{Name: lhs.Name, Init: expr}
-	}
 
-	// #TODO: struct assign, indirect assign, index assign.
-	panic("unimplemented")
+	case *ast.IndexExpr:
+		switch typ := info.Types[lhs.X].Type; typ.(type) {
+		case *types.Map:
+			return &sexp.MapSet{
+				Map: Expr(info, lhs.X),
+				Key: Expr(info, lhs.Index),
+				Val: expr,
+			}
+
+		default:
+			panic("unimplemented")
+		}
+
+	// #TODO: struct assign, indirect assign
+	default:
+		panic("unimplemented")
+	}
 }
