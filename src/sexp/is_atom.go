@@ -12,13 +12,15 @@ func (atom Symbol) IsAtom() bool { return true }
 func (lit *ArrayLit) IsAtom() bool    { return false }
 func (lit *QuotedArray) IsAtom() bool { return false }
 
-func (fomr *Bind) IsAtom() bool     { return false }
-func (fomr *Rebind) IsAtom() bool   { return false }
-func (form ExprStmt) IsAtom() bool  { return false }
-func (form *FormList) IsAtom() bool { return false }
-func (form *Block) IsAtom() bool    { return false }
-func (form *If) IsAtom() bool       { return false }
-func (form *Return) IsAtom() bool   { return false }
+func (fomr *Panic) IsAtom() bool      { return false }
+func (fomr *Bind) IsAtom() bool       { return false }
+func (fomr *Rebind) IsAtom() bool     { return false }
+func (form ExprStmt) IsAtom() bool    { return false }
+func (form *TypeAssert) IsAtom() bool { return false }
+func (form *FormList) IsAtom() bool   { return false }
+func (form *Block) IsAtom() bool      { return false }
+func (form *If) IsAtom() bool         { return false }
+func (form *Return) IsAtom() bool     { return false }
 
 func (op MakeMap) IsAtom() bool      { return false }
 func (op *MapSet) IsAtom() bool      { return false }

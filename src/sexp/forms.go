@@ -42,9 +42,9 @@ type QuotedArray struct {
 
 /* Special forms */
 
-// ExprStmt represents expression whose result is discarded.
-type ExprStmt struct {
-	Form Form
+// Panic causes runtime panic and carries data along.
+type Panic struct {
+	ErrorData Form
 }
 
 // Bind associates name with expression (initializer).
@@ -58,6 +58,17 @@ type Bind struct {
 type Rebind struct {
 	Name string
 	Expr Form
+}
+
+// TypeAssert coerces expression to specified type; panics on failure.
+type TypeAssert struct {
+	Expr Form
+	Type *types.Type
+}
+
+// ExprStmt represents expression whose result is discarded.
+type ExprStmt struct {
+	Form Form
 }
 
 // FormList packs multiple forms together (like "progn").
