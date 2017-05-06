@@ -33,17 +33,24 @@ is loaded as `Go-foo.Bar`.
 #### Elisp from Go
 
 When writing package specifically for Emacs, you
-can use `emacs` package which exports some
-fundamental primitives that let you do almost anything.
-For example, `emacs.Call` invokes any Emacs function
-with arbitrary argument list and returns Elisp object
-(semantically, its `funcall`).
+can use `emacs` and `emacs/lisp` packages.
 
-You can create and use Elisp objects:
-`list := emacs.Call("cons", 1, 2)`.
+**Lisp** package is very low-level. 
+It defines Emacs object types and **intrinsic** functions.
 
-This snippet inserts `"hello world"` into current buffer:
-`emacs.Call("insert", "hello, world!")`.
+**Emacs** package is a big, typesafe convenience
+wrapper around `emacs/lisp` package. Most of the time
+you should use `emacs` package functions. 
+
+```go
+// You can create and use Elisp objects:
+list := lisp.Call("cons", lisp.Int(1), lisp.String("2"))
+
+// Insert "hello, world!" into current buffer:
+lisp.Call("insert", lisp.String("hello, world!"))
+// Luckily, "emacs" package has a nice wrapper:
+emacs.Insert("hello, world")
+```
 
 ## Docs
 
