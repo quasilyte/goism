@@ -124,7 +124,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 				return conv.intrinsic(fn.Sel.Name, node.Args)
 			}
 
-			qualName := obj.Name + "." + fn.Sel.Name
+			qualName := "Go-" + obj.Name + "." + fn.Sel.Name
 			return conv.call(qualName, node.Args...)
 		}
 		panic(fmt.Sprintf("unexpected selector: %#v", fn))
@@ -159,7 +159,6 @@ func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 }
 
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
-
 	switch typ := conv.typeOf(node.X); typ.(type) {
 	case *types.Map:
 		return conv.call("gethash", node.Index, node.X)
