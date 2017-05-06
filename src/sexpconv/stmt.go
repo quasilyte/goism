@@ -22,7 +22,7 @@ func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 	case *ast.IncDecStmt:
 		return conv.IncDecStmt(node)
 	case *ast.ExprStmt:
-		return sexp.ExprStmt{Form: conv.Expr(node.X)}
+		return conv.ExprStmt(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", node))
@@ -101,4 +101,12 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 		Name: target.Name,
 		Expr: expr,
 	}
+}
+
+func (conv *Converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
+	form := conv.Expr(node.X)
+	if form, ok := form.(*sexp.Panic); ok {
+		return form
+	}
+	return sexp.ExprStmt{Form: form}
 }

@@ -29,10 +29,29 @@ func (cl *Compiler) CompileFunc(f *tu.Func) *Func {
 	}
 
 	cl.compileStmtList(f.Body)
+	cl.ensureTrailingReturn()
 
 	return &Func{
 		Object:   cl.createObject(),
 		ArgsDesc: argsDescriptor(len(f.Params), f.Variadic),
+	}
+}
+
+// Insert trailing "return" opcode if its not already there.
+func (cl *Compiler) ensureTrailingReturn() {
+	code := cl.code
+
+	lastInstr := ir.Empty
+	for i := len(code.blocks) - 1; i >= 0; i-- {
+		bb := code.blocks[i]
+		if len(bb.Instrs) == 0 {
+			continue // Empty block
+		}
+		lastInstr = bb.Instrs[len(bb.Instrs)-1]
+	}
+
+	if lastInstr.Op == ir.OpEmpty || lastInstr.Op != ir.OpReturn {
+		cl.emit(ir.Return())
 	}
 }
 
@@ -53,7 +72,9 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 	case *sexp.MapSet:
 		cl.compileMapSet(form)
 	case sexp.ExprStmt:
-		cl.compileExprStmt(form)
+		cl.compileExprStmt(form.Form)
+	case *sexp.Panic:
+		cl.compilePanic(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -186,8 +207,13 @@ func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
 	cl.emit(ir.Drop(1))
 }
 
-func (cl *Compiler) compileExprStmt(form sexp.ExprStmt) {
-	cl.compileExpr(form.Form)
+func (cl *Compiler) compilePanic(form *sexp.Panic) {
+	cl.compileCall("Go-panic", form.ErrorData)
+	cl.code.pushBlock("panic")
+}
+
+func (cl *Compiler) compileExprStmt(form sexp.Form) {
+	cl.compileExpr(form)
 	cl.emit(ir.Drop(1)) // Discard expression result.
 }
 

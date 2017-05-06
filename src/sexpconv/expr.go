@@ -134,7 +134,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.makeBuiltin(node.Args)
 		}
 		if fn.Name == "panic" {
-			return conv.call("Go-panic", node.Args[0])
+			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
 		}
 
 		return conv.call(conv.symPrefix+fn.Name, node.Args...)
