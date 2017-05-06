@@ -79,6 +79,11 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 		asm.writeOp(160)
 	case ir.OpSetCdr:
 		asm.writeOp(161)
+	case ir.OpCar:
+		asm.writeOp(64)
+	case ir.OpCdr:
+		asm.writeOp(65)
+
 	case ir.OpArrayRef:
 		asm.writeOp(72)
 	case ir.OpArraySet:
