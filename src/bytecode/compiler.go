@@ -52,6 +52,8 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileRebind(form)
 	case *sexp.MapSet:
 		cl.compileMapSet(form)
+	case sexp.ExprStmt:
+		cl.compileExprStmt(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -106,11 +108,32 @@ func (cl *Compiler) compileOp(op ir.Opcode, args []sexp.Form) {
 	}
 }
 
-func (cl *Compiler) compileCall(fn emacs.Symbol, args ...sexp.Form) {
-	cpIndex := cl.constPool.InsertSym(fn)
-	cl.emitConst(cpIndex)
+func (cl *Compiler) compileInstr(instr ir.Instr, argc int, args []sexp.Form) {
+	if len(args) != argc {
+		// #FIXME: need better error handling here.
+		panic(fmt.Sprintf("%s expected %d args, got %d",
+			instr.Op, argc, len(args)))
+	}
 	cl.compileExprList(args)
-	cl.emitCall(len(args))
+	cl.emit(instr)
+}
+
+func (cl *Compiler) compileCall(fn emacs.Symbol, args ...sexp.Form) {
+	switch fn {
+	case "cons":
+		cl.compileInstr(ir.MakeCons(), 2, args)
+	case "car":
+		cl.compileInstr(ir.Car(), 1, args)
+	case "cdr":
+		cl.compileInstr(ir.Cdr(), 1, args)
+
+	default:
+		cpIndex := cl.constPool.InsertSym(fn)
+		cl.emitConst(cpIndex)
+		cl.compileExprList(args)
+		cl.emitCall(len(args))
+	}
+
 }
 
 func (cl *Compiler) compileReturn(form *sexp.Return) {
@@ -164,6 +187,11 @@ func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
 	cl.emit(ir.Drop(1))
 }
 
+func (cl *Compiler) compileExprStmt(form sexp.ExprStmt) {
+	cl.compileExpr(form.Form)
+	cl.emit(ir.Drop(1)) // Discard expression result.
+}
+
 func (cl *Compiler) compileStmtList(forms []sexp.Form) {
 	for _, form := range forms {
 		cl.compileStmt(form)
@@ -181,8 +209,17 @@ func (cl *Compiler) emit(instr ir.Instr) {
 
 	cl.stack.drop(spec.argc)
 	cl.code.pushInstr(instr)
-	if spec.output {
+
+	switch spec.mode {
+	case omTmp:
 		cl.stack.pushTmp()
+
+	case omDiscard:
+		cl.stack.pushTmp()
+		cl.emit(ir.Drop(1))
+
+	case omVoid:
+		/* Do nothing */
 	}
 }
 
