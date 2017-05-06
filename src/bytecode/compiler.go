@@ -2,7 +2,7 @@ package bytecode
 
 import (
 	"bytecode/ir"
-	"emacs"
+	"emacs/lisp"
 	"fmt"
 	"sexp"
 	"tu"
@@ -110,7 +110,7 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 		cl.emitConst(cl.constPool.InsertSym(form.Val))
 
 	case *sexp.Call:
-		cl.compileCall(emacs.Symbol(form.Fn), form.Args...)
+		cl.compileCall(lisp.Symbol(form.Fn), form.Args...)
 
 	case sexp.MakeMap:
 		cl.compileMakeMap(form)
@@ -139,7 +139,7 @@ func (cl *Compiler) compileInstr(instr ir.Instr, argc int, args []sexp.Form) {
 	cl.emit(instr)
 }
 
-func (cl *Compiler) compileCall(fn emacs.Symbol, args ...sexp.Form) {
+func (cl *Compiler) compileCall(fn lisp.Symbol, args ...sexp.Form) {
 	switch fn {
 	case "cons":
 		cl.compileInstr(ir.MakeCons(), 2, args)
@@ -283,7 +283,7 @@ func (cl *Compiler) createObject() Object {
 	}
 }
 
-func sym(val emacs.Symbol) sexp.Symbol {
+func sym(val lisp.Symbol) sexp.Symbol {
 	return sexp.Symbol{Val: val}
 }
 

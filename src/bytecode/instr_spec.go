@@ -2,7 +2,7 @@ package bytecode
 
 import (
 	"bytecode/ir"
-	"emacs"
+	"emacs/lisp"
 )
 
 type outputMode int
@@ -19,7 +19,7 @@ const (
 type instrSpec struct {
 	argc int
 	mode outputMode
-	fn   emacs.Symbol
+	fn   lisp.Symbol
 }
 
 var instrSpecs = [...]instrSpec{

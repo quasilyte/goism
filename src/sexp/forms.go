@@ -3,7 +3,7 @@
 package sexp
 
 import (
-	"emacs"
+	"emacs/lisp"
 	"go/types"
 )
 
@@ -28,7 +28,7 @@ type Char struct{ Val rune }
 type Int struct{ Val int64 }
 type Float struct{ Val float64 }
 type String struct{ Val string }
-type Symbol struct{ Val emacs.Symbol }
+type Symbol struct{ Val lisp.Symbol }
 
 /* Composite literals */
 
