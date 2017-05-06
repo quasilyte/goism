@@ -27,8 +27,12 @@ const (
 		Functions
 	*/
 
+	// OpEmpty is a dummy opcode that does not generate any
+	// code, but can be used to fill holes during optimizations.
+	OpEmpty Opcode = iota
+
 	// OpReturn returns from a function.
-	OpReturn Opcode = iota
+	OpReturn
 	// OpCall invokes function with specified number of arguments.
 	OpCall
 
@@ -159,6 +163,12 @@ type Instr struct {
 	Op   Opcode
 	Data uint16
 }
+
+var (
+	Empty Instr = instr(OpEmpty, 0)
+)
+
+// #FIXME: turn 0-args instructins into variables.
 
 func Return() Instr              { return instr(OpReturn, 0) }
 func Call(argc int) Instr        { return instr(OpCall, argc) }
