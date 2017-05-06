@@ -120,7 +120,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	switch fn := node.Fun.(type) {
 	case *ast.SelectorExpr:
 		if obj, ok := fn.X.(*ast.Ident); ok {
-			if obj.Name == "emacs" {
+			if obj.Name == "lisp" {
 				return conv.intrinsic(fn.Sel.Name, node.Args)
 			}
 

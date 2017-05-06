@@ -1,17 +1,13 @@
+// Package emacs provides a set of utilities that
+// simplify Emacs interop.
+// It wraps most common functions invoked with lisp.Call
+// in a typesafe interface.
 package emacs
 
-/*
-	Types
-*/
-
-// Object is unboxed Emacs Lisp object.
-type Object interface {
-	object()
-}
-
-type (
-	Int    int
-	Float  float64
-	String string
-	Symbol string
+import (
+	"emacs/lisp"
 )
+
+func Insert(arg string) {
+	lisp.Call("insert", lisp.String(arg))
+}

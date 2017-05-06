@@ -1,4 +1,4 @@
-package emacs
+package lisp
 
 func (Int) object()    {}
 func (Float) object()  {}
