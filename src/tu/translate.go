@@ -9,6 +9,7 @@ import (
 func translatePackage(goPkg *goPackage) *Package {
 	pkg := &Package{Name: goPkg.Name}
 	varsWithInit := make(map[string]struct{})
+	conv := sexpconv.NewConverter(goPkg.info, goPkg.Name)
 
 	for _, init := range goPkg.info.InitOrder {
 		if len(init.Lhs) != 1 {
@@ -20,7 +21,7 @@ func translatePackage(goPkg *goPackage) *Package {
 		varsWithInit[name] = struct{}{}
 		pkg.Vars = append(pkg.Vars, &Var{
 			Name: name,
-			Init: sexpconv.Expr(goPkg.info, init.Rhs),
+			Init: conv.Expr(init.Rhs),
 		})
 	}
 
@@ -46,7 +47,7 @@ func translatePackage(goPkg *goPackage) *Package {
 	for _, file := range goPkg.Files {
 		for _, decl := range file.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
-				translateFunc(pkg, goPkg.info, decl)
+				translateFunc(pkg, conv, decl)
 			}
 		}
 	}
@@ -54,7 +55,7 @@ func translatePackage(goPkg *goPackage) *Package {
 	return pkg
 }
 
-func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
+func translateFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
 	// Collect flat list of param names.
 	params := decl.Type.Params
 	paramNames := make([]string, 0, params.NumFields())
@@ -67,6 +68,6 @@ func translateFunc(pkg *Package, info *types.Info, decl *ast.FuncDecl) {
 	pkg.Funcs = append(pkg.Funcs, &Func{
 		Name:   decl.Name.Name,
 		Params: paramNames,
-		Body:   sexpconv.BlockStmt(info, decl.Body).Forms,
+		Body:   conv.BlockStmt(decl.Body).Forms,
 	})
 }

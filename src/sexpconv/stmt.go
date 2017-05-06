@@ -4,68 +4,67 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"go/types"
 	"sexp"
 )
 
-func Stmt(info *types.Info, node ast.Stmt) sexp.Form {
+func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 	switch node := node.(type) {
 	case *ast.IfStmt:
-		return IfStmt(info, node)
+		return conv.IfStmt(node)
 	case *ast.ReturnStmt:
-		return ReturnStmt(info, node)
+		return conv.ReturnStmt(node)
 	case *ast.BlockStmt:
-		return BlockStmt(info, node)
+		return conv.BlockStmt(node)
 	case *ast.DeclStmt:
-		return DeclStmt(info, node)
+		return conv.DeclStmt(node)
 	case *ast.AssignStmt:
-		return AssignStmt(info, node)
+		return conv.AssignStmt(node)
 	case *ast.IncDecStmt:
-		return IncDecStmt(info, node)
+		return conv.IncDecStmt(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", node))
 	}
 }
 
-func IfStmt(info *types.Info, node *ast.IfStmt) *sexp.If {
+func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 	if node.Init != nil {
 		panic("unimplemented")
 	}
 
-	test := Expr(info, node.Cond)
-	then := BlockStmt(info, node.Body)
+	test := conv.Expr(node.Cond)
+	then := conv.BlockStmt(node.Body)
 	form := &sexp.If{Test: test, Then: then}
 	if node.Else != nil {
-		form.Else = Stmt(info, node.Else)
+		form.Else = conv.Stmt(node.Else)
 	}
 
 	return form
 }
 
-func ReturnStmt(info *types.Info, node *ast.ReturnStmt) *sexp.Return {
-	return &sexp.Return{Results: exprList(info, node.Results)}
+func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
+	return &sexp.Return{Results: conv.exprList(node.Results)}
 }
 
-func BlockStmt(info *types.Info, node *ast.BlockStmt) *sexp.Block {
+func (conv *Converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
 	return &sexp.Block{
-		Forms: stmtList(info, node.List),
-		Scope: info.Scopes[node],
+		Forms: conv.stmtList(node.List),
+		Scope: conv.info.Scopes[node],
 	}
 }
 
-func DeclStmt(info *types.Info, node *ast.DeclStmt) sexp.Form {
+func (conv *Converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
 	decl := node.Decl.(*ast.GenDecl)
 
 	switch decl.Tok {
 	case token.VAR:
-		return varDecl(info, decl)
+		return conv.varDecl(decl)
 	}
 
 	panic("unimplemented")
 }
 
-func varDecl(info *types.Info, node *ast.GenDecl) *sexp.FormList {
+func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for _, spec := range node.Specs {
@@ -74,7 +73,7 @@ func varDecl(info *types.Info, node *ast.GenDecl) *sexp.FormList {
 		for i, ident := range spec.Names {
 			forms = append(forms, &sexp.Bind{
 				Name: ident.Name,
-				Init: Expr(info, spec.Values[i]),
+				Init: conv.Expr(spec.Values[i]),
 			})
 		}
 	}
@@ -82,14 +81,14 @@ func varDecl(info *types.Info, node *ast.GenDecl) *sexp.FormList {
 	return &sexp.FormList{Forms: forms}
 }
 
-func IncDecStmt(info *types.Info, node *ast.IncDecStmt) sexp.Form {
+func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 	// "x++" == "x = x + 1"
 	// "x--" == "x = x - 1"
 
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
 	var expr sexp.Form
 
-	args := []sexp.Form{Expr(info, target), sexp.Int{Val: 1}}
+	args := []sexp.Form{conv.Expr(target), sexp.Int{Val: 1}}
 	if node.Tok == token.INC {
 		expr = &sexp.NumAdd{Args: args}
 	} else {

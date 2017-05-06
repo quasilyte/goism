@@ -8,62 +8,62 @@ import (
 	"sexp"
 )
 
-func Expr(info *types.Info, node ast.Expr) sexp.Form {
+func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 	switch node := node.(type) {
 	case *ast.ParenExpr:
-		return Expr(info, node.X)
+		return conv.Expr(node.X)
 	case *ast.Ident:
-		return Ident(info, node)
+		return conv.Ident(node)
 	case *ast.BasicLit:
-		return BasicLit(info, node)
+		return conv.BasicLit(node)
 	case *ast.BinaryExpr:
-		return BinaryExpr(info, node)
+		return conv.BinaryExpr(node)
 	case *ast.CallExpr:
-		return CallExpr(info, node)
+		return conv.CallExpr(node)
 	case *ast.SelectorExpr:
-		return SelectorExpr(info, node)
+		return conv.SelectorExpr(node)
 	case *ast.TypeAssertExpr:
-		return TypeAssertExpr(info, node)
+		return conv.TypeAssertExpr(node)
 	case *ast.IndexExpr:
-		return IndexExpr(info, node)
+		return conv.IndexExpr(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
 	}
 }
 
-func Ident(info *types.Info, node *ast.Ident) sexp.Form {
-	if cv := info.Types[node].Value; cv != nil {
+func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
+	if cv := conv.valueOf(node); cv != nil {
 		return Constant(cv)
 	}
 	return sexp.Var{Name: node.Name}
 }
 
-func BasicLit(info *types.Info, node *ast.BasicLit) sexp.Form {
+func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
 	switch node.Kind {
 	case token.INT:
-		return constantInt(info.Types[node].Value)
+		return constantInt(conv.valueOf(node))
 	case token.FLOAT:
-		return constantFloat(info.Types[node].Value)
+		return constantFloat(conv.valueOf(node))
 	case token.STRING:
-		return constantString(info.Types[node].Value)
+		return constantString(conv.valueOf(node))
 	case token.CHAR:
-		return constantChar(info.Types[node].Value)
+		return constantChar(conv.valueOf(node))
 
 	default:
 		panic(fmt.Sprintf("unexpected literal: %#v", node))
 	}
 }
 
-func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
-	if cv := info.Types[node].Value; cv != nil {
+func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
+	if cv := conv.valueOf(node); cv != nil {
 		return Constant(cv)
 	}
 
-	typ := info.TypeOf(node.X).(*types.Basic)
+	typ := conv.basicTypeOf(node.X)
 	args := []sexp.Form{
-		Expr(info, node.X),
-		Expr(info, node.Y),
+		conv.Expr(node.X),
+		conv.Expr(node.Y),
 	}
 
 	if typ.Info()&types.IsNumeric != 0 {
@@ -115,37 +115,38 @@ func BinaryExpr(info *types.Info, node *ast.BinaryExpr) sexp.Form {
 	panic("unimplemented")
 }
 
-func CallExpr(info *types.Info, node *ast.CallExpr) sexp.Form {
+func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	// #REFS: 2.
 	switch fn := node.Fun.(type) {
 	case *ast.SelectorExpr:
 		if obj, ok := fn.X.(*ast.Ident); ok {
 			if obj.Name == "emacs" {
-				return intrinsic(info, fn.Sel.Name, node.Args)
+				return conv.intrinsic(fn.Sel.Name, node.Args)
 			}
 
 			qualName := obj.Name + "." + fn.Sel.Name
-			return call(info, qualName, node.Args...)
+			return conv.call(qualName, node.Args...)
 		}
 		panic(fmt.Sprintf("unexpected selector: %#v", fn))
 
 	case *ast.Ident:
 		if fn.Name == "make" {
-			return makeBuiltin(info, node.Args)
+			return conv.makeBuiltin(node.Args)
 		}
-		return call(info, fn.Name, node.Args...)
+
+		return conv.call(conv.symPrefix+fn.Name, node.Args...)
 
 	default:
 		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
 	}
 }
 
-func SelectorExpr(info *types.Info, node *ast.SelectorExpr) sexp.Form {
-	if cv := info.Types[node].Value; cv != nil {
+func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
+	if cv := conv.valueOf(node); cv != nil {
 		return Constant(cv)
 	}
 
-	sel := info.Selections[node]
+	sel := conv.info.Selections[node]
 	if sel != nil {
 		panic("unimplemented")
 	}
@@ -153,14 +154,15 @@ func SelectorExpr(info *types.Info, node *ast.SelectorExpr) sexp.Form {
 	panic(fmt.Sprintf("unexpected selector: %#v", node))
 }
 
-func TypeAssertExpr(info *types.Info, node *ast.TypeAssertExpr) sexp.Form {
+func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 	panic("unimplemented")
 }
 
-func IndexExpr(info *types.Info, node *ast.IndexExpr) sexp.Form {
-	switch typ := info.Types[node.X].Type; typ.(type) {
+func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
+
+	switch typ := conv.typeOf(node.X); typ.(type) {
 	case *types.Map:
-		return call(info, "gethash", node.Index, node.X)
+		return conv.call("gethash", node.Index, node.X)
 
 	// #TODO: arrays, slices, strings
 	default:

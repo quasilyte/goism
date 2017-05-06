@@ -7,89 +7,89 @@ import (
 	"sexp"
 )
 
-func AssignStmt(info *types.Info, node *ast.AssignStmt) sexp.Form {
+func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 	switch node.Tok {
 	case token.ADD_ASSIGN:
-		return addAssign(info, node.Lhs[0], node.Rhs[0])
+		return conv.addAssign(node.Lhs[0], node.Rhs[0])
 	case token.SUB_ASSIGN:
-		return subAssign(info, node.Lhs[0], node.Rhs[0])
+		return conv.subAssign(node.Lhs[0], node.Rhs[0])
 	case token.MUL_ASSIGN:
-		return mulAssign(info, node.Lhs[0], node.Rhs[0])
+		return conv.mulAssign(node.Lhs[0], node.Rhs[0])
 	case token.QUO_ASSIGN:
-		return quoAssign(info, node.Lhs[0], node.Rhs[0])
+		return conv.quoAssign(node.Lhs[0], node.Rhs[0])
 
 	default:
 		if len(node.Rhs) != len(node.Lhs) {
-			return multiValueAssign(info, node)
+			return conv.multiValueAssign(node)
 		}
-		return singleValueAssign(info, node)
+		return conv.singleValueAssign(node)
 	}
 }
 
-func addAssign(info *types.Info, lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	typ := info.TypeOf(rhs).(*types.Basic)
-	args := []sexp.Form{Expr(info, lhs), Expr(info, rhs)}
+func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+	typ := conv.basicTypeOf(rhs)
+	args := []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
 
 	if typ.Info()&types.IsNumeric != 0 {
-		return assign(info, lhs, &sexp.NumAdd{Type: typ, Args: args})
+		return conv.assign(lhs, &sexp.NumAdd{Type: typ, Args: args})
 	}
 	if typ.Kind() == types.String {
-		return assign(info, lhs, &sexp.Concat{Args: args})
+		return conv.assign(lhs, &sexp.Concat{Args: args})
 	}
 
 	panic("unimplemented")
 }
 
-func subAssign(info *types.Info, lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return assign(info, lhs, &sexp.NumSub{
-		Type: info.TypeOf(rhs).(*types.Basic),
-		Args: []sexp.Form{Expr(info, lhs), Expr(info, rhs)},
+func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+	return conv.assign(lhs, &sexp.NumSub{
+		Type: conv.basicTypeOf(rhs),
+		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
-func mulAssign(info *types.Info, lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return assign(info, lhs, &sexp.NumMul{
-		Type: info.TypeOf(rhs).(*types.Basic),
-		Args: []sexp.Form{Expr(info, lhs), Expr(info, rhs)},
+func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+	return conv.assign(lhs, &sexp.NumMul{
+		Type: conv.basicTypeOf(rhs),
+		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
-func quoAssign(info *types.Info, lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return assign(info, lhs, &sexp.NumQuo{
-		Type: info.TypeOf(rhs).(*types.Basic),
-		Args: []sexp.Form{Expr(info, lhs), Expr(info, rhs)},
+func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+	return conv.assign(lhs, &sexp.NumQuo{
+		Type: conv.basicTypeOf(rhs),
+		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
-func multiValueAssign(info *types.Info, node *ast.AssignStmt) *sexp.FormList {
+func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
 	panic("unimplemented")
 }
 
-func singleValueAssign(info *types.Info, node *ast.AssignStmt) *sexp.FormList {
+func (conv *Converter) singleValueAssign(node *ast.AssignStmt) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for i, lhs := range node.Lhs {
-		rhs := Expr(info, node.Rhs[i])
-		forms = append(forms, assign(info, lhs, rhs))
+		rhs := conv.Expr(node.Rhs[i])
+		forms = append(forms, conv.assign(lhs, rhs))
 	}
 
 	return &sexp.FormList{Forms: forms}
 }
 
-func assign(info *types.Info, lhs ast.Expr, expr sexp.Form) sexp.Form {
+func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	switch lhs := lhs.(type) {
 	case *ast.Ident:
-		if def := info.Defs[lhs]; def == nil {
+		if def := conv.info.Defs[lhs]; def == nil {
 			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
 		}
 		return &sexp.Bind{Name: lhs.Name, Init: expr}
 
 	case *ast.IndexExpr:
-		switch typ := info.Types[lhs.X].Type; typ.(type) {
+		switch typ := conv.typeOf(lhs.X); typ.(type) {
 		case *types.Map:
 			return &sexp.MapSet{
-				Map: Expr(info, lhs.X),
-				Key: Expr(info, lhs.Index),
+				Map: conv.Expr(lhs.X),
+				Key: conv.Expr(lhs.Index),
 				Val: expr,
 			}
 
