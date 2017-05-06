@@ -5,6 +5,7 @@ import (
 	"emacs"
 	"fmt"
 	"sexp"
+	"tu"
 )
 
 // #FIXME: either make compiler object reusable,
@@ -22,15 +23,16 @@ func NewCompiler() *Compiler {
 	return &Compiler{code: newCode()}
 }
 
-func (cl *Compiler) CompileFunc(params []string, forms []sexp.Form) *Func {
-	for _, param := range params {
+func (cl *Compiler) CompileFunc(f *tu.Func) *Func {
+	for _, param := range f.Params {
 		cl.stack.pushVar(param)
 	}
 
-	cl.compileStmtList(forms)
+	cl.compileStmtList(f.Body)
 
 	return &Func{
-		Object: cl.createObject(),
+		Object:   cl.createObject(),
+		ArgsDesc: argsDescriptor(len(f.Params), f.Variadic),
 	}
 }
 
@@ -221,4 +223,19 @@ func (cl *Compiler) createObject() Object {
 
 func sym(val emacs.Symbol) sexp.Symbol {
 	return sexp.Symbol{Val: val}
+}
+
+func argsDescriptor(arity int, variadic bool) uint32 {
+	if arity > 127 {
+		panic("can not have more than 127 positional parameters")
+	}
+
+	positionalArgs := uint32(arity) // First 7 bits: required args
+	const variadicBit = 128         // 8-th bit: "rest" arg
+	totalArgs := uint32(arity << 8) // Other bits
+
+	if variadic {
+		return positionalArgs + variadicBit + totalArgs
+	}
+	return positionalArgs + totalArgs
 }

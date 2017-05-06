@@ -23,5 +23,6 @@ type Object struct {
 type Func struct {
 	Object
 
+	ArgsDesc  uint32
 	DocString string
 }
