@@ -42,6 +42,11 @@ type QuotedArray struct {
 
 /* Special forms */
 
+// ExprStmt represents expression whose result is discarded.
+type ExprStmt struct {
+	Form Form
+}
+
 // Bind associates name with expression (initializer).
 // Binding has lexical scoping.
 type Bind struct {
