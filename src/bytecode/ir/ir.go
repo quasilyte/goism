@@ -68,6 +68,10 @@ const (
 	OpSetCar
 	// OpSetCdr changes cons (pair) second value.
 	OpSetCdr
+	// OpCar fetches pair 1-st element.
+	OpCar
+	// OpCdr fetches pair 2-nd element.
+	OpCdr
 
 	/*
 		Array ops
@@ -166,6 +170,8 @@ func VarRef(cpIndex int) Instr   { return instr(OpVarRef, cpIndex) }
 func VarSet(cpIndex int) Instr   { return instr(OpVarSet, cpIndex) }
 func SetCar() Instr              { return instr(OpSetCar, 0) }
 func SetCdr() Instr              { return instr(OpSetCdr, 0) }
+func Car() Instr                 { return instr(OpCar, 0) }
+func Cdr() Instr                 { return instr(OpCdr, 0) }
 func ArrayRef() Instr            { return instr(OpArrayRef, 0) }
 func ArraySet() Instr            { return instr(OpArraySet, 0) }
 func Substr() Instr              { return instr(OpSubstr, 0) }
