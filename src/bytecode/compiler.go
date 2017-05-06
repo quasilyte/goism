@@ -133,7 +133,6 @@ func (cl *Compiler) compileCall(fn emacs.Symbol, args ...sexp.Form) {
 		cl.compileExprList(args)
 		cl.emitCall(len(args))
 	}
-
 }
 
 func (cl *Compiler) compileReturn(form *sexp.Return) {
