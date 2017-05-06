@@ -1,7 +1,9 @@
 package bytecode
 
 import (
+	"bytes"
 	"emacs"
+	"strconv"
 )
 
 type ConstPool struct {
@@ -66,4 +68,26 @@ func (cp *ConstPool) GetString(index int) string {
 
 func (cp *ConstPool) GetSym(index int) emacs.Symbol {
 	return cp.vals[index].(emacs.Symbol)
+}
+
+func (cp *ConstPool) String() string {
+	buf := bytes.Buffer{}
+	buf.WriteByte('[')
+	for _, x := range cp.vals {
+		switch x := x.(type) {
+		case string:
+			buf.WriteByte('"')
+			buf.WriteString(x)
+			buf.WriteByte('"')
+		case int64:
+			buf.WriteString(strconv.FormatInt(x, 10))
+		case float64:
+			buf.WriteString(strconv.FormatFloat(x, 'f', -1, 64))
+		case emacs.Symbol:
+			buf.WriteString(string(x))
+		}
+		buf.WriteByte(' ')
+	}
+	buf.WriteByte(']')
+	return buf.String()
 }
