@@ -63,7 +63,7 @@ type Rebind struct {
 // TypeAssert coerces expression to specified type; panics on failure.
 type TypeAssert struct {
 	Expr Form
-	Type *types.Type
+	Type types.Type
 }
 
 // ExprStmt represents expression whose result is discarded.
