@@ -54,15 +54,19 @@ func (cp *ConstPool) InsertSym(x lisp.Symbol) int {
 	return len(cp.vals) - 1
 }
 
-func (cp *ConstPool) GetInt(index int) int64 {
+func (cp *ConstPool) Get(index uint16) interface{} {
+	return cp.vals[index]
+}
+
+func (cp *ConstPool) GetInt(index uint16) int64 {
 	return cp.vals[index].(int64)
 }
 
-func (cp *ConstPool) GetFloat(index int) float64 {
+func (cp *ConstPool) GetFloat(index uint16) float64 {
 	return cp.vals[index].(float64)
 }
 
-func (cp *ConstPool) GetString(index int) string {
+func (cp *ConstPool) GetString(index uint16) string {
 	return cp.vals[index].(string)
 }
 

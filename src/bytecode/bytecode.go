@@ -16,7 +16,8 @@ type BasicBlock struct {
 type Object struct {
 	Blocks     []*BasicBlock
 	ConstPool  ConstPool
-	StackUsage int // Peak stack usage.
+	StackUsage int      // Peak stack usage.
+	Locals     []string // Locals referenced inside object
 }
 
 // Func is a compiled bytecode function.

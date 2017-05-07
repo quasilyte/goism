@@ -1,27 +1,30 @@
-package bytecode
+package compiler
 
-import "bytecode/ir"
+import (
+	"bytecode"
+	"bytecode/ir"
+)
 
 type code struct {
-	blocks  []*BasicBlock
-	current *BasicBlock
+	blocks  []*bytecode.BasicBlock
+	current *bytecode.BasicBlock
 }
 
 func newCode() *code {
-	bb := &BasicBlock{Name: "entry"}
+	bb := &bytecode.BasicBlock{Name: "entry"}
 	code := &code{
-		blocks:  []*BasicBlock{bb},
+		blocks:  []*bytecode.BasicBlock{bb},
 		current: bb,
 	}
 	return code
 }
 
 func (c *code) pushBlock(name string) {
-	c.current = &BasicBlock{Name: name}
+	c.current = &bytecode.BasicBlock{Name: name}
 	c.blocks = append(c.blocks, c.current)
 }
 
-func (c *code) block() *BasicBlock {
+func (c *code) block() *bytecode.BasicBlock {
 	return c.current
 }
 
@@ -45,6 +48,17 @@ func (c *code) pushJmp(op ir.Opcode) jmpRef {
 		instrIndex: len(c.current.Instrs) - 1,
 		code:       c,
 	}
+}
+
+func (c *code) lastInstr() ir.Instr {
+	for i := len(c.blocks) - 1; i >= 0; i-- {
+		bb := c.blocks[i]
+		if len(bb.Instrs) == 0 {
+			continue // Empty block
+		}
+		return bb.Instrs[len(bb.Instrs)-1]
+	}
+	return ir.Empty
 }
 
 type jmpRef struct {

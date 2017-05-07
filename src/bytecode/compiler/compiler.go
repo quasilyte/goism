@@ -1,12 +1,27 @@
-package bytecode
+package compiler
 
 import (
+	"bytecode"
+	"bytecode/eval"
 	"bytecode/ir"
+	"dt"
 	"emacs/lisp"
 	"fmt"
 	"sexp"
 	"tu"
 )
+
+// These operations have opcode for 2 operands.
+// For 2+ operands ordinary function call is used.
+var opNames = [...]lisp.Symbol{
+	ir.OpNumAdd: "+",
+	ir.OpNumSub: "-",
+	ir.OpNumMul: "*",
+	ir.OpNumQuo: "/",
+	ir.OpNumGt:  ">",
+	ir.OpNumLt:  "<",
+	ir.OpNumEq:  "=",
+}
 
 // #FIXME: either make compiler object reusable,
 // or make it private type and expose Compile as a
@@ -15,44 +30,40 @@ import (
 // Compiler converts Sexp forms into bytecode objects.
 type Compiler struct {
 	code      *code
-	constPool ConstPool
-	stack     stack
+	constPool bytecode.ConstPool
+	symPool   dt.SymbolPool
 }
 
-func NewCompiler() *Compiler {
+func New() *Compiler {
 	return &Compiler{code: newCode()}
 }
 
-func (cl *Compiler) CompileFunc(f *tu.Func) *Func {
+func (cl *Compiler) CompileFunc(f *tu.Func) *bytecode.Func {
 	for _, param := range f.Params {
-		cl.stack.pushVar(param)
+		cl.symPool.Insert(param)
 	}
 
 	cl.compileStmtList(f.Body)
 	cl.ensureTrailingReturn()
 
-	return &Func{
-		Object:   cl.createObject(),
+	object := cl.createObject()
+	eval.Object(&object, len(f.Params))
+
+	return &bytecode.Func{
+		Object:   object,
 		ArgsDesc: argsDescriptor(len(f.Params), f.Variadic),
 	}
 }
 
 // Insert trailing "return" opcode if its not already there.
 func (cl *Compiler) ensureTrailingReturn() {
-	code := cl.code
-
-	lastInstr := ir.Empty
-	for i := len(code.blocks) - 1; i >= 0; i-- {
-		bb := code.blocks[i]
-		if len(bb.Instrs) == 0 {
-			continue // Empty block
-		}
-		lastInstr = bb.Instrs[len(bb.Instrs)-1]
-		break
-	}
+	lastInstr := cl.code.lastInstr()
 
 	if lastInstr.Op == ir.OpEmpty || lastInstr.Op != ir.OpReturn {
-		cl.emit(ir.Return())
+		// Check is needed to avoid generation of "dead" return.
+		if lastInstr.Op != ir.OpPanic {
+			cl.emit(ir.Return())
+		}
 	}
 }
 
@@ -105,10 +116,11 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 		cl.emitConst(cl.constPool.InsertFloat(form.Val))
 	case sexp.String:
 		cl.emitConst(cl.constPool.InsertString(form.Val))
-	case sexp.Var:
-		cl.emitVar(form.Name, cl.stack.findVar(form.Name))
 	case sexp.Symbol:
 		cl.emitConst(cl.constPool.InsertSym(form.Val))
+
+	case sexp.Var:
+		cl.compileVar(form)
 
 	case *sexp.Call:
 		cl.compileCall(lisp.Symbol(form.Fn), form.Args...)
@@ -126,18 +138,8 @@ func (cl *Compiler) compileOp(op ir.Opcode, args []sexp.Form) {
 		cl.compileExprList(args)
 		cl.emit(ir.Instr{Op: op})
 	} else {
-		cl.compileCall(instrSpecs[op].fn, args...)
+		cl.compileCall(opNames[op], args...)
 	}
-}
-
-func (cl *Compiler) compileInstr(instr ir.Instr, argc int, args []sexp.Form) {
-	if len(args) != argc {
-		// #FIXME: need better error handling here.
-		panic(fmt.Sprintf("%s expected %d args, got %d",
-			instr.Op, argc, len(args)))
-	}
-	cl.compileExprList(args)
-	cl.emit(instr)
 }
 
 func (cl *Compiler) compileCall(fn lisp.Symbol, args ...sexp.Form) {
@@ -150,21 +152,24 @@ func (cl *Compiler) compileCall(fn lisp.Symbol, args ...sexp.Form) {
 		cl.compileInstr(ir.Cdr(), 1, args)
 
 	default:
-		cpIndex := cl.constPool.InsertSym(fn)
-		cl.emitConst(cpIndex)
+		cl.emitConst(cl.constPool.InsertSym(fn))
 		cl.compileExprList(args)
-		cl.emitCall(len(args))
+		cl.emit(ir.Call(len(args)))
 	}
 }
 
 func (cl *Compiler) compileReturn(form *sexp.Return) {
-	if len(form.Results) > 1 {
-		panic("unimplemented") // #REFS: 1
-	}
-	if len(form.Results) != 0 {
+	switch len(form.Results) {
+	case 0:
+		cl.emitConst(cl.constPool.InsertSym("nil"))
+		cl.emit(ir.Return())
+	case 1:
 		cl.compileExpr(form.Results[0])
+		cl.emit(ir.Return())
+
+	default:
+		panic("unimplemented") // #REFS: 1.
 	}
-	cl.emit(ir.Return())
 }
 
 func (cl *Compiler) compileIf(form *sexp.If) {
@@ -181,18 +186,20 @@ func (cl *Compiler) compileIf(form *sexp.If) {
 
 func (cl *Compiler) compileBlock(form *sexp.Block) {
 	cl.compileStmtList(form.Forms)
-	cl.stack.drop(form.Scope.Len())
+	cl.symPool.Drop(form.Scope.Len())
+	cl.emit(ir.Instr{Op: ir.OpScopeExit, Data: uint16(form.Scope.Len())})
 }
 
 func (cl *Compiler) compileBind(form *sexp.Bind) {
 	cl.compileExpr(form.Init)
-	cl.stack.vals[len(cl.stack.vals)-1] = form.Name
+	id := cl.symPool.Insert(form.Name)
+	cl.emit(ir.LocalBind(id))
 }
 
 func (cl *Compiler) compileRebind(form *sexp.Rebind) {
 	cl.compileExpr(form.Expr)
-	stIndex := cl.stack.findVar(form.Name)
-	cl.emit(ir.StackSet(stIndex))
+	id := cl.symPool.Find(form.Name)
+	cl.emit(ir.LocalSet(id))
 }
 
 func (cl *Compiler) compileMakeMap(form sexp.MakeMap) {
@@ -205,17 +212,35 @@ func (cl *Compiler) compileMakeMap(form sexp.MakeMap) {
 
 func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
 	cl.compileCall("puthash", form.Key, form.Val, form.Map)
-	cl.emit(ir.Drop(1))
+	cl.emit(ir.Drop(1)) // Discard expression result.
 }
 
 func (cl *Compiler) compilePanic(form *sexp.Panic) {
-	cl.compileCall("Go-panic", form.ErrorData)
+	cl.emitConst(cl.constPool.InsertSym("Go-panic"))
+	cl.compileExpr(form.ErrorData)
+	cl.emit(ir.Panic)
 	cl.code.pushBlock("panic")
+}
+
+func (cl *Compiler) compileVar(form sexp.Var) {
+	// #FIXME: it could be a global var.
+	id := cl.symPool.Find(form.Name)
+	cl.code.pushInstr(ir.LocalRef(id))
 }
 
 func (cl *Compiler) compileExprStmt(form sexp.Form) {
 	cl.compileExpr(form)
 	cl.emit(ir.Drop(1)) // Discard expression result.
+}
+
+func (cl *Compiler) compileInstr(instr ir.Instr, argc int, args []sexp.Form) {
+	if len(args) != argc {
+		// #FIXME: need better error handling here.
+		panic(fmt.Sprintf("%s expected %d args, got %d",
+			instr.Op, argc, len(args)))
+	}
+	cl.compileExprList(args)
+	cl.emit(instr)
 }
 
 func (cl *Compiler) compileStmtList(forms []sexp.Form) {
@@ -231,61 +256,27 @@ func (cl *Compiler) compileExprList(forms []sexp.Form) {
 }
 
 func (cl *Compiler) emit(instr ir.Instr) {
-	spec := instrSpecs[instr.Op]
-
-	cl.stack.drop(spec.argc)
 	cl.code.pushInstr(instr)
-
-	switch spec.mode {
-	case omTmp:
-		cl.stack.pushTmp()
-
-	case omDiscard:
-		cl.stack.pushTmp()
-		cl.emit(ir.Drop(1))
-
-	case omVoid:
-		/* Do nothing */
-	}
-}
-
-func (cl *Compiler) emitJmp(op ir.Opcode) jmpRef {
-	if op != ir.OpJmp {
-		cl.stack.drop(1)
-	}
-	return cl.code.pushJmp(op)
 }
 
 func (cl *Compiler) emitConst(cpIndex int) {
-	cl.code.pushInstr(ir.ConstRef(cpIndex))
-	cl.stack.pushConst(cpIndex)
+	cl.emit(ir.ConstRef(cpIndex))
 }
 
-func (cl *Compiler) emitVar(name string, stIndex int) {
-	cl.code.pushInstr(ir.StackRef(stIndex))
-	cl.stack.pushVar(name)
-}
-
-func (cl *Compiler) emitCall(argc int) {
-	cl.stack.drop(argc + 1)
-	cl.code.pushInstr(ir.Call(argc))
-	cl.stack.pushTmp()
+func (cl *Compiler) emitJmp(op ir.Opcode) jmpRef {
+	return cl.code.pushJmp(op)
 }
 
 func (cl *Compiler) pushBlock(name string) {
 	cl.code.pushBlock(name)
 }
 
-func (cl *Compiler) createObject() Object {
-	return Object{
-		Blocks:     cl.code.blocks,
-		ConstPool:  cl.constPool,
-		StackUsage: cl.stack.maxSize,
+func (cl *Compiler) createObject() bytecode.Object {
+	return bytecode.Object{
+		Blocks:    cl.code.blocks,
+		ConstPool: cl.constPool,
+		Locals:    cl.symPool.Symbols(),
 	}
-}
-
-func sym(val lisp.Symbol) sexp.Symbol {
-	return sexp.Symbol{Val: val}
 }
 
 func argsDescriptor(arity int, variadic bool) uint32 {
