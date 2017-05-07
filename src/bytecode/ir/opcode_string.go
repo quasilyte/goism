@@ -4,9 +4,9 @@ package ir
 
 import "fmt"
 
-const _Opcode_name = "OpEmptyOpReturnOpCallOpConstRefOpStackRefOpStackSetOpDropOpVarRefOpVarSetOpSetCarOpSetCdrOpCarOpCdrOpArrayRefOpArraySetOpSubstrOpConcatOpStringEqOpStringLtOpToLowerOpToUpperOpIsConsOpIsStringOpIsNumOpIsIntOpIsSymbolOpNumAddOpNumAdd1OpNumSubOpNumSub1OpNumMulOpNumQuoOpNumEqOpNumLtOpNumLteOpNumGtOpNumGteOpNumNegOpNumMaxOpNumMinOpRemOpEqOpEqualOpNotOpMakeListOpMakeConsOpCatchOpJmpOpJmpNilOpJmpNotNilOpJmpNilElsePopOpJmpNotNilElsePopOpRelJmpOpRelJmpNilOpRelJmpNotNilOpRelJmpNilElsePopOpRelJmpNotNilElsePop"
+const _Opcode_name = "OpEmptyOpLocalRefOpLocalSetOpLocalBindOpScopeExitOpPanicOpReturnOpCallOpConstRefOpStackRefOpStackSetOpDropOpVarRefOpVarSetOpSetCarOpSetCdrOpCarOpCdrOpArrayRefOpArraySetOpSubstrOpConcatOpStringEqOpStringLtOpToLowerOpToUpperOpIsConsOpIsStringOpIsNumOpIsIntOpIsSymbolOpNumAddOpNumAdd1OpNumSubOpNumSub1OpNumMulOpNumQuoOpNumEqOpNumLtOpNumLteOpNumGtOpNumGteOpNumNegOpNumMaxOpNumMinOpRemOpEqOpEqualOpNotOpMakeListOpMakeConsOpCatchOpJmpOpJmpNilOpJmpNotNilOpJmpNilElsePopOpJmpNotNilElsePopOpRelJmpOpRelJmpNilOpRelJmpNotNilOpRelJmpNilElsePopOpRelJmpNotNilElsePop"
 
-var _Opcode_index = [...]uint16{0, 7, 15, 21, 31, 41, 51, 57, 65, 73, 81, 89, 94, 99, 109, 119, 127, 135, 145, 155, 164, 173, 181, 191, 198, 205, 215, 223, 232, 240, 249, 257, 265, 272, 279, 287, 294, 302, 310, 318, 326, 331, 335, 342, 347, 357, 367, 374, 379, 387, 398, 413, 431, 439, 450, 464, 482, 503}
+var _Opcode_index = [...]uint16{0, 7, 17, 27, 38, 49, 56, 64, 70, 80, 90, 100, 106, 114, 122, 130, 138, 143, 148, 158, 168, 176, 184, 194, 204, 213, 222, 230, 240, 247, 254, 264, 272, 281, 289, 298, 306, 314, 321, 328, 336, 343, 351, 359, 367, 375, 380, 384, 391, 396, 406, 416, 423, 428, 436, 447, 462, 480, 488, 499, 513, 531, 552}
 
 func (i Opcode) String() string {
 	if i < 0 || i >= Opcode(len(_Opcode_index)-1) {

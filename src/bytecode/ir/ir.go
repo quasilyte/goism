@@ -24,12 +24,29 @@ type Opcode int16
 // To get precise information about opcodes, look elsewhere.
 const (
 	/*
-		Functions
+		Pseudo ops
 	*/
 
 	// OpEmpty is a dummy opcode that does not generate any
 	// code, but can be used to fill holes during optimizations.
 	OpEmpty Opcode = iota
+
+	// OpLocalRef is intermediate form of StackRef.
+	OpLocalRef
+	// OpLocalSet is intermediate form of StackSet.
+	OpLocalSet
+	// OpLocalBind associates stack value with local variable.
+	OpLocalBind
+
+	// OpScopeExit marks scope exit and holds scope size.
+	OpScopeExit
+
+	// OpPanic triggers runtime panic.
+	OpPanic
+
+	/*
+		Functions
+	*/
 
 	// OpReturn returns from a function.
 	OpReturn
@@ -168,10 +185,15 @@ type Instr struct {
 
 var (
 	Empty Instr = instr(OpEmpty, 0)
+	Panic Instr = instr(OpPanic, 0)
 )
 
 // #FIXME: turn 0-args instructins into variables.
 
+func LocalRef(id int) Instr      { return instr(OpLocalRef, id) }
+func LocalSet(id int) Instr      { return instr(OpLocalSet, id) }
+func LocalBind(id int) Instr     { return instr(OpLocalBind, id) }
+func ScopeExit(size int) Instr   { return instr(OpScopeExit, size) }
 func Return() Instr              { return instr(OpReturn, 0) }
 func Call(argc int) Instr        { return instr(OpCall, argc) }
 func ConstRef(cpIndex int) Instr { return instr(OpConstRef, cpIndex) }
