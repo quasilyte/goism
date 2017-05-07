@@ -108,6 +108,8 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 		asm.writeOp(167)
 	case ir.OpIsInt:
 		asm.writeOp(168)
+	case ir.OpIsSymbol:
+		asm.writeOp(57)
 	case ir.OpNumAdd:
 		asm.writeOp(92)
 	case ir.OpNumAdd1:

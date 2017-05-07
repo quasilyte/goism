@@ -105,6 +105,8 @@ const (
 	OpIsNum
 	// OpIsInt pushes true for int.
 	OpIsInt
+	// OpIsSymbol pushes true for lisp.Symbol
+	OpIsSymbol
 
 	/* Number ops */
 
