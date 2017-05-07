@@ -42,6 +42,10 @@ func (st *stack) drop(n int) {
 	st.vals = st.vals[:len(st.vals)-n]
 }
 
+func (st *stack) ref(index int) {
+	st.vals = append(st.vals, st.vals[len(st.vals)-index])
+}
+
 func (st *stack) findVar(name string) int {
 	top := len(st.vals) - 1
 	for i := top; i >= 0; i-- {
