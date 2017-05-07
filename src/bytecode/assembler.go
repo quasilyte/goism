@@ -173,8 +173,10 @@ func (asm *Assembler) assembleInstr(instr ir.Instr) {
 	case ir.OpCatch:
 		asm.writeOp(141)
 
+	case ir.OpEmpty:
+		/* Do nothing */
 	default:
-		panic(fmt.Sprintf("unexpected instr: %#v\n", instr))
+		panic(fmt.Sprintf("unexpected instr: %#v (%s)\n", instr, instr.Op))
 	}
 }
 
