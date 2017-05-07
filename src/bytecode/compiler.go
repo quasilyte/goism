@@ -48,6 +48,7 @@ func (cl *Compiler) ensureTrailingReturn() {
 			continue // Empty block
 		}
 		lastInstr = bb.Instrs[len(bb.Instrs)-1]
+		break
 	}
 
 	if lastInstr.Op == ir.OpEmpty || lastInstr.Op != ir.OpReturn {
