@@ -158,7 +158,10 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 }
 
 func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
-	panic("unimplemented")
+	return &sexp.TypeAssert{
+		Expr: conv.Expr(node.X),
+		Type: conv.typeOf(node.Type),
+	}
 }
 
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
