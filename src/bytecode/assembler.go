@@ -182,8 +182,8 @@ func (asm *Assembler) fillHoles() {
 
 	for _, hole := range asm.addrHoles {
 		low, high := imm16Bytes(asm.offsets[hole.dstBlock])
-		buf[hole.pos] = low
-		buf[hole.pos+1] = high
+		buf[hole.pos+1] = low
+		buf[hole.pos+2] = high
 	}
 }
 
