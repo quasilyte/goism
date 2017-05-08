@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"lisp"
 	"sexp"
 )
 
@@ -130,15 +131,16 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		panic(fmt.Sprintf("unexpected selector: %#v", fn))
 
 	case *ast.Ident:
-		if fn.Name == "make" {
+		switch fn.Name {
+		case "make":
 			return conv.makeBuiltin(node.Args)
-		}
-		if fn.Name == "panic" {
+		case "panic":
 			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
+		case "int", "string", "float64":
+			return conv.Expr(node.Args[0])
+		default:
+			return conv.call(conv.symPrefix+fn.Name, node.Args...)
 		}
-
-		return conv.call(conv.symPrefix+fn.Name, node.Args...)
-
 	default:
 		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
 	}
@@ -158,10 +160,14 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 }
 
 func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
-	return &sexp.TypeAssert{
-		Expr: conv.Expr(node.X),
-		Type: conv.typeOf(node.Type),
+	exprTyp := conv.typeOf(node.X)
+	expr := conv.Expr(node.X)
+	assertTyp := conv.typeOf(node.Type)
+
+	if exprTyp.Underlying() == lisp.Types.Object {
+		return &sexp.LispTypeAssert{Expr: expr, Type: assertTyp}
 	}
+	return &sexp.TypeAssert{Expr: expr, Type: assertTyp}
 }
 
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {

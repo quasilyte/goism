@@ -67,7 +67,8 @@ type jmpRef struct {
 	code       *code
 }
 
-func (jr *jmpRef) bind() {
+func (jr *jmpRef) bind(labelName string) {
+	jr.code.pushBlock(labelName)
 	offset := uint16(len(jr.code.blocks) - 1)
 	jr.code.blocks[jr.blockIndex].Instrs[jr.instrIndex].Data = offset
 }

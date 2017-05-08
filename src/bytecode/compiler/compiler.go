@@ -5,8 +5,9 @@ import (
 	"bytecode/eval"
 	"bytecode/ir"
 	"dt"
-	"emacs/lisp"
 	"fmt"
+	"go/types"
+	"lisp"
 	"sexp"
 	"tu"
 )
@@ -35,7 +36,9 @@ type Compiler struct {
 }
 
 func New() *Compiler {
-	return &Compiler{code: newCode()}
+	return &Compiler{
+		code: newCode(),
+	}
 }
 
 func (cl *Compiler) CompileFunc(f *tu.Func) *bytecode.Func {
@@ -86,7 +89,7 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 	case sexp.ExprStmt:
 		cl.compileExprStmt(form.Form)
 	case *sexp.Panic:
-		cl.compilePanic(form)
+		cl.compilePanic(form.ErrorData)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -127,6 +130,11 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 
 	case sexp.MakeMap:
 		cl.compileMakeMap(form)
+
+	case *sexp.TypeAssert:
+		cl.compileTypeAssert(form)
+	case *sexp.LispTypeAssert:
+		cl.compileLispTypeAssert(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", form))
@@ -177,8 +185,7 @@ func (cl *Compiler) compileIf(form *sexp.If) {
 	jmpRef := cl.emitJmp(ir.OpJmpNil)
 	cl.pushBlock("then")
 	cl.compileStmtList(form.Then.Forms)
-	cl.pushBlock("else")
-	jmpRef.bind()
+	jmpRef.bind("else")
 	if form.Else != nil {
 		cl.compileStmt(form.Else)
 	}
@@ -215,9 +222,9 @@ func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
 	cl.emit(ir.Drop(1)) // Discard expression result.
 }
 
-func (cl *Compiler) compilePanic(form *sexp.Panic) {
+func (cl *Compiler) compilePanic(errorData sexp.Form) {
 	cl.emitConst(cl.constPool.InsertSym("Go-panic"))
-	cl.compileExpr(form.ErrorData)
+	cl.compileExpr(errorData)
 	cl.emit(ir.Panic)
 	cl.code.pushBlock("panic")
 }
@@ -226,6 +233,38 @@ func (cl *Compiler) compileVar(form sexp.Var) {
 	// #FIXME: it could be a global var.
 	id := cl.symPool.Find(form.Name)
 	cl.code.pushInstr(ir.LocalRef(id))
+}
+
+func (cl *Compiler) compileTypeAssert(form *sexp.TypeAssert) {
+	panic("unimplemented")
+}
+
+func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
+	var checker ir.Instr
+	var blamer lisp.Symbol
+	if types.Identical(lisp.Types.Int, form.Type) {
+		checker = ir.IsInt()
+		blamer = "Go-!object-int"
+	} else if types.Identical(lisp.Types.String, form.Type) {
+		checker = ir.IsString()
+		blamer = "Go-!object-string"
+	} else if types.Identical(lisp.Types.Symbol, form.Type) {
+		checker = ir.IsSymbol()
+		blamer = "Go-!object-symbol"
+	} else {
+		panic("unimplemented")
+	}
+
+	cl.compileExpr(form.Expr) // Arg to assert.
+	cl.emit(ir.StackRef(0))   // Preserve arg (dup).
+	cl.emit(checker)          // Type check.
+	passJmp := cl.emitJmp(ir.OpJmpNotNil)
+	cl.block("lisp-type-assert-fail", func() {
+		cl.emitConst(cl.constPool.InsertSym(blamer))
+		cl.emit(ir.StackRef(1)) // Value that failed assertion.
+		cl.emit(ir.NoreturnCall(1))
+	})
+	passJmp.bind("lisp-type-assert-pass")
 }
 
 func (cl *Compiler) compileExprStmt(form sexp.Form) {
@@ -279,17 +318,7 @@ func (cl *Compiler) createObject() bytecode.Object {
 	}
 }
 
-func argsDescriptor(arity int, variadic bool) uint32 {
-	if arity > 127 {
-		panic("can not have more than 127 positional parameters")
-	}
-
-	positionalArgs := uint32(arity) // First 7 bits: required args
-	const variadicBit = 128         // 8-th bit: "rest" arg
-	totalArgs := uint32(arity << 8) // Other bits
-
-	if variadic {
-		return positionalArgs + variadicBit + totalArgs
-	}
-	return positionalArgs + totalArgs
+func (cl *Compiler) block(name string, generator func()) {
+	cl.code.pushBlock(name)
+	generator()
 }
