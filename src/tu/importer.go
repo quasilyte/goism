@@ -2,21 +2,17 @@ package tu
 
 import (
 	"go/types"
+	"lisp"
 )
-
-var emacsPackage *types.Package
 
 type emacsImporter struct {
 	impl types.Importer
 }
 
-func (ei emacsImporter) Import(path string) (*types.Package, error) {
-	// if path == "emacs" {
-	// 	return emacsPackage, nil
-	// }
-	return ei.impl.Import(path)
-}
-
-func init() {
-	// #TODO: fill emacsPackage.
+func (ei *emacsImporter) Import(path string) (*types.Package, error) {
+	pkg, err := ei.impl.Import(path)
+	if path == "emacs/lisp" && err == nil && lisp.Package == nil {
+		lisp.InitPackage(pkg)
+	}
+	return pkg, err
 }
