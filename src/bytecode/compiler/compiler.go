@@ -47,10 +47,10 @@ func (cl *Compiler) CompileFunc(f *tu.Func) *bytecode.Func {
 	}
 
 	cl.compileStmtList(f.Body)
-	cl.ensureTrailingReturn()
 
 	object := cl.createObject()
 	eval.Object(&object, len(f.Params))
+	cl.ensureTrailingReturn()
 
 	return &bytecode.Func{
 		Object:   object,
@@ -62,7 +62,7 @@ func (cl *Compiler) CompileFunc(f *tu.Func) *bytecode.Func {
 func (cl *Compiler) ensureTrailingReturn() {
 	lastInstr := cl.code.lastInstr()
 
-	if lastInstr.Op == ir.OpEmpty || lastInstr.Op != ir.OpReturn {
+	if lastInstr.Op != ir.OpReturn {
 		// Check is needed to avoid generation of "dead" return.
 		if lastInstr.Op != ir.OpPanic {
 			cl.emit(ir.Return())

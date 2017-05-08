@@ -56,7 +56,11 @@ func (c *code) lastInstr() ir.Instr {
 		if len(bb.Instrs) == 0 {
 			continue // Empty block
 		}
-		return bb.Instrs[len(bb.Instrs)-1]
+		for j := len(bb.Instrs) - 1; j >= 0; j-- {
+			if bb.Instrs[j] != ir.Empty {
+				return bb.Instrs[j]
+			}
+		}
 	}
 	return ir.Empty
 }
