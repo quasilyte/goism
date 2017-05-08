@@ -41,19 +41,17 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 }
 
 func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
-	switch node.Kind {
-	case token.INT:
-		return constantInt(conv.valueOf(node))
-	case token.FLOAT:
+	info := conv.basicTypeOf(node).Info()
+	if info&types.IsFloat != 0 {
 		return constantFloat(conv.valueOf(node))
-	case token.STRING:
-		return constantString(conv.valueOf(node))
-	case token.CHAR:
-		return constantChar(conv.valueOf(node))
-
-	default:
-		panic(fmt.Sprintf("unexpected literal: %#v", node))
 	}
+	if info&types.IsString != 0 {
+		return constantString(conv.valueOf(node))
+	}
+	if node.Kind == token.CHAR {
+		return constantChar(conv.valueOf(node))
+	}
+	return constantInt(conv.valueOf(node))
 }
 
 func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
