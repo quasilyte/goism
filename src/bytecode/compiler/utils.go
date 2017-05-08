@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"emacs/lisp"
+	"lisp"
 	"sexp"
 )
 

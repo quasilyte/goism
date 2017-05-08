@@ -23,7 +23,7 @@ var Types struct {
 	Symbol *types.Named
 }
 
-func Init(pkg *types.Package) {
+func InitPackage(pkg *types.Package) {
 	top := pkg.Scope()
 	getTypename := func(name string) *types.TypeName {
 		return top.Lookup(name).(*types.TypeName)

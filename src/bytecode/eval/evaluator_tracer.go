@@ -3,8 +3,8 @@ package eval
 import (
 	"bytecode/ir"
 	"cfg"
-	"emacs/lisp"
 	"fmt"
+	"lisp"
 )
 
 type evaluatorTracer struct{}

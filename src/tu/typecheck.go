@@ -14,7 +14,7 @@ type goPackage struct {
 }
 
 var typeCheckCfg = types.Config{
-	Importer: emacsImporter{
+	Importer: &emacsImporter{
 		impl: importer.Default(),
 	},
 }

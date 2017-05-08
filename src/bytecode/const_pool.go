@@ -2,7 +2,7 @@ package bytecode
 
 import (
 	"bytes"
-	"emacs/lisp"
+	"lisp"
 	"strconv"
 )
 
