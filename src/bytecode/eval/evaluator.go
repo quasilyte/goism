@@ -30,12 +30,19 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 			ev.stack.Drop(2)
 			bb.Instrs[i] = ir.Call(1)
 
+		case ir.OpIsCons, ir.OpIsInt, ir.OpIsNum, ir.OpIsString:
+			ev.stack.Drop(1)
+			ev.stack.PushUnknown()
+
 		case ir.OpCall:
 			ev.stack.Drop(int(instr.Data) + 1)
 			ev.stack.PushUnknown()
 
 		case ir.OpConstRef:
 			ev.stack.Push(ev.ConstPool.Get(instr.Data))
+
+		case ir.OpStackRef:
+			ev.stack.Copy(ev.stack.Len() - int(instr.Data) - 1)
 
 		case ir.OpLocalRef:
 			index := ev.stack.FindLocal(instr.Data)
@@ -50,7 +57,7 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 			ev.stack.Drop(int(instr.Data))
 			bb.Instrs[i] = ir.Empty
 
-		case ir.OpReturn, ir.OpJmpNil:
+		case ir.OpReturn, ir.OpJmpNil, ir.OpJmpNotNil:
 			ev.stack.Drop(1)
 
 		case ir.OpNumAdd, ir.OpNumSub, ir.OpNumMul, ir.OpNumQuo:
