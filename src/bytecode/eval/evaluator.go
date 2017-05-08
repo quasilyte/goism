@@ -30,7 +30,7 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 			ev.stack.Drop(2)
 			bb.Instrs[i] = ir.Call(1)
 
-		case ir.OpIsCons, ir.OpIsInt, ir.OpIsNum, ir.OpIsString:
+		case ir.OpIsCons, ir.OpIsInt, ir.OpIsNum, ir.OpIsString, ir.OpNumAdd1, ir.OpNumSub1:
 			ev.stack.Drop(1)
 			ev.stack.PushUnknown()
 
