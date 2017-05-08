@@ -45,4 +45,4 @@ so will affect *visible results*.
 `float64` depends on the Elisp float,
 which implemented in terms of C `double`. 
 
-* Most conforming types are: `uint8` (and `byte`), `uint16`, `uint32`, `int`, `float64`
+* Most conforming types are: `uint8`/`byte`, `uint16`, `uint32`, `int`, `float64`
