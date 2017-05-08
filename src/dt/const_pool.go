@@ -1,4 +1,4 @@
-package bytecode
+package dt
 
 import (
 	"bytes"

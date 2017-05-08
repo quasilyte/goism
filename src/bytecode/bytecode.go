@@ -1,6 +1,9 @@
 package bytecode
 
-import "bytecode/ir"
+import (
+	"bytecode/ir"
+	"dt"
+)
 
 // BasicBlock is a sequence of instructions
 // that has single entry and exit points.
@@ -15,7 +18,7 @@ type BasicBlock struct {
 // Object is a compiled bytecode unit.
 type Object struct {
 	Blocks     []*BasicBlock
-	ConstPool  ConstPool
+	ConstPool  dt.ConstPool
 	StackUsage int      // Peak stack usage.
 	Locals     []string // Locals referenced inside object
 }

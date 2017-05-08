@@ -31,7 +31,7 @@ var opNames = [...]lisp.Symbol{
 // Compiler converts Sexp forms into bytecode objects.
 type Compiler struct {
 	code      *code
-	constPool bytecode.ConstPool
+	constPool dt.ConstPool
 	symPool   dt.SymbolPool
 }
 
