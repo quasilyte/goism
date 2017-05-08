@@ -44,6 +44,9 @@ const (
 	// OpPanic triggers runtime panic.
 	OpPanic
 
+	// OpNoreturnCall compiles to ordinary call, but results are ignored.
+	OpNoreturnCall
+
 	/*
 		Functions
 	*/
@@ -190,55 +193,57 @@ var (
 
 // #FIXME: turn 0-args instructins into variables.
 
-func LocalRef(id int) Instr      { return instr(OpLocalRef, id) }
-func LocalSet(id int) Instr      { return instr(OpLocalSet, id) }
-func LocalBind(id int) Instr     { return instr(OpLocalBind, id) }
-func ScopeExit(size int) Instr   { return instr(OpScopeExit, size) }
-func Return() Instr              { return instr(OpReturn, 0) }
-func Call(argc int) Instr        { return instr(OpCall, argc) }
-func ConstRef(cpIndex int) Instr { return instr(OpConstRef, cpIndex) }
-func StackRef(stIndex int) Instr { return instr(OpStackRef, stIndex) }
-func StackSet(stIndex int) Instr { return instr(OpStackSet, stIndex) }
-func Drop(count int) Instr       { return instr(OpDrop, count) }
-func VarRef(cpIndex int) Instr   { return instr(OpVarRef, cpIndex) }
-func VarSet(cpIndex int) Instr   { return instr(OpVarSet, cpIndex) }
-func SetCar() Instr              { return instr(OpSetCar, 0) }
-func SetCdr() Instr              { return instr(OpSetCdr, 0) }
-func Car() Instr                 { return instr(OpCar, 0) }
-func Cdr() Instr                 { return instr(OpCdr, 0) }
-func ArrayRef() Instr            { return instr(OpArrayRef, 0) }
-func ArraySet() Instr            { return instr(OpArraySet, 0) }
-func Substr() Instr              { return instr(OpSubstr, 0) }
-func Concat(argc int) Instr      { return instr(OpConcat, argc) }
-func StringEq() Instr            { return instr(OpStringEq, 0) }
-func StringLt() Instr            { return instr(OpStringLt, 0) }
-func ToLower() Instr             { return instr(OpToLower, 0) }
-func ToUpper() Instr             { return instr(OpToUpper, 0) }
-func IsCons() Instr              { return instr(OpIsCons, 0) }
-func IsString() Instr            { return instr(OpIsString, 0) }
-func IsNum() Instr               { return instr(OpIsNum, 0) }
-func IsInt() Instr               { return instr(OpIsInt, 0) }
-func NumAdd() Instr              { return instr(OpNumAdd, 0) }
-func NumAdd1() Instr             { return instr(OpNumAdd1, 0) }
-func NumSub() Instr              { return instr(OpNumSub, 0) }
-func NumSub1() Instr             { return instr(OpNumSub1, 0) }
-func NumMul() Instr              { return instr(OpNumMul, 0) }
-func NumQuo() Instr              { return instr(OpNumQuo, 0) }
-func NumEq() Instr               { return instr(OpNumEq, 0) }
-func NumLt() Instr               { return instr(OpNumLt, 0) }
-func NumLte() Instr              { return instr(OpNumLte, 0) }
-func NumGt() Instr               { return instr(OpNumGt, 0) }
-func NumGte() Instr              { return instr(OpNumGte, 0) }
-func NumNeg() Instr              { return instr(OpNumNeg, 0) }
-func NumMax() Instr              { return instr(OpNumMax, 0) }
-func NumMin() Instr              { return instr(OpNumMin, 0) }
-func Rem() Instr                 { return instr(OpRem, 0) }
-func Eq() Instr                  { return instr(OpEq, 0) }
-func Equal() Instr               { return instr(OpEqual, 0) }
-func Not() Instr                 { return instr(OpNot, 0) }
-func MakeList(argc int) Instr    { return instr(OpMakeList, argc) }
-func MakeCons() Instr            { return instr(OpMakeCons, 0) }
-func Catch() Instr               { return instr(OpCall, 0) }
+func LocalRef(id int) Instr       { return instr(OpLocalRef, id) }
+func LocalSet(id int) Instr       { return instr(OpLocalSet, id) }
+func LocalBind(id int) Instr      { return instr(OpLocalBind, id) }
+func ScopeExit(size int) Instr    { return instr(OpScopeExit, size) }
+func NoreturnCall(argc int) Instr { return instr(OpNoreturnCall, argc) }
+func Return() Instr               { return instr(OpReturn, 0) }
+func Call(argc int) Instr         { return instr(OpCall, argc) }
+func ConstRef(cpIndex int) Instr  { return instr(OpConstRef, cpIndex) }
+func StackRef(stIndex int) Instr  { return instr(OpStackRef, stIndex) }
+func StackSet(stIndex int) Instr  { return instr(OpStackSet, stIndex) }
+func Drop(count int) Instr        { return instr(OpDrop, count) }
+func VarRef(cpIndex int) Instr    { return instr(OpVarRef, cpIndex) }
+func VarSet(cpIndex int) Instr    { return instr(OpVarSet, cpIndex) }
+func SetCar() Instr               { return instr(OpSetCar, 0) }
+func SetCdr() Instr               { return instr(OpSetCdr, 0) }
+func Car() Instr                  { return instr(OpCar, 0) }
+func Cdr() Instr                  { return instr(OpCdr, 0) }
+func ArrayRef() Instr             { return instr(OpArrayRef, 0) }
+func ArraySet() Instr             { return instr(OpArraySet, 0) }
+func Substr() Instr               { return instr(OpSubstr, 0) }
+func Concat(argc int) Instr       { return instr(OpConcat, argc) }
+func StringEq() Instr             { return instr(OpStringEq, 0) }
+func StringLt() Instr             { return instr(OpStringLt, 0) }
+func ToLower() Instr              { return instr(OpToLower, 0) }
+func ToUpper() Instr              { return instr(OpToUpper, 0) }
+func IsCons() Instr               { return instr(OpIsCons, 0) }
+func IsString() Instr             { return instr(OpIsString, 0) }
+func IsNum() Instr                { return instr(OpIsNum, 0) }
+func IsInt() Instr                { return instr(OpIsInt, 0) }
+func IsSymbol() Instr             { return instr(OpIsSymbol, 0) }
+func NumAdd() Instr               { return instr(OpNumAdd, 0) }
+func NumAdd1() Instr              { return instr(OpNumAdd1, 0) }
+func NumSub() Instr               { return instr(OpNumSub, 0) }
+func NumSub1() Instr              { return instr(OpNumSub1, 0) }
+func NumMul() Instr               { return instr(OpNumMul, 0) }
+func NumQuo() Instr               { return instr(OpNumQuo, 0) }
+func NumEq() Instr                { return instr(OpNumEq, 0) }
+func NumLt() Instr                { return instr(OpNumLt, 0) }
+func NumLte() Instr               { return instr(OpNumLte, 0) }
+func NumGt() Instr                { return instr(OpNumGt, 0) }
+func NumGte() Instr               { return instr(OpNumGte, 0) }
+func NumNeg() Instr               { return instr(OpNumNeg, 0) }
+func NumMax() Instr               { return instr(OpNumMax, 0) }
+func NumMin() Instr               { return instr(OpNumMin, 0) }
+func Rem() Instr                  { return instr(OpRem, 0) }
+func Eq() Instr                   { return instr(OpEq, 0) }
+func Equal() Instr                { return instr(OpEqual, 0) }
+func Not() Instr                  { return instr(OpNot, 0) }
+func MakeList(argc int) Instr     { return instr(OpMakeList, argc) }
+func MakeCons() Instr             { return instr(OpMakeCons, 0) }
+func Catch() Instr                { return instr(OpCall, 0) }
 
 func Jmp(bbIndex int) Instr {
 	return instr(OpJmp, bbIndex)

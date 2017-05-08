@@ -37,6 +37,9 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 		case ir.OpCall:
 			ev.stack.Drop(int(instr.Data) + 1)
 			ev.stack.PushUnknown()
+		case ir.OpNoreturnCall:
+			ev.stack.Drop(int(instr.Data) + 1)
+			bb.Instrs[i] = ir.Call(int(instr.Data))
 
 		case ir.OpConstRef:
 			ev.stack.Push(ev.ConstPool.Get(instr.Data))

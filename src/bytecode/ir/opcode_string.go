@@ -4,9 +4,9 @@ package ir
 
 import "fmt"
 
-const _Opcode_name = "OpEmptyOpLocalRefOpLocalSetOpLocalBindOpScopeExitOpPanicOpReturnOpCallOpConstRefOpStackRefOpStackSetOpDropOpVarRefOpVarSetOpSetCarOpSetCdrOpCarOpCdrOpArrayRefOpArraySetOpSubstrOpConcatOpStringEqOpStringLtOpToLowerOpToUpperOpIsConsOpIsStringOpIsNumOpIsIntOpIsSymbolOpNumAddOpNumAdd1OpNumSubOpNumSub1OpNumMulOpNumQuoOpNumEqOpNumLtOpNumLteOpNumGtOpNumGteOpNumNegOpNumMaxOpNumMinOpRemOpEqOpEqualOpNotOpMakeListOpMakeConsOpCatchOpJmpOpJmpNilOpJmpNotNilOpJmpNilElsePopOpJmpNotNilElsePopOpRelJmpOpRelJmpNilOpRelJmpNotNilOpRelJmpNilElsePopOpRelJmpNotNilElsePop"
+const _Opcode_name = "OpEmptyOpLocalRefOpLocalSetOpLocalBindOpScopeExitOpPanicOpNoreturnCallOpReturnOpCallOpConstRefOpStackRefOpStackSetOpDropOpVarRefOpVarSetOpSetCarOpSetCdrOpCarOpCdrOpArrayRefOpArraySetOpSubstrOpConcatOpStringEqOpStringLtOpToLowerOpToUpperOpIsConsOpIsStringOpIsNumOpIsIntOpIsSymbolOpNumAddOpNumAdd1OpNumSubOpNumSub1OpNumMulOpNumQuoOpNumEqOpNumLtOpNumLteOpNumGtOpNumGteOpNumNegOpNumMaxOpNumMinOpRemOpEqOpEqualOpNotOpMakeListOpMakeConsOpCatchOpJmpOpJmpNilOpJmpNotNilOpJmpNilElsePopOpJmpNotNilElsePopOpRelJmpOpRelJmpNilOpRelJmpNotNilOpRelJmpNilElsePopOpRelJmpNotNilElsePop"
 
-var _Opcode_index = [...]uint16{0, 7, 17, 27, 38, 49, 56, 64, 70, 80, 90, 100, 106, 114, 122, 130, 138, 143, 148, 158, 168, 176, 184, 194, 204, 213, 222, 230, 240, 247, 254, 264, 272, 281, 289, 298, 306, 314, 321, 328, 336, 343, 351, 359, 367, 375, 380, 384, 391, 396, 406, 416, 423, 428, 436, 447, 462, 480, 488, 499, 513, 531, 552}
+var _Opcode_index = [...]uint16{0, 7, 17, 27, 38, 49, 56, 70, 78, 84, 94, 104, 114, 120, 128, 136, 144, 152, 157, 162, 172, 182, 190, 198, 208, 218, 227, 236, 244, 254, 261, 268, 278, 286, 295, 303, 312, 320, 328, 335, 342, 350, 357, 365, 373, 381, 389, 394, 398, 405, 410, 420, 430, 437, 442, 450, 461, 476, 494, 502, 513, 527, 545, 566}
 
 func (i Opcode) String() string {
 	if i < 0 || i >= Opcode(len(_Opcode_index)-1) {
