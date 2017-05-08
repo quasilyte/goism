@@ -4,6 +4,13 @@ This document describes design decisions and
 implementation limitations that affect
 either **Go spec confirmity** or **Emacs Lisp experience**.
 
+If something breaks compatibility with Go and is not
+described here, it is a bug. 
+That incompatibility should be fixed or at least 
+appended to this document.
+There is also `unimplemented.md` 
+which supplements `translation_spec.md`.
+
 ## Abbreviations and conventions
 
 `Go`->`Emacs Lisp` translated code is called `GE` inside 
@@ -46,3 +53,8 @@ so will affect *visible results*.
 which implemented in terms of C `double`. 
 
 * Most conforming types are: `uint8`/`byte`, `uint16`, `uint32`, `int`, `float64`
+
+### (3) Functions
+
+* Void-return functions return `nil`. It is visible at Elisp level
+
