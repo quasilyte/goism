@@ -3,8 +3,8 @@
 package sexp
 
 import (
-	"emacs/lisp"
 	"go/types"
+	"lisp"
 )
 
 type Form interface {
@@ -62,6 +62,13 @@ type Rebind struct {
 
 // TypeAssert coerces expression to specified type; panics on failure.
 type TypeAssert struct {
+	Expr Form
+	Type types.Type
+}
+
+// LispTypeAssert is a special case of type assert, it
+// operates on unboxed Elisp values.
+type LispTypeAssert struct {
 	Expr Form
 	Type types.Type
 }
