@@ -259,7 +259,7 @@ func (asm *Assembler) writeDrop(arg uint16) {
 func (asm *Assembler) writeMakeList(arg uint16) {
 	switch arg {
 	case 1, 2, 3, 4:
-		asm.writeOp(67 + byte(arg))
+		asm.writeOp((67 - 1) + byte(arg))
 	default:
 		asm.writeOp1(175, arg) // listN
 	}
@@ -268,7 +268,7 @@ func (asm *Assembler) writeMakeList(arg uint16) {
 func (asm *Assembler) writeConcat(arg uint16) {
 	switch arg {
 	case 2, 3, 4:
-		asm.writeOp(80 + byte(arg))
+		asm.writeOp((80 - 2) + byte(arg))
 	default:
 		asm.writeOp1(176, arg) // concatN
 	}

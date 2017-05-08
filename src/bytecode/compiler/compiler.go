@@ -112,6 +112,8 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 		cl.compileOp(ir.OpNumLt, form.Args)
 	case *sexp.NumEq:
 		cl.compileOp(ir.OpNumEq, form.Args)
+	case *sexp.Concat:
+		cl.compileConcat(form)
 
 	case sexp.Int:
 		cl.emitConst(cl.constPool.InsertInt(form.Val))
@@ -264,6 +266,11 @@ func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
 		cl.emit(ir.NoreturnCall(1))
 	}
 	label.bind("lisp-type-assert-pass")
+}
+
+func (cl *Compiler) compileConcat(form *sexp.Concat) {
+	cl.compileExprList(form.Args)
+	cl.emit(ir.Concat(len(form.Args)))
 }
 
 func (cl *Compiler) compileExprStmt(form sexp.Form) {

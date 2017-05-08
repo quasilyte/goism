@@ -34,6 +34,10 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 			ev.stack.Drop(1)
 			ev.stack.PushUnknown()
 
+		case ir.OpConcat:
+			ev.stack.Drop(int(instr.Data))
+			ev.stack.PushUnknown()
+
 		case ir.OpCall:
 			ev.stack.Drop(int(instr.Data) + 1)
 			ev.stack.PushUnknown()
