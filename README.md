@@ -58,3 +58,8 @@ emacs.Insert("hello, world")
 * [Features that are not implemented](docs/unimplemented.md)
 * [Go "emacs" package overview](docs/go_emacs.md)
 * [Emacs "Go" library](docs/emacs_go.md)
+
+To see what features are going to be implemented in near future,
+check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
+[Roadmap 1](https://github.com/Quasilyte/Go.el/projects/1) is
+the current stage.
