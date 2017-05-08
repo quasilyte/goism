@@ -36,14 +36,14 @@ func (c *code) pushInstr(instr ir.Instr) {
 	c.current.Instrs = append(c.current.Instrs, instr)
 }
 
-func (c *code) bindJmp(jr jmpRef) {
+func (c *code) bindJmp(jr jmpLabel) {
 	offset := uint16(len(c.blocks) - 1)
 	c.blocks[jr.blockIndex].Instrs[jr.instrIndex].Data = offset
 }
 
-func (c *code) pushJmp(op ir.Opcode) jmpRef {
+func (c *code) pushJmp(op ir.Opcode) jmpLabel {
 	c.pushOp(op)
-	return jmpRef{
+	return jmpLabel{
 		blockIndex: len(c.blocks) - 1,
 		instrIndex: len(c.current.Instrs) - 1,
 		code:       c,
@@ -61,13 +61,13 @@ func (c *code) lastInstr() ir.Instr {
 	return ir.Empty
 }
 
-type jmpRef struct {
+type jmpLabel struct {
 	blockIndex int
 	instrIndex int
 	code       *code
 }
 
-func (jr *jmpRef) bind(labelName string) {
+func (jr *jmpLabel) bind(labelName string) {
 	jr.code.pushBlock(labelName)
 	offset := uint16(len(jr.code.blocks) - 1)
 	jr.code.blocks[jr.blockIndex].Instrs[jr.instrIndex].Data = offset

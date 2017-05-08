@@ -182,10 +182,9 @@ func (cl *Compiler) compileReturn(form *sexp.Return) {
 
 func (cl *Compiler) compileIf(form *sexp.If) {
 	cl.compileExpr(form.Test)
-	jmpRef := cl.emitJmp(ir.OpJmpNil)
-	cl.pushBlock("then")
+	label := cl.emitJmp(ir.OpJmpNil, "then")
 	cl.compileStmtList(form.Then.Forms)
-	jmpRef.bind("else")
+	label.bind("else")
 	if form.Else != nil {
 		cl.compileStmt(form.Else)
 	}
@@ -258,13 +257,13 @@ func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
 	cl.compileExpr(form.Expr) // Arg to assert.
 	cl.emit(ir.StackRef(0))   // Preserve arg (dup).
 	cl.emit(checker)          // Type check.
-	passJmp := cl.emitJmp(ir.OpJmpNotNil)
-	cl.block("lisp-type-assert-fail", func() {
+	label := cl.emitJmp(ir.OpJmpNotNil, "lisp-type-assert-fail")
+	{
 		cl.emitConst(cl.constPool.InsertSym(blamer))
 		cl.emit(ir.StackRef(1)) // Value that failed assertion.
 		cl.emit(ir.NoreturnCall(1))
-	})
-	passJmp.bind("lisp-type-assert-pass")
+	}
+	label.bind("lisp-type-assert-pass")
 }
 
 func (cl *Compiler) compileExprStmt(form sexp.Form) {
@@ -302,8 +301,10 @@ func (cl *Compiler) emitConst(cpIndex int) {
 	cl.emit(ir.ConstRef(cpIndex))
 }
 
-func (cl *Compiler) emitJmp(op ir.Opcode) jmpRef {
-	return cl.code.pushJmp(op)
+func (cl *Compiler) emitJmp(op ir.Opcode, branchName string) jmpLabel {
+	label := cl.code.pushJmp(op)
+	cl.code.pushBlock(branchName)
+	return label
 }
 
 func (cl *Compiler) pushBlock(name string) {
@@ -316,9 +317,4 @@ func (cl *Compiler) createObject() bytecode.Object {
 		ConstPool: cl.constPool,
 		Locals:    cl.symPool.Symbols(),
 	}
-}
-
-func (cl *Compiler) block(name string, generator func()) {
-	cl.code.pushBlock(name)
-	generator()
 }
