@@ -56,6 +56,11 @@ func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 			bb.Instrs[i] = ir.StackRef(ev.stack.Len() - index - 1)
 			ev.stack.Copy(index)
 
+		case ir.OpLocalSet:
+			index := ev.stack.FindLocal(instr.Data)
+			bb.Instrs[i] = ir.StackSet(ev.stack.Len() - index - 1)
+			ev.stack.items[index].val = ev.stack.Pop().val
+
 		case ir.OpLocalBind:
 			ev.stack.BindLocal(instr.Data)
 			bb.Instrs[i] = ir.Empty
