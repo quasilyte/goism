@@ -188,14 +188,3 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 		panic("unimplemented")
 	}
 }
-
-func (conv *Converter) Constant(node ast.Expr) sexp.Form {
-	if cv := conv.valueOf(node); cv != nil {
-		typ := conv.typeOf(node)
-		if types.Identical(typ, lisp.Types.Symbol) {
-			return sexp.Symbol{Val: constant.StringVal(cv)}
-		}
-		return Constant(cv)
-	}
-	return nil
-}

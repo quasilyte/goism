@@ -2,24 +2,36 @@ package sexpconv
 
 import (
 	"fmt"
+	"go/ast"
 	"go/constant"
+	"go/types"
+	"lisp"
 	"sexp"
 )
 
-func Constant(cv constant.Value) sexp.Form {
-	switch cv.Kind() {
-	case constant.Int:
-		return constantInt(cv)
-	case constant.Float:
-		return constantFloat(cv)
-	case constant.String:
-		return constantString(cv)
-	case constant.Bool:
-		return constantBool(cv)
+func (conv *Converter) Constant(node ast.Expr) sexp.Form {
+	if cv := conv.valueOf(node); cv != nil {
+		typ := conv.typeOf(node)
+		if types.Identical(typ, lisp.Types.Symbol) {
+			return sexp.Symbol{Val: constant.StringVal(cv)}
+		}
 
-	default:
-		panic(fmt.Sprintf("unexpected constant: %#v", cv))
+		switch cv.Kind() {
+		case constant.Int:
+			return constantInt(cv)
+		case constant.Float:
+			return constantFloat(cv)
+		case constant.String:
+			return constantString(cv)
+		case constant.Bool:
+			return constantBool(cv)
+
+		default:
+			panic(fmt.Sprintf("unexpected constant: %#v", cv))
+		}
 	}
+
+	return nil
 }
 
 func constantChar(cv constant.Value) sexp.Char {
