@@ -21,7 +21,10 @@ func Constant(cv constant.Value) sexp.Form {
 }
 
 func constantChar(cv constant.Value) sexp.Char {
-	val, _ := constant.Int64Val(cv)
+	val, exact := constant.Int64Val(cv)
+	if !exact {
+		panic("can not handle inexact char") // #REFS: 17.
+	}
 	return sexp.Char{Val: rune(val)}
 }
 
@@ -30,11 +33,17 @@ func constantString(cv constant.Value) sexp.String {
 }
 
 func constantInt(cv constant.Value) sexp.Int {
-	val, _ := constant.Int64Val(cv)
+	val, exact := constant.Int64Val(cv)
+	if !exact {
+		panic("can not handle inexact int") // #REFS: 17.
+	}
 	return sexp.Int{Val: val}
 }
 
 func constantFloat(cv constant.Value) sexp.Float {
-	val, _ := constant.Float64Val(cv)
+	val, exact := constant.Float64Val(cv)
+	if !exact {
+		panic("can not handle inexact float") // #REFS: 17.
+	}
 	return sexp.Float{Val: val}
 }
