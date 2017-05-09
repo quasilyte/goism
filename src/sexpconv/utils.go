@@ -22,12 +22,5 @@ func (conv *Converter) stmtList(nodes []ast.Stmt) []sexp.Form {
 }
 
 func (conv *Converter) call(fn string, args ...ast.Expr) *sexp.Call {
-	sexpArgs := make([]sexp.Form, len(args))
-	for i, arg := range args {
-		sexpArgs[i] = conv.Expr(arg)
-	}
-	return &sexp.Call{
-		Fn:   fn,
-		Args: sexpArgs,
-	}
+	return &sexp.Call{Fn: fn, Args: conv.exprList(args)}
 }
