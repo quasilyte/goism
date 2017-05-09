@@ -26,6 +26,8 @@ func (ev *evaluator) eval() {
 func (ev *evaluator) evalBlock(bb *bytecode.BasicBlock) {
 	for i, instr := range bb.Instrs {
 		switch instr.Op {
+		case ir.OpDrop:
+			ev.stack.Drop(int(instr.Data))
 		case ir.OpPanic:
 			ev.stack.Drop(2)
 			bb.Instrs[i] = ir.Call(1)
