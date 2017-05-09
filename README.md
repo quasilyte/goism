@@ -5,13 +5,13 @@ Not a fan of Emacs Lisp? Hack Emacs in Go!
 
 ## Overview
 
-#### What?
+#### Description
 
 `Go.el` is Emacs package that makes it possible to use 
 [Go](https://golang.org/) programming language instead
 of Emacs Lisp inside Emacs. 
 
-#### How?
+#### How it works
 
 Valid Go package is converted
 into Emacs Lisp bytecode that can be used inside Emacs.
@@ -19,6 +19,12 @@ into Emacs Lisp bytecode that can be used inside Emacs.
 Emacs `Go` (first letter is capital, thats important) package
 implements Go runtime, so translated code behaves as
 close to the [specs](https://golang.org/ref/spec) as possible.
+
+#### How to use it (install)
+
+> TODO: emacs package installation
+
+> TODO: document basic usage
 
 #### Go from Elisp
 
@@ -64,3 +70,11 @@ check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
 
 [Roadmap 1](https://github.com/Quasilyte/Go.el/projects/1) is
 the current stage.
+
+### Tags
+
+* Compile Go to Emacs Lisp bytecode
+* Go from Emacs
+* Emacs Lisp alternative to extend Emacs
+* Emacs Lisp as Go compilation target
+* "Go" emacs package
