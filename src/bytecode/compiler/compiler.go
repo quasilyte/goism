@@ -163,7 +163,6 @@ func (cl *Compiler) compileCall(fn lisp.Symbol, args ...sexp.Form) {
 func (cl *Compiler) compileReturn(form *sexp.Return) {
 	switch len(form.Results) {
 	case 0:
-		cl.emitConst(cl.constPool.InsertSym("nil"))
 		cl.emit(ir.Return)
 	case 1:
 		cl.compileExpr(form.Results[0])

@@ -56,5 +56,6 @@ which implemented in terms of C `double`.
 
 ### (3) Functions
 
-* Void-return functions return `nil`. It is visible at Elisp level
+Void-result GE functions return value is unspecified and should not be assigned
+inside Elisp. 
 
