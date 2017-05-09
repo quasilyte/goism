@@ -65,7 +65,7 @@ func (cl *Compiler) ensureTrailingReturn() {
 	if lastInstr.Op != ir.OpReturn {
 		// Check is needed to avoid generation of "dead" return.
 		if lastInstr.Op != ir.OpPanic {
-			cl.emit(ir.Return())
+			cl.emit(ir.Return)
 		}
 	}
 }
@@ -164,10 +164,10 @@ func (cl *Compiler) compileReturn(form *sexp.Return) {
 	switch len(form.Results) {
 	case 0:
 		cl.emitConst(cl.constPool.InsertSym("nil"))
-		cl.emit(ir.Return())
+		cl.emit(ir.Return)
 	case 1:
 		cl.compileExpr(form.Results[0])
-		cl.emit(ir.Return())
+		cl.emit(ir.Return)
 
 	default:
 		panic("unimplemented") // #REFS: 1.
@@ -236,13 +236,13 @@ func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
 	var checker ir.Instr
 	var blamer lisp.Symbol
 	if types.Identical(lisp.Types.Int, form.Type) {
-		checker = ir.IsInt()
+		checker = ir.IsInt
 		blamer = "Go-!object-int"
 	} else if types.Identical(lisp.Types.String, form.Type) {
-		checker = ir.IsString()
+		checker = ir.IsString
 		blamer = "Go-!object-string"
 	} else if types.Identical(lisp.Types.Symbol, form.Type) {
-		checker = ir.IsSymbol()
+		checker = ir.IsSymbol
 		blamer = "Go-!object-symbol"
 	} else {
 		panic("unimplemented")

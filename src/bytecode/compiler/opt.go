@@ -9,11 +9,11 @@ import (
 func optCall(cl *Compiler, fn lisp.Symbol, args []sexp.Form) bool {
 	switch fn {
 	case "cons":
-		cl.compileInstr(ir.MakeCons(), 2, args)
+		cl.compileInstr(ir.MakeCons, 2, args)
 	case "car":
-		cl.compileInstr(ir.Car(), 1, args)
+		cl.compileInstr(ir.Car, 1, args)
 	case "cdr":
-		cl.compileInstr(ir.Cdr(), 1, args)
+		cl.compileInstr(ir.Cdr, 1, args)
 
 	default:
 		return false
@@ -52,9 +52,9 @@ func optAddSub(cl *Compiler, op ir.Opcode, args []sexp.Form) bool {
 	}
 	specInstr := func(op ir.Opcode) ir.Instr {
 		if op == ir.OpNumAdd {
-			return ir.NumAdd1()
+			return ir.NumAdd1
 		}
-		return ir.NumSub1()
+		return ir.NumSub1
 	}
 
 	if len(args) == 2 {
