@@ -136,6 +136,10 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
 		case "int", "string", "float64":
 			return conv.Expr(node.Args[0])
+		case "print":
+			return conv.call("Go--print", node.Args...)
+		case "println":
+			return conv.call("Go--println", node.Args...)
 		default:
 			return conv.call(conv.symPrefix+fn.Name, node.Args...)
 		}
