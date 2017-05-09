@@ -8,6 +8,11 @@ For planned features, look at github project pages,
 it contains several roadmaps.
 
 * Complex numbers
-* Reflection
+* Reflection and `unsafe`
 * Struct field tags (field associated strings)
-* Channels
+* Channels (along with `close`, `select` and other related features)
+* Init functions
+* `go` statements
+
+Features described here *may* be implemented one day,
+but that day may be very far away from today.
