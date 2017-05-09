@@ -13,6 +13,7 @@ var Typenames struct {
 	Float  *types.TypeName
 	String *types.TypeName
 	Symbol *types.TypeName
+	Bool   *types.TypeName
 }
 
 var Types struct {
@@ -21,6 +22,7 @@ var Types struct {
 	Float  *types.Named
 	String *types.Named
 	Symbol *types.Named
+	Bool   *types.Named
 }
 
 func InitPackage(pkg *types.Package) {
@@ -42,6 +44,8 @@ func InitPackage(pkg *types.Package) {
 	Types.String = getNamed(Typenames.String)
 	Typenames.Symbol = getTypename("Symbol")
 	Types.Symbol = getNamed(Typenames.Symbol)
+	Typenames.Bool = getTypename("Bool")
+	Types.Bool = getNamed(Typenames.Bool)
 
 	Types.Object = top.Lookup("Object").Type().Underlying().(*types.Interface)
 }

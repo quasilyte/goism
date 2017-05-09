@@ -14,6 +14,8 @@ func Constant(cv constant.Value) sexp.Form {
 		return constantFloat(cv)
 	case constant.String:
 		return constantString(cv)
+	case constant.Bool:
+		return constantBool(cv)
 
 	default:
 		panic(fmt.Sprintf("unexpected constant: %#v", cv))
@@ -46,4 +48,8 @@ func constantFloat(cv constant.Value) sexp.Float {
 		panic("can not handle inexact float") // #REFS: 17.
 	}
 	return sexp.Float{Val: val}
+}
+
+func constantBool(cv constant.Value) sexp.Bool {
+	return sexp.Bool{Val: constant.BoolVal(cv)}
 }

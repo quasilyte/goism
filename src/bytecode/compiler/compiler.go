@@ -123,6 +123,8 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 		cl.emitConst(cl.constPool.InsertString(form.Val))
 	case sexp.Symbol:
 		cl.emitConst(cl.constPool.InsertSym(lisp.Symbol(form.Val)))
+	case sexp.Bool:
+		cl.compileBool(form)
 
 	case sexp.Var:
 		cl.compileVar(form)
@@ -267,6 +269,14 @@ func (cl *Compiler) compileConcat(form *sexp.Concat) {
 func (cl *Compiler) compileAddSub(op ir.Opcode, args []sexp.Form) {
 	if !optAddSub(cl, op, args) {
 		cl.compileOp(op, args)
+	}
+}
+
+func (cl *Compiler) compileBool(form sexp.Bool) {
+	if form.Val {
+		cl.emitConst(cl.constPool.InsertSym("t"))
+	} else {
+		cl.emitConst(cl.constPool.InsertSym("nil"))
 	}
 }
 

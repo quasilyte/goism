@@ -8,6 +8,8 @@ import (
 	"emacs/lisp"
 )
 
+const Nil = lisp.Symbol("nil")
+
 func Insert(arg string) {
 	lisp.Call("insert", lisp.String(arg))
 }

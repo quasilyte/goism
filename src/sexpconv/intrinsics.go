@@ -9,7 +9,7 @@ import (
 
 func (conv *Converter) intrinsic(sym string, args []ast.Expr) sexp.Form {
 	switch sym {
-	case "Int", "Float", "String", "Symbol":
+	case "Int", "Float", "String", "Symbol", "Bool":
 		// These types can be constructed only from
 		// typed values that does not require any
 		// convertion, so we ignore them.

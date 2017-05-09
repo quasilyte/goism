@@ -35,8 +35,8 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 }
 
 func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
-	if cv := conv.valueOf(node); cv != nil {
-		return Constant(cv)
+	if cv := conv.Constant(node); cv != nil {
+		return cv
 	}
 	return sexp.Var{Name: node.Name}
 }
@@ -63,8 +63,8 @@ func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
 }
 
 func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
-	if cv := conv.valueOf(node); cv != nil {
-		return Constant(cv)
+	if cv := conv.Constant(node); cv != nil {
+		return cv
 	}
 
 	typ := conv.basicTypeOf(node.X)
@@ -155,8 +155,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 }
 
 func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
-	if cv := conv.valueOf(node); cv != nil {
-		return Constant(cv)
+	if cv := conv.Constant(node); cv != nil {
+		return cv
 	}
 
 	sel := conv.info.Selections[node]
@@ -187,4 +187,15 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	default:
 		panic("unimplemented")
 	}
+}
+
+func (conv *Converter) Constant(node ast.Expr) sexp.Form {
+	if cv := conv.valueOf(node); cv != nil {
+		typ := conv.typeOf(node)
+		if types.Identical(typ, lisp.Types.Symbol) {
+			return sexp.Symbol{Val: constant.StringVal(cv)}
+		}
+		return Constant(cv)
+	}
+	return nil
 }

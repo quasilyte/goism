@@ -10,4 +10,5 @@ type (
 	Float  float64
 	String string
 	Symbol string
+	Bool   bool
 )
