@@ -3,6 +3,7 @@ package sexpconv
 import (
 	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/token"
 	"go/types"
 	"lisp"
@@ -41,7 +42,14 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 }
 
 func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
-	info := conv.basicTypeOf(node).Info()
+	typ := conv.typeOf(node)
+
+	if types.Identical(typ, lisp.Types.Symbol) {
+		return sexp.Symbol{Val: constant.StringVal(conv.valueOf(node))}
+	}
+
+	info := conv.typeOf(node).Underlying().(*types.Basic).Info()
+
 	if info&types.IsFloat != 0 {
 		return constantFloat(conv.valueOf(node))
 	}
@@ -117,18 +125,16 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	// #REFS: 2.
 	switch fn := node.Fun.(type) {
-	case *ast.SelectorExpr:
-		if obj, ok := fn.X.(*ast.Ident); ok {
-			if obj.Name == "lisp" {
-				return conv.intrinsic(fn.Sel.Name, node.Args)
-			}
-
-			qualName := "Go-" + obj.Name + "." + fn.Sel.Name
-			return conv.call(qualName, node.Args...)
+	case *ast.SelectorExpr: // x.sel()
+		obj := fn.X.(*ast.Ident)
+		if obj.Name == "lisp" {
+			return conv.intrinsic(fn.Sel.Name, node.Args)
 		}
-		panic(fmt.Sprintf("unexpected selector: %#v", fn))
 
-	case *ast.Ident:
+		qualName := "Go-" + obj.Name + "." + fn.Sel.Name
+		return conv.call(qualName, node.Args...)
+
+	case *ast.Ident: // f()
 		switch fn.Name {
 		case "make":
 			return conv.makeBuiltin(node.Args)

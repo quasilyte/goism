@@ -4,7 +4,6 @@ package sexp
 
 import (
 	"go/types"
-	"lisp"
 )
 
 type Form interface {
@@ -28,7 +27,7 @@ type Char struct{ Val rune }
 type Int struct{ Val int64 }
 type Float struct{ Val float64 }
 type String struct{ Val string }
-type Symbol struct{ Val lisp.Symbol }
+type Symbol struct{ Val string }
 
 /* Composite literals */
 

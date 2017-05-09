@@ -122,7 +122,7 @@ func (cl *Compiler) compileExpr(form sexp.Form) {
 	case sexp.String:
 		cl.emitConst(cl.constPool.InsertString(form.Val))
 	case sexp.Symbol:
-		cl.emitConst(cl.constPool.InsertSym(form.Val))
+		cl.emitConst(cl.constPool.InsertSym(lisp.Symbol(form.Val)))
 
 	case sexp.Var:
 		cl.compileVar(form)

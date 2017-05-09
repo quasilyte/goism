@@ -1,11 +1,10 @@
 package compiler
 
 import (
-	"lisp"
 	"sexp"
 )
 
-func sym(val lisp.Symbol) sexp.Symbol {
+func sym(val string) sexp.Symbol {
 	return sexp.Symbol{Val: val}
 }
 
