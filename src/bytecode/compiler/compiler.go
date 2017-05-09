@@ -216,7 +216,7 @@ func (cl *Compiler) compileMapSet(form *sexp.MapSet) {
 }
 
 func (cl *Compiler) compilePanic(errorData sexp.Form) {
-	cl.emitConst(cl.constPool.InsertSym("Go-panic"))
+	cl.emitConst(cl.constPool.InsertSym("Go--panic"))
 	cl.compileExpr(errorData)
 	cl.emit(ir.Panic)
 	cl.code.pushBlock("panic")
@@ -237,13 +237,13 @@ func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
 	var blamer lisp.Symbol
 	if types.Identical(lisp.Types.Int, form.Type) {
 		checker = ir.IsInt
-		blamer = "Go-!object-int"
+		blamer = "Go--!object-int"
 	} else if types.Identical(lisp.Types.String, form.Type) {
 		checker = ir.IsString
-		blamer = "Go-!object-string"
+		blamer = "Go--!object-string"
 	} else if types.Identical(lisp.Types.Symbol, form.Type) {
 		checker = ir.IsSymbol
-		blamer = "Go-!object-symbol"
+		blamer = "Go--!object-symbol"
 	} else {
 		panic("unimplemented")
 	}
