@@ -43,6 +43,10 @@ func (c *code) bindJmp(jr jmpLabel) {
 
 func (c *code) pushJmp(op ir.Opcode) jmpLabel {
 	c.pushOp(op)
+	return c.createLabel()
+}
+
+func (c *code) createLabel() jmpLabel {
 	return jmpLabel{
 		blockIndex: len(c.blocks) - 1,
 		instrIndex: len(c.current.Instrs) - 1,

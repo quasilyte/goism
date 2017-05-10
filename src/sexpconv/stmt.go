@@ -23,6 +23,8 @@ func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 		return conv.IncDecStmt(node)
 	case *ast.ExprStmt:
 		return conv.ExprStmt(node)
+	case *ast.ForStmt:
+		return conv.ForStmt(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", node))

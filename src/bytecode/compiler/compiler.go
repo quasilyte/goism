@@ -90,6 +90,8 @@ func (cl *Compiler) compileStmt(form sexp.Form) {
 		cl.compileExprStmt(form.Form)
 	case *sexp.Panic:
 		cl.compilePanic(form.ErrorData)
+	case *sexp.While:
+		cl.compileWhile(form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -294,6 +296,17 @@ func (cl *Compiler) compileBool(form sexp.Bool) {
 	} else {
 		cl.emitConst(cl.constPool.InsertSym("nil"))
 	}
+}
+
+func (cl *Compiler) compileWhile(form *sexp.While) {
+	entryLabel := cl.emitJmp(ir.OpJmp, "loop-body")
+	cl.compileStmtList(form.Body)
+
+	entryLabel.bind("loop-test")
+	cl.compileExpr(form.Test)
+
+	// #FIXME: nasty hack with +1. Should refactor.
+	cl.emit(ir.JmpNotNil(entryLabel.blockIndex + 1))
 }
 
 func (cl *Compiler) compileExprStmt(form sexp.Form) {
