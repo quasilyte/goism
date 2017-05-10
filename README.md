@@ -1,7 +1,8 @@
 ![Logo](misc/logo.png)
 
 # Go.el
-Not a fan of Emacs Lisp? Hack Emacs in Go!
+
+Searching for Emacs Lisp alternative? **Try hacking Emacs in Go!**
 
 ## Overview
 
