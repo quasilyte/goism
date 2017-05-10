@@ -11,3 +11,9 @@ package lisp
 func Call(fn Symbol, args ...Object) Object {
 	return nil
 }
+
+// Intern returns the canonical symbol with specified name.
+// If there is none, new is created.
+func Intern(name string) Symbol {
+	return Symbol{}
+}
