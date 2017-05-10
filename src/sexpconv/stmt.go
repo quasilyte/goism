@@ -70,8 +70,22 @@ func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for _, spec := range node.Specs {
-		spec := spec.(*ast.ValueSpec)
+		forms = conv.valueSpec(forms, spec.(*ast.ValueSpec))
+	}
 
+	return &sexp.FormList{Forms: forms}
+}
+
+func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.Form {
+	if len(spec.Values) == 0 {
+		zv := zeroValue(conv.typeOf(spec.Type))
+		for _, ident := range spec.Names {
+			forms = append(forms, &sexp.Bind{
+				Name: ident.Name,
+				Init: zv,
+			})
+		}
+	} else {
 		for i, ident := range spec.Names {
 			forms = append(forms, &sexp.Bind{
 				Name: ident.Name,
@@ -79,8 +93,7 @@ func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 			})
 		}
 	}
-
-	return &sexp.FormList{Forms: forms}
+	return forms
 }
 
 func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
