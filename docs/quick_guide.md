@@ -21,7 +21,11 @@
 
 > Mockup
 
-### 2.2 Running Go code from Emacs
+### 2.2 EmacsX utility packages
+
+> Mockup
+
+### 2.3 Running Go code from Emacs
 
 > Mockup
 

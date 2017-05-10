@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/types"
-	"lisp"
 	"sexp"
 )
 
@@ -16,10 +15,6 @@ func (conv *Converter) methodCall(sel *types.Selection, recv ast.Expr, args []as
 	typ := sel.Recv().(*types.Named)
 	tn := typ.Obj()
 	pkg := tn.Pkg()
-
-	if pkg == lisp.Package {
-		return conv.intrinMethodCall(typ, sel.Obj().Name(), append(args, recv))
-	}
 
 	qualName := "Go-" + pkg.Name() + "." + tn.Name() + "." + sel.Obj().Name()
 	return conv.call(qualName, append(args, recv)...)

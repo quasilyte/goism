@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
-	"go/types"
-	"lisp"
 	"sexp"
 )
 
@@ -30,17 +28,6 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	default:
 		panic(fmt.Sprintf("invalid intrinsic: %s", sym))
 	}
-}
-
-func (conv *Converter) intrinMethodCall(typ *types.Named, fn string, args []ast.Expr) sexp.Form {
-	if typ == lisp.Types.Symbol {
-		switch fn {
-		case "Name":
-			return conv.call("symbol-name", args...)
-		}
-	}
-
-	panic("unimplemented")
 }
 
 func (conv *Converter) intrinIntern(arg ast.Expr) sexp.Form {

@@ -4,11 +4,12 @@
 // in a typesafe interface.
 package emacs
 
+// By approximation, this file will be usable after
+// roadmap-1 will be finished.
+
 import (
 	"emacs/lisp"
 )
-
-const Nil = lisp.Symbol("nil")
 
 func Insert(arg string) {
 	lisp.Call("insert", lisp.String(arg))

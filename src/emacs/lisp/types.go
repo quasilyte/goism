@@ -18,6 +18,3 @@ type (
 
 // Symbol <- symbolp(x); default value is "nil"
 type Symbol struct{ _ int }
-
-// Name return symbol name as string.
-func (Symbol) Name() string { return "" }
