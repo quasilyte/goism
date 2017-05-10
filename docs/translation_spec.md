@@ -59,3 +59,11 @@ which implemented in terms of C `double`.
 Void-result GE functions return value is unspecified and should not be assigned
 inside Elisp. 
 
+### (4) Symbol type
+
+New symbols can be created by `lisp.Intern`.
+If argument is constant, symbol literal is inserted inplace
+instead of `intern` call.
+
+* `lisp.Symbol` default value is `nil`
+* `lisp.Symbol` has method-based API

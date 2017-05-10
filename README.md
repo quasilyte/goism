@@ -56,6 +56,10 @@ list := lisp.Call("cons", lisp.Int(1), lisp.String("2"))
 lisp.Call("insert", lisp.String("hello, world!"))
 // Luckily, "emacs" package has a nice wrapper:
 emacs.Insert("hello, world")
+
+// Symbols are objects:
+sym := lisp.Intern("foo")
+println(sym.Name()) // => "foo"
 ```
 
 ## Docs
