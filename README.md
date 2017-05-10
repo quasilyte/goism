@@ -11,56 +11,29 @@ Not a fan of Emacs Lisp? Hack Emacs in Go!
 [Go](https://golang.org/) programming language instead
 of Emacs Lisp inside Emacs. 
 
+It provides Go intrinsics and `emacs` package to make it
+possible to control Emacs from your programs.
+Generated functions, methods and variables can be accessed from
+Emacs Lisp code.
+
+Enjoy the increased type safety and curly braces!
+
 #### How it works
 
-Valid Go package is converted
-into Emacs Lisp bytecode that can be used inside Emacs.
+Valid Go package is converted into Emacs Lisp bytecode.
 
 Emacs `Go` (first letter is capital, thats important) package
 implements Go runtime, so translated code behaves as
 close to the [specs](https://golang.org/ref/spec) as possible.
 
+Different optimizations are performed during this translation,
+so it is not going to be any slower than "native" Emacs Lisp.
+
 #### How to use it (install)
 
 > TODO: emacs package installation
 
-> TODO: document basic usage
-
-#### Go from Elisp
-
-To run Go inside Emacs, you need to evaluate 
-`(Go-load-package PKG-NAME)` and all package 
-functions, types and variables become available.
-
-Symbols from Go are loaded as: `"Go-" PKG-NAME "." SYM-NAME`.
-For example, `foo` package function `Bar` 
-is loaded as `Go-foo.Bar`.
-
-#### Elisp from Go
-
-When writing package specifically for Emacs, you
-can use `emacs` and `emacs/lisp` packages.
-
-**Lisp** package is very low-level. 
-It defines Emacs object types and **intrinsic** functions.
-
-**Emacs** package is a big, typesafe convenience
-wrapper around `emacs/lisp` package. Most of the time
-you should use `emacs` package functions. 
-
-```go
-// You can create and use Elisp objects:
-list := lisp.Call("cons", lisp.Int(1), lisp.String("2"))
-
-// Insert "hello, world!" into current buffer:
-lisp.Call("insert", lisp.String("hello, world!"))
-// Luckily, "emacs" package has a nice wrapper:
-emacs.Insert("hello, world")
-
-// Symbols are objects:
-sym := lisp.Intern("foo")
-println(sym.Name()) // => "foo"
-```
+Refer to the [quick guide](docs/quick_guide.md) to get more information.
 
 ## Docs
 
@@ -78,8 +51,8 @@ the current stage.
 
 ### Tags
 
-* Compile Go to Emacs Lisp bytecode
-* Go from Emacs
+* Compile Golang to Emacs Lisp bytecode
+* Golang from Emacs
 * Emacs Lisp alternative to extend Emacs
-* Emacs Lisp as Go compilation target
-* "Go" emacs package
+* Emacs Lisp as Golang compilation target
+* "Golang" emacs package
