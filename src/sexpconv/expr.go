@@ -122,38 +122,6 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	panic("unimplemented")
 }
 
-func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
-	// #REFS: 2.
-	switch fn := node.Fun.(type) {
-	case *ast.SelectorExpr: // x.sel()
-		obj := fn.X.(*ast.Ident)
-		if obj.Name == "lisp" {
-			return conv.intrinsic(fn.Sel.Name, node.Args)
-		}
-
-		qualName := "Go-" + obj.Name + "." + fn.Sel.Name
-		return conv.call(qualName, node.Args...)
-
-	case *ast.Ident: // f()
-		switch fn.Name {
-		case "make":
-			return conv.makeBuiltin(node.Args)
-		case "panic":
-			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
-		case "int", "string", "float64":
-			return conv.Expr(node.Args[0])
-		case "print":
-			return conv.call("Go--print", node.Args...)
-		case "println":
-			return conv.call("Go--println", node.Args...)
-		default:
-			return conv.call(conv.symPrefix+fn.Name, node.Args...)
-		}
-	default:
-		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
-	}
-}
-
 func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv

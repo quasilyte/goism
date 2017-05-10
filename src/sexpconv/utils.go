@@ -20,7 +20,3 @@ func (conv *Converter) stmtList(nodes []ast.Stmt) []sexp.Form {
 	}
 	return forms
 }
-
-func (conv *Converter) call(fn string, args ...ast.Expr) *sexp.Call {
-	return &sexp.Call{Fn: fn, Args: conv.exprList(args)}
-}
