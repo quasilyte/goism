@@ -22,6 +22,7 @@ func (form *FormList) IsAtom() bool       { return false }
 func (form *Block) IsAtom() bool          { return false }
 func (form *If) IsAtom() bool             { return false }
 func (form *Return) IsAtom() bool         { return false }
+func (form *While) IsAtom() bool          { return false }
 
 func (op MakeMap) IsAtom() bool      { return false }
 func (op *MapSet) IsAtom() bool      { return false }

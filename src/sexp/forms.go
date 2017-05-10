@@ -104,6 +104,11 @@ type Return struct {
 	Results []Form
 }
 
+type While struct {
+	Test Form
+	Body []Form
+}
+
 /* Builtin ops */
 
 type MakeMap struct {
