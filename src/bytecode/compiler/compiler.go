@@ -234,6 +234,10 @@ func (cl *Compiler) compileTypeAssert(form *sexp.TypeAssert) {
 }
 
 func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
+	if types.Identical(lisp.Types.Bool, form.Type) {
+		return
+	}
+
 	var checker ir.Instr
 	var blamer lisp.Symbol
 	if types.Identical(lisp.Types.Int, form.Type) {
