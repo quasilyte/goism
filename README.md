@@ -6,7 +6,7 @@ Searching for Emacs Lisp alternative? **Try hacking Emacs in Go!**
 
 ## Overview
 
-#### Description
+### Description
 
 `Go.el` is Emacs package that makes it possible to use 
 [Go](https://golang.org/) programming language instead
@@ -19,7 +19,7 @@ Emacs Lisp code.
 
 Enjoy the increased type safety and curly braces!
 
-#### How it works
+### How it works
 
 Valid Go package is converted into Emacs Lisp bytecode.
 
@@ -30,7 +30,7 @@ close to the [specs](https://golang.org/ref/spec) as possible.
 Different optimizations are performed during this translation,
 so it is not going to be any slower than "native" Emacs Lisp.
 
-#### How to use it (install)
+### How to use it (install)
 
 > TODO: emacs package installation
 
@@ -50,7 +50,7 @@ check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
 [Roadmap 1](https://github.com/Quasilyte/Go.el/projects/1) is
 the current stage.
 
-### Tags
+## Tags
 
 * Compile Golang to Emacs Lisp bytecode
 * Golang from Emacs
