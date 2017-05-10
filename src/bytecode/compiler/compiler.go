@@ -234,28 +234,40 @@ func (cl *Compiler) compileTypeAssert(form *sexp.TypeAssert) {
 }
 
 func (cl *Compiler) compileLispTypeAssert(form *sexp.LispTypeAssert) {
+	// Bool type needs no assertion at all.
 	if types.Identical(lisp.Types.Bool, form.Type) {
 		return
 	}
 
-	var checker ir.Instr
-	var blamer lisp.Symbol
-	if types.Identical(lisp.Types.Int, form.Type) {
-		checker = ir.IsInt
-		blamer = "Go--!object-int"
-	} else if types.Identical(lisp.Types.String, form.Type) {
-		checker = ir.IsString
-		blamer = "Go--!object-string"
-	} else if types.Identical(lisp.Types.Symbol, form.Type) {
-		checker = ir.IsSymbol
-		blamer = "Go--!object-symbol"
-	} else {
-		panic("unimplemented")
-	}
+	var blamer lisp.Symbol // Panic trigger
 
 	cl.compileExpr(form.Expr) // Arg to assert.
-	cl.emit(ir.StackRef(0))   // Preserve arg (dup).
-	cl.emit(checker)          // Type check.
+
+	if types.Identical(lisp.Types.Float, form.Type) {
+		// For floats we do not have floatp opcode.
+		cl.emitConst(cl.constPool.InsertSym("floatp"))
+		cl.emit(ir.StackRef(1)) // Preserve arg (dup).
+		cl.emit(ir.Call(1))
+		blamer = "Go--!object-float"
+	} else {
+		var checker ir.Instr
+		if types.Identical(lisp.Types.Int, form.Type) {
+			checker = ir.IsInt
+			blamer = "Go--!object-int"
+		} else if types.Identical(lisp.Types.String, form.Type) {
+			checker = ir.IsString
+			blamer = "Go--!object-string"
+		} else if types.Identical(lisp.Types.Symbol, form.Type) {
+			checker = ir.IsSymbol
+			blamer = "Go--!object-symbol"
+		} else {
+			panic("unimplemented")
+		}
+
+		cl.emit(ir.StackRef(0)) // Preserve arg (dup).
+		cl.emit(checker)        // Type check.
+	}
+
 	label := cl.emitJmp(ir.OpJmpNotNil, "lisp-type-assert-fail")
 	{
 		cl.emitConst(cl.constPool.InsertSym(blamer))
