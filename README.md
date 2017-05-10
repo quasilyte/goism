@@ -64,6 +64,7 @@ println(sym.Name()) // => "foo"
 
 ## Docs
 
+* [Quick guide (getting started)](docs/quick_guide.md)
 * [Translation specification](docs/translation_spec.md)
 * [Features that are not implemented](docs/unimplemented.md)
 * [Go "emacs" package overview](docs/go_emacs.md)
