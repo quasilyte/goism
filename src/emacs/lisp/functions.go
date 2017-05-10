@@ -8,12 +8,23 @@ package lisp
 // Function existance or signature compatibility is
 // not checked during compilation.
 // If something is wrong, Emacs will complain during evaluation.
-func Call(fn Symbol, args ...Object) Object {
-	return nil
-}
+func Call(fn string, args ...Object) Object { return nil }
+
+// CallInt like Call, but return value is trusted to be int.
+func CallInt(fn string, srgs ...Object) Int { return 0 }
+
+// CallFloat like Call, but return value is trusted to be float.
+func CallFloat(fn string, srgs ...Object) Float { return 0.0 }
+
+// CallString like Call, but return value is trusted to be string.
+func CallString(fn string, args ...Object) String { return "" }
+
+// CallBool like Call, but return value is trusted to be bool.
+func CallBool(fn string, args ...Object) Bool { return false }
+
+// CallSymbol like Call, but return value is trusted to be Symbol.
+func CallSymbol(fn string, args ...Object) Symbol { return Symbol{} }
 
 // Intern returns the canonical symbol with specified name.
 // If there is none, new is created.
-func Intern(name string) Symbol {
-	return Symbol{}
-}
+func Intern(name string) Symbol { return Symbol{} }

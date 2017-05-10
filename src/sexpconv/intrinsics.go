@@ -17,6 +17,8 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		// convertion, so we ignore them.
 		return conv.Expr(args[0])
 
+	case "CallInt", "CallFloat", "CallString", "CallBool", "CallSymbol":
+		fallthrough
 	case "Call":
 		// #FIXME: non-constant symbols should also be valid.
 		fn := constant.StringVal(conv.valueOf(args[0]))
