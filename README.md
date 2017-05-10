@@ -56,4 +56,4 @@ the current stage.
 * Golang from Emacs
 * Emacs Lisp alternative to extend Emacs
 * Emacs Lisp as Golang compilation target
-* "Golang" emacs package
+* "Go" emacs package
