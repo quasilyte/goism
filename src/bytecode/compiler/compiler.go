@@ -178,7 +178,7 @@ func (cl *Compiler) compileReturn(form *sexp.Return) {
 }
 
 func (cl *Compiler) compileIf(form *sexp.If) {
-	cl.compileExpr(form.Test)
+	cl.compileExpr(form.Cond)
 	label := cl.emitJmp(ir.OpJmpNil, "then")
 	cl.compileStmtList(form.Then.Forms)
 	label.bind("else")
@@ -303,7 +303,7 @@ func (cl *Compiler) compileWhile(form *sexp.While) {
 	cl.compileStmtList(form.Body)
 
 	entryLabel.bind("loop-test")
-	cl.compileExpr(form.Test)
+	cl.compileExpr(form.Cond)
 
 	// #FIXME: nasty hack with +1. Should refactor.
 	cl.emit(ir.JmpNotNil(entryLabel.blockIndex + 1))
