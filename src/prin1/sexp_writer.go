@@ -105,7 +105,7 @@ func (sw *sexpWriter) writeSexp(object sexp.Form) {
 
 	case *sexp.If:
 		sw.writeString("(if ")
-		sw.writeSexp(object.Test)
+		sw.writeSexp(object.Cond)
 		sw.writeByte(' ')
 		sw.writeSexp(object.Then)
 		if object.Else != nil {

@@ -93,7 +93,7 @@ type Block struct {
 // depending on the result, one of the branches gets
 // executed. Else branch is optional.
 type If struct {
-	Test Form
+	Cond Form
 	Then *Block
 	Else Form
 }
@@ -105,7 +105,7 @@ type Return struct {
 }
 
 type While struct {
-	Test Form
+	Cond Form
 	Body []Form
 }
 

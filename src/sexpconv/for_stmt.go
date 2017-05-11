@@ -12,7 +12,7 @@ func (conv *Converter) ForStmt(node *ast.ForStmt) sexp.Form {
 	}
 
 	return &sexp.While{
-		Test: conv.Expr(node.Cond),
+		Cond: conv.Expr(node.Cond),
 		Body: conv.stmtList(node.Body.List),
 	}
 }

@@ -38,7 +38,7 @@ func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 
 	test := conv.Expr(node.Cond)
 	then := conv.BlockStmt(node.Body)
-	form := &sexp.If{Test: test, Then: then}
+	form := &sexp.If{Cond: test, Then: then}
 	if node.Else != nil {
 		form.Else = conv.Stmt(node.Else)
 	}
