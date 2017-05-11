@@ -43,6 +43,7 @@ Refer to the [quick guide](docs/quick_guide.md) to get more information.
 * [Features that are not implemented](docs/unimplemented.md)
 * [Go "emacs" package overview](docs/go_emacs.md)
 * [Emacs "Go" library](docs/emacs_go.md)
+* [Go.el implementation design](docs/design.md)
 
 To see what features are going to be implemented in near future,
 check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
