@@ -7,13 +7,6 @@ func GetBool(form Form) (bool, bool) {
 	return false, false
 }
 
-func GetChar(form Form) (rune, bool) {
-	if form, ok := form.(Char); ok {
-		return form.Val, true
-	}
-	return rune(0), false
-}
-
 func GetInt(form Form) (int64, bool) {
 	if form, ok := form.(Int); ok {
 		return form.Val, true

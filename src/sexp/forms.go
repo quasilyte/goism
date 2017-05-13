@@ -14,8 +14,6 @@ type Form interface {
 type (
 	// Bool = true or false literal.
 	Bool struct{ Val bool }
-	// Char = rune constant (candidate for deletion).
-	Char struct{ Val rune }
 	// Int = rune constant or integer literal.
 	Int struct{ Val int64 }
 	// Float = floating point literal (of any supported format).

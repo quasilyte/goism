@@ -34,14 +34,6 @@ func (conv *Converter) Constant(node ast.Expr) sexp.Form {
 	return nil
 }
 
-func constantChar(cv constant.Value) sexp.Char {
-	val, exact := constant.Int64Val(cv)
-	if !exact {
-		panic("can not handle inexact char") // #REFS: 17.
-	}
-	return sexp.Char{Val: rune(val)}
-}
-
 func constantString(cv constant.Value) sexp.String {
 	return sexp.String{Val: constant.StringVal(cv)}
 }

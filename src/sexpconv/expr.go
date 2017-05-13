@@ -56,9 +56,6 @@ func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
 	if info&types.IsString != 0 {
 		return constantString(conv.valueOf(node))
 	}
-	if node.Kind == token.CHAR {
-		return constantChar(conv.valueOf(node))
-	}
 	return constantInt(conv.valueOf(node))
 }
 
