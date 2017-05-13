@@ -7,37 +7,41 @@ import (
 )
 
 type Form interface {
-	// IsAtom returns true if underlying implementations
-	// belongs to atom category.
-	//
-	// #FIXME: this method can be obsolete.
-	// Its currently unused and probably should be
-	// as free function if ever needed.
-	IsAtom() bool
+	form()
+}
+
+// Atoms.
+type (
+	// Bool = true or false literal.
+	Bool struct{ Val bool }
+	// Char = rune constant (candidate for deletion).
+	Char struct{ Val rune }
+	// Int = rune constant or integer literal.
+	Int struct{ Val int64 }
+	// Float = floating point literal (of any supported format).
+	Float struct{ Val float64 }
+	// String = raw/normal string literal.
+	String struct{ Val string }
+	// Symbol = lisp.Symbol literal.
+	Symbol struct{ Val string }
+)
+
+// Composite literals.
+type (
+	// ArrayLit = [N]T{...}.
+	ArrayLit struct{ Vals []Form }
+	// QuotedArray = ArrayLit where each element is constant.
+	QuotedArray struct{ Vals []Form }
+)
+
+// Call expression is normal (direct) function invocation.
+type Call struct {
+	Fn   string
+	Args []Form
 }
 
 // Var - reference to lexical variable.
-// #FIXME: what category does Var belong to?
 type Var struct{ Name string }
-
-/* Atoms */
-
-type Bool struct{ Val bool }
-type Char struct{ Val rune }
-type Int struct{ Val int64 }
-type Float struct{ Val float64 }
-type String struct{ Val string }
-type Symbol struct{ Val string }
-
-/* Composite literals */
-
-type ArrayLit struct {
-	Vals []Form
-}
-
-type QuotedArray struct {
-	Vals []Form
-}
 
 /* Special forms */
 
@@ -176,18 +180,4 @@ type (
 	StringGte   struct{ Args []Form }
 )
 
-/* Call expressions */
-
-// Call expression is normal (direct) function invocation.
-type Call struct {
-	Fn   string
-	Args []Form
-}
-
 /* Helper types (not forms themself) */
-
-// Binding represents named value.
-type Binding struct {
-	Name string
-	Init Form
-}
