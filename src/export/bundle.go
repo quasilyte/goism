@@ -1,7 +1,7 @@
 package export
 
 import (
-	"bytecode"
+	"bcode"
 	"bytes"
 	"fmt"
 )
@@ -11,9 +11,15 @@ type Bundle struct {
 	buf    bytes.Buffer
 }
 
+const pkgHeader = `;;; -*- lexical-binding: t -*-
+;; THIS CODE IS GENERATED, AVOID MANUAL EDITING!
+;; Go package %s:
+`
+
 func NewBuilder(pkgName string) *Bundle {
 	buf := bytes.Buffer{}
-	fmt.Fprintf(&buf, ";;; Go package `%s'\n", pkgName)
+	fmt.Fprintf(&buf, pkgHeader, pkgName)
+
 	return &Bundle{
 		prefix: "Go-" + pkgName + ".",
 		buf:    buf,
@@ -24,15 +30,15 @@ func (b *Bundle) Build() []byte {
 	return b.buf.Bytes()
 }
 
-func (b *Bundle) AddFunc(name string, f *bytecode.Func, code []byte) {
+func (b *Bundle) AddFunc(name string, f *bcode.Func) {
 	qualName := b.prefix + name
-	escapedCode := escapeBytecode(code)
-	constVec := f.ConstPool.String()
+	escapedCode := escapeBytecode(f.Bytecode)
+	constVec := f.ConstVec.String()
 
 	fmt.Fprintf(
 		&b.buf,
-		"(defalias '%s #[%d \"%s\" %s %d])\n",
-		qualName, f.ArgsDesc, escapedCode, constVec, f.StackUsage,
+		"(defalias '%s #[%d \"%s\" %s %d \"%s\"])\n",
+		qualName, f.ArgsDesc, escapedCode, constVec, f.StackUsage, f.DocString,
 	)
 }
 

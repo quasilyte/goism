@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
+	"lisp/function"
 	"sexp"
 )
 
@@ -19,8 +20,8 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		fallthrough
 	case "Call":
 		// #FIXME: non-constant symbols should also be valid.
-		fn := constant.StringVal(conv.valueOf(args[0]))
-		return &sexp.Call{Fn: fn, Args: conv.exprList(args[1:])}
+		name := constant.StringVal(conv.valueOf(args[0]))
+		return conv.call(function.NewLispFunc(name), args[1:]...)
 
 	case "Intern":
 		return conv.intrinIntern(args[0])
@@ -39,5 +40,5 @@ func (conv *Converter) intrinIntern(arg ast.Expr) sexp.Form {
 		return sexp.Symbol{Val: s}
 	}
 
-	return &sexp.Call{Fn: "intern", Args: []sexp.Form{conv.Expr(arg)}}
+	return conv.call(&function.Intern, arg)
 }

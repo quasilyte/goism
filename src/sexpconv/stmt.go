@@ -105,7 +105,7 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
 	var expr sexp.Form
 
-	args := []sexp.Form{conv.Expr(target), sexp.Int{Val: 1}}
+	args := [2]sexp.Form{conv.Expr(target), sexp.Int{Val: 1}}
 	if node.Tok == token.INC {
 		expr = &sexp.NumAdd{Args: args}
 	} else {
@@ -119,9 +119,13 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 }
 
 func (conv *Converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
-	form := conv.Expr(node.X)
-	if form, ok := form.(*sexp.Panic); ok {
+	switch form := conv.Expr(node.X).(type) {
+	case *sexp.Panic:
 		return form
+	case *sexp.Call:
+		return sexp.CallStmt{Call: form}
+
+	default:
+		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
 	}
-	return sexp.ExprStmt{Form: form}
 }

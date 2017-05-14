@@ -4,6 +4,7 @@ package sexp
 
 import (
 	"go/types"
+	"lisp/function"
 )
 
 type Form interface {
@@ -34,8 +35,13 @@ type (
 
 // Call expression is normal (direct) function invocation.
 type Call struct {
-	Fn   string
+	Fn   *function.Type
 	Args []Form
+}
+
+// CallStmt is a Call which discards returned results.
+type CallStmt struct {
+	*Call
 }
 
 // Var - reference to lexical variable.
@@ -74,11 +80,6 @@ type LispTypeAssert struct {
 	Type types.Type
 }
 
-// ExprStmt represents expression whose result is discarded.
-type ExprStmt struct {
-	Form Form
-}
-
 // FormList packs multiple forms together (like "progn").
 type FormList struct {
 	Forms []Form
@@ -108,74 +109,66 @@ type Return struct {
 
 type While struct {
 	Cond Form
-	Body []Form
+	Body *Block
 }
 
 /* Builtin ops */
 
-type MakeMap struct {
-	SizeHint Form
-}
-
-type MapSet struct {
-	Map Form
-	Key Form
-	Val Form
-}
+// type MakeMap struct {
+// 	SizeHint Form
+// }
 
 type (
-	BitOr  struct{ Args []Form }
-	BitAnd struct{ Args []Form }
-	BitXor struct{ Args []Form }
+	BitOr  struct{ Args [2]Form }
+	BitAnd struct{ Args [2]Form }
+	BitXor struct{ Args [2]Form }
 
 	NumAdd struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumSub struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumMul struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumQuo struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumEq struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumNotEq struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumLt struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumLte struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumGt struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 	NumGte struct {
-		Args []Form
+		Args [2]Form
 		Type *types.Basic
 	}
 
-	Concat      struct{ Args []Form }
-	StringEq    struct{ Args []Form }
-	StringNotEq struct{ Args []Form }
-	StringLt    struct{ Args []Form }
-	StringLte   struct{ Args []Form }
-	StringGt    struct{ Args []Form }
-	StringGte   struct{ Args []Form }
+	Concat      struct{ Args [2]Form }
+	StringEq    struct{ Args [2]Form }
+	StringNotEq struct{ Args [2]Form }
+	StringLt    struct{ Args [2]Form }
+	StringLte   struct{ Args [2]Form }
+	StringGt    struct{ Args [2]Form }
+	StringGte   struct{ Args [2]Form }
 )
-
-/* Helper types (not forms themself) */

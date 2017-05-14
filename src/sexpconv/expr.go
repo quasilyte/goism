@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"go/types"
 	"lisp"
+	"lisp/function"
 	"sexp"
 )
 
@@ -65,7 +66,7 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	}
 
 	typ := conv.basicTypeOf(node.X)
-	args := []sexp.Form{
+	args := [2]sexp.Form{
 		conv.Expr(node.X),
 		conv.Expr(node.Y),
 	}
@@ -146,7 +147,7 @@ func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X); typ.(type) {
 	case *types.Map:
-		return conv.call("gethash", node.Index, node.X)
+		return conv.call(&function.Gethash, node.Index, node.X)
 
 	// #TODO: arrays, slices, strings
 	default:

@@ -13,6 +13,6 @@ func (conv *Converter) ForStmt(node *ast.ForStmt) sexp.Form {
 
 	return &sexp.While{
 		Cond: conv.Expr(node.Cond),
-		Body: conv.stmtList(node.Body.List),
+		Body: conv.BlockStmt(node.Body),
 	}
 }

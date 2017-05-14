@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"lisp/function"
 	"sexp"
 )
 
@@ -28,7 +29,7 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 
 func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	typ := conv.basicTypeOf(rhs)
-	args := []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
+	args := [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
 
 	if typ.Info()&types.IsNumeric != 0 {
 		return conv.assign(lhs, &sexp.NumAdd{Type: typ, Args: args})
@@ -43,21 +44,21 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumSub{
 		Type: conv.basicTypeOf(rhs),
-		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
+		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumMul{
 		Type: conv.basicTypeOf(rhs),
-		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
+		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumQuo{
 		Type: conv.basicTypeOf(rhs),
-		Args: []sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
+		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
@@ -87,11 +88,15 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	case *ast.IndexExpr:
 		switch typ := conv.typeOf(lhs.X); typ.(type) {
 		case *types.Map:
-			return &sexp.MapSet{
-				Map: conv.Expr(lhs.X),
-				Key: conv.Expr(lhs.Index),
-				Val: expr,
+			call := &sexp.Call{
+				Fn: &function.Puthash,
+				Args: []sexp.Form{
+					conv.Expr(lhs.Index),
+					expr,
+					conv.Expr(lhs.X),
+				},
 			}
+			return sexp.CallStmt{Call: call}
 
 		default:
 			panic("unimplemented")
