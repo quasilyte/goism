@@ -9,9 +9,9 @@ import (
 )
 
 func parsePackage(fSet *token.FileSet, pkgPath string) (*ast.Package, error) {
-	const parseMode = 0
+	const parseFlags = parser.ParseComments
 
-	pkgs, err := parser.ParseDir(fSet, pkgPath, nil, parseMode)
+	pkgs, err := parser.ParseDir(fSet, pkgPath, nil, parseFlags)
 	if err != nil {
 		return nil, err
 	}

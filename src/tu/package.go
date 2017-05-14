@@ -18,10 +18,11 @@ type Package struct {
 
 // Func is a Sexp function.
 type Func struct {
-	Name     string
-	Body     []sexp.Form
-	Params   []string
-	Variadic bool
+	Name      string
+	Body      []sexp.Form
+	Params    []string
+	Variadic  bool
+	DocString string
 }
 
 // Var is a package-level (global) variable.
