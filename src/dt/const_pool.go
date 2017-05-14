@@ -10,6 +10,10 @@ type ConstPool struct {
 	vals []interface{}
 }
 
+func (cp *ConstPool) Clear() {
+	cp.vals = cp.vals[:0]
+}
+
 func (cp *ConstPool) InsertInt(x int64) int {
 	for i, val := range cp.vals {
 		if val == x {
@@ -43,14 +47,15 @@ func (cp *ConstPool) InsertString(x string) int {
 	return len(cp.vals) - 1
 }
 
-func (cp *ConstPool) InsertSym(x lisp.Symbol) int {
+func (cp *ConstPool) InsertSym(x string) int {
+	sym := lisp.Symbol(x)
 	for i, val := range cp.vals {
-		if val == x {
+		if val == sym {
 			return i
 		}
 	}
 
-	cp.vals = append(cp.vals, x)
+	cp.vals = append(cp.vals, sym)
 	return len(cp.vals) - 1
 }
 
