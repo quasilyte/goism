@@ -20,7 +20,10 @@ func compileExprList(cl *Compiler, forms []sexp.Form) {
 
 func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	compileCall(cl, form.Call)
-	// emit(cl, bcode.Drop(1)) // Discard expression result.
+	// Discard result only for single result function.
+	if form.Fn.ResultKind() == function.ResultSingle {
+		emit(cl, bcode.Drop(1))
+	}
 }
 
 func compileBool(cl *Compiler, form sexp.Bool) {
@@ -60,14 +63,12 @@ func compileRebind(cl *Compiler, form *sexp.Rebind) {
 func compileIf(cl *Compiler, form *sexp.If) {
 	if form.Else == nil {
 		elseLabel := labelCreate(cl)
-
 		compileExpr(cl, form.Cond)
 		emitJmpNil(cl, elseLabel)
 		compileBlock(cl, form.Then)
 		labelBind(cl, elseLabel)
 	} else if sexp.IsReturning(form.Then) {
 		elseLabel := labelCreate(cl)
-
 		compileExpr(cl, form.Cond)
 		emitJmpNil(cl, elseLabel)
 		compileBlock(cl, form.Then)
@@ -76,7 +77,6 @@ func compileIf(cl *Compiler, form *sexp.If) {
 	} else {
 		elseLabel := labelCreate(cl)
 		endifLabel := labelCreate(cl)
-
 		compileExpr(cl, form.Cond)
 		emitJmpNil(cl, elseLabel)
 		compileBlock(cl, form.Then)

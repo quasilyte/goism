@@ -1,24 +1,17 @@
 package function
 
+// Go.el runtime functions.
 var (
-	Print = Type{
-		name:       "Go--print",
-		resultKind: ResultVoid,
-	}
+	Print   = Type{name: "Go--print"}
+	Println = Type{name: "Go--println"}
+	Panic   = Type{name: "Go--panic"}
+)
 
-	Println = Type{
-		name:       "Go--println",
-		resultKind: ResultVoid,
-	}
-
-	Panic = Type{
-		name:       "Go--panic",
-		resultKind: ResultUndefined,
-	}
-
-	MakeHashTable = Type{name: "make-hash-table"}
-	Puthash       = Type{name: "puthash", resultKind: ResultVoid}
-	Gethash       = Type{name: "gethash"}
+// Emacs Lisp builtin functions.
+var (
+	MakeHashTable = *NewNative("make-hash-table")
+	Puthash       = Type{name: "puthash"}
+	Gethash       = *NewNative("gethash")
 
 	Intern = Type{name: "intern"}
 )

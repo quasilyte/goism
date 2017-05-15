@@ -8,6 +8,7 @@ import (
 )
 
 // Compiler implements whole sexp->bytecode phase.
+//
 // Does not perform optimizations, but tries to
 // select best fit instruction encodings which can lead
 // to smaller bytecode size and better execution speed.
