@@ -34,6 +34,7 @@ func writeTriOp(dst *bytes.Buffer, opcode byte, data uint16) {
 	}
 }
 
+// Convert uint16 value into properly ordered pair of bytes.
 func imm16Bytes(x uint16) (byte, byte) {
 	low := x & 0x00FF
 	high := (x & 0xFF00) >> 8

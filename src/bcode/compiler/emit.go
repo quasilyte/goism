@@ -12,7 +12,12 @@ func emit(cl *Compiler, instr bcode.Instr) {
 	// emitJmpX functions are special and they must be
 	// distinct from normal emit function (which is
 	// impossible when we have dozens of emitters).
-	fmt.Printf("%v %v\n", instr, cl.st)
+
+	// General scheme:
+	// 1) consume stack arguments.
+	// 2) write opcode to dst.
+	// 3) push results to stack (if any).
+
 	switch dst := &cl.buf; instr.Kind {
 	case bcode.InstrBinOp:
 		cl.st.Drop(2)
@@ -41,7 +46,7 @@ func emit(cl *Compiler, instr bcode.Instr) {
 		} else {
 			writeTriOp(dst, 0, instr.Data)
 		}
-		cl.st.Push()
+		cl.st.Dup(instr.Data)
 
 	case bcode.InstrStackSet:
 		cl.st.Drop(1)
@@ -64,7 +69,7 @@ func emit(cl *Compiler, instr bcode.Instr) {
 		writeTriOp(dst, 32, instr.Data)
 		cl.st.Push()
 
-	case bcode.InstrScopeExitingCall:
+	case bcode.InstrPanicCall:
 		cl.st.Drop(instr.Data + 1)
 		writeTriOp(dst, 32, instr.Data)
 

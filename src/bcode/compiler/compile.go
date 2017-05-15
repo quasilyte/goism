@@ -109,7 +109,7 @@ func compileCall(cl *Compiler, form *sexp.Call) {
 	compileExprList(cl, form.Args)
 
 	if argc := len(form.Args); form.Fn.ExitsScope() {
-		emit(cl, bcode.ScopeExitingCall(argc))
+		emit(cl, bcode.PanicCall(argc))
 	} else {
 		switch form.Fn.ResultKind() {
 		case function.ResultVoid:

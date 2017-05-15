@@ -42,6 +42,12 @@ func (st *ExecutionStack) Push() {
 	st.push("")
 }
 
+// Dup pushes specified stack element (copies it).
+func (st *ExecutionStack) Dup(ref uint16) {
+	maxIndex := len(st.names) - 1
+	st.push(st.names[maxIndex-int(ref)])
+}
+
 // PushConst is like Push, but used for constant refs.
 func (st *ExecutionStack) PushConst(index uint16) {
 	st.push(fmt.Sprintf("<%d>", index))

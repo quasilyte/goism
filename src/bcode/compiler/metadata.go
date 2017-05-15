@@ -26,6 +26,8 @@ func docString(f *tu.Func) string {
 	if len(f.Params) == 0 {
 		return f.DocString
 	}
+
+	// Add signature information for eldoc.
 	params := append(make([]string, 0, len(f.Params)), f.Params...)
 	if !f.Variadic {
 		params[len(params)-1] = "&rest " + params[len(params)-1]

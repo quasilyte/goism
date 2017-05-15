@@ -4,6 +4,8 @@ package bcode
 type InstrKind int
 
 // Enumeration on instruction kinds.
+// Some "kinds" describe single instruction while
+// the kinds like InstrBinOp express group of instructions.
 const (
 	// InstrBinOp : in=2 data=0 out=1.
 	InstrBinOp InstrKind = iota
@@ -11,12 +13,13 @@ const (
 	InstrRet
 
 	InstrConstRef
+
 	InstrStackRef
 	InstrStackSet
 	InstrDrop
 
 	InstrCall
-	InstrScopeExitingCall
+	InstrPanicCall
 	InstrVoidCall
 )
 
@@ -63,8 +66,8 @@ func Call(argc int) Instr {
 	return Instr{Data: uint16(argc), Kind: InstrCall}
 }
 
-func ScopeExitingCall(argc int) Instr {
-	return Instr{Data: uint16(argc), Kind: InstrScopeExitingCall}
+func PanicCall(argc int) Instr {
+	return Instr{Data: uint16(argc), Kind: InstrPanicCall}
 }
 
 func VoidCall(argc int) Instr {
