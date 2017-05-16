@@ -2,9 +2,36 @@
 
 ;; ir -- Go.el intermediate format that is converted to Emacs lapcode.
 
-(defun ir-make-bytecode (argc code cvec stack-cap doc-string)
-  "Like `make-byte-code', but CODE argument is IR encoded instruction list."
-  (make-byte-code argc
+;; { IR package }
+;; Output of Go.el compiler.
+
+(defsubst ir--pkg-name (pkg) (aref pkg 0))
+(defsubst ir--pkg-vars (pkg) (aref pkg 1))
+(defsubst ir--pkg-funcs (pkg) (aref pkg 2))
+
+;; Output compiled package to temp buffer.
+;; Caller can decide to inspect/eval/save generated contents.
+(defun ir--pkg-compile (pkg)
+  (with-output-to-temp-buffer "*IR compile*"
+    ;; Header.
+    (princ ";;; -*- lexical-binding: t -*-\n")
+    (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n")
+    (princ (format ";; Go package %s:\n" (ir--pkg-name pkg)))
+    ;; Functions.
+    (dolist (f (ir--pkg-funcs pkg))
+      (let* ((name (pop f))
+             (bytecode (apply #'ir--make-bytecode f)))
+        (prin1 `(defalias ',name ,bytecode))
+        (terpri)))
+    ;; TODO: global variables.
+    (dolist (v (ir--pkg-vars pkg))
+      (ignore v))))
+
+;; { Bytecode generation }
+
+;; Like `make-byte-code', but CODE argument is IR encoded instruction list.
+(defun ir--make-bytecode (signature cvec stack-cap doc-string code)
+  (make-byte-code signature
                   (byte-compile-lapcode
                    (byte-optimize-lapcode
                     (ir--to-lapcode code)))
@@ -121,7 +148,7 @@
                 (aref (ir--info-data op-info) arg)
               (cons (aref (ir--info-data op-info) 5) arg)))
     (_
-     (error "Unexpected op kind: %s" (ir--info-kind op-info)))))
+     (error "Unexpected op kind for `%s'" op))))
 
 (defun ir--tag-ref (tags id)
   (or (gethash id tags)
