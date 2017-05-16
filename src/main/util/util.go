@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
+	"strings"
 )
 
 // Parsed command line arguments.
@@ -18,8 +20,15 @@ type ProgramInfo struct {
 
 // ArgTemplate describes command line argument.
 type ArgTemplate struct {
-	Req  bool
+	// If set to true, error if raised when argument is not
+	// set explicitly.
+	Req bool
+	// If set to true, Help string is parsed for {[\w\|]*} pattern.
+	// Value is checked against that pattern.
+	Enum bool
+	// Default value.
 	Init string
+	// Argument description.
 	Help string
 }
 
@@ -53,9 +62,25 @@ func ParseArgv(programInfo *ProgramInfo, schema ArgvSchema) {
 		if info.Req && *p == info.Init {
 			Blame("Argument `%s' is required\n", name)
 		}
+		if info.Enum && !checkEnum(*p, info.Help) {
+			Blame("Unexpected `%s' value (see usage)\n", name)
+		}
 
 		argv[name] = *p
 	}
+}
+
+var enumRx = regexp.MustCompile(`\{[\w\|]*\}`)
+
+func checkEnum(val string, help string) bool {
+	enum := enumRx.FindString(help)
+	enum = enum[1 : len(enum)-1] // Drop '{' and '}'
+	for _, variant := range strings.Split(enum, "|") {
+		if val == variant {
+			return true
+		}
+	}
+	return false
 }
 
 // Usage prints usage text and exits with code 0.
