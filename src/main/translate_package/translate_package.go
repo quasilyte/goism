@@ -17,7 +17,7 @@ var programInfo = util.ProgramInfo{
 func main() {
 	util.ParseArgv(&programInfo, util.ArgvSchema{
 		"pkgPath": {
-			Help: "Path to Go package to be translated (Required)",
+			Help: "Path to Go package to be translated",
 			Req:  true,
 		},
 		"output": {

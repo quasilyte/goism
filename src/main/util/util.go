@@ -48,7 +48,11 @@ func ParseArgv(programInfo *ProgramInfo, schema ArgvSchema) {
 	pointers := make(map[string]*string)
 
 	for name, info := range schema {
-		pointers[name] = flag.String(name, info.Init, info.Help)
+		help := info.Help
+		if info.Req {
+			help += " (Req)"
+		}
+		pointers[name] = flag.String(name, info.Init, help)
 	}
 	flag.Parse()
 
