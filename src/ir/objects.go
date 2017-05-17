@@ -1,14 +1,14 @@
-package bcode
+package ir
 
 import (
 	"dt"
 )
 
-// Func is a compiled bytecode function.
 type Func struct {
+	Name       string
 	ArgsDesc   uint32
 	StackUsage int
-	Bytecode   []byte
+	Body       []byte
 	ConstVec   *dt.ConstPool
 	DocString  string
 }

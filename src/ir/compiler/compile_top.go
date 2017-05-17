@@ -1,8 +1,8 @@
 package compiler
 
 import (
-	"bcode"
 	"fmt"
+	"ir"
 	"sexp"
 )
 
@@ -33,32 +33,32 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 func compileExpr(cl *Compiler, form sexp.Form) {
 	switch form := form.(type) {
 	case sexp.Int:
-		emit(cl, bcode.ConstRef(cl.cvec.InsertInt(form.Val)))
+		emit(cl, ir.ConstRef(cl.cvec.InsertInt(form.Val)))
 	case sexp.Float:
-		emit(cl, bcode.ConstRef(cl.cvec.InsertFloat(form.Val)))
+		emit(cl, ir.ConstRef(cl.cvec.InsertFloat(form.Val)))
 	case sexp.String:
-		emit(cl, bcode.ConstRef(cl.cvec.InsertString(form.Val)))
+		emit(cl, ir.ConstRef(cl.cvec.InsertString(form.Val)))
 	case sexp.Symbol:
-		emit(cl, bcode.ConstRef(cl.cvec.InsertSym(form.Val)))
+		emit(cl, ir.ConstRef(cl.cvec.InsertSym(form.Val)))
 	case sexp.Bool:
 		compileBool(cl, form)
 	case sexp.Var:
 		compileVar(cl, form)
 
 	case *sexp.NumAdd:
-		compileBinOp(cl, bcode.NumAdd, form.Args)
+		compileBinOp(cl, ir.NumAdd, form.Args)
 	case *sexp.NumSub:
-		compileBinOp(cl, bcode.NumSub, form.Args)
+		compileBinOp(cl, ir.NumSub, form.Args)
 	case *sexp.NumMul:
-		compileBinOp(cl, bcode.NumMul, form.Args)
+		compileBinOp(cl, ir.NumMul, form.Args)
 	case *sexp.NumQuo:
-		compileBinOp(cl, bcode.NumQuo, form.Args)
+		compileBinOp(cl, ir.NumQuo, form.Args)
 	case *sexp.NumGt:
-		compileBinOp(cl, bcode.NumGt, form.Args)
+		compileBinOp(cl, ir.NumGt, form.Args)
 	case *sexp.NumLt:
-		compileBinOp(cl, bcode.NumLt, form.Args)
+		compileBinOp(cl, ir.NumLt, form.Args)
 	case *sexp.NumEq:
-		compileBinOp(cl, bcode.NumEq, form.Args)
+		compileBinOp(cl, ir.NumEq, form.Args)
 
 	case *sexp.Call:
 		compileCall(cl, form)
