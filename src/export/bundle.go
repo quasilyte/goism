@@ -1,9 +1,9 @@
 package export
 
 import (
-	"bcode"
 	"bytes"
 	"fmt"
+	"ir"
 )
 
 type Bundle struct {
@@ -30,9 +30,9 @@ func (b *Bundle) Build() []byte {
 	return b.buf.Bytes()
 }
 
-func (b *Bundle) AddFunc(name string, f *bcode.Func) {
+func (b *Bundle) AddFunc(name string, f *ir.Func) {
 	qualName := b.prefix + name
-	escapedCode := escapeBytecode(f.Bytecode)
+	escapedCode := escapeBytecode(f.Body)
 	constVec := f.ConstVec.String()
 
 	fmt.Fprintf(
