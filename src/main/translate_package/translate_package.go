@@ -38,19 +38,8 @@ func main() {
 	}
 }
 
-func dumpFunction(f *ir.Func) {
-	fmt.Printf(
-		"  fn %s {args=%x max-stack=%d}\n",
-		f.Name, f.ArgsDesc, f.StackUsage,
-	)
-	fmt.Printf("constants = %s\n", string(f.ConstVec.Bytes()))
-	fmt.Printf("  %s\n", strings.Replace(string(f.Body), "\n", "\n  ", -1))
-}
-
 func produceAsm(pkg *tu.Package) {
 	cl := compiler.New()
-
-	fmt.Printf("Package %s:\n\n", pkg.Name)
 
 	for i := range pkg.Funcs {
 		f := cl.CompileFunc(pkg.Funcs[i])
@@ -69,4 +58,13 @@ func producePackage(pkg *tu.Package) {
 	}
 
 	fmt.Print(string(output.Build()))
+}
+
+func dumpFunction(f *ir.Func) {
+	fmt.Printf(
+		"  fn %s {args=%x max-stack=%d}\n",
+		f.Name, f.ArgsDesc, f.StackUsage,
+	)
+	fmt.Printf("constants = %s\n", string(f.ConstVec.Bytes()))
+	fmt.Printf("  %s\n", strings.Replace(string(f.Body), "\n", "\n  ", -1))
 }
