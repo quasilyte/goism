@@ -53,13 +53,13 @@ func (st *ExecutionStack) PushConst(index uint16) {
 	st.push(fmt.Sprintf("<%d>", index))
 }
 
-// Drop discards last N stack elements.
-func (st *ExecutionStack) Drop(n uint16) {
+// Discard drops last N stack elements.
+func (st *ExecutionStack) Discard(n uint16) {
 	st.names = st.names[:len(st.names)-int(n)]
 }
 
-// Ref lookups binding and returns its ref index (not normal index).
-func (st *ExecutionStack) Ref(name string) int {
+// Find lookups binding and returns its ref index (not normal index).
+func (st *ExecutionStack) Find(name string) int {
 	maxIndex := len(st.names) - 1
 	for i := maxIndex; i >= 0; i-- {
 		if st.names[i] == name {
