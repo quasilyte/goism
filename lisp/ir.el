@@ -2,42 +2,63 @@
 
 ;; ir -- Go.el intermediate format that is converted to Emacs lapcode.
 
+(eval-when-compile
+  ;; Like `pop', but mutates list cells.
+  (defmacro pop! (list)
+    `(prog1
+         (car ,list)
+       (setcar ,list (nth 1 ,list))
+       (setcdr ,list (cddr ,list))))
+  (defmacro not-eq (x y)
+    `(not (eq ,x ,y))))
+
 ;; { IR package }
 ;; Output of Go.el compiler.
 
-(defsubst ir--pkg-name (pkg) (aref pkg 0))
-(defsubst ir--pkg-vars (pkg) (aref pkg 1))
-(defsubst ir--pkg-funcs (pkg) (aref pkg 2))
-
-;; Output compiled package to temp buffer.
+;; Output IR package PKG to temp buffer.
 ;; Caller can decide to inspect/eval/save generated contents.
+;; PKG is consumed.
 (defun ir--pkg-compile (pkg)
   (with-output-to-temp-buffer "*IR compile*"
-    ;; Header.
-    (princ ";;; -*- lexical-binding: t -*-\n")
-    (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n")
-    (princ (format ";; Go package %s:\n" (ir--pkg-name pkg)))
-    ;; Functions.
-    (dolist (f (ir--pkg-funcs pkg))
-      (let* ((name (pop f))
-             (bytecode (apply #'ir--make-bytecode f)))
-        (prin1 `(defalias ',name ,bytecode))
-        (terpri)))
-    ;; TODO: global variables.
-    (dolist (v (ir--pkg-vars pkg))
-      (ignore v))))
+    (ir--pkg-write-header (pop pkg))
+    (ir--pkg-write-body pkg)))
+
+(defun ir--pkg-write-header (pkg-name)
+  (princ ";;; -*- lexical-binding: t -*-\n")
+  (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n")
+  (princ (format ";; Go package %s:\n" pkg-name)))
+
+(defun ir--pkg-write-body (pkg)
+  (let (token)
+    (while (setq token (pop! pkg))
+      (pcase token
+        (`fn (ir--pkg-write-fn pkg))
+        (`var (ir--pkg-write-var pkg))
+        (_ (error "Unexpected token `%s'" token)))
+      (terpri))))
+
+(defun ir--pkg-write-fn (pkg)
+  (let* ((name (pop! pkg))
+         (body (ir--fn-body pkg)))
+    (prin1 `(defalias ',name ,body))))
+
+(defun ir--pkg-write-var (pkg)
+  (error "Unimplemented"))
 
 ;; { Bytecode generation }
 
-;; Like `make-byte-code', but CODE argument is IR encoded instruction list.
-(defun ir--make-bytecode (signature cvec stack-cap doc-string code)
-  (make-byte-code signature
-                  (byte-compile-lapcode
-                   (byte-optimize-lapcode
-                    (ir--to-lapcode code)))
-                  cvec
-                  stack-cap
-                  doc-string))
+(defun ir--fn-body (pkg)
+  (let* ((args-desc (pop! pkg))
+         (cvec (pop! pkg))
+         (stack-cap (pop! pkg))
+         (doc-string (pop! pkg)))
+    (make-byte-code args-desc
+                    (byte-compile-lapcode
+                     (byte-optimize-lapcode
+                      (ir--to-lapcode pkg)))
+                    cvec
+                    stack-cap
+                    doc-string)))
 
 (defsubst ir--make-info (kind data) (cons kind data))
 (defsubst ir--info-kind (info) (car info))
@@ -48,8 +69,8 @@
     (dolist (x '(;; - Special instructions -
                  (label label ir-label)
                  ;; - Combined instructions -
-                 (stack-ref comb2 ((byte-dup) . byte-stack-ref))
-                 (discard comb2 ((byte-discard) . byte-discardN))
+                 (stack-ref stack-ref (byte-dup))
+                 (discard discard (byte-discard))
                  (concat comb5 [nil
                                 nil
                                 (byte-concat2)
@@ -117,18 +138,17 @@
         (puthash instr (ir--make-info kind data) table)))
     table))
 
-(defun ir--to-lapcode (instrs)
+(defun ir--to-lapcode (pkg)
   (let ((tags (make-hash-table :test #'eq))
         op
         op-info
         arg
         output)
-    (while instrs
-      (setq op (pop instrs)
-            op-info (gethash op ir--table)
+    (while (not-eq 'end (setq op (pop! pkg)))
+      (setq op-info (gethash op ir--table)
             arg (if (eq 'op0 (ir--info-kind op-info))
                     nil
-                  (pop instrs)))
+                  (pop! pkg)))
       (push (ir--lap-instr tags op-info op arg) output))
     (nreverse output)))
 
@@ -141,9 +161,12 @@
     (`jmp (let* ((lap-op (ir--info-data op-info))
                  (tag (ir--tag-ref tags arg)))
             (cons lap-op tag)))
-    (`comb2 (if (= arg 1)
-                (car (ir--info-data op-info))
-                (cons (cdr (ir--info-data op-info)) arg)))
+    (`stack-ref (if (= arg 0)
+                    (ir--info-data op-info)
+                  (cons 'byte-stack-ref arg)))
+    (`discard (if (= arg 1)
+                  (ir--info-data op-info)
+                (cons 'byte-discardN arg)))
     (`comb5 (if (<= arg 4)
                 (aref (ir--info-data op-info) arg)
               (cons (aref (ir--info-data op-info) 5) arg)))
