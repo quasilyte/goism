@@ -25,10 +25,10 @@ func IsReturning(form Form) bool {
 		return IsReturning(form.Body)
 
 	case CallStmt:
-		return form.Fn.ExitsScope()
+		return form.Fn.IsPanic()
 
 	case *Call:
-		return form.Fn.ExitsScope()
+		return form.Fn.IsPanic()
 	}
 
 	return false

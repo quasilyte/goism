@@ -59,11 +59,11 @@ func (f *Type) ResultKind() ResultKind {
 	return ResultMulti
 }
 
-func (f *Type) ExitsScope() bool {
-	return scopeExitFunctions[f.name]
+func (f *Type) IsPanic() bool {
+	return panicFunctions[f.name]
 }
 
-var scopeExitFunctions = map[string]bool{
+var panicFunctions = map[string]bool{
 	"Go--panic": true,
 	"error":     true,
 	"throw":     true,
