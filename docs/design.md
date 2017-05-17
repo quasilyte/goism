@@ -9,15 +9,11 @@ that transform input into output:
 2) Parsing and typechecking (handled by `go/parser` and other `go/*` packages)
 3) Translating `go/ast` into `sexp` (S-expression) format
 4) High-level optimizations on `sexp` 
-5) Compilation of `sexp` into `bytecode/ir` with pseudo-ops
-6) Evaluation of `bytecode/ir` (low-level optimizations + replacement of pseudo-ops)
-7) Convertion of `bytecode/ir` into Emacs Lisp bytecode
-8) Generating output: Emacs Lisp source file (done by `export` package)
+5) Compiling `sexp` with `ir/compiler` (IR format)
+6) Generating output: IR package is written by `export` package
 
-It is possible to mitigate all intermediate steps and emit bytecode
-right after (2) step, but it will make much harder to implement all
-planned optimizations. Total amount of code will be less, but individual
-package complexity will be higher. 
+Next, `lisp/ir.el` can compile IR into Emacs Lisp source file.
+This file can be either loaded or saved (for future use).
 
 This project does not pursue compilation speed that much;
 quality of code and simplicity of maintenance has far higher priority.
@@ -41,19 +37,12 @@ Other differences of `sexp` vs `go/ast`:
 
 The general idea is to get input in a shape that is convenient to work with.
 
-### Bytecode IR
+### IR
 
-IR is another step before generation of bytecode takes part.
+IR is a format that resembles Elisp `lapcode` with prettier syntax
+and additional information attached.
 
 The advantages of having an IR:
-* Makes low-level optimizations possible
-* Simplifies bytecode generation step
-* Helps to achieve better separation of responsibilities
-
-The pseudo operations is a consequence of difficulties to generate 
-100% complete code during the single pass. 
-We want second pass to apply optimizations anyway, 
-so it is trivial to convert those instructions during that
-stage. It also frees IR compiler from execution stack maintenance.
-IR optimizer needs stack in any case; introducing pseudo ops
-removes stack manipulations burden from the compiler.
+* `lapcode` is more like private Emacs format; abstraction layer is needed
+* Proposed format is easier to read
+* May do additional tasks that simplify stages that are implemented in Go
