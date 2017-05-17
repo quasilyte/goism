@@ -43,3 +43,12 @@ func RandFloat64Slice() []float64 {
 	}
 	return res.Interface().([]float64)
 }
+
+// RandStringSlice generates slice of 50 random string elements.
+func RandStringSlice() []string {
+	res, ok := quick.Value(reflect.TypeOf([]string{}), random)
+	if !ok {
+		panic("failed to create random []string")
+	}
+	return res.Interface().([]string)
+}
