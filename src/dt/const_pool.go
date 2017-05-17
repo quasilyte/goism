@@ -79,7 +79,7 @@ func (cp *ConstPool) GetSym(index int) lisp.Symbol {
 	return cp.vals[index].(lisp.Symbol)
 }
 
-func (cp *ConstPool) String() string {
+func (cp *ConstPool) Bytes() []byte {
 	buf := bytes.Buffer{}
 	buf.WriteByte('[')
 	for _, x := range cp.vals {
@@ -98,5 +98,5 @@ func (cp *ConstPool) String() string {
 		buf.WriteByte(' ')
 	}
 	buf.WriteByte(']')
-	return buf.String()
+	return buf.Bytes()
 }
