@@ -114,10 +114,6 @@ type While struct {
 
 /* Builtin ops */
 
-// type MakeMap struct {
-// 	SizeHint Form
-// }
-
 type (
 	BitOr  struct{ Args [2]Form }
 	BitAnd struct{ Args [2]Form }
