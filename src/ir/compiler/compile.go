@@ -71,7 +71,7 @@ func compileRebind(cl *Compiler, form *sexp.Rebind) {
 func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	compileCall(cl, form.Call)
 
-	if !form.Fn.IsPanic() && form.Fn.ResultKind() != function.ResultVoid {
+	if !form.Fn.IsPanic() && !form.Fn.IsVoid() {
 		emit(cl, ir.Discard(1))
 	}
 }
@@ -105,7 +105,7 @@ func compileCall(cl *Compiler, form *sexp.Call) {
 
 	if argc := len(form.Args); form.Fn.IsPanic() {
 		emit(cl, ir.PanicCall(argc))
-	} else if form.Fn.ResultKind() == function.ResultVoid {
+	} else if form.Fn.IsVoid() {
 		emit(cl, ir.VoidCall(argc))
 	} else {
 		emit(cl, ir.Call(argc))

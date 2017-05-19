@@ -3,6 +3,7 @@ package tu
 import (
 	"go/ast"
 	"go/types"
+	"sexp"
 	"sexpconv"
 )
 
@@ -65,10 +66,16 @@ func translateFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
 		}
 	}
 
+	body := conv.BlockStmt(decl.Body).Forms
+	// Adding return statement.
+	// It is needed in void functions without explicit "return".
+	// In all other cases, optimizations will wipe it out.
+	body = append(body, &sexp.Return{})
+
 	pkg.Funcs = append(pkg.Funcs, &Func{
 		Name:      "Go-" + pkg.Name + "." + decl.Name.Name,
 		Params:    paramNames,
-		Body:      conv.BlockStmt(decl.Body).Forms,
+		Body:      body,
 		DocString: decl.Doc.Text(),
 	})
 }

@@ -5,17 +5,6 @@ import (
 	"lisp"
 )
 
-type ResultKind uint8
-
-const (
-	// ResultSingle = single return value.
-	ResultSingle ResultKind = iota
-	// ResultMulti = multiple return values.
-	ResultMulti
-	// ResultVoid = one value that should be discarded.
-	ResultVoid
-)
-
 type Type struct {
 	name    string
 	results []types.Type
@@ -49,14 +38,8 @@ func (f *Type) Results() []types.Type {
 	return f.results
 }
 
-func (f *Type) ResultKind() ResultKind {
-	if f.results == nil {
-		return ResultVoid
-	}
-	if len(f.results) == 1 {
-		return ResultSingle
-	}
-	return ResultMulti
+func (f *Type) IsVoid() bool {
+	return len(f.results) == 0
 }
 
 func (f *Type) IsPanic() bool {
