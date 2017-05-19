@@ -67,7 +67,14 @@ func weakenSub(form *sexp.NumSub) sexp.Form {
 		return subX(form.Args[0], 1, form.Type)
 	}
 	if numEq(form.Args[1], 2) {
-		return subX(form.Args[1], 2, form.Type)
+		return subX(form.Args[0], 2, form.Type)
+	}
+	// Substraction of negative number = addition.
+	if numEq(form.Args[1], -1) {
+		return addX(form.Args[0], 1, form.Type)
+	}
+	if numEq(form.Args[1], -2) {
+		return addX(form.Args[0], 2, form.Type)
 	}
 	return form
 }
