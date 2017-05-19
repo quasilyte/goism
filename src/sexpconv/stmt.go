@@ -47,6 +47,7 @@ func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 }
 
 func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
+	// #FIXME: will not work for "naked" returns.
 	return &sexp.Return{Results: conv.exprList(node.Results)}
 }
 
