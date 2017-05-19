@@ -20,6 +20,11 @@ func emit(cl *Compiler, instr ir.Instr) {
 		writeOp0(dst, instr)
 		cl.st.Push()
 
+	case ir.InstrUnaryOp, ir.InstrCellRef:
+		cl.st.Discard(1)
+		writeOp0(dst, instr)
+		cl.st.Push()
+
 	case ir.InstrConstRef:
 		writeOp1(dst, instr)
 		cl.st.PushConst(instr.Data)
@@ -27,11 +32,6 @@ func emit(cl *Compiler, instr ir.Instr) {
 	case ir.InstrRet:
 		cl.st.Discard(instr.Data)
 		writeOp0(dst, instr)
-
-	case ir.InstrCellRef:
-		cl.st.Discard(1)
-		writeOp0(dst, instr)
-		cl.st.Push()
 
 	case ir.InstrStackRef:
 		writeOp1(dst, instr)

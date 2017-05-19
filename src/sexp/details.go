@@ -24,6 +24,8 @@ func (form *While) form()          {}
 func (op *BitOr) form()       {}
 func (op *BitAnd) form()      {}
 func (op *BitXor) form()      {}
+func (op *NumAddX) form()     {}
+func (op *NumSubX) form()     {}
 func (op *NumAdd) form()      {}
 func (op *NumSub) form()      {}
 func (op *NumMul) form()      {}

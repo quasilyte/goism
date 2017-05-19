@@ -47,6 +47,10 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case sexp.Var:
 		compileVar(cl, form)
 
+	case *sexp.NumAddX:
+		compileUnaryOps(cl, ir.Add1, form.Arg, form.X)
+	case *sexp.NumSubX:
+		compileUnaryOps(cl, ir.Sub1, form.Arg, form.X)
 	case *sexp.NumAdd:
 		compileBinOp(cl, ir.NumAdd, form.Args)
 	case *sexp.NumSub:

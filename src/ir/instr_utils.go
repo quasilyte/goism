@@ -7,6 +7,13 @@ func binOp(name string) Instr {
 	}
 }
 
+func unaryOp(name string) Instr {
+	return Instr{
+		Name: []byte(name),
+		Kind: InstrUnaryOp,
+	}
+}
+
 func cellSet(name string) Instr {
 	return Instr{
 		Name: []byte(name),

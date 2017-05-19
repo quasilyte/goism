@@ -9,6 +9,8 @@ type InstrKind int
 const (
 	// InstrBinOp : in=2 data=0 out=1.
 	InstrBinOp InstrKind = iota
+	// InstrUnaryOp : in=1 data=0 out=1.
+	InstrUnaryOp
 
 	InstrRet
 
@@ -46,6 +48,12 @@ var (
 	NumAdd = binOp("add")
 	NumMul = binOp("mul")
 	NumQuo = binOp("quo")
+)
+
+// Unary ops.
+var (
+	Add1 = unaryOp("add1")
+	Sub1 = unaryOp("sub1")
 )
 
 // Jump instruction names.

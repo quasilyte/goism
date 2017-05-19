@@ -125,6 +125,18 @@ type (
 	BitAnd struct{ Args [2]Form }
 	BitXor struct{ Args [2]Form }
 
+	NumAddX struct {
+		Arg  Form
+		X    int64
+		Type *types.Basic
+	}
+
+	NumSubX struct {
+		Arg  Form
+		X    int64
+		Type *types.Basic
+	}
+
 	NumAdd struct {
 		Args [2]Form
 		Type *types.Basic

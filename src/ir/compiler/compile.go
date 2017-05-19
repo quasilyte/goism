@@ -87,10 +87,22 @@ func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	}
 }
 
-func compileBinOp(cl *Compiler, instr ir.Instr, forms [2]sexp.Form) {
-	compileExpr(cl, forms[0])
-	compileExpr(cl, forms[1])
+func compileBinOp(cl *Compiler, instr ir.Instr, args [2]sexp.Form) {
+	compileExpr(cl, args[0])
+	compileExpr(cl, args[1])
 	emit(cl, instr)
+}
+
+func compileUnaryOp(cl *Compiler, instr ir.Instr, arg sexp.Form) {
+	compileExpr(cl, arg)
+	emit(cl, instr)
+}
+
+func compileUnaryOps(cl *Compiler, instr ir.Instr, arg sexp.Form, n int64) {
+	compileExpr(cl, arg)
+	for i := int64(0); i < n; i++ {
+		emit(cl, instr)
+	}
 }
 
 func compileBool(cl *Compiler, form sexp.Bool) {
