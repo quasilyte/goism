@@ -21,9 +21,6 @@ func IsReturning(form Form) bool {
 		// If both branches return, whole statement returns.
 		return IsReturning(form.Then) && IsReturning(form.Else)
 
-	case *While:
-		return IsReturning(form.Body)
-
 	case CallStmt:
 		return form.Fn.IsPanic()
 
