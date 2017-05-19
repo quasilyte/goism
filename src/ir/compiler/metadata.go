@@ -32,5 +32,5 @@ func docString(f *tu.Func) string {
 	if f.Variadic {
 		params[len(params)-1] = "&rest " + params[len(params)-1]
 	}
-	return f.DocString + "\n(fn " + strings.Join(params, " ") + ")"
+	return f.DocString + "\n\n(fn " + strings.Join(params, " ") + ")"
 }
