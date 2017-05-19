@@ -52,7 +52,7 @@ var (
 var (
 	Jmp       = []byte("goto")
 	JmpNil    = []byte("goto-if-nil")
-	JmpNotNil = []byte("got-if-not-nil")
+	JmpNotNil = []byte("goto-if-not-nil")
 	Label     = []byte("label")
 )
 
