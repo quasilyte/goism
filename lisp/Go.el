@@ -3,10 +3,16 @@
 ;; ----------------
 ;; Public functions
 
-
-
 ;; ----------------------
 ;; Runtime implementation
+
+(defvar Go--ret-2 nil)
+(defvar Go--ret-3 nil)
+(defvar Go--ret-4 nil)
+(defvar Go--ret-5 nil)
+(defvar Go--ret-6 nil)
+(defvar Go--ret-7 nil)
+(defvar Go--ret-8 nil)
 
 (defun Go--print (&rest args)
   (princ (mapconcat #'prin1-to-string args ""))
