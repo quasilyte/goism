@@ -29,6 +29,8 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 		return conv.TypeAssertExpr(node)
 	case *ast.IndexExpr:
 		return conv.IndexExpr(node)
+	case *ast.UnaryExpr:
+		return conv.UnaryExpr(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -131,6 +133,14 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	}
 
 	panic(fmt.Sprintf("unexpected selector: %#v", node))
+}
+
+func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
+	if cv := conv.Constant(node); cv != nil {
+		return cv
+	}
+
+	panic("unimplemented")
 }
 
 func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
