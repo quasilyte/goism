@@ -20,10 +20,10 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 		return conv.quoAssign(node.Lhs[0], node.Rhs[0])
 
 	default:
-		if len(node.Rhs) != len(node.Lhs) {
-			return conv.multiValueAssign(node)
+		if len(node.Rhs) == len(node.Lhs) {
+			return conv.singleValueAssign(node)
 		}
-		return conv.singleValueAssign(node)
+		return conv.multiValueAssign(node)
 	}
 }
 
@@ -63,7 +63,18 @@ func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 }
 
 func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
-	panic("unimplemented")
+	forms := make([]sexp.Form, len(node.Lhs))
+
+	// First result returned in a normal way.
+	forms[0] = conv.assign(node.Lhs[0], conv.Expr(node.Rhs[0]))
+
+	// Other results assigned to a global variable.
+	// Index uniquely identifies variable used for storage.
+	for i := 1; i < len(node.Lhs); i++ {
+		forms[i] = conv.assign(node.Lhs[i], &sexp.MultiValueRef{Index: i})
+	}
+
+	return &sexp.FormList{Forms: forms}
 }
 
 func (conv *Converter) singleValueAssign(node *ast.AssignStmt) *sexp.FormList {

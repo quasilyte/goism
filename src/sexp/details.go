@@ -9,8 +9,8 @@ func (atom Symbol) form() {}
 func (lit *ArrayLit) form()    {}
 func (lit *QuotedArray) form() {}
 
-func (fomr *Panic) form()  {}
-func (fomr *Bind) form()   {}
+func (form *Panic) form()  {}
+func (form *Bind) form()   {}
 func (form *Rebind) form() {}
 
 func (form *TypeAssert) form()     {}
@@ -42,6 +42,7 @@ func (op *StringLte) form()   {}
 func (op *StringGt) form()    {}
 func (op *StringGte) form()   {}
 
-func (call *Call) form()    {}
-func (form CallStmt) form() {}
-func (atom Var) form()      {}
+func (call *Call) form()          {}
+func (form CallStmt) form()       {}
+func (form *MultiValueRef) form() {}
+func (atom Var) form()            {}

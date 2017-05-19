@@ -62,6 +62,8 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 
 	case *sexp.Call:
 		compileCall(cl, form)
+	case *sexp.MultiValueRef:
+		compileMultiValueRef(cl, form)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", form))

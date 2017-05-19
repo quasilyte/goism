@@ -15,7 +15,7 @@ func emit(cl *Compiler, instr ir.Instr) {
 	// 3) push results to stack (if any).
 
 	switch dst := &cl.buf; instr.Kind {
-	case ir.InstrBinOp:
+	case ir.InstrBinOp, ir.InstrCellSet:
 		cl.st.Discard(2)
 		writeOp0(dst, instr)
 		cl.st.Push()
@@ -28,11 +28,20 @@ func emit(cl *Compiler, instr ir.Instr) {
 		cl.st.Discard(instr.Data)
 		writeOp0(dst, instr)
 
+	case ir.InstrCellRef:
+		cl.st.Discard(1)
+		writeOp0(dst, instr)
+		cl.st.Push()
+
 	case ir.InstrStackRef:
 		writeOp1(dst, instr)
 		cl.st.Dup(instr.Data)
 
-	case ir.InstrStackSet:
+	case ir.InstrVarRef:
+		writeOp1(dst, instr)
+		cl.st.Push()
+
+	case ir.InstrStackSet, ir.InstrVarSet:
 		cl.st.Discard(1)
 		writeOp1(dst, instr)
 

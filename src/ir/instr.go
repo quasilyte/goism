@@ -14,6 +14,12 @@ const (
 
 	InstrConstRef
 
+	InstrCellRef
+	InstrCellSet
+
+	InstrVarRef
+	InstrVarSet
+
 	InstrStackRef
 	InstrStackSet
 
@@ -50,6 +56,13 @@ var (
 	Label     = []byte("label")
 )
 
+var (
+	Car    = cellRef("car")
+	Cdr    = cellRef("cdr")
+	SetCar = cellSet("setcar")
+	SetCdr = cellSet("setcdr")
+)
+
 func Return(n int) Instr {
 	return Instr{
 		Data: uint16(n),
@@ -63,6 +76,22 @@ func ConstRef(cvIndex int) Instr {
 		Name: []byte("constant"),
 		Data: uint16(cvIndex),
 		Kind: InstrConstRef,
+	}
+}
+
+func VarRef(ref int) Instr {
+	return Instr{
+		Name: []byte("var-ref"),
+		Data: uint16(ref),
+		Kind: InstrVarRef,
+	}
+}
+
+func VarSet(ref int) Instr {
+	return Instr{
+		Name: []byte("var-set"),
+		Data: uint16(ref),
+		Kind: InstrVarSet,
 	}
 }
 

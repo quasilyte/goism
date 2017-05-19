@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"ir"
+	"lisp"
 	"lisp/function"
 	"sexp"
 )
@@ -24,15 +25,16 @@ func compileBlock(cl *Compiler, form *sexp.Block) {
 }
 
 func compileReturn(cl *Compiler, form *sexp.Return) {
-	switch len(form.Results) {
-	case 0:
+	if len(form.Results) == 0 {
 		emit(cl, ir.Return(0))
-	case 1:
+	} else {
 		compileExpr(cl, form.Results[0])
+		for i := 1; i < len(form.Results); i++ {
+			compileExpr(cl, form.Results[i])
+			sym := lisp.RetVars[i]
+			emit(cl, ir.VarSet(cl.cvec.InsertSym(sym)))
+		}
 		emit(cl, ir.Return(1))
-
-	default:
-		panic("unimplemented") // #REFS: 1.
 	}
 }
 
@@ -69,22 +71,14 @@ func compileRebind(cl *Compiler, form *sexp.Rebind) {
 func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	compileCall(cl, form.Call)
 
-	if form.Fn.IsPanic() {
-		return
-	}
-
-	switch form.Fn.ResultKind() {
-	case function.ResultMulti, function.ResultVoid:
-		/* Result already discarded by compileCall */
-
-	default:
+	if !form.Fn.IsPanic() && form.Fn.ResultKind() != function.ResultVoid {
 		emit(cl, ir.Discard(1))
 	}
 }
 
 func compileBinOp(cl *Compiler, instr ir.Instr, forms [2]sexp.Form) {
-	compileExpr(cl, forms[1])
 	compileExpr(cl, forms[0])
+	compileExpr(cl, forms[1])
 	emit(cl, instr)
 }
 
@@ -111,13 +105,17 @@ func compileCall(cl *Compiler, form *sexp.Call) {
 
 	if argc := len(form.Args); form.Fn.IsPanic() {
 		emit(cl, ir.PanicCall(argc))
+	} else if form.Fn.ResultKind() == function.ResultVoid {
+		emit(cl, ir.VoidCall(argc))
 	} else {
-		switch form.Fn.ResultKind() {
-		case function.ResultMulti, function.ResultVoid:
-			emit(cl, ir.VoidCall(argc))
-
-		default:
-			emit(cl, ir.Call(argc))
-		}
+		emit(cl, ir.Call(argc))
 	}
+}
+
+func compileMultiValueRef(cl *Compiler, form *sexp.MultiValueRef) {
+	if form.Index+1 > len(lisp.RetVars) {
+		panic("too many return values")
+	}
+	sym := lisp.RetVars[form.Index]
+	emit(cl, ir.VarRef(cl.cvec.InsertSym(sym)))
 }

@@ -44,6 +44,12 @@ type CallStmt struct {
 	*Call
 }
 
+// MultiValueRef is an expression that extracts nth
+// multi-value result.
+type MultiValueRef struct {
+	Index int
+}
+
 // Var - reference to lexical variable.
 type Var struct{ Name string }
 
