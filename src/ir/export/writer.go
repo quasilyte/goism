@@ -15,6 +15,10 @@ type writer struct {
 	tmp [scratchBufSize]byte
 }
 
+func (w *writer) Bytes() []byte {
+	return w.buf.Bytes()
+}
+
 func (w *writer) WriteString(val string) {
 	if len(val) <= shortStringMaxLen {
 		// Faster path for short strings.

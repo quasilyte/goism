@@ -1,15 +1,13 @@
 package export
 
 import (
-	"bytes"
 	"ir"
 )
 
 // Builder allows to create exportable package.
 // This object is not reusable.
 type Builder struct {
-	buf bytes.Buffer
-	w   writer
+	w writer
 }
 
 // NewBuilder returns fresh export package builder.
@@ -25,7 +23,7 @@ func NewBuilder(name string) *Builder {
 // It is illegal to call Build method twice one the same builder.
 func (b *Builder) Build() []byte {
 	b.w.WriteByte(')')
-	return b.buf.Bytes()
+	return b.w.Bytes()
 }
 
 // AddFunc pushes function definition into package.
