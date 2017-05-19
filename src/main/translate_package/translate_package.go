@@ -81,5 +81,6 @@ func dumpFunction(f *ir.Func) {
 func optimizePackage(pkg *tu.Package) {
 	for _, fn := range pkg.Funcs {
 		opt.RemoveDeadCode(fn.Body)
+		opt.ReduceStrength(fn.Body)
 	}
 }
