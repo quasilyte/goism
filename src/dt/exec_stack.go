@@ -1,6 +1,7 @@
 package dt
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -74,4 +75,19 @@ func (st *ExecutionStack) push(val string) {
 	if len(st.names) > st.maxLen {
 		st.maxLen = len(st.names)
 	}
+}
+
+func (st *ExecutionStack) String() string {
+	buf := bytes.Buffer{}
+	buf.WriteByte('[')
+	for _, name := range st.names {
+		if name == "" {
+			buf.WriteString("? ")
+		} else {
+			buf.WriteString(name)
+			buf.WriteByte(' ')
+		}
+	}
+	buf.WriteByte(']')
+	return buf.String()
 }
