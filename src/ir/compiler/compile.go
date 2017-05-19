@@ -58,6 +58,17 @@ func compileIf(cl *Compiler, form *sexp.If) {
 	}
 }
 
+func compileWhile(cl *Compiler, form *sexp.While) {
+	condLabel := labelCreate(cl, "loop-cond")
+	bodyLabel := labelCreate(cl, "loop-body")
+	emitJmp(cl, condLabel)
+	labelBind(cl, bodyLabel)
+	compileBlock(cl, form.Body)
+	labelBind(cl, condLabel)
+	compileExpr(cl, form.Cond)
+	emitJmpNotNil(cl, bodyLabel)
+}
+
 func compileBind(cl *Compiler, form *sexp.Bind) {
 	compileExpr(cl, form.Init)
 	cl.st.Bind(form.Name)

@@ -75,3 +75,8 @@ func emitJmpNil(cl *Compiler, label label) {
 	cl.st.Discard(1)
 	writeLabel(&cl.buf, ir.JmpNil, label)
 }
+
+func emitJmpNotNil(cl *Compiler, label label) {
+	cl.st.Discard(1)
+	writeLabel(&cl.buf, ir.JmpNotNil, label)
+}

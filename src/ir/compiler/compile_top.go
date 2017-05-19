@@ -24,6 +24,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileCallStmt(cl, form)
 	case *sexp.Panic:
 		compilePanic(cl, form)
+	case *sexp.While:
+		compileWhile(cl, form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
