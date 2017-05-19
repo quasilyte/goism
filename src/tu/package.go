@@ -19,7 +19,7 @@ type Package struct {
 // Func is a Sexp function.
 type Func struct {
 	Name      string
-	Body      []sexp.Form
+	Body      *sexp.Block
 	Params    []string
 	Variadic  bool
 	DocString string

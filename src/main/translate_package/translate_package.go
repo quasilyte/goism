@@ -6,6 +6,7 @@ import (
 	"ir/compiler"
 	"ir/export"
 	"main/util"
+	"opt"
 	"strings"
 	"tu"
 )
@@ -25,10 +26,18 @@ func main() {
 			Init: "pkg",
 			Enum: true,
 		},
+		"opt": {
+			Help: "Set to false to get unoptimized output",
+			Init: "true",
+		},
 	})
 
 	pkg, err := tu.TranslatePackage(util.Argv("pkgPath"))
 	util.CheckError(err)
+
+	if util.Argv("opt") != "false" {
+		optimizePackage(pkg)
+	}
 
 	switch util.Argv("output") {
 	case "pkg":
@@ -53,8 +62,8 @@ func producePackage(pkg *tu.Package) {
 	output := export.NewBuilder(pkg.Name)
 
 	for i := range pkg.Funcs {
-		f := cl.CompileFunc(pkg.Funcs[i])
-		output.AddFunc(f)
+		fn := cl.CompileFunc(pkg.Funcs[i])
+		output.AddFunc(fn)
 	}
 
 	fmt.Print(string(output.Build()))
@@ -67,4 +76,10 @@ func dumpFunction(f *ir.Func) {
 	)
 	fmt.Printf("constants = %s\n", string(f.ConstVec.Bytes()))
 	fmt.Printf("  %s\n", strings.Replace(string(f.Body), "\n", "\n  ", -1))
+}
+
+func optimizePackage(pkg *tu.Package) {
+	for _, fn := range pkg.Funcs {
+		opt.RemoveDeadCode(fn.Body)
+	}
 }

@@ -23,7 +23,7 @@ func New() *Compiler {
 func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Func {
 	cl.reset(f.Params)
 
-	compileStmtList(cl, f.Body)
+	compileStmtList(cl, f.Body.Forms)
 
 	return &ir.Func{
 		Name:       f.Name,
