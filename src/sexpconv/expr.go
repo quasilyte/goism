@@ -155,11 +155,16 @@ func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 }
 
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
-	switch typ := conv.typeOf(node.X); typ.(type) {
+	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
-		// #FIXME: should add default value argument for gethash which
-		// depends on the map value type (correct zero value for Go type).
-		return conv.call(&function.Gethash, node.Index, node.X)
+		return &sexp.Call{
+			Fn: &function.Gethash,
+			Args: []sexp.Form{
+				conv.Expr(node.Index),
+				conv.Expr(node.X),
+				zeroValue(typ.Elem()),
+			},
+		}
 
 	// #TODO: arrays, slices, strings
 	default:

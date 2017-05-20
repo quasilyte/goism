@@ -100,7 +100,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		switch typ := conv.typeOf(lhs.X); typ.(type) {
 		case *types.Map:
 			call := &sexp.Call{
-				Fn: &function.Puthash,
+				Fn: &function.MapInsert,
 				Args: []sexp.Form{
 					conv.Expr(lhs.Index),
 					expr,

@@ -10,21 +10,10 @@ import (
 func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(args[0]); typ.(type) {
 	case *types.Map:
-		call := &sexp.Call{Fn: &function.MakeHashTable}
 		if len(args) == 2 {
-			call.Args = []sexp.Form{
-				sexp.Symbol{Val: ":size"},
-				conv.Expr(args[1]),
-				sexp.Symbol{Val: ":test"},
-				sexp.Symbol{Val: "equal"},
-			}
-		} else {
-			call.Args = []sexp.Form{
-				sexp.Symbol{Val: ":test"},
-				sexp.Symbol{Val: "equal"},
-			}
+			return conv.call(&function.MakeMapCap, args[1])
 		}
-		return call
+		return conv.call(&function.MakeMap)
 
 	// #TODO: channels and slices.
 	default:
