@@ -7,6 +7,14 @@ func binOp(name string) Instr {
 	}
 }
 
+func variadicOp(argc int, name string) Instr {
+	return Instr{
+		Name: []byte(name),
+		Kind: InstrBinOp,
+		Data: uint16(argc),
+	}
+}
+
 func unaryOp(name string) Instr {
 	return Instr{
 		Name: []byte(name),

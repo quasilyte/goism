@@ -12,6 +12,10 @@ const (
 	// InstrUnaryOp : in=1 data=0 out=1.
 	InstrUnaryOp
 
+	InstrVariadicOp
+
+	InstrArraySet
+
 	InstrRet
 
 	InstrConstRef
@@ -39,15 +43,24 @@ type Instr struct {
 	Kind InstrKind
 }
 
+var ArraySet = Instr{
+	Name: []byte("array-set"),
+	Kind: InstrArraySet,
+}
+
+// Variadic ops.
+var ()
+
 // Binary ops.
 var (
-	NumEq  = binOp("num=")
-	NumGt  = binOp("num>")
-	NumLt  = binOp("num<")
-	NumSub = binOp("sub")
-	NumAdd = binOp("add")
-	NumMul = binOp("mul")
-	NumQuo = binOp("quo")
+	NumEq    = binOp("num=")
+	NumGt    = binOp("num>")
+	NumLt    = binOp("num<")
+	NumSub   = binOp("sub")
+	NumAdd   = binOp("add")
+	NumMul   = binOp("mul")
+	NumQuo   = binOp("quo")
+	ArrayRef = binOp("array-ref")
 )
 
 // Unary ops.
