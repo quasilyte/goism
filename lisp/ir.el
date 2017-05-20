@@ -15,6 +15,19 @@
 ;; { IR package }
 ;; Output of Go.el compiler.
 
+(defmacro defun-ir (name args depth cvec &rest instrs)
+  (declare (indent defun))
+  (let* ((instrs (nconc instrs '(end)))
+         (args-desc (byte-compile-make-args-desc args))
+         (bytecode (byte-compile-lapcode
+                    (byte-optimize-lapcode
+                     (ir--to-lapcode instrs)))))
+    `(defalias ',name
+       ,(make-byte-code args-desc
+                        bytecode
+                        cvec
+                        depth))))
+
 ;; Output IR package PKG to temp buffer.
 ;; Caller can decide to inspect/eval/save generated contents.
 ;; PKG is consumed.
