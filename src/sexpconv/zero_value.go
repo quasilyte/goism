@@ -31,5 +31,28 @@ func zeroValue(typ types.Type) sexp.Form {
 		}
 	}
 
-	panic(fmt.Sprintf("can not provide zero value for %s", typ))
+	switch typ := typ.(type) {
+	case *types.Basic:
+		switch typ.Kind() {
+		case types.String:
+			return sexp.String{}
+		case types.Bool:
+			return sexp.Bool{}
+
+		default:
+			info := typ.Info()
+
+			if info&types.IsFloat != 0 {
+				return sexp.Float{}
+			}
+			if info&types.IsInteger != 0 {
+				return sexp.Int{}
+			}
+		}
+
+	case *types.Map:
+		return sexp.Var{Name: "Go--nil-map"}
+	}
+
+	panic(fmt.Sprintf("can not provide zero value for %#v", typ))
 }
