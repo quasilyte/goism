@@ -50,7 +50,7 @@ type MultiValueRef struct {
 	Index int
 }
 
-// Var - reference to lexical variable.
+// Var - reference to a global or local variable.
 type Var struct{ Name string }
 
 /* Special forms */
