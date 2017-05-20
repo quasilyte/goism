@@ -37,7 +37,7 @@
     (ir--pkg-write-body pkg)
     (with-current-buffer standard-output
       (emacs-lisp-mode)
-      (setq buffer-read-only nil))))
+      (setq buffer-read-only t))))
 
 (defun ir--pkg-write-header (pkg-name)
   (princ ";;; -*- lexical-binding: t -*-\n")
