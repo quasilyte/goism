@@ -174,7 +174,7 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 			Index: conv.Expr(node.Index),
 		}
 
-	// #TODO: arrays, slices, strings
+	// #TODO: slices, strings
 	default:
 		panic("unimplemented")
 	}
