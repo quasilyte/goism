@@ -146,3 +146,16 @@ func compileMultiValueRef(cl *Compiler, form *sexp.MultiValueRef) {
 	sym := lisp.RetVars[form.Index]
 	emit(cl, ir.VarRef(cl.cvec.InsertSym(sym)))
 }
+
+func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
+	compileExpr(cl, form.Array)
+	compileExpr(cl, form.Index)
+	emit(cl, ir.ArrayRef)
+}
+
+func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
+	compileExpr(cl, form.Array)
+	compileExpr(cl, form.Index)
+	compileExpr(cl, form.Expr)
+	emit(cl, ir.ArraySet)
+}

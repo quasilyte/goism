@@ -31,6 +31,8 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 		return conv.IndexExpr(node)
 	case *ast.UnaryExpr:
 		return conv.UnaryExpr(node)
+	case *ast.CompositeLit:
+		return conv.CompositeLit(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -166,8 +168,24 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 			},
 		}
 
+	case *types.Array:
+		return &sexp.ArrayIndex{
+			Array: conv.Expr(node.X),
+			Index: conv.Expr(node.Index),
+		}
+
 	// #TODO: arrays, slices, strings
 	default:
 		panic("unimplemented")
+	}
+}
+
+func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
+	switch conv.typeOf(node).(type) {
+	case *types.Array:
+		return &sexp.ArrayLit{Vals: conv.exprList(node.Elts)}
+
+	default:
+		panic(fmt.Sprintf("unexpected comp. lit: %#v\n", node))
 	}
 }

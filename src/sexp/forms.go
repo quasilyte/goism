@@ -33,6 +33,19 @@ type (
 	QuotedArray struct{ Vals []Form }
 )
 
+// ArrayIndex is array index expression.
+type ArrayIndex struct {
+	Array Form
+	Index Form
+}
+
+// ArrayUpdate is array index expression with assignment.
+type ArrayUpdate struct {
+	Array Form
+	Index Form
+	Expr  Form
+}
+
 // Call expression is normal (direct) function invocation.
 type Call struct {
 	Fn   *function.Type

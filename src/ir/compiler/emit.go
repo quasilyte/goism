@@ -25,6 +25,12 @@ func emit(cl *Compiler, instr ir.Instr) {
 		writeOp0(dst, instr)
 		cl.st.Push()
 
+	case ir.InstrArraySet:
+		cl.st.Discard(3)
+		writeOp0(dst, instr)
+		cl.st.Push()
+		emit(cl, ir.Discard(1))
+
 	case ir.InstrConstRef:
 		writeOp1(dst, instr)
 		cl.st.PushConst(instr.Data)

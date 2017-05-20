@@ -8,9 +8,22 @@ import (
 )
 
 func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
-	switch conv.typeOf(arg).(type) {
+	switch typ := conv.typeOf(arg).(type) {
 	case *types.Map:
 		return conv.call(&function.HashTableCount, arg)
+
+	case *types.Array:
+		return sexp.Int{Val: typ.Len()}
+
+	default:
+		panic("unimplemented")
+	}
+}
+
+func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
+	switch typ := conv.typeOf(arg).(type) {
+	case *types.Array:
+		return sexp.Int{Val: typ.Len()}
 
 	default:
 		panic("unimplemented")

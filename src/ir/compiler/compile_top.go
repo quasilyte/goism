@@ -3,6 +3,7 @@ package compiler
 import (
 	"fmt"
 	"ir"
+	"lisp/function"
 	"sexp"
 )
 
@@ -26,6 +27,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compilePanic(cl, form)
 	case *sexp.While:
 		compileWhile(cl, form)
+	case *sexp.ArrayUpdate:
+		compileArrayUpdate(cl, form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -46,6 +49,11 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileBool(cl, form)
 	case sexp.Var:
 		compileVar(cl, form)
+
+	case *sexp.ArrayLit:
+		call(cl, &function.Vector, form.Vals...)
+	case *sexp.ArrayIndex:
+		compileArrayIndex(cl, form)
 
 	case *sexp.NumAddX:
 		compileUnaryOps(cl, ir.Add1, form.Arg, form.X)

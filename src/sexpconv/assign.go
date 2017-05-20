@@ -109,6 +109,13 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			}
 			return sexp.CallStmt{Call: call}
 
+		case *types.Array:
+			return &sexp.ArrayUpdate{
+				Array: conv.Expr(lhs.X),
+				Index: conv.Expr(lhs.Index),
+				Expr:  expr,
+			}
+
 		default:
 			panic("unimplemented")
 		}

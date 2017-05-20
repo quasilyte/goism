@@ -15,6 +15,7 @@ var (
 // Emacs Lisp builtin functions.
 var (
 	Gethash        = *NewNative("gethash")
+	Vector         = *NewNative("vector")
 	Intern         = Type{name: "intern"}
 	HashTableCount = *NewNative("hash-table-count")
 )

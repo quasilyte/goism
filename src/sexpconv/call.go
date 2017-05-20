@@ -37,6 +37,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.makeBuiltin(node.Args)
 		case "len":
 			return conv.lenBuiltin(node.Args[0])
+		case "cap":
+			return conv.capBuiltin(node.Args[0])
 		case "panic":
 			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
 		case "int", "string", "float64":
