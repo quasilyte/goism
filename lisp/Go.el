@@ -1,10 +1,14 @@
 ;;; -*- lexical-binding: t -*-
 
-;; ----------------
-;; Public functions
+(eval-when-compile
+  (defmacro not-eq (x y)
+    `(not (eq ,x ,y))))
 
-;; ----------------------
-;; Runtime implementation
+;;; ------------------
+;;; [Public functions]
+
+;;; ------------------------
+;;; [Runtime implementation]
 
 (defvar Go--ret-2 nil)
 (defvar Go--ret-3 nil)
@@ -14,6 +18,8 @@
 (defvar Go--ret-7 nil)
 (defvar Go--ret-8 nil)
 
+;; [Print]
+
 (defun Go--print (&rest args)
   (princ (mapconcat #'prin1-to-string args ""))
   nil)
@@ -22,6 +28,8 @@
   (princ (mapconcat #'prin1-to-string args " "))
   (terpri)
   nil)
+
+;; [Panic]
 
 (define-error 'Go--panic "Go panic")
 
@@ -48,3 +56,17 @@
         ((stringp x) "lisp.String")
         ((symbolp x) "lisp.Symbol")
         (t (error "`%s' is not instance of lisp.Object" (type-of x)))))
+
+;; [Map]
+
+(defvar Go--nil-map (make-hash-table :size 1 :test #'eq))
+
+(defun Go--make-map ()
+  (make-hash-table :test #'equal))
+(defun Go--make-map-cap (cap)
+  (make-hash-table :size cap :test #'equal))
+
+(defun Go--map-insert (key val m)
+  (if (not-eq Go-nil-map m)
+      (puthash key val m)
+    (Go--panic "assignment to entry in nil map")))
