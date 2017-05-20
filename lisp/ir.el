@@ -34,7 +34,10 @@
 (defun ir--pkg-compile (pkg)
   (with-output-to-temp-buffer "*IR compile*"
     (ir--pkg-write-header (pop pkg))
-    (ir--pkg-write-body pkg)))
+    (ir--pkg-write-body pkg)
+    (with-current-buffer standard-output
+      (emacs-lisp-mode)
+      (setq buffer-read-only nil))))
 
 (defun ir--pkg-write-header (pkg-name)
   (princ ";;; -*- lexical-binding: t -*-\n")
