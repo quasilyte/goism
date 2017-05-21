@@ -71,7 +71,7 @@ func producePackage(pkg *tu.Package) {
 
 func dumpFunction(f *ir.Func) {
 	fmt.Printf(
-		"  fn %s {args=%x max-stack=%d}\n",
+		"  fn %s {args=#x%x max-stack=%d}\n",
 		f.Name, f.ArgsDesc, f.StackUsage,
 	)
 	fmt.Printf("constants = %s\n", string(f.ConstVec.Bytes()))
