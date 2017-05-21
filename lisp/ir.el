@@ -33,33 +33,49 @@
 ;; PKG is consumed.
 (defun ir--pkg-compile (pkg)
   (with-output-to-temp-buffer "*IR compile*"
-    (ir--pkg-write-header (pop pkg))
-    (ir--pkg-write-body pkg)
+    (let ((pkg-name (pop! pkg))
+          (pkg-comment (pop! pkg)))
+      (ir--pkg-write-header pkg-name pkg)
+      (when (not (string= "" pkg-comment))
+        (ir--pkg-write-comment pkg-comment))
+      (ir--pkg-write-body pkg)
+      (ir--pkg-write-footer pkg-name))
     (with-current-buffer standard-output
       (emacs-lisp-mode)
       (setq buffer-read-only t))))
 
-(defun ir--pkg-write-header (pkg-name)
+(defun ir--pkg-write-header (pkg-name pkg)
   (princ ";;; -*- lexical-binding: t -*-\n")
-  (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n")
-  (princ (format ";; Go package %s:\n" pkg-name)))
+  (princ (format ";;; %s --- translated Go package\n" pkg-name))
+  (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n"))
+
+(defun ir--pkg-write-comment (pkg-comment)
+  (princ "\n;;; Commentary:\n")
+  (princ pkg-comment)
+  (princ "\n\n;;; Code:\n"))
+
+(defun ir--pkg-write-footer (pkg-name)
+  (princ (format "\n;;; %s ends here" pkg-name)))
 
 (defun ir--pkg-write-body (pkg)
   (let (token)
     (while (setq token (pop! pkg))
       (pcase token
         (`fn (ir--pkg-write-fn pkg))
-        (`var (ir--pkg-write-var pkg))
-        (_ (error "Unexpected token `%s'" token)))
-      (terpri))))
+        (`vars (ir--pkg-write-vars pkg))
+        (_ (error "Unexpected token `%s'" token))))))
 
 (defun ir--pkg-write-fn (pkg)
   (let* ((name (pop! pkg))
          (body (ir--fn-body pkg)))
-    (prin1 `(defalias ',name ,body))))
+    (prin1 `(defalias ',name ,body))
+    (terpri)))
 
-(defun ir--pkg-write-var (pkg)
-  (error "Unimplemented"))
+(defun ir--pkg-write-vars (pkg)
+  (let (name)
+    (while (not-eq 'end (setq name (pop! pkg)))
+      (prin1 `(defvar ',name nil ""))
+      (terpri))))
 
 ;; { Bytecode generation }
 

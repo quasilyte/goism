@@ -73,8 +73,9 @@ func produceAsm(pkg *tu.Package) {
 func producePackage(pkg *tu.Package) {
 	cl := compiler.New()
 
-	output := export.NewBuilder(pkg.Name)
+	output := export.NewBuilder(pkg)
 
+	output.AddVars(pkg.Vars)
 	for _, fn := range pkg.Funcs {
 		obj := cl.CompileFunc(fn)
 		output.AddFunc(fn, obj)

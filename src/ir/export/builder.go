@@ -12,10 +12,16 @@ type Builder struct {
 }
 
 // NewBuilder returns fresh export package builder.
-func NewBuilder(name string) *Builder {
+func NewBuilder(pkg *tu.Package) *Builder {
 	b := &Builder{}
-	b.w.WriteByte('(')
-	b.w.WriteSymbol(name)
+	w := &b.w
+
+	w.WriteByte('(') // Open list (closed in Build method)
+
+	// Write mandatory header.
+	w.WriteSymbol(pkg.Name)
+	w.WriteString(pkg.Comment)
+
 	return b
 }
 
@@ -23,7 +29,7 @@ func NewBuilder(name string) *Builder {
 // Package bytes returned.
 // It is illegal to call Build method twice one the same builder.
 func (b *Builder) Build() []byte {
-	b.w.WriteByte(')')
+	b.w.WriteByte(')') // Close list
 	return b.w.Bytes()
 }
 
@@ -38,6 +44,17 @@ func (b *Builder) AddFunc(fn *tu.Func, obj *ir.Object) {
 	w.WriteInt(obj.StackUsage)
 	w.WriteString(docString(fn))
 	w.Write(obj.Code)
+
+	w.WriteSymbol("end")
+}
+
+func (b *Builder) AddVars(names []string) {
+	w := &b.w
+
+	w.WriteSymbol("vars")
+	for _, name := range names {
+		w.WriteSymbol(name)
+	}
 
 	w.WriteSymbol("end")
 }
