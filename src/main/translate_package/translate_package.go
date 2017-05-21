@@ -11,12 +11,13 @@ import (
 	"tu"
 )
 
-var programInfo = util.ProgramInfo{
-	Description: "Translate single Go package into IR format.",
-}
-
 func main() {
-	util.ParseArgv(&programInfo, util.ArgvSchema{
+	program := &util.ProgramInfo
+	program.Description =
+		"Translate single Go package into IR format."
+	program.Name = "goel-translate-package"
+
+	util.ParseArgv(util.ArgvSchema{
 		"pkgPath": {
 			Help: "Path to Go package to be translated",
 			Req:  true,

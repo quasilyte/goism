@@ -12,9 +12,8 @@ import (
 // Accessed by Argv function.
 var argv map[string]string
 
-// ProgramInfo holds program metadata. Used to
-// output better error/info messages.
-type ProgramInfo struct {
+var ProgramInfo struct {
+	Name        string
 	Description string
 }
 
@@ -43,7 +42,7 @@ func Argv(key string) string {
 
 // ParseArgv parses command line arguments using specified schema.
 // Argument values can be accessed via Argv function.
-func ParseArgv(programInfo *ProgramInfo, schema ArgvSchema) {
+func ParseArgv(schema ArgvSchema) {
 	argv = make(map[string]string)
 	pointers := make(map[string]*string)
 
@@ -57,7 +56,7 @@ func ParseArgv(programInfo *ProgramInfo, schema ArgvSchema) {
 	flag.Parse()
 
 	if len(os.Args) == 1 {
-		Usage(programInfo)
+		Usage()
 	}
 
 	for name, info := range schema {
@@ -88,8 +87,8 @@ func checkEnum(val string, help string) bool {
 }
 
 // Usage prints usage text and exits with code 0.
-func Usage(info *ProgramInfo) {
-	fmt.Println(info.Description)
+func Usage() {
+	fmt.Println(ProgramInfo.Description)
 	fmt.Println("Params:")
 	flag.PrintDefaults()
 	os.Exit(0)
@@ -105,6 +104,6 @@ func Blame(format string, args ...interface{}) {
 // CheckError will invoke Blame if error is not nil.
 func CheckError(err error) {
 	if err != nil {
-		Blame("Error: %v\n", err)
+		Blame("%s: %v\n", ProgramInfo.Name, err)
 	}
 }
