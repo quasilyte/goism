@@ -50,6 +50,20 @@ func main() {
 func produceAsm(pkg *tu.Package) {
 	cl := compiler.New()
 
+	if len(pkg.Vars) > 0 {
+		fmt.Println("variables:")
+	}
+	for _, v := range pkg.Vars {
+		fmt.Println(" ", v)
+	}
+
+	fmt.Println("init:")
+	obj := cl.CompileFunc(pkg.Init)
+	dumpFunction(pkg.Init, obj)
+
+	if len(pkg.Funcs) > 0 {
+		fmt.Println("functions:")
+	}
 	for _, fn := range pkg.Funcs {
 		obj := cl.CompileFunc(fn)
 		dumpFunction(fn, obj)
@@ -74,7 +88,7 @@ func dumpFunction(fn *tu.Func, obj *ir.Object) {
 		"  fn %s {args=%s max-stack=%d}\n",
 		fn.Name, fn.Params, obj.StackUsage,
 	)
-	fmt.Printf("constants = %s\n", string(obj.ConstVec.Bytes()))
+	fmt.Printf("\tconstants = %s\n", string(obj.ConstVec.Bytes()))
 	fmt.Printf("  %s\n", strings.Replace(string(obj.Code), "\n", "\n  ", -1))
 }
 

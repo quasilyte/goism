@@ -8,9 +8,16 @@ import (
 )
 
 func translatePackage(goPkg *goPackage) *Package {
-	pkg := &Package{Name: goPkg.Name}
+	pkg := &Package{
+		Name: goPkg.Name,
+		Init: &Func{
+			Name: "init",
+			Body: &sexp.Block{},
+		},
+	}
 	varsWithInit := make(map[string]struct{})
 	conv := sexpconv.NewConverter(goPkg.info, goPkg.Name)
+	initForms := &pkg.Init.Body.Forms
 
 	for _, init := range goPkg.info.InitOrder {
 		if len(init.Lhs) != 1 {
@@ -20,10 +27,10 @@ func translatePackage(goPkg *goPackage) *Package {
 
 		name := init.Lhs[0].Name()
 		varsWithInit[name] = struct{}{}
-		pkg.Vars = append(pkg.Vars, &Var{
-			Name: name,
-			Init: conv.Expr(init.Rhs),
-		})
+
+		pkg.Vars = append(pkg.Vars, name)
+		form := conv.VarInit(name, init.Rhs)
+		*initForms = append(*initForms, form)
 	}
 
 	topLevel := goPkg.topLevel
@@ -35,7 +42,9 @@ func translatePackage(goPkg *goPackage) *Package {
 			// info.InitOrder misses entries for variables
 			// without initializers. We need to collect them here.
 			if _, ok := varsWithInit[objName]; !ok {
-				pkg.Vars = append(pkg.Vars, &Var{Name: objName, Init: nil})
+				pkg.Vars = append(pkg.Vars, objName)
+				form := conv.VarZeroInit(objName, obj.Type())
+				*initForms = append(*initForms, form)
 			}
 
 		case *types.TypeName:

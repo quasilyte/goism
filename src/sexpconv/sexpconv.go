@@ -29,6 +29,14 @@ func (conv *Converter) FuncBody(name *ast.Ident, block *ast.BlockStmt) *sexp.Blo
 	return conv.BlockStmt(block)
 }
 
+func (conv *Converter) VarInit(name string, node ast.Expr) sexp.Form {
+	return &sexp.Rebind{Name: name, Expr: conv.Expr(node)}
+}
+
+func (conv *Converter) VarZeroInit(name string, typ types.Type) sexp.Form {
+	return &sexp.Rebind{Name: name, Expr: ZeroValue(typ)}
+}
+
 func (conv *Converter) valueOf(node ast.Expr) constant.Value {
 	return conv.info.Types[node].Value
 }

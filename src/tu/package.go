@@ -13,7 +13,8 @@ type Package struct {
 
 	// Vars are sorted in order that should be used
 	// during initialization.
-	Vars []*Var
+	Vars []string
+	Init *Func
 }
 
 // Func is a Sexp function.
@@ -23,12 +24,6 @@ type Func struct {
 	Params    []string
 	Variadic  bool
 	DocString string
-}
-
-// Var is a package-level (global) variable.
-type Var struct {
-	Name string
-	Init sexp.Form
 }
 
 // TranslatePackage converts Go package into Sexp package.
