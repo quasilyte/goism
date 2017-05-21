@@ -52,8 +52,12 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 
 	case *sexp.ArrayLit:
 		call(cl, &function.Vector, form.Vals...)
+	case *sexp.SparseArrayLit:
+		compileSparseArrayLit(cl, form)
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
+	case *sexp.ArrayCopy:
+		compileArrayCopy(cl, form)
 
 	case *sexp.NumAddX:
 		compileUnaryOps(cl, ir.Add1, form.Arg, form.X)

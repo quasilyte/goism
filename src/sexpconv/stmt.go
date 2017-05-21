@@ -48,7 +48,9 @@ func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 
 func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	// #FIXME: will not work for "naked" returns.
-	return &sexp.Return{Results: conv.exprList(node.Results)}
+	return &sexp.Return{
+		Results: conv.valueCopyList(conv.exprList(node.Results)),
+	}
 }
 
 func (conv *Converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
@@ -81,7 +83,7 @@ func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 
 func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.Form {
 	if len(spec.Values) == 0 {
-		zv := zeroValue(conv.typeOf(spec.Type))
+		zv := ZeroValue(conv.typeOf(spec.Type))
 		for _, ident := range spec.Names {
 			forms = append(forms, &sexp.Bind{
 				Name: ident.Name,

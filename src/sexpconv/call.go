@@ -11,7 +11,7 @@ import (
 func (conv *Converter) call(fn *function.Type, args ...ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
-		Args: conv.exprList(args),
+		Args: conv.valueCopyList(conv.exprList(args)),
 	}
 }
 

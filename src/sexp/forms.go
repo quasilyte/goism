@@ -8,6 +8,7 @@ import (
 )
 
 type Form interface {
+	Type() types.Type
 	form()
 }
 
@@ -28,10 +29,24 @@ type (
 // Composite literals.
 type (
 	// ArrayLit = [N]T{...}.
-	ArrayLit struct{ Vals []Form }
-	// QuotedArray = ArrayLit where each element is constant.
-	QuotedArray struct{ Vals []Form }
+	ArrayLit struct {
+		Vals []Form
+		Typ  *types.Array
+	}
+
+	// SparseArrayLit is like ArrayLit, but does not store zero values.
+	SparseArrayLit struct {
+		Ctor *Call
+		Vals []SparseArrayVal
+		Typ  *types.Array
+	}
 )
+
+// SparseArrayVal is SparseArrayLit member initializer.
+type SparseArrayVal struct {
+	Index int64
+	Expr  Form
+}
 
 // ArrayIndex is array index expression.
 type ArrayIndex struct {
@@ -44,6 +59,11 @@ type ArrayUpdate struct {
 	Array Form
 	Index Form
 	Expr  Form
+}
+
+// ArrayCopy used for array copy insertions.
+type ArrayCopy struct {
+	Array Form
 }
 
 // Call expression is normal (direct) function invocation.
@@ -61,10 +81,14 @@ type CallStmt struct {
 // multi-value result.
 type MultiValueRef struct {
 	Index int
+	Typ   types.Type
 }
 
 // Var - reference to a global or local variable.
-type Var struct{ Name string }
+type Var struct {
+	Name string
+	Typ  types.Type
+}
 
 /* Special forms */
 
@@ -89,14 +113,14 @@ type Rebind struct {
 // TypeAssert coerces expression to specified type; panics on failure.
 type TypeAssert struct {
 	Expr Form
-	Type types.Type
+	Typ  types.Type
 }
 
 // LispTypeAssert is a special case of type assert, it
 // operates on unboxed Elisp values.
 type LispTypeAssert struct {
 	Expr Form
-	Type types.Type
+	Typ  types.Type
 }
 
 // FormList packs multiple forms together (like "progn").
@@ -139,56 +163,56 @@ type (
 	BitXor struct{ Args [2]Form }
 
 	NumAddX struct {
-		Arg  Form
-		X    int64
-		Type *types.Basic
+		Arg Form
+		X   int64
+		Typ *types.Basic
 	}
 
 	NumSubX struct {
-		Arg  Form
-		X    int64
-		Type *types.Basic
+		Arg Form
+		X   int64
+		Typ *types.Basic
 	}
 
 	NumAdd struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumSub struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumMul struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumQuo struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumEq struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumNotEq struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumLt struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumLte struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumGt struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 	NumGte struct {
 		Args [2]Form
-		Type *types.Basic
+		Typ  *types.Basic
 	}
 
 	Concat      struct{ Args [2]Form }

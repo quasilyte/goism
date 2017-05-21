@@ -122,6 +122,22 @@ func compileVar(cl *Compiler, form sexp.Var) {
 	cl.st.Bind(form.Name)
 }
 
+func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
+	compileCall(cl, form.Ctor)
+	for _, val := range form.Vals {
+		emit(cl, ir.StackRef(0)) // Array
+		emit(cl, ir.ConstRef(cl.cvec.InsertInt(val.Index)))
+		compileExpr(cl, val.Expr)
+		emit(cl, ir.ArraySet)
+	}
+}
+
+func compileArrayCopy(cl *Compiler, form *sexp.ArrayCopy) {
+	emit(cl, ir.ConstRef(cl.cvec.InsertSym("copy-sequence")))
+	compileExpr(cl, form.Array)
+	emit(cl, ir.Call(1))
+}
+
 func compilePanic(cl *Compiler, form *sexp.Panic) {
 	call(cl, &function.Panic, form.ErrorData)
 }

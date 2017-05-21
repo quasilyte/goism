@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"go/types"
 	"lisp"
+	"lisp/function"
 	"sexp"
 )
 
-func zeroValue(typ types.Type) sexp.Form {
+func ZeroValue(typ types.Type) sexp.Form {
 	if types.Identical(typ, lisp.Types.Symbol) {
 		return sexp.Symbol{Val: "nil"}
 	}
@@ -50,8 +51,20 @@ func zeroValue(typ types.Type) sexp.Form {
 			}
 		}
 
+	case *types.Array:
+		return &sexp.Call{
+			Fn: &function.MakeVector,
+			Args: []sexp.Form{
+				sexp.Int{Val: typ.Len()},
+				ZeroValue(typ.Elem()),
+			},
+		}
+
 	case *types.Map:
-		return sexp.Var{Name: "Go--nil-map"}
+		return sexp.Var{
+			Name: "Go--nil-map",
+			Typ:  types.NewMap(lisp.Types.Object, lisp.Types.Object),
+		}
 	}
 
 	panic(fmt.Sprintf("can not provide zero value for %#v", typ))

@@ -32,7 +32,7 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	args := [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
 
 	if typ.Info()&types.IsNumeric != 0 {
-		return conv.assign(lhs, &sexp.NumAdd{Type: typ, Args: args})
+		return conv.assign(lhs, &sexp.NumAdd{Typ: typ, Args: args})
 	}
 	if typ.Kind() == types.String {
 		return conv.assign(lhs, &sexp.Concat{Args: args})
@@ -43,21 +43,21 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 
 func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumSub{
-		Type: conv.basicTypeOf(rhs),
+		Typ:  conv.basicTypeOf(rhs),
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumMul{
-		Type: conv.basicTypeOf(rhs),
+		Typ:  conv.basicTypeOf(rhs),
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, &sexp.NumQuo{
-		Type: conv.basicTypeOf(rhs),
+		Typ:  conv.basicTypeOf(rhs),
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
@@ -65,10 +65,10 @@ func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
 	forms := make([]sexp.Form, len(node.Lhs))
 
-	// First result returned in a normal way.
+	// First result is returned in a normal way.
 	forms[0] = conv.assign(node.Lhs[0], conv.Expr(node.Rhs[0]))
 
-	// Other results assigned to a global variable.
+	// Other results are assigned to a global variable.
 	// Index uniquely identifies variable used for storage.
 	for i := 1; i < len(node.Lhs); i++ {
 		forms[i] = conv.assign(node.Lhs[i], &sexp.MultiValueRef{Index: i})
@@ -94,18 +94,18 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		if def := conv.info.Defs[lhs]; def == nil {
 			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
 		}
-		return &sexp.Bind{Name: lhs.Name, Init: expr}
+		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
 
 	case *ast.IndexExpr:
 		switch typ := conv.typeOf(lhs.X); typ.(type) {
 		case *types.Map:
 			call := &sexp.Call{
 				Fn: &function.MapInsert,
-				Args: []sexp.Form{
+				Args: conv.valueCopyList([]sexp.Form{
 					conv.Expr(lhs.Index),
 					expr,
 					conv.Expr(lhs.X),
-				},
+				}),
 			}
 			return sexp.CallStmt{Call: call}
 

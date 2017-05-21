@@ -6,10 +6,12 @@ func (atom Float) form()  {}
 func (atom String) form() {}
 func (atom Symbol) form() {}
 
-func (lit *ArrayLit) form()    {}
-func (lit *QuotedArray) form() {}
-func (lit *ArrayIndex) form()  {}
-func (lit *ArrayUpdate) form() {}
+func (lit *ArrayLit) form()       {}
+func (lit *SparseArrayLit) form() {}
+func (lit *ArrayIndex) form()     {}
+func (lit *ArrayUpdate) form()    {}
+
+func (form *ArrayCopy) form() {}
 
 func (form *Panic) form()  {}
 func (form *Bind) form()   {}
@@ -49,4 +51,4 @@ func (op *StringGte) form()   {}
 func (call *Call) form()          {}
 func (form CallStmt) form()       {}
 func (form *MultiValueRef) form() {}
-func (atom Var) form()            {}
+func (v Var) form()               {}
