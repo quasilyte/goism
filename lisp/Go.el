@@ -7,6 +7,34 @@
 ;;; ------------------
 ;;; [Public functions]
 
+(defcustom Go-utils-path ""
+  "Specifies path which is used to find required binaries.
+Please note that this path *must* end with trailing slash.
+If remain empty, system PATH is used.")
+
+(defun Go-translate-package (pkg-path)
+  "Read Go package located at PKG-PATH and translate it into Emacs Lisp.
+Generated code is shown in temporary buffer.
+Requires `goel-translate-package' to be available."
+  (interactive "DGo package path: ")
+  (let* ((pkg-path (expand-file-name pkg-path))
+         (res (Go--exec "goel-translate-package"
+                        (format "-pkgPath=%s" pkg-path)))
+         (exit-code (car res))
+         (output (cdr res)))
+    (when (/= 0 exit-code)
+      (error output))
+    (ir--pkg-compile (read output))))
+
+;;; -------------------
+;;; [Private functions]
+
+(defun Go--exec (cmd &rest args)
+  (let ((cmd (format "%s%s" Go-utils-path cmd)))
+    (with-temp-buffer
+      (cons (apply #'call-process cmd nil t nil args)
+            (buffer-string)))))
+
 ;;; ------------------------
 ;;; [Runtime implementation]
 
