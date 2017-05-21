@@ -2,6 +2,7 @@ package export
 
 import (
 	"ir"
+	"tu"
 )
 
 // Builder allows to create exportable package.
@@ -27,16 +28,16 @@ func (b *Builder) Build() []byte {
 }
 
 // AddFunc pushes function definition into package.
-func (b *Builder) AddFunc(f *ir.Func) {
+func (b *Builder) AddFunc(fn *tu.Func, obj *ir.Object) {
 	w := &b.w
 
 	w.WriteSymbol("fn")
-	w.WriteSymbol(f.Name)
-	w.WriteInt(int(f.ArgsDesc))
-	w.Write(f.ConstVec.Bytes())
-	w.WriteInt(f.StackUsage)
-	w.WriteString(f.DocString)
-	w.Write(f.Body)
+	w.WriteSymbol(fn.Name)
+	w.WriteInt(argsDescriptor(fn))
+	w.Write(obj.ConstVec.Bytes())
+	w.WriteInt(obj.StackUsage)
+	w.WriteString(docString(fn))
+	w.Write(obj.Code)
 
 	w.WriteSymbol("end")
 }

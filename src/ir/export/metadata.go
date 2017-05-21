@@ -1,4 +1,4 @@
-package compiler
+package export
 
 import (
 	"strings"
@@ -6,7 +6,8 @@ import (
 )
 
 // Return properly encoded bytecode function argument descriptor.
-func argsDescriptor(arity int, variadic bool) uint32 {
+func argsDescriptor(fn *tu.Func) int {
+	arity := len(fn.Params)
 	if arity > 127 {
 		panic("can not have more than 127 positional parameters")
 	}
@@ -15,22 +16,22 @@ func argsDescriptor(arity int, variadic bool) uint32 {
 	const variadicBit = 128         // 8-th bit: "rest" arg
 	totalArgs := uint32(arity << 8) // Other bits
 
-	if variadic {
-		return positionalArgs + variadicBit + totalArgs
+	if fn.Variadic {
+		return int(positionalArgs + variadicBit + totalArgs)
 	}
-	return positionalArgs + totalArgs
+	return int(positionalArgs + totalArgs)
 }
 
 // Return extended function documentation string.
-func docString(f *tu.Func) string {
-	if len(f.Params) == 0 {
-		return f.DocString
+func docString(fn *tu.Func) string {
+	if len(fn.Params) == 0 {
+		return fn.DocString
 	}
 
 	// Add signature information for eldoc.
-	params := append(make([]string, 0, len(f.Params)), f.Params...)
-	if f.Variadic {
+	params := append(make([]string, 0, len(fn.Params)), fn.Params...)
+	if fn.Variadic {
 		params[len(params)-1] = "&rest " + params[len(params)-1]
 	}
-	return f.DocString + "\n\n(fn " + strings.Join(params, " ") + ")"
+	return fn.DocString + "\n\n(fn " + strings.Join(params, " ") + ")"
 }

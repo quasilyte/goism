@@ -50,9 +50,9 @@ func main() {
 func produceAsm(pkg *tu.Package) {
 	cl := compiler.New()
 
-	for i := range pkg.Funcs {
-		f := cl.CompileFunc(pkg.Funcs[i])
-		dumpFunction(f)
+	for _, fn := range pkg.Funcs {
+		obj := cl.CompileFunc(fn)
+		dumpFunction(fn, obj)
 	}
 }
 
@@ -61,21 +61,21 @@ func producePackage(pkg *tu.Package) {
 
 	output := export.NewBuilder(pkg.Name)
 
-	for i := range pkg.Funcs {
-		fn := cl.CompileFunc(pkg.Funcs[i])
-		output.AddFunc(fn)
+	for _, fn := range pkg.Funcs {
+		obj := cl.CompileFunc(fn)
+		output.AddFunc(fn, obj)
 	}
 
 	fmt.Print(string(output.Build()))
 }
 
-func dumpFunction(f *ir.Func) {
+func dumpFunction(fn *tu.Func, obj *ir.Object) {
 	fmt.Printf(
-		"  fn %s {args=#x%x max-stack=%d}\n",
-		f.Name, f.ArgsDesc, f.StackUsage,
+		"  fn %s {args=%s max-stack=%d}\n",
+		fn.Name, fn.Params, obj.StackUsage,
 	)
-	fmt.Printf("constants = %s\n", string(f.ConstVec.Bytes()))
-	fmt.Printf("  %s\n", strings.Replace(string(f.Body), "\n", "\n  ", -1))
+	fmt.Printf("constants = %s\n", string(obj.ConstVec.Bytes()))
+	fmt.Printf("  %s\n", strings.Replace(string(obj.Code), "\n", "\n  ", -1))
 }
 
 func optimizePackage(pkg *tu.Package) {

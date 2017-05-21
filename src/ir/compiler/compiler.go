@@ -20,17 +20,14 @@ func New() *Compiler {
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Func {
+func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Object {
 	cl.reset(f.Params)
 
 	compileStmtList(cl, f.Body.Forms)
 
-	return &ir.Func{
-		Name:       f.Name,
-		ArgsDesc:   argsDescriptor(len(f.Params), f.Variadic),
+	return &ir.Object{
 		StackUsage: cl.st.MaxLen(),
-		Body:       cl.buf.Bytes(),
-		DocString:  docString(f),
+		Code:       cl.buf.Bytes(),
 		ConstVec:   cl.cvec,
 	}
 }
