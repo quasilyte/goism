@@ -33,5 +33,11 @@ func docString(fn *tu.Func) string {
 	if fn.Variadic {
 		params[len(params)-1] = "&rest " + params[len(params)-1]
 	}
-	return fn.DocString + "\n\n(fn " + strings.Join(params, " ") + ")"
+	eldocSig := "\n(fn " + strings.Join(params, " ") + ")"
+
+	if fn.DocString != "" {
+		comment := strings.Replace(fn.DocString, `"`, `\"`, -1)
+		return comment + eldocSig
+	}
+	return "\n" + eldocSig
 }
