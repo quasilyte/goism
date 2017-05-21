@@ -56,6 +56,7 @@ func produceAsm(pkg *tu.Package) {
 		for _, v := range pkg.Vars {
 			fmt.Println(" ", v)
 		}
+		println()
 	}
 
 	if len(pkg.Init.Body.Forms) != 0 {
