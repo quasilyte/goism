@@ -48,8 +48,14 @@ func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 
 func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	// #FIXME: will not work for "naked" returns.
+	results := make([]sexp.Form, len(node.Results))
+	for i, node := range node.Results {
+		conv.ctxType = conv.retType.At(i).Type()
+		results[i] = conv.Expr(node)
+	}
+
 	return &sexp.Return{
-		Results: conv.valueCopyList(conv.exprList(node.Results)),
+		Results: conv.valueCopyList(results),
 	}
 }
 
@@ -92,6 +98,7 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 		}
 	} else {
 		for i, ident := range spec.Names {
+			conv.ctxType = conv.typeOf(ident)
 			forms = append(forms, &sexp.Bind{
 				Name: ident.Name,
 				Init: conv.Expr(spec.Values[i]),

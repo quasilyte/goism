@@ -81,6 +81,7 @@ func (conv *Converter) singleValueAssign(node *ast.AssignStmt) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for i, lhs := range node.Lhs {
+		conv.ctxType = conv.typeOf(lhs)
 		rhs := conv.Expr(node.Rhs[i])
 		forms = append(forms, conv.assign(lhs, rhs))
 	}

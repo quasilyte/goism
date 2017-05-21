@@ -43,9 +43,29 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
 	}
+
+	typ := conv.typeOf(node)
+
+	if typ, ok := typ.(*types.Basic); ok {
+		// Coerce untyped nil to correct value depending on
+		// the context type.
+		if typ.Kind() == types.UntypedNil {
+			switch conv.ctxType.(type) {
+			case *types.Map:
+				return nilMap
+			case *types.Slice:
+				return nilSlice
+			case *types.Signature:
+				return nilFunc
+			case *types.Interface:
+				return nilInterface
+			}
+		}
+	}
+
 	return sexp.Var{
 		Name: node.Name,
-		Typ:  conv.typeOf(node),
+		Typ:  typ,
 	}
 }
 

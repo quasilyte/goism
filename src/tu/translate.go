@@ -66,7 +66,7 @@ func translateFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
 		}
 	}
 
-	body := conv.BlockStmt(decl.Body)
+	body := conv.FuncBody(decl.Name, decl.Body)
 	// Adding return statement.
 	// It is needed in void functions without explicit "return".
 	// In all other cases, optimizations will wipe it out.
