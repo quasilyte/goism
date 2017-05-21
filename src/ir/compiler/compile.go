@@ -76,7 +76,11 @@ func compileBind(cl *Compiler, form *sexp.Bind) {
 
 func compileRebind(cl *Compiler, form *sexp.Rebind) {
 	compileExpr(cl, form.Expr)
-	emit(cl, ir.StackSet(cl.st.Find(form.Name)))
+	if stIndex := cl.st.Find(form.Name); stIndex != -1 {
+		emit(cl, ir.StackSet(stIndex))
+	} else {
+		emit(cl, ir.VarSet(cl.cvec.InsertSym(form.Name)))
+	}
 }
 
 func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
