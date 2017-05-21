@@ -26,7 +26,10 @@ func compileBlock(cl *Compiler, form *sexp.Block) {
 
 func compileReturn(cl *Compiler, form *sexp.Return) {
 	if len(form.Results) == 0 {
-		emit(cl, ir.Return(0))
+		// Any function in Emacs Lisp must return a value.
+		// To avoid Emacs crash, we always return "nil" for void functions.
+		emit(cl, ir.ConstRef(cl.cvec.InsertSym("nil")))
+		emit(cl, ir.Return)
 	} else {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
@@ -34,7 +37,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 			sym := lisp.RetVars[i]
 			emit(cl, ir.VarSet(cl.cvec.InsertSym(sym)))
 		}
-		emit(cl, ir.Return(1))
+		emit(cl, ir.Return)
 	}
 }
 

@@ -57,6 +57,10 @@ func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 		}
 	}
 
+	if len(*initForms) != 0 {
+		*initForms = append(*initForms, &sexp.Return{})
+	}
+
 	// Collect functions.
 	for _, file := range goPkg.Files {
 		for _, decl := range file.Decls {

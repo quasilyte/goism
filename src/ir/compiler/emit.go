@@ -36,7 +36,7 @@ func emit(cl *Compiler, instr ir.Instr) {
 		cl.st.PushConst(instr.Data)
 
 	case ir.InstrRet:
-		cl.st.Discard(instr.Data)
+		cl.st.Discard(1)
 		writeOp0(dst, instr)
 
 	case ir.InstrStackRef:
