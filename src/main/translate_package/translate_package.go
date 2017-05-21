@@ -52,21 +52,21 @@ func produceAsm(pkg *tu.Package) {
 
 	if len(pkg.Vars) > 0 {
 		fmt.Println("variables:")
-	}
-	for _, v := range pkg.Vars {
-		fmt.Println(" ", v)
+		for _, v := range pkg.Vars {
+			fmt.Println(" ", v)
+		}
 	}
 
-	fmt.Println("init:")
-	obj := cl.CompileFunc(pkg.Init)
-	dumpFunction(pkg.Init, obj)
+	if len(pkg.Init.Body.Forms) != 0 {
+		fmt.Println("init:")
+		dumpFunction(pkg.Init, cl.CompileFunc(pkg.Init))
+	}
 
 	if len(pkg.Funcs) > 0 {
 		fmt.Println("functions:")
-	}
-	for _, fn := range pkg.Funcs {
-		obj := cl.CompileFunc(fn)
-		dumpFunction(fn, obj)
+		for _, fn := range pkg.Funcs {
+			dumpFunction(fn, cl.CompileFunc(fn))
+		}
 	}
 }
 
@@ -75,10 +75,16 @@ func producePackage(pkg *tu.Package) {
 
 	output := export.NewBuilder(pkg)
 
-	output.AddVars(pkg.Vars)
+	if len(pkg.Vars) != 0 {
+		output.AddVars(pkg.Vars)
+	}
+
 	for _, fn := range pkg.Funcs {
-		obj := cl.CompileFunc(fn)
-		output.AddFunc(fn, obj)
+		output.AddFunc(fn, cl.CompileFunc(fn))
+	}
+
+	if len(pkg.Init.Body.Forms) != 0 {
+		output.AddExpr(cl.CompileFunc(pkg.Init))
 	}
 
 	fmt.Print(string(output.Build()))

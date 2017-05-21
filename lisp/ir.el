@@ -63,6 +63,7 @@
       (pcase token
         (`fn (ir--pkg-write-fn pkg))
         (`vars (ir--pkg-write-vars pkg))
+        (`expr (ir--pkg-write-expr pkg))
         (_ (error "Unexpected token `%s'" token))))))
 
 (defun ir--pkg-write-fn (pkg)
@@ -74,10 +75,22 @@
 (defun ir--pkg-write-vars (pkg)
   (let (name)
     (while (not-eq 'end (setq name (pop! pkg)))
-      (prin1 `(defvar ',name nil ""))
+      (prin1 `(defvar ,name nil ""))
       (terpri))))
 
+(defun ir--pkg-write-expr (pkg)
+  (let* ((cvec (pop! pkg))
+         (stack-cap (pop! pkg))
+         (bytecode (ir--to-bytecode pkg)))
+    (prin1 `(byte-code ,bytecode ,cvec ,stack-cap))
+    (terpri)))
+
 ;; { Bytecode generation }
+
+(defun ir--to-bytecode (pkg)
+  (byte-compile-lapcode
+   (byte-optimize-lapcode
+    (ir--to-lapcode pkg))))
 
 (defun ir--fn-body (pkg)
   (let* ((args-desc (pop! pkg))
@@ -85,9 +98,7 @@
          (stack-cap (pop! pkg))
          (doc-string (pop! pkg)))
     (make-byte-code args-desc
-                    (byte-compile-lapcode
-                     (byte-optimize-lapcode
-                      (ir--to-lapcode pkg)))
+                    (ir--to-bytecode pkg)
                     cvec
                     stack-cap
                     doc-string)))

@@ -84,12 +84,9 @@ var (
 	SetCdr = cellSet("setcdr")
 )
 
-func Return(n int) Instr {
-	return Instr{
-		Data: uint16(n),
-		Name: []byte("return"),
-		Kind: InstrRet,
-	}
+var Return = Instr{
+	Name: []byte("return"),
+	Kind: InstrRet,
 }
 
 func ConstRef(cvIndex int) Instr {

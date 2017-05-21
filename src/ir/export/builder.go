@@ -48,6 +48,17 @@ func (b *Builder) AddFunc(fn *tu.Func, obj *ir.Object) {
 	w.WriteSymbol("end")
 }
 
+func (b *Builder) AddExpr(obj *ir.Object) {
+	w := &b.w
+
+	w.WriteSymbol("expr")
+	w.Write(obj.ConstVec.Bytes())
+	w.WriteInt(obj.StackUsage)
+	w.Write(obj.Code)
+
+	w.WriteSymbol("end")
+}
+
 func (b *Builder) AddVars(names []string) {
 	w := &b.w
 
