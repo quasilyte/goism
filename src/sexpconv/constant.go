@@ -47,10 +47,7 @@ func constantInt(cv constant.Value) sexp.Int {
 }
 
 func constantFloat(cv constant.Value) sexp.Float {
-	val, exact := constant.Float64Val(cv)
-	if !exact {
-		panic("can not handle inexact float") // #REFS: 17.
-	}
+	val, _ := constant.Float64Val(cv)
 	return sexp.Float{Val: val}
 }
 
