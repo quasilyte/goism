@@ -18,4 +18,6 @@ var (
 	Vector         = *NewNative("vector")
 	Intern         = Type{name: "intern"}
 	HashTableCount = *NewNative("hash-table-count")
+	CopySequence   = *NewNative("copy-sequence")
+	MakeVector     = *NewNative("make-vector")
 )

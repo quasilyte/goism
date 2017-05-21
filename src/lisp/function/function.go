@@ -5,15 +5,23 @@ import (
 	"lisp"
 )
 
+var (
+	emptyTuple = types.NewTuple()
+
+	nativeResults = types.NewTuple(
+		types.NewVar(0, lisp.Package, "", lisp.Types.Object),
+	)
+)
+
 type Type struct {
 	name    string
-	results []types.Type
+	results *types.Tuple
 }
 
 func NewNative(name string) *Type {
 	return &Type{
 		name:    name,
-		results: []types.Type{lisp.Types.Object},
+		results: nativeResults,
 	}
 }
 
@@ -21,10 +29,9 @@ func New(name string, sig *types.Signature) *Type {
 	f := &Type{name: name}
 
 	if results := sig.Results(); results != nil {
-		f.results = make([]types.Type, results.Len())
-		for i := 0; i < results.Len(); i++ {
-			f.results[i] = results.At(i).Type()
-		}
+		f.results = results
+	} else {
+		f.results = emptyTuple
 	}
 
 	return f
@@ -34,12 +41,12 @@ func (f *Type) Name() string {
 	return f.name
 }
 
-func (f *Type) Results() []types.Type {
+func (f *Type) Results() types.Type {
 	return f.results
 }
 
 func (f *Type) IsVoid() bool {
-	return len(f.results) == 0
+	return f.results.Len() == 0
 }
 
 func (f *Type) IsPanic() bool {
