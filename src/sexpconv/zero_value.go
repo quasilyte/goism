@@ -33,12 +33,16 @@ func ZeroValue(typ types.Type) sexp.Form {
 		}
 
 	case *types.Array:
-		return &sexp.Call{
+		ctor := &sexp.Call{
 			Fn: function.MakeVector,
 			Args: []sexp.Form{
 				sexp.Int{Val: typ.Len()},
 				ZeroValue(typ.Elem()),
 			},
+		}
+		return &sexp.SparseArrayLit{
+			Ctor: ctor,
+			Typ:  typ,
 		}
 
 	case *types.Map:
