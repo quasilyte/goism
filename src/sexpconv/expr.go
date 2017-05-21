@@ -163,7 +163,7 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
 		return &sexp.Call{
-			Fn: &function.Gethash,
+			Fn: function.Gethash,
 			Args: conv.valueCopyList([]sexp.Form{
 				conv.Expr(node.Index),
 				conv.Expr(node.X),
@@ -207,7 +207,7 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 			}
 		}
 		ctor := &sexp.Call{
-			Fn: &function.MakeVector,
+			Fn: function.MakeVector,
 			Args: []sexp.Form{
 				sexp.Int{Val: typ.Len()},
 				ZeroValue(typ.Elem()),

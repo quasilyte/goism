@@ -33,7 +33,7 @@ func (conv *Converter) valueCopyList(forms []sexp.Form) []sexp.Form {
 func (conv *Converter) valueCopy(form sexp.Form) sexp.Form {
 	if isArray(form.Type()) && !isArrayLit(form) {
 		return &sexp.Call{
-			Fn:   &function.CopySequence,
+			Fn:   function.CopySequence,
 			Args: []sexp.Form{form},
 		}
 	}

@@ -139,7 +139,7 @@ func compileArrayCopy(cl *Compiler, form *sexp.ArrayCopy) {
 }
 
 func compilePanic(cl *Compiler, form *sexp.Panic) {
-	call(cl, &function.Panic, form.ErrorData)
+	call(cl, function.Panic, form.ErrorData)
 }
 
 func compileCall(cl *Compiler, form *sexp.Call) {

@@ -53,7 +53,7 @@ func ZeroValue(typ types.Type) sexp.Form {
 
 	case *types.Array:
 		return &sexp.Call{
-			Fn: &function.MakeVector,
+			Fn: function.MakeVector,
 			Args: []sexp.Form{
 				sexp.Int{Val: typ.Len()},
 				ZeroValue(typ.Elem()),

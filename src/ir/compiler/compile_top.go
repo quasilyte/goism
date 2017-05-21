@@ -51,7 +51,7 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileVar(cl, form)
 
 	case *sexp.ArrayLit:
-		call(cl, &function.Vector, form.Vals...)
+		call(cl, function.Vector, form.Vals...)
 	case *sexp.SparseArrayLit:
 		compileSparseArrayLit(cl, form)
 	case *sexp.ArrayIndex:

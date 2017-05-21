@@ -40,5 +40,5 @@ func (conv *Converter) intrinIntern(arg ast.Expr) sexp.Form {
 		return sexp.Symbol{Val: s}
 	}
 
-	return conv.call(&function.Intern, arg)
+	return conv.call(function.Intern, arg)
 }

@@ -44,11 +44,11 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "int", "string", "float64":
 			return conv.Expr(node.Args[0])
 		case "print":
-			return conv.call(&function.Print, node.Args...)
+			return conv.call(function.Print, node.Args...)
 		case "println":
-			return conv.call(&function.Println, node.Args...)
+			return conv.call(function.Println, node.Args...)
 		case "delete":
-			return conv.call(&function.Remhash, node.Args[1], node.Args[0])
+			return conv.call(function.Remhash, node.Args[1], node.Args[0])
 		default:
 			return conv.call(conv.makeFunction(fn, ""), node.Args...)
 		}
