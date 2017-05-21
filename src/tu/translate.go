@@ -3,13 +3,15 @@ package tu
 import (
 	"go/ast"
 	"go/types"
+	"lisp"
 	"sexp"
 	"sexpconv"
 )
 
-func translatePackage(goPkg *goPackage) *Package {
+func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 	pkg := &Package{
-		Name: goPkg.Name,
+		Name:    goPkg.Name,
+		Comment: pkgComment,
 		Init: &Func{
 			Name: "init",
 			Body: &sexp.Block{},
@@ -27,9 +29,10 @@ func translatePackage(goPkg *goPackage) *Package {
 
 		name := init.Lhs[0].Name()
 		varsWithInit[name] = struct{}{}
+		lispName := lisp.VarName(pkg.Name, name)
 
-		pkg.Vars = append(pkg.Vars, name)
-		form := conv.VarInit(name, init.Rhs)
+		pkg.Vars = append(pkg.Vars, lispName)
+		form := conv.VarInit(lispName, init.Rhs)
 		*initForms = append(*initForms, form)
 	}
 
@@ -42,8 +45,9 @@ func translatePackage(goPkg *goPackage) *Package {
 			// info.InitOrder misses entries for variables
 			// without initializers. We need to collect them here.
 			if _, ok := varsWithInit[objName]; !ok {
-				pkg.Vars = append(pkg.Vars, objName)
-				form := conv.VarZeroInit(objName, obj.Type())
+				name := lisp.VarName(pkg.Name, objName)
+				pkg.Vars = append(pkg.Vars, name)
+				form := conv.VarZeroInit(name, obj.Type())
 				*initForms = append(*initForms, form)
 			}
 

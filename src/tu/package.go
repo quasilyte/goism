@@ -1,7 +1,10 @@
 package tu
 
 import (
+	"bytes"
+	"go/ast"
 	"go/token"
+	"path/filepath"
 	"sexp"
 )
 
@@ -15,6 +18,8 @@ type Package struct {
 	// during initialization.
 	Vars []string
 	Init *Func
+
+	Comment string
 }
 
 // Func is a Sexp function.
@@ -43,5 +48,33 @@ func TranslatePackage(pkgPath string) (*Package, error) {
 		return nil, err
 	}
 
-	return translatePackage(checkedPkg), nil
+	pkgComment := packageComment(parsedPkg.Files)
+	return translatePackage(checkedPkg, pkgComment), nil
+}
+
+func packageComment(files map[string]*ast.File) string {
+	var buf bytes.Buffer
+	buf.WriteString(";; ") // To avoid expensive prepend in the end.
+
+	for name, file := range files {
+		if file.Doc != nil {
+			buf.WriteString("\t<")
+			buf.WriteString(filepath.Base(name))
+			buf.WriteString(">\n")
+			buf.WriteString(file.Doc.Text())
+		}
+	}
+
+	if buf.Len() == len(";; ") {
+		return ""
+	}
+
+	// Remove trailing newline.
+	buf.Truncate(buf.Len() - 1)
+
+	// Properly format comment text.
+	comment := bytes.Replace(buf.Bytes(), []byte(`"`), []byte(`\"`), -1)
+	comment = bytes.Replace(comment, []byte("\n"), []byte("\n;; "), -1)
+
+	return string(comment)
 }
