@@ -59,8 +59,6 @@
 
 ;; [Map]
 
-(defvar Go--nil-map (make-hash-table :size 1 :test #'eq))
-
 (defun Go--make-map ()
   (make-hash-table :test #'equal))
 (defun Go--make-map-cap (cap)
@@ -70,3 +68,7 @@
   (if (not-eq Go--nil-map m)
       (puthash key val m)
     (Go--panic "assignment to entry in nil map")))
+
+;; [Nil values]
+
+(defvar Go--nil-map (make-hash-table :size 1 :test #'eq))
