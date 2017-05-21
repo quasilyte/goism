@@ -33,6 +33,14 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 
 	case *ast.Ident: // f()
 		switch fn.Name {
+		// All signed integer types are treated as aliases.
+		case "int", "int8", "int16", "int32", "rune", "int64":
+			return conv.Expr(node.Args[0])
+		// All float types are considered float64
+		case "float32", "float64":
+			return conv.Expr(node.Args[0])
+		case "string":
+			return conv.Expr(node.Args[0])
 		case "make":
 			return conv.makeBuiltin(node.Args)
 		case "len":
@@ -41,8 +49,6 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.capBuiltin(node.Args[0])
 		case "panic":
 			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
-		case "int", "string", "float64":
-			return conv.Expr(node.Args[0])
 		case "print":
 			return conv.call(function.Print, node.Args...)
 		case "println":
