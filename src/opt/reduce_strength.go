@@ -92,11 +92,7 @@ func weakenArrayLit(form *sexp.ArrayLit) sexp.Form {
 }
 
 func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
-	// Sparse arrays worth it only when zero values are prevalent.
-	zeroVals := form.Typ.Len() - int64(len(form.Vals))
-	if zeroVals*4 < form.Typ.Len()*3 {
-		// Count of zero values < 75%.
-		// Convert to ArrayLit.
+	toArrayLit := func(form *sexp.SparseArrayLit) *sexp.ArrayLit {
 		zv := sexpconv.ZeroValue(form.Typ.Elem())
 		vals := make([]sexp.Form, int(form.Typ.Len()))
 		for _, val := range form.Vals {
@@ -108,6 +104,19 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 			}
 		}
 		return &sexp.ArrayLit{Vals: vals}
+	}
+
+	// If array is very small, it is better to use "vector".
+	if form.Typ.Len() <= 4 {
+		return toArrayLit(form)
+	}
+
+	// Sparse arrays worth it only when zero values are prevalent.
+	zeroVals := form.Typ.Len() - int64(len(form.Vals))
+	if zeroVals*4 < form.Typ.Len()*3 {
+		// Count of zero values < 75%.
+		// Convert to ArrayLit.
+		return toArrayLit(form)
 	}
 
 	return form
