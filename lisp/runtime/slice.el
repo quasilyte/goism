@@ -14,7 +14,7 @@
       (cons data
             (cons 0
                   (cons len cap))))))
-(defun Go--make-slice-vals (&rest vals)
+(defun Go--make-slice-from-list (&rest vals)
   (let* ((data (vconcat vals))
          (len (length data)))
     (cons data
