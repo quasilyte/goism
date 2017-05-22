@@ -35,15 +35,21 @@ func (lit *ArrayLit) Type() types.Type {
 func (lit *SparseArrayLit) Type() types.Type {
 	return lit.Typ
 }
-func (lit *ArrayIndex) Type() types.Type {
-	return lit.Array.Type().Underlying().(*types.Array).Elem()
+
+func (form *ArrayIndex) Type() types.Type {
+	return form.Array.Type().Underlying().(*types.Array).Elem()
 }
-func (lit *ArrayUpdate) Type() types.Type {
+func (form *ArrayUpdate) Type() types.Type {
 	return typVoid
 }
-
 func (form *ArrayCopy) Type() types.Type {
 	return form.Array.Type()
+}
+func (form *SliceIndex) Type() types.Type {
+	return form.Slice.Type().Underlying().(*types.Slice).Elem()
+}
+func (form *SliceUpdate) Type() types.Type {
+	return typVoid
 }
 
 func (form *Panic) Type() types.Type {
@@ -137,7 +143,11 @@ func (op *StringGte) Type() types.Type {
 }
 
 func (call *Call) Type() types.Type {
-	return call.Fn.Results()
+	results := call.Fn.Results()
+	if results.Len() == 1 {
+		return results.At(0).Type()
+	}
+	return results
 }
 func (form CallStmt) Type() types.Type {
 	return typVoid

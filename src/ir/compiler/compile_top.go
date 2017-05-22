@@ -29,6 +29,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileWhile(cl, form)
 	case *sexp.ArrayUpdate:
 		compileArrayUpdate(cl, form)
+	case *sexp.SliceUpdate:
+		compileSliceUpdate(cl, form)
 
 	default:
 		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
@@ -54,10 +56,13 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		call(cl, function.Vector, form.Vals...)
 	case *sexp.SparseArrayLit:
 		compileSparseArrayLit(cl, form)
+
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
 	case *sexp.ArrayCopy:
 		compileArrayCopy(cl, form)
+	case *sexp.SliceIndex:
+		compileSliceIndex(cl, form)
 
 	case *sexp.NumAddX:
 		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)

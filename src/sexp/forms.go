@@ -66,6 +66,19 @@ type ArrayCopy struct {
 	Array Form
 }
 
+// SliceIndex is slice index expression.
+type SliceIndex struct {
+	Slice Form
+	Index Form
+}
+
+// SliceUpdate is slice index expression with assignment.
+type SliceUpdate struct {
+	Slice Form
+	Index Form
+	Expr  Form
+}
+
 // Call expression is normal (direct) function invocation.
 type Call struct {
 	Fn   *function.Type

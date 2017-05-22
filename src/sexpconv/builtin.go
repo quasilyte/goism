@@ -31,14 +31,28 @@ func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
 }
 
 func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
-	switch typ := conv.typeOf(args[0]); typ.(type) {
+	switch typ := conv.typeOf(args[0]).(type) {
 	case *types.Map:
 		if len(args) == 2 {
-			return conv.call(function.MakeMapCap, args[1])
+			return conv.call(function.MakeMapCap(typ), args[1])
 		}
-		return conv.call(function.MakeMap)
+		return conv.call(function.MakeMap(typ))
 
-	// #TODO: channels and slices.
+	case *types.Slice:
+		lenArg := conv.Expr(args[1])
+		zvArg := ZeroValue(typ.Elem())
+		if len(args) == 3 {
+			capArg := conv.Expr(args[2])
+			return &sexp.Call{
+				Fn:   function.MakeSliceCap(typ),
+				Args: []sexp.Form{lenArg, capArg, zvArg},
+			}
+		}
+		return &sexp.Call{
+			Fn:   function.MakeSlice(typ),
+			Args: []sexp.Form{lenArg, zvArg},
+		}
+
 	default:
 		panic("unimplemented")
 	}

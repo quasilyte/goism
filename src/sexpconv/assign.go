@@ -145,6 +145,13 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 				Expr:  expr,
 			}
 
+		case *types.Slice:
+			return &sexp.SliceUpdate{
+				Slice: conv.Expr(lhs.X),
+				Index: conv.Expr(lhs.Index),
+				Expr:  expr,
+			}
+
 		default:
 			panic("unimplemented")
 		}

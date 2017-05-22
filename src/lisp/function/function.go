@@ -6,12 +6,17 @@ import (
 )
 
 var (
-	emptyTuple = types.NewTuple()
-
-	nativeResults = types.NewTuple(
-		types.NewVar(0, lisp.Package, "", lisp.Types.Object),
-	)
+	emptyTuple    = types.NewTuple()
+	nativeResults = tuple(lisp.Types.Object)
 )
+
+func tuple(typs ...types.Type) *types.Tuple {
+	vars := make([]*types.Var, len(typs))
+	for i, typ := range typs {
+		vars[i] = types.NewVar(0, nil, "", typ)
+	}
+	return types.NewTuple(vars...)
+}
 
 type Type struct {
 	name    string
@@ -41,7 +46,7 @@ func (f *Type) Name() string {
 	return f.name
 }
 
-func (f *Type) Results() types.Type {
+func (f *Type) Results() *types.Tuple {
 	return f.results
 }
 

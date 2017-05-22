@@ -197,6 +197,12 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 			Index: conv.Expr(node.Index),
 		}
 
+	case *types.Slice:
+		return &sexp.SliceIndex{
+			Slice: conv.Expr(node.X),
+			Index: conv.Expr(node.Index),
+		}
+
 	// #TODO: slices, strings
 	default:
 		panic("unimplemented")
