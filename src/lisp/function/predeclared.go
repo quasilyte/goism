@@ -9,6 +9,7 @@ var (
 	Panic   = &Type{name: "Go--panic"}
 
 	MapInsert = &Type{name: "Go--map-insert"}
+	SliceCopy = &Type{name: "Go--slice-copy"}
 )
 
 // Emacs Lisp builtin functions.
