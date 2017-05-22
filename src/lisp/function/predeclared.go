@@ -22,6 +22,13 @@ var (
 	MakeVector     = NewNative("make-vector")
 )
 
+func AppendOne(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--slice-push",
+		results: tuple(typ),
+	}
+}
+
 func MakeMap(typ *types.Map) *Type {
 	return &Type{
 		name:    "Go--make-map",

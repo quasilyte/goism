@@ -66,6 +66,13 @@ type ArrayCopy struct {
 	Array Form
 }
 
+type (
+	// SliceLen = len(slice).
+	SliceLen struct{ Slice Form }
+	// SliceCap = cap(slice).
+	SliceCap struct{ Slice Form }
+)
+
 // SliceIndex is slice index expression.
 type SliceIndex struct {
 	Slice Form

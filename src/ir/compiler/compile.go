@@ -238,3 +238,17 @@ func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
 		emit(cl, instr.ArraySet)    // <>
 	}
 }
+
+func compileSliceLen(cl *Compiler, form *sexp.SliceLen) {
+	compileExpr(cl, form.Slice)
+	emit(cl, instr.Cdr)
+	emit(cl, instr.Cdr)
+	emit(cl, instr.Car)
+}
+
+func compileSliceCap(cl *Compiler, form *sexp.SliceCap) {
+	compileExpr(cl, form.Slice)
+	emit(cl, instr.Cdr)
+	emit(cl, instr.Cdr)
+	emit(cl, instr.Cdr)
+}

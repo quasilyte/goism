@@ -12,6 +12,8 @@ func (lit *SparseArrayLit) form() {}
 func (form *ArrayIndex) form()  {}
 func (form *ArrayUpdate) form() {}
 func (form *ArrayCopy) form()   {}
+func (form *SliceLen) form()    {}
+func (form *SliceCap) form()    {}
 func (form *SliceIndex) form()  {}
 func (form *SliceUpdate) form() {}
 

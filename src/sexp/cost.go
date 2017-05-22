@@ -32,6 +32,12 @@ func Cost(form Form) int {
 	case *ArrayCopy:
 		return int(form.Type().(*types.Array).Len()) / 2
 
+	case *SliceLen:
+		return Cost(form.Slice) + 3
+
+	case *SliceCap:
+		return Cost(form.Slice) + 3
+
 	case *SliceIndex:
 		return Cost(form.Index) + Cost(form.Slice) + 6
 

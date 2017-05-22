@@ -45,6 +45,12 @@ func (form *ArrayUpdate) Type() types.Type {
 func (form *ArrayCopy) Type() types.Type {
 	return form.Array.Type()
 }
+func (form *SliceLen) Type() types.Type {
+	return typInt
+}
+func (form *SliceCap) Type() types.Type {
+	return typInt
+}
 func (form *SliceIndex) Type() types.Type {
 	return form.Slice.Type().Underlying().(*types.Slice).Elem()
 }

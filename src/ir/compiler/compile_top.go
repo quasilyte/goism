@@ -61,8 +61,13 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileArrayIndex(cl, form)
 	case *sexp.ArrayCopy:
 		compileArrayCopy(cl, form)
+
 	case *sexp.SliceIndex:
 		compileSliceIndex(cl, form)
+	case *sexp.SliceLen:
+		compileSliceLen(cl, form)
+	case *sexp.SliceCap:
+		compileSliceCap(cl, form)
 
 	case *sexp.NumAddX:
 		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)
