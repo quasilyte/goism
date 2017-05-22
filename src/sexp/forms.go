@@ -40,6 +40,12 @@ type (
 		Vals []SparseArrayVal
 		Typ  *types.Array
 	}
+
+	// SliceLit = []T{...}.
+	SliceLit struct {
+		Vals []Form
+		Typ  *types.Slice
+	}
 )
 
 // SparseArrayVal is SparseArrayLit member initializer.

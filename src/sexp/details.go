@@ -8,6 +8,7 @@ func (atom Symbol) form() {}
 
 func (lit *ArrayLit) form()       {}
 func (lit *SparseArrayLit) form() {}
+func (lit *SliceLit) form()       {}
 
 func (form *ArrayIndex) form()  {}
 func (form *ArrayUpdate) form() {}

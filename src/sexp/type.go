@@ -35,6 +35,9 @@ func (lit *ArrayLit) Type() types.Type {
 func (lit *SparseArrayLit) Type() types.Type {
 	return lit.Typ
 }
+func (lit *SliceLit) Type() types.Type {
+	return lit.Typ
+}
 
 func (form *ArrayIndex) Type() types.Type {
 	return form.Array.Type().Underlying().(*types.Array).Elem()

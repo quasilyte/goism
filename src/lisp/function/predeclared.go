@@ -56,3 +56,10 @@ func MakeSliceCap(typ *types.Slice) *Type {
 		results: tuple(typ),
 	}
 }
+
+func MakeSliceFromList(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--make-slice-from-list",
+		results: tuple(typ),
+	}
+}

@@ -26,6 +26,9 @@ func Cost(form Form) int {
 		}
 		return valuesCost*3 + 1
 
+	case *SliceLit:
+		return cost(form.Vals) + 10
+
 	case *ArrayIndex:
 		return Cost(form.Index) + Cost(form.Array) + 1
 

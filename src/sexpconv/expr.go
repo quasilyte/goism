@@ -213,10 +213,20 @@ func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 	switch typ := conv.typeOf(node).(type) {
 	case *types.Array:
 		return conv.arrayLit(node, typ)
+	case *types.Slice:
+		return conv.sliceLit(node, typ)
 
 	default:
 		panic(fmt.Sprintf("unexpected comp. lit: %#v\n", node))
 	}
+}
+
+func (conv *Converter) sliceLit(node *ast.CompositeLit, typ *types.Slice) sexp.Form {
+	if len(node.Elts) == 0 {
+		return ZeroValue(typ)
+	}
+
+	return &sexp.SliceLit{Vals: conv.exprList(node.Elts), Typ: typ}
 }
 
 func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.Form {
