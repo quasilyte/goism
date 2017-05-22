@@ -70,6 +70,8 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileSliceLen(cl, form)
 	case *sexp.SliceCap:
 		compileSliceCap(cl, form)
+	case *sexp.Subslice:
+		compileSubslice(cl, form)
 
 	case *sexp.NumAddX:
 		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)

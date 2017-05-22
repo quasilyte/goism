@@ -60,6 +60,9 @@ func (form *SliceIndex) Type() types.Type {
 func (form *SliceUpdate) Type() types.Type {
 	return typVoid
 }
+func (form *Subslice) Type() types.Type {
+	return form.Slice.Type()
+}
 
 func (form *Panic) Type() types.Type {
 	return typVoid

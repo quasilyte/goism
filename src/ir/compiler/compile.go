@@ -252,3 +252,18 @@ func compileSliceCap(cl *Compiler, form *sexp.SliceCap) {
 	emit(cl, instr.Cdr)
 	emit(cl, instr.Cdr)
 }
+
+func compileSubslice(cl *Compiler, form *sexp.Subslice) {
+	typ := form.Slice.Type()
+	if form.Low != nil {
+		if form.High != nil {
+			call(cl, function.Subslice2(typ), form.Slice, form.Low, form.High)
+		} else {
+			call(cl, function.SubsliceLow(typ), form.Slice, form.Low)
+		}
+	} else if form.High != nil {
+		call(cl, function.SubsliceHigh(typ), form.Slice, form.High)
+	} else {
+		/* Do nothing */
+	}
+}

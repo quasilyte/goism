@@ -64,3 +64,24 @@ func MakeSliceFromList(typ *types.Slice) *Type {
 		results: tuple(typ),
 	}
 }
+
+func Subslice2(typ types.Type) *Type {
+	return &Type{
+		name:    "Go--subslice2",
+		results: tuple(typ),
+	}
+}
+
+func SubsliceLow(typ types.Type) *Type {
+	return &Type{
+		name:    "Go--subslice-low",
+		results: tuple(typ),
+	}
+}
+
+func SubsliceHigh(typ types.Type) *Type {
+	return &Type{
+		name:    "Go--subslice-high",
+		results: tuple(typ),
+	}
+}

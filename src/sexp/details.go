@@ -17,6 +17,7 @@ func (form *SliceLen) form()    {}
 func (form *SliceCap) form()    {}
 func (form *SliceIndex) form()  {}
 func (form *SliceUpdate) form() {}
+func (form *Subslice) form()    {}
 
 func (form *Panic) form()  {}
 func (form *Bind) form()   {}

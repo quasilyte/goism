@@ -44,6 +44,9 @@ func Cost(form Form) int {
 	case *SliceIndex:
 		return Cost(form.Index) + Cost(form.Slice) + 6
 
+	case *Subslice:
+		return Cost(form.Slice) + Cost(form.Low) + Cost(form.High) + 16
+
 	case *NumAddX:
 		return Cost(form.Arg) + int(form.X)
 	case *NumSubX:

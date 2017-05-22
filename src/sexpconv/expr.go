@@ -33,6 +33,8 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 		return conv.UnaryExpr(node)
 	case *ast.CompositeLit:
 		return conv.CompositeLit(node)
+	case *ast.SliceExpr:
+		return conv.SliceExpr(node)
 
 	default:
 		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
@@ -207,6 +209,17 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	default:
 		panic("unimplemented")
 	}
+}
+
+func (conv *Converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
+	var low, high sexp.Form
+	if node.Low != nil {
+		low = conv.Expr(node.Low)
+	}
+	if node.High != nil {
+		high = conv.Expr(node.High)
+	}
+	return &sexp.Subslice{Slice: conv.Expr(node.X), Low: low, High: high}
 }
 
 func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {

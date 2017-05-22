@@ -73,9 +73,9 @@ type ArrayCopy struct {
 }
 
 type (
-	// SliceLen = len(slice).
+	// SliceLen = "len(slice)".
 	SliceLen struct{ Slice Form }
-	// SliceCap = cap(slice).
+	// SliceCap = "cap(slice)".
 	SliceCap struct{ Slice Form }
 )
 
@@ -90,6 +90,13 @@ type SliceUpdate struct {
 	Slice Form
 	Index Form
 	Expr  Form
+}
+
+// Subslice = "slice[low:high]".
+type Subslice struct {
+	Slice Form
+	Low   Form
+	High  Form
 }
 
 // Call expression is normal (direct) function invocation.
