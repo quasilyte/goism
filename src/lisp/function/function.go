@@ -21,7 +21,7 @@ func tuple(typs ...types.Type) *types.Tuple {
 type Type struct {
 	name       string
 	results    *types.Tuple
-	complexity int
+	Complexity int
 }
 
 func NewNative(name string) *Type {
@@ -57,10 +57,6 @@ func (f *Type) IsVoid() bool {
 
 func (f *Type) IsPanic() bool {
 	return panicFunctions[f.name]
-}
-
-func (f *Type) Complexity() int {
-	return f.complexity
 }
 
 var panicFunctions = map[string]bool{
