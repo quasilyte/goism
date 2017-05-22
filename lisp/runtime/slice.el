@@ -14,6 +14,12 @@
       (cons data
             (cons 0
                   (cons len cap))))))
+(defun Go--make-slice-vals (&rest vals)
+  (let* ((data (vconcat vals))
+         (len (length data)))
+    (cons data
+          (cons 0 ;; offset
+                (cons len len)))))
 
 ;; Getters.
 (defmacro Go--slice-data (slice)   `(car ,slice))
