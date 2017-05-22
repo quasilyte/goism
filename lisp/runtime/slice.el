@@ -1,25 +1,23 @@
 ;;; -*- lexical-binding: t -*-
 
 ;; Constructors.
+(defmacro Go--slice (data offset len cap)
+  `(cons ,data
+         (cons ,offset
+               (cons ,len ,cap))))
 (defun Go--make-slice (len zero-val)
-  (cons (make-vector cap zero-val)
-        (cons 0 ;; offset
-              (cons len len))))
+  (Go--slice (make-vector len zero-val) 0 len len))
 (defun Go--make-slice-cap (len cap zero-val)
   (if (= len cap)
       (Go--make-slice len zero-val)
     (let ((data (make-vector cap nil)))
       (dotimes (i len)
         (aset data i zero-val))
-      (cons data
-            (cons 0
-                  (cons len cap))))))
+      (Go--slice data 0 len cap))))
 (defun Go--make-slice-from-list (&rest vals)
   (let* ((data (vconcat vals))
          (len (length data)))
-    (cons data
-          (cons 0 ;; offset
-                (cons len len)))))
+    (Go--slice data 0 len len)))
 
 ;; Getters.
 (defmacro Go--slice-data (slice)   `(car ,slice))
@@ -27,10 +25,13 @@
 (defmacro Go--slice-len (slice)    `(car (cdr (cdr ,slice))))
 (defmacro Go--slice-cap (slice)    `(cdr (cdr (cdr ,slice))))
 
-;; Setters (note that slice offset is conceptually immutable).
+;; Setters.
 (defmacro Go--slice-data! (slice data)
   (declare (indent 1))
   `(setcar ,slice ,data))
+(defmacro Go--slice-offset! (slice offset)
+  (declare (indent 1))
+  `(setcar (cdr ,slice) ,offset))
 (defmacro Go--slice-len! (slice len)
   (declare (indent 1))
   `(setcar (cdr (cdr ,slice)) ,len))
@@ -46,6 +47,16 @@
   `(aset (Go--slice-data ,slice)
          (+ ,index (Go--slice-offset ,slice))
          ,val))
+
+;; Boundary checks.
+(defmacro Go--slice-len-bound (slice index)
+  `(unless (and (>= ,index 0)
+                (< ,index (Go--slice-len ,slice)))
+     (Go--panic "slice bounds out of range")))
+(defmacro Go--slice-cap-bound (slice index)
+  `(unless (and (>= ,index 0)
+                (>= ,index (Go--slice-cap ,slice)))
+     (Go--panic "slice bounds out of range")))
 
 ;; Slices without offset are consedered `fast'.
 ;; In practice, lack of offset means that we can use
@@ -75,12 +86,19 @@
         ;; then re-set slice data with `vconcat' of old and new data.
         (let ((new-data (make-vector 16 nil)))
           (aset new-data 0 val)
+          ;; For slices with offset with should take sub-vector
+          ;; to avoid memory leaks.
           (Go--slice-data! slice
-            (vconcat (Go--slice-data slice)
+            (vconcat (if (Go--slice-fast? slice)
+                         (Go--slice-data slice)
+                       (substring (Go--slice-data slice)
+                                  (Go--slice-offset slice)))
                      new-data))
           (Go--slice-cap! slice
-            (+ (Go--slice-cap slice)
-               (length new-data))))
+                  (+ (Go--slice-cap slice)
+                     (length new-data)))
+          (unless (Go--slice-fast? slice)
+            (Go--slice-offset! slice 0)))
       ;; Insert new value directly.
       (Go--slice-set slice pos val))
     slice))
@@ -101,3 +119,27 @@
     (dotimes (i (min (Go--slice-len dst)
                      (Go--slice-len src)))
       (Go--slice-set dst i (Go--slice-get src i)))))
+
+(defun Go--subslice2 (slice low high)
+  (Go--slice-len-bound slice low)
+  (Go--slice-cap-bound slice high)
+  (Go--slice (Go--slice-data slice)
+             (+ (Go--slice-offset slice) low)
+             (- high low)
+             (- (Go--slice-cap slice) low)))
+
+;; Specialization for "slice[low:]".
+(defun Go--subslice-low (slice low)
+  (Go--slice-len-bound slice low)
+  (Go--slice (Go--slice-data slice)
+             (+ (Go--slice-offset slice) low)
+             (- (Go--slice-len slice) low)
+             (- (Go--slice-cap slice) low)))
+
+;; Specialization for "slice[:high]"
+(defun Go--subslice-high (slice high)
+  (Go--slice-cap-bound slice high)
+  (Go--slice (Go--slice-data slice)
+             (Go--slice-offset slice)
+             high
+             (Go--slice-cap slice)))
