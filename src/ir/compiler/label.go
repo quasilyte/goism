@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"fmt"
-	"ir"
+	"ir/instr"
 )
 
 type label string
@@ -13,5 +13,5 @@ func labelCreate(cl *Compiler, name string) label {
 }
 
 func labelBind(cl *Compiler, label label) {
-	writeLabel(&cl.buf, ir.Label, label)
+	writeLabel(&cl.buf, instr.Label, label)
 }

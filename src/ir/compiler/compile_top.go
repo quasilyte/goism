@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"fmt"
-	"ir"
+	"ir/instr"
 	"lisp/function"
 	"sexp"
 )
@@ -38,13 +38,13 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 func compileExpr(cl *Compiler, form sexp.Form) {
 	switch form := form.(type) {
 	case sexp.Int:
-		emit(cl, ir.ConstRef(cl.cvec.InsertInt(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertInt(form.Val)))
 	case sexp.Float:
-		emit(cl, ir.ConstRef(cl.cvec.InsertFloat(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertFloat(form.Val)))
 	case sexp.String:
-		emit(cl, ir.ConstRef(cl.cvec.InsertString(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertString(form.Val)))
 	case sexp.Symbol:
-		emit(cl, ir.ConstRef(cl.cvec.InsertSym(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Val)))
 	case sexp.Bool:
 		compileBool(cl, form)
 	case sexp.Var:
@@ -60,26 +60,26 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileArrayCopy(cl, form)
 
 	case *sexp.NumAddX:
-		compileUnaryOps(cl, ir.Add1, form.Arg, form.X)
+		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)
 	case *sexp.NumSubX:
-		compileUnaryOps(cl, ir.Sub1, form.Arg, form.X)
+		compileUnaryOps(cl, instr.Sub1, form.Arg, form.X)
 	case *sexp.NumAdd:
-		compileBinOp(cl, ir.NumAdd, form.Args)
+		compileBinOp(cl, instr.NumAdd, form.Args)
 	case *sexp.NumSub:
-		compileBinOp(cl, ir.NumSub, form.Args)
+		compileBinOp(cl, instr.NumSub, form.Args)
 	case *sexp.NumMul:
-		compileBinOp(cl, ir.NumMul, form.Args)
+		compileBinOp(cl, instr.NumMul, form.Args)
 	case *sexp.NumQuo:
-		compileBinOp(cl, ir.NumQuo, form.Args)
+		compileBinOp(cl, instr.NumQuo, form.Args)
 	case *sexp.NumGt:
-		compileBinOp(cl, ir.NumGt, form.Args)
+		compileBinOp(cl, instr.NumGt, form.Args)
 	case *sexp.NumLt:
-		compileBinOp(cl, ir.NumLt, form.Args)
+		compileBinOp(cl, instr.NumLt, form.Args)
 	case *sexp.NumEq:
-		compileBinOp(cl, ir.NumEq, form.Args)
+		compileBinOp(cl, instr.NumEq, form.Args)
 
 	case *sexp.Concat:
-		compileVariadicOp(cl, ir.Concat(len(form.Args)), form.Args)
+		compileVariadicOp(cl, instr.Concat(len(form.Args)), form.Args)
 
 	case *sexp.Call:
 		compileCall(cl, form)

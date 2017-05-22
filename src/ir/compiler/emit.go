@@ -1,57 +1,57 @@
 package compiler
 
 import (
-	"ir"
+	"ir/instr"
 )
 
-func emit(cl *Compiler, instr ir.Instr) {
-	switch instr.Input {
-	case ir.InstrTakeNothing:
+func emit(cl *Compiler, ins instr.Instr) {
+	switch ins.Input {
+	case instr.AttrTakeNothing:
 		/* Do nothing */
-	case ir.InstrTake1:
+	case instr.AttrTake1:
 		cl.st.Discard(1)
-	case ir.InstrTake2:
+	case instr.AttrTake2:
 		cl.st.Discard(2)
-	case ir.InstrTake3:
+	case instr.AttrTake3:
 		cl.st.Discard(3)
-	case ir.InstrTakeN:
-		cl.st.Discard(instr.Data)
-	case ir.InstrTakeNplus1:
-		cl.st.Discard(instr.Data + 1)
+	case instr.AttrTakeN:
+		cl.st.Discard(ins.Data)
+	case instr.AttrTakeNplus1:
+		cl.st.Discard(ins.Data + 1)
 	}
 
-	switch dst := &cl.buf; instr.Encoding {
-	case ir.InstrEnc0:
-		writeOp0(dst, instr)
-	case ir.InstrEnc1:
-		writeOp1(dst, instr)
+	switch dst := &cl.buf; ins.Encoding {
+	case instr.AttrEnc0:
+		writeOp0(dst, ins)
+	case instr.AttrEnc1:
+		writeOp1(dst, ins)
 	}
 
-	switch instr.Output {
-	case ir.InstrPushNothing:
+	switch ins.Output {
+	case instr.AttrPushNothing:
 		/* Do nothing */
-	case ir.InstrDupNth:
-		cl.st.Dup(instr.Data)
-	case ir.InstrPushTmp:
+	case instr.AttrDupNth:
+		cl.st.Dup(ins.Data)
+	case instr.AttrPushTmp:
 		cl.st.Push()
-	case ir.InstrPushConst:
-		cl.st.PushConst(instr.Data)
-	case ir.InstrPushAndDiscard:
+	case instr.AttrPushConst:
+		cl.st.PushConst(ins.Data)
+	case instr.AttrPushAndDiscard:
 		cl.st.Push()
-		emit(cl, ir.Discard(1))
+		emit(cl, instr.Discard(1))
 	}
 }
 
 func emitJmp(cl *Compiler, label label) {
-	writeLabel(&cl.buf, ir.Jmp, label)
+	writeLabel(&cl.buf, instr.Jmp, label)
 }
 
 func emitJmpNil(cl *Compiler, label label) {
 	cl.st.Discard(1)
-	writeLabel(&cl.buf, ir.JmpNil, label)
+	writeLabel(&cl.buf, instr.JmpNil, label)
 }
 
 func emitJmpNotNil(cl *Compiler, label label) {
 	cl.st.Discard(1)
-	writeLabel(&cl.buf, ir.JmpNotNil, label)
+	writeLabel(&cl.buf, instr.JmpNotNil, label)
 }

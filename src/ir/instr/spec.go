@@ -1,4 +1,4 @@
-package ir
+package instr
 
 // Jump instruction names.
 var (
@@ -36,24 +36,24 @@ var (
 var (
 	ArraySet = Instr{
 		Name:     []byte("array-set"),
-		Encoding: InstrEnc0,
-		Input:    InstrTake3,
-		Output:   InstrPushAndDiscard,
+		Encoding: AttrEnc0,
+		Input:    AttrTake3,
+		Output:   AttrPushAndDiscard,
 	}
 
 	Return = Instr{
 		Name:     []byte("return"),
-		Encoding: InstrEnc0,
-		Input:    InstrTake1,
+		Encoding: AttrEnc0,
+		Input:    AttrTake1,
 	}
 )
 
 func Concat(argc int) Instr {
 	return Instr{
 		Name:     []byte("concat"),
-		Encoding: InstrEnc1,
-		Input:    InstrTakeN,
-		Output:   InstrPushTmp,
+		Encoding: AttrEnc1,
+		Input:    AttrTakeN,
+		Output:   AttrPushTmp,
 		Data:     uint16(argc),
 	}
 }
@@ -61,8 +61,8 @@ func Concat(argc int) Instr {
 func StackSet(stIndex int) Instr {
 	return Instr{
 		Name:     []byte("stack-set"),
-		Encoding: InstrEnc1,
-		Input:    InstrTake1,
+		Encoding: AttrEnc1,
+		Input:    AttrTake1,
 		Data:     uint16(stIndex),
 	}
 }
@@ -70,8 +70,8 @@ func StackSet(stIndex int) Instr {
 func VarSet(cvIndex int) Instr {
 	return Instr{
 		Name:     []byte("var-set"),
-		Encoding: InstrEnc1,
-		Input:    InstrTake1,
+		Encoding: AttrEnc1,
+		Input:    AttrTake1,
 		Data:     uint16(cvIndex),
 	}
 }
@@ -79,8 +79,8 @@ func VarSet(cvIndex int) Instr {
 func Discard(n int) Instr {
 	return Instr{
 		Name:     []byte("discard"),
-		Encoding: InstrEnc1,
-		Input:    InstrTakeN,
+		Encoding: AttrEnc1,
+		Input:    AttrTakeN,
 		Data:     uint16(n),
 	}
 }
@@ -88,8 +88,8 @@ func Discard(n int) Instr {
 func ConstRef(cvIndex int) Instr {
 	return Instr{
 		Name:     []byte("constant"),
-		Encoding: InstrEnc1,
-		Output:   InstrPushConst,
+		Encoding: AttrEnc1,
+		Output:   AttrPushConst,
 		Data:     uint16(cvIndex),
 	}
 }
@@ -97,8 +97,8 @@ func ConstRef(cvIndex int) Instr {
 func StackRef(stIndex int) Instr {
 	return Instr{
 		Name:     []byte("stack-ref"),
-		Encoding: InstrEnc1,
-		Output:   InstrDupNth,
+		Encoding: AttrEnc1,
+		Output:   AttrDupNth,
 		Data:     uint16(stIndex),
 	}
 }
@@ -106,8 +106,8 @@ func StackRef(stIndex int) Instr {
 func VarRef(cvIndex int) Instr {
 	return Instr{
 		Name:     []byte("var-ref"),
-		Encoding: InstrEnc1,
-		Output:   InstrPushTmp,
+		Encoding: AttrEnc1,
+		Output:   AttrPushTmp,
 		Data:     uint16(cvIndex),
 	}
 }
@@ -115,9 +115,9 @@ func VarRef(cvIndex int) Instr {
 func Call(argc int) Instr {
 	return Instr{
 		Name:     []byte("call"),
-		Encoding: InstrEnc1,
-		Input:    InstrTakeNplus1,
-		Output:   InstrPushTmp,
+		Encoding: AttrEnc1,
+		Input:    AttrTakeNplus1,
+		Output:   AttrPushTmp,
 		Data:     uint16(argc),
 	}
 }

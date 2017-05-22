@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"ir"
+	"ir/instr"
 	"lisp"
 	"lisp/function"
 	"sexp"
@@ -28,16 +28,16 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 	if len(form.Results) == 0 {
 		// Any function in Emacs Lisp must return a value.
 		// To avoid Emacs crash, we always return "nil" for void functions.
-		emit(cl, ir.ConstRef(cl.cvec.InsertSym("nil")))
-		emit(cl, ir.Return)
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
+		emit(cl, instr.Return)
 	} else {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
 			sym := lisp.RetVars[i]
-			emit(cl, ir.VarSet(cl.cvec.InsertSym(sym)))
+			emit(cl, instr.VarSet(cl.cvec.InsertSym(sym)))
 		}
-		emit(cl, ir.Return)
+		emit(cl, instr.Return)
 	}
 }
 
@@ -80,9 +80,9 @@ func compileBind(cl *Compiler, form *sexp.Bind) {
 func compileRebind(cl *Compiler, form *sexp.Rebind) {
 	compileExpr(cl, form.Expr)
 	if stIndex := cl.st.Find(form.Name); stIndex != -1 {
-		emit(cl, ir.StackSet(stIndex))
+		emit(cl, instr.StackSet(stIndex))
 	} else {
-		emit(cl, ir.VarSet(cl.cvec.InsertSym(form.Name)))
+		emit(cl, instr.VarSet(cl.cvec.InsertSym(form.Name)))
 	}
 }
 
@@ -90,27 +90,27 @@ func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	compileCall(cl, form.Call)
 
 	if !form.Fn.IsPanic() && !form.Fn.IsVoid() {
-		emit(cl, ir.Discard(1))
+		emit(cl, instr.Discard(1))
 	}
 }
 
-func compileBinOp(cl *Compiler, instr ir.Instr, args [2]sexp.Form) {
+func compileBinOp(cl *Compiler, ins instr.Instr, args [2]sexp.Form) {
 	compileExpr(cl, args[0])
 	compileExpr(cl, args[1])
-	emit(cl, instr)
+	emit(cl, ins)
 }
 
-func compileVariadicOp(cl *Compiler, instr ir.Instr, args []sexp.Form) {
+func compileVariadicOp(cl *Compiler, ins instr.Instr, args []sexp.Form) {
 	compileExprList(cl, args)
-	emit(cl, instr)
+	emit(cl, ins)
 }
 
-func compileUnaryOp(cl *Compiler, instr ir.Instr, arg sexp.Form) {
+func compileUnaryOp(cl *Compiler, ins instr.Instr, arg sexp.Form) {
 	compileExpr(cl, arg)
-	emit(cl, instr)
+	emit(cl, ins)
 }
 
-func compileUnaryOps(cl *Compiler, instr ir.Instr, arg sexp.Form, n int64) {
+func compileUnaryOps(cl *Compiler, instr instr.Instr, arg sexp.Form, n int64) {
 	compileExpr(cl, arg)
 	for i := int64(0); i < n; i++ {
 		emit(cl, instr)
@@ -119,17 +119,17 @@ func compileUnaryOps(cl *Compiler, instr ir.Instr, arg sexp.Form, n int64) {
 
 func compileBool(cl *Compiler, form sexp.Bool) {
 	if form.Val {
-		emit(cl, ir.ConstRef(cl.cvec.InsertSym("t")))
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("t")))
 	} else {
-		emit(cl, ir.ConstRef(cl.cvec.InsertSym("nil")))
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
 	}
 }
 
 func compileVar(cl *Compiler, form sexp.Var) {
 	if stIndex := cl.st.Find(form.Name); stIndex != -1 {
-		emit(cl, ir.StackRef(stIndex))
+		emit(cl, instr.StackRef(stIndex))
 	} else {
-		emit(cl, ir.VarRef(cl.cvec.InsertSym(form.Name)))
+		emit(cl, instr.VarRef(cl.cvec.InsertSym(form.Name)))
 	}
 	cl.st.Bind(form.Name)
 }
@@ -137,17 +137,17 @@ func compileVar(cl *Compiler, form sexp.Var) {
 func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
 	compileCall(cl, form.Ctor)
 	for _, val := range form.Vals {
-		emit(cl, ir.StackRef(0)) // Array
-		emit(cl, ir.ConstRef(cl.cvec.InsertInt(val.Index)))
+		emit(cl, instr.StackRef(0)) // Array
+		emit(cl, instr.ConstRef(cl.cvec.InsertInt(val.Index)))
 		compileExpr(cl, val.Expr)
-		emit(cl, ir.ArraySet)
+		emit(cl, instr.ArraySet)
 	}
 }
 
 func compileArrayCopy(cl *Compiler, form *sexp.ArrayCopy) {
-	emit(cl, ir.ConstRef(cl.cvec.InsertSym("copy-sequence")))
+	emit(cl, instr.ConstRef(cl.cvec.InsertSym("copy-sequence")))
 	compileExpr(cl, form.Array)
-	emit(cl, ir.Call(1))
+	emit(cl, instr.Call(1))
 }
 
 func compilePanic(cl *Compiler, form *sexp.Panic) {
@@ -155,14 +155,14 @@ func compilePanic(cl *Compiler, form *sexp.Panic) {
 }
 
 func compileCall(cl *Compiler, form *sexp.Call) {
-	emit(cl, ir.ConstRef(cl.cvec.InsertSym(form.Fn.Name())))
+	emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Fn.Name())))
 	compileExprList(cl, form.Args)
-	emit(cl, ir.Call(len(form.Args)))
+	emit(cl, instr.Call(len(form.Args)))
 
 	if form.Fn.IsPanic() {
 		cl.st.Discard(1)
 	} else if form.Fn.IsVoid() {
-		emit(cl, ir.Discard(1))
+		emit(cl, instr.Discard(1))
 	}
 }
 
@@ -171,18 +171,18 @@ func compileMultiValueRef(cl *Compiler, form *sexp.MultiValueRef) {
 		panic("too many return values")
 	}
 	sym := lisp.RetVars[form.Index]
-	emit(cl, ir.VarRef(cl.cvec.InsertSym(sym)))
+	emit(cl, instr.VarRef(cl.cvec.InsertSym(sym)))
 }
 
 func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)
-	emit(cl, ir.ArrayRef)
+	emit(cl, instr.ArrayRef)
 }
 
 func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)
 	compileExpr(cl, form.Expr)
-	emit(cl, ir.ArraySet)
+	emit(cl, instr.ArraySet)
 }
