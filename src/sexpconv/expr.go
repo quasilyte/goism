@@ -127,7 +127,7 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	if typ.Kind() == types.String {
 		switch node.Op {
 		case token.ADD:
-			return &sexp.Concat{Args: args}
+			return &sexp.Concat{Args: args[:]}
 		case token.EQL:
 			return &sexp.StringEq{Args: args}
 		case token.LSS:

@@ -100,6 +100,11 @@ func compileBinOp(cl *Compiler, instr ir.Instr, args [2]sexp.Form) {
 	emit(cl, instr)
 }
 
+func compileVariadicOp(cl *Compiler, instr ir.Instr, args []sexp.Form) {
+	compileExprList(cl, args)
+	emit(cl, instr)
+}
+
 func compileUnaryOp(cl *Compiler, instr ir.Instr, arg sexp.Form) {
 	compileExpr(cl, arg)
 	emit(cl, instr)
@@ -152,13 +157,12 @@ func compilePanic(cl *Compiler, form *sexp.Panic) {
 func compileCall(cl *Compiler, form *sexp.Call) {
 	emit(cl, ir.ConstRef(cl.cvec.InsertSym(form.Fn.Name())))
 	compileExprList(cl, form.Args)
+	emit(cl, ir.Call(len(form.Args)))
 
-	if argc := len(form.Args); form.Fn.IsPanic() {
-		emit(cl, ir.PanicCall(argc))
+	if form.Fn.IsPanic() {
+		cl.st.Discard(1)
 	} else if form.Fn.IsVoid() {
-		emit(cl, ir.VoidCall(argc))
-	} else {
-		emit(cl, ir.Call(argc))
+		emit(cl, ir.Discard(1))
 	}
 }
 

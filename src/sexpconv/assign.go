@@ -48,7 +48,7 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 		return conv.assign(lhs, &sexp.NumAdd{Typ: typ, Args: args})
 	}
 	if typ.Kind() == types.String {
-		return conv.assign(lhs, &sexp.Concat{Args: args})
+		return conv.assign(lhs, &sexp.Concat{Args: args[:]})
 	}
 
 	panic("unimplemented")

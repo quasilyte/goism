@@ -1,75 +1,44 @@
 package compiler
 
 import (
-	"fmt"
 	"ir"
 )
 
 func emit(cl *Compiler, instr ir.Instr) {
-	// Do not split this function into parts
-	// to avoid unnecessary emitX functions.
-
-	// General scheme:
-	// 1) consume stack arguments.
-	// 2) write instruction to dst.
-	// 3) push results to stack (if any).
-
-	switch dst := &cl.buf; instr.Kind {
-	case ir.InstrBinOp, ir.InstrCellSet:
+	switch instr.Input {
+	case ir.InstrTakeNothing:
+		/* Do nothing */
+	case ir.InstrTake1:
+		cl.st.Discard(1)
+	case ir.InstrTake2:
 		cl.st.Discard(2)
-		writeOp0(dst, instr)
-		cl.st.Push()
-
-	case ir.InstrUnaryOp, ir.InstrCellRef:
-		cl.st.Discard(1)
-		writeOp0(dst, instr)
-		cl.st.Push()
-
-	case ir.InstrArraySet:
+	case ir.InstrTake3:
 		cl.st.Discard(3)
-		writeOp0(dst, instr)
-		cl.st.Push()
-		emit(cl, ir.Discard(1))
-
-	case ir.InstrConstRef:
-		writeOp1(dst, instr)
-		cl.st.PushConst(instr.Data)
-
-	case ir.InstrRet:
-		cl.st.Discard(1)
-		writeOp0(dst, instr)
-
-	case ir.InstrStackRef:
-		writeOp1(dst, instr)
-		cl.st.Dup(instr.Data)
-
-	case ir.InstrVarRef:
-		writeOp1(dst, instr)
-		cl.st.Push()
-
-	case ir.InstrStackSet, ir.InstrVarSet:
-		cl.st.Discard(1)
-		writeOp1(dst, instr)
-
-	case ir.InstrDiscard:
+	case ir.InstrTakeN:
 		cl.st.Discard(instr.Data)
-		writeOp1(dst, instr)
-
-	case ir.InstrCall:
+	case ir.InstrTakeNplus1:
 		cl.st.Discard(instr.Data + 1)
+	}
+
+	switch dst := &cl.buf; instr.Encoding {
+	case ir.InstrEnc0:
+		writeOp0(dst, instr)
+	case ir.InstrEnc1:
 		writeOp1(dst, instr)
+	}
+
+	switch instr.Output {
+	case ir.InstrPushNothing:
+		/* Do nothing */
+	case ir.InstrDupNth:
+		cl.st.Dup(instr.Data)
+	case ir.InstrPushTmp:
 		cl.st.Push()
-
-	case ir.InstrPanicCall:
-		cl.st.Discard(instr.Data + 1)
-		writeOp1(dst, instr)
-
-	case ir.InstrVoidCall:
-		emit(cl, ir.Call(int(instr.Data)))
+	case ir.InstrPushConst:
+		cl.st.PushConst(instr.Data)
+	case ir.InstrPushAndDiscard:
+		cl.st.Push()
 		emit(cl, ir.Discard(1))
-
-	default:
-		panic(fmt.Sprintf("unexpected instr: %#v\n", instr))
 	}
 }
 

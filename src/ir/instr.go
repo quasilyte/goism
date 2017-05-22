@@ -1,142 +1,38 @@
 package ir
 
-// InstrKind groups instructions by their properties.
-type InstrKind int
+type InstrInputMode int
 
-// Enumeration on instruction kinds.
-// Some "kinds" describe single instruction while
-// the kinds like InstrBinOp express group of instructions.
 const (
-	// InstrBinOp : in=2 data=0 out=1.
-	InstrBinOp InstrKind = iota
-	// InstrUnaryOp : in=1 data=0 out=1.
-	InstrUnaryOp
+	InstrTakeNothing InstrInputMode = iota
+	InstrTake1
+	InstrTake2
+	InstrTake3
+	InstrTakeN
+	InstrTakeNplus1
+)
 
-	InstrVariadicOp
+type InstrOutputMode int
 
-	InstrArraySet
+const (
+	InstrPushNothing InstrOutputMode = iota
+	InstrDupNth
+	InstrPushTmp
+	InstrPushConst
+	InstrPushAndDiscard
+)
 
-	InstrRet
+type InstrEncoding int
 
-	InstrConstRef
-
-	InstrCellRef
-	InstrCellSet
-
-	InstrVarRef
-	InstrVarSet
-
-	InstrStackRef
-	InstrStackSet
-
-	InstrDiscard
-
-	InstrCall
-	InstrVoidCall
-	InstrPanicCall
+const (
+	InstrEnc0 InstrEncoding = iota
+	InstrEnc1
 )
 
 // Instr is a single IR instruction.
 type Instr struct {
-	Name []byte
-	Data uint16
-	Kind InstrKind
+	Name     []byte
+	Data     uint16
+	Input    InstrInputMode
+	Encoding InstrEncoding
+	Output   InstrOutputMode
 }
-
-var ArraySet = Instr{
-	Name: []byte("array-set"),
-	Kind: InstrArraySet,
-}
-
-// Variadic ops.
-var ()
-
-// Binary ops.
-var (
-	NumEq    = binOp("num=")
-	NumGt    = binOp("num>")
-	NumLt    = binOp("num<")
-	NumSub   = binOp("sub")
-	NumAdd   = binOp("add")
-	NumMul   = binOp("mul")
-	NumQuo   = binOp("quo")
-	ArrayRef = binOp("array-ref")
-)
-
-// Unary ops.
-var (
-	Add1 = unaryOp("add1")
-	Sub1 = unaryOp("sub1")
-)
-
-// Jump instruction names.
-var (
-	Jmp       = []byte("goto")
-	JmpNil    = []byte("goto-if-nil")
-	JmpNotNil = []byte("goto-if-not-nil")
-	Label     = []byte("label")
-)
-
-var (
-	Car    = cellRef("car")
-	Cdr    = cellRef("cdr")
-	SetCar = cellSet("setcar")
-	SetCdr = cellSet("setcdr")
-)
-
-var Return = Instr{
-	Name: []byte("return"),
-	Kind: InstrRet,
-}
-
-func ConstRef(cvIndex int) Instr {
-	return Instr{
-		Name: []byte("constant"),
-		Data: uint16(cvIndex),
-		Kind: InstrConstRef,
-	}
-}
-
-func VarRef(ref int) Instr {
-	return Instr{
-		Name: []byte("var-ref"),
-		Data: uint16(ref),
-		Kind: InstrVarRef,
-	}
-}
-
-func VarSet(ref int) Instr {
-	return Instr{
-		Name: []byte("var-set"),
-		Data: uint16(ref),
-		Kind: InstrVarSet,
-	}
-}
-
-func StackRef(ref int) Instr {
-	return Instr{
-		Name: []byte("stack-ref"),
-		Data: uint16(ref),
-		Kind: InstrStackRef,
-	}
-}
-
-func StackSet(ref int) Instr {
-	return Instr{
-		Name: []byte("stack-set"),
-		Data: uint16(ref),
-		Kind: InstrStackSet,
-	}
-}
-
-func Discard(n int) Instr {
-	return Instr{
-		Name: []byte("discard"),
-		Data: uint16(n),
-		Kind: InstrDiscard,
-	}
-}
-
-func Call(argc int) Instr      { return call(argc, InstrCall) }
-func VoidCall(argc int) Instr  { return call(argc, InstrVoidCall) }
-func PanicCall(argc int) Instr { return call(argc, InstrPanicCall) }

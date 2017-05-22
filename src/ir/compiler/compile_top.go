@@ -78,6 +78,9 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.NumEq:
 		compileBinOp(cl, ir.NumEq, form.Args)
 
+	case *sexp.Concat:
+		compileVariadicOp(cl, ir.Concat(len(form.Args)), form.Args)
+
 	case *sexp.Call:
 		compileCall(cl, form)
 	case *sexp.MultiValueRef:

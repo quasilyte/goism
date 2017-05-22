@@ -215,7 +215,7 @@ type (
 		Typ  *types.Basic
 	}
 
-	Concat      struct{ Args [2]Form }
+	Concat      struct{ Args []Form }
 	StringEq    struct{ Args [2]Form }
 	StringNotEq struct{ Args [2]Form }
 	StringLt    struct{ Args [2]Form }
