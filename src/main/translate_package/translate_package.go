@@ -7,6 +7,7 @@ import (
 	"ir/export"
 	"main/util"
 	"opt"
+	"sexpconv"
 	"strings"
 	"tu"
 )
@@ -61,13 +62,13 @@ func produceAsm(pkg *tu.Package) {
 
 	if len(pkg.Init.Body.Forms) != 0 {
 		fmt.Println("init:")
-		dumpFunction(pkg.Init, cl.CompileFunc(pkg.Init))
+		dumpFunction(pkg.Init, compileFunc(cl, pkg.Init))
 	}
 
 	if len(pkg.Funcs) > 0 {
 		fmt.Println("functions:")
 		for _, fn := range pkg.Funcs {
-			dumpFunction(fn, cl.CompileFunc(fn))
+			dumpFunction(fn, compileFunc(cl, fn))
 		}
 	}
 }
@@ -82,14 +83,19 @@ func producePackage(pkg *tu.Package) {
 	}
 
 	for _, fn := range pkg.Funcs {
-		output.AddFunc(fn, cl.CompileFunc(fn))
+		output.AddFunc(fn, compileFunc(cl, fn))
 	}
 
 	if len(pkg.Init.Body.Forms) != 0 {
-		output.AddExpr(cl.CompileFunc(pkg.Init))
+		output.AddExpr(compileFunc(cl, pkg.Init))
 	}
 
 	fmt.Print(string(output.Build()))
+}
+
+func compileFunc(cl *compiler.Compiler, fn *tu.Func) *ir.Object {
+	sexpconv.Simplify(fn.Body)
+	return cl.CompileFunc(fn)
 }
 
 func dumpFunction(fn *tu.Func, obj *ir.Object) {
