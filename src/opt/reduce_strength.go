@@ -23,6 +23,10 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 	case *sexp.FormList:
 		form.Forms = reduceStrength(form.Forms)
 
+	case *sexp.While:
+		form.Cond = ReduceStrength(form.Cond)
+		ReduceStrength(form.Body)
+
 	case *sexp.ArrayLit:
 		return weakenArrayLit(form)
 	case *sexp.SparseArrayLit:
