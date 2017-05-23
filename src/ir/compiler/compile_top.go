@@ -25,6 +25,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileCallStmt(cl, form)
 	case *sexp.Panic:
 		compilePanic(cl, form)
+	case *sexp.Repeat:
+		compileRepeat(cl, form)
 	case *sexp.While:
 		compileWhile(cl, form)
 	case *sexp.ArrayUpdate:

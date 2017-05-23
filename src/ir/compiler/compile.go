@@ -63,6 +63,13 @@ func compileIf(cl *Compiler, form *sexp.If) {
 	}
 }
 
+func compileRepeat(cl *Compiler, form *sexp.Repeat) {
+	assert(form.N <= 256)
+	for i := int64(0); i < form.N; i++ {
+		compileBlock(cl, form.Body)
+	}
+}
+
 func compileWhile(cl *Compiler, form *sexp.While) {
 	condLabel := labelCreate(cl, "loop-cond")
 	bodyLabel := labelCreate(cl, "loop-body")

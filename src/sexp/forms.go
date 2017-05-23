@@ -183,10 +183,33 @@ type Return struct {
 	Results []Form
 }
 
-type While struct {
-	Cond Form
-	Body *Block
-}
+type (
+	// Repeat is the simplest loop, it executes body N times.
+	//
+	// Note that it is always unrolled. If unrolling is not
+	// optimal, optimizer should replace it with While.
+	Repeat struct {
+		N    int64
+		Body *Block
+	}
+
+	// DoTimes is like Repeat, but:
+	// - N is not necessary a constant.
+	// - Has inductive variable inside loop body (Iter).
+	DoTimes struct {
+		N     Form
+		Iter  Var
+		Step  Form
+		Body  *Block
+		Scope *types.Scope
+	}
+
+	// While is a general looping construct.
+	While struct {
+		Cond Form
+		Body *Block
+	}
+)
 
 /* Builtin ops */
 

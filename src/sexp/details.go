@@ -29,6 +29,8 @@ func (form *FormList) form()       {}
 func (form *Block) form()          {}
 func (form *If) form()             {}
 func (form *Return) form()         {}
+func (form *Repeat) form()         {}
+func (form *DoTimes) form()        {}
 func (form *While) form()          {}
 
 func (op *BitOr) form()       {}
