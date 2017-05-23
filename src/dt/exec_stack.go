@@ -59,6 +59,13 @@ func (st *ExecutionStack) Discard(n uint16) {
 	st.names = st.names[:len(st.names)-int(n)]
 }
 
+// Pop removes last element and returns it.
+func (st *ExecutionStack) Pop() string {
+	name := st.names[len(st.names)-1]
+	st.names = st.names[:len(st.names)-1]
+	return name
+}
+
 // Find lookups binding and returns its ref index (not normal index).
 func (st *ExecutionStack) Find(name string) int {
 	maxIndex := len(st.names) - 1
