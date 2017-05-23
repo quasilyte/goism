@@ -62,7 +62,7 @@ func StackSet(stIndex int) Instr {
 	return Instr{
 		Name:     []byte("stack-set"),
 		Encoding: AttrEnc1,
-		Input:    AttrTake1,
+		Input:    AttrReplaceNth,
 		Data:     uint16(stIndex),
 	}
 }

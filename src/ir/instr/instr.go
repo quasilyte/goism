@@ -9,6 +9,7 @@ const (
 	AttrTake3
 	AttrTakeN
 	AttrTakeNplus1
+	AttrReplaceNth
 )
 
 type outputMode int

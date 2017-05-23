@@ -18,6 +18,9 @@ func emit(cl *Compiler, ins instr.Instr) {
 		cl.st.Discard(ins.Data)
 	case instr.AttrTakeNplus1:
 		cl.st.Discard(ins.Data + 1)
+	case instr.AttrReplaceNth:
+		// "-1" because we popped stask element.
+		cl.st.Rebind(int(ins.Data)-1, cl.st.Pop())
 	}
 
 	switch dst := &cl.buf; ins.Encoding {
