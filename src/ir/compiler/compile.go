@@ -21,7 +21,7 @@ func compileExprList(cl *Compiler, forms []sexp.Form) {
 
 func compileBlock(cl *Compiler, form *sexp.Block) {
 	compileStmtList(cl, form.Forms)
-	cl.st.Discard(uint16(form.Scope.Len()))
+	emit(cl, instr.Discard(form.Scope.Len()))
 }
 
 func compileReturn(cl *Compiler, form *sexp.Return) {
