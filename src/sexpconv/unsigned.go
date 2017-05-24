@@ -19,7 +19,7 @@ func uintElem(form sexp.Form, dstTyp types.Type) sexp.Form {
 		return _bitand(form, _int(0xFF))
 	case types.Uint16:
 		return _bitand(form, _int(0xFFFF))
-	case types.Uint32:
+	case types.Uint32, types.Uint:
 		return _bitand(form, _int(0xFFFFFF))
 
 	case types.Uint64:
