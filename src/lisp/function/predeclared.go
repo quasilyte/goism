@@ -88,3 +88,31 @@ func SubsliceHigh(typ types.Type) *Type {
 		results: tuple(typ),
 	}
 }
+
+func ArraySlice(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--array-slice",
+		results: tuple(typ),
+	}
+}
+
+func ArraySliceWhole(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--array-slice-whole",
+		results: tuple(typ),
+	}
+}
+
+func ArraySliceLow(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--array-slice-low",
+		results: tuple(typ),
+	}
+}
+
+func ArraySliceHigh(typ *types.Slice) *Type {
+	return &Type{
+		name:    "Go--array-slice-high",
+		results: tuple(typ),
+	}
+}
