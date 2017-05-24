@@ -229,31 +229,6 @@ func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
 	emit(cl, instr.NumAdd)      // <data real-index>
 	compileExpr(cl, form.Expr)  // <data real-index val>
 	emit(cl, instr.ArraySet)    // <>
-
-	/*
-		if sexp.Cost(form.Slice) > 4 {
-			compileExpr(cl, form.Slice) // <slice>
-			emit(cl, instr.StackRef(0)) // <slice slice>
-			emit(cl, instr.Car)         // <slice data>
-			compileExpr(cl, form.Index) // <slice data index>
-			emit(cl, instr.StackRef(2)) // <slice data index slice>
-			emit(cl, instr.Cdr)         // <slice data index cdr(slice)>
-			emit(cl, instr.Car)         // <slice data index offset>
-			emit(cl, instr.NumAdd)      // <slice data real-index>
-			compileExpr(cl, form.Expr)  // <slice data real-index val>
-			emit(cl, instr.ArraySet)    // <slice>
-			emit(cl, instr.Discard(1))  // <>
-		} else {
-			compileExpr(cl, form.Slice) // <slice>
-			emit(cl, instr.Car)         // <data>
-			compileExpr(cl, form.Index) // <data index>
-			compileExpr(cl, form.Slice) // <data index slice>
-			emit(cl, instr.Cdr)         // <data index cdr(slice)>
-			emit(cl, instr.Car)         // <data index offset>
-			emit(cl, instr.NumAdd)      // <data real-index>
-			compileExpr(cl, form.Expr)  // <data real-index val>
-			emit(cl, instr.ArraySet)    // <>
-		}*/
 }
 
 func compileSliceLen(cl *Compiler, form *sexp.SliceLen) {
