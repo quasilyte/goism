@@ -80,6 +80,13 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	case *sexp.Subslice:
 		compileSubslice(cl, form)
 
+	case *sexp.Shl:
+		call(cl, function.Lsh, form.Arg, form.N)
+	case *sexp.BitAnd:
+		call(cl, function.Logand, form.Args[0], form.Args[1])
+	case *sexp.BitOr:
+		call(cl, function.Logior, form.Args[0], form.Args[1])
+
 	case *sexp.Not:
 		compileUnaryOp(cl, instr.Not, form.Arg)
 	case *sexp.Neg:

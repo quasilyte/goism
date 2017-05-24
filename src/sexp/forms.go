@@ -226,6 +226,15 @@ type (
 /* Builtin ops */
 
 type (
+	Shl struct {
+		Arg Form
+		N   Form
+	}
+	Shr struct {
+		Arg Form
+		N   Form
+	}
+
 	BitOr  struct{ Args [2]Form }
 	BitAnd struct{ Args [2]Form }
 	BitXor struct{ Args [2]Form }
@@ -237,7 +246,6 @@ type (
 		Arg Form
 		X   int64
 	}
-
 	NumSubX struct {
 		Arg Form
 		X   int64

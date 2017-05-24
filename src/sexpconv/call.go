@@ -33,6 +33,9 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 
 	case *ast.Ident: // f()
 		switch fn.Name {
+		// Unsigned types are not handled at this level.
+		case "uint", "uint8", "byte", "uint16", "uint32", "uint64":
+			return conv.Expr(node.Args[0])
 		// All signed integer types are treated as aliases.
 		case "int", "int8", "int16", "int32", "rune", "int64":
 			return conv.Expr(node.Args[0])

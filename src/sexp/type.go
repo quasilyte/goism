@@ -102,6 +102,11 @@ func (form *While) Type() types.Type {
 	return typVoid
 }
 
+func (op *Shl) Type() types.Type      { return op.Arg.Type() }
+func (op *Shr) Type() types.Type      { return op.Arg.Type() }
+func (op *BitOr) Type() types.Type    { return op.Args[0].Type() }
+func (op *BitAnd) Type() types.Type   { return op.Args[0].Type() }
+func (op *BitXor) Type() types.Type   { return op.Args[0].Type() }
 func (op *Not) Type() types.Type      { return typBool }
 func (op *Neg) Type() types.Type      { return op.Arg.Type() }
 func (op *NumAddX) Type() types.Type  { return op.Arg.Type() }

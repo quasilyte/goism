@@ -120,6 +120,14 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 			return &sexp.NumLte{Args: args}
 		case token.GEQ:
 			return &sexp.NumGte{Args: args}
+		case token.AND:
+			return &sexp.BitAnd{Args: args}
+		case token.OR:
+			return &sexp.BitOr{Args: args}
+		case token.SHL:
+			return &sexp.Shl{Arg: args[0], N: args[1]}
+		case token.SHR:
+			return &sexp.Shr{Arg: args[0], N: args[1]}
 
 		default:
 			panic(fmt.Sprintf("unexpected num op: %#v", node.Op))

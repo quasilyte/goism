@@ -33,6 +33,8 @@ func (form *Repeat) form()         {}
 func (form *DoTimes) form()        {}
 func (form *While) form()          {}
 
+func (op *Shl) form()         {}
+func (op *Shr) form()         {}
 func (op *BitOr) form()       {}
 func (op *BitAnd) form()      {}
 func (op *BitXor) form()      {}

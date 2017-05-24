@@ -123,7 +123,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
 
 	case *ast.IndexExpr:
-		switch typ := conv.typeOf(lhs.X); typ.(type) {
+		switch typ := conv.typeOf(lhs.X).(type) {
 		case *types.Map:
 			call := &sexp.Call{
 				Fn: function.MapInsert,
@@ -139,7 +139,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			return &sexp.ArrayUpdate{
 				Array: conv.Expr(lhs.X),
 				Index: conv.Expr(lhs.Index),
-				Expr:  expr,
+				Expr:  uintElem(expr, typ.Elem()),
 			}
 
 		case *types.Slice:
@@ -147,9 +147,9 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			index := conv.Expr(lhs.Index)
 			if sexp.Cost(slice) > 4 {
 				return _let(slice, &sexp.SliceUpdate{
-					Slice: _it(slice.Type()),
+					Slice: _it(typ),
 					Index: index,
-					Expr:  expr,
+					Expr:  uintElem(expr, typ.Elem()),
 				})
 			}
 			return &sexp.SliceUpdate{Slice: slice, Index: index, Expr: expr}
