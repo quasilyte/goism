@@ -7,7 +7,7 @@ import (
 	"sexp"
 )
 
-func compileStmt(cl *Compiler, form sexp.Form) {
+func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
 	switch form := form.(type) {
 	case *sexp.Return:
 		compileReturn(cl, form)
@@ -34,12 +34,17 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 	case *sexp.SliceUpdate:
 		compileSliceUpdate(cl, form)
 
+	case *sexp.Let:
+		compileLetStmt(cl, form)
+
 	default:
-		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
+		return false
 	}
+
+	return true
 }
 
-func compileExpr(cl *Compiler, form sexp.Form) {
+func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	switch form := form.(type) {
 	case sexp.Int:
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(form.Val)))
@@ -102,7 +107,24 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.MultiValueRef:
 		compileMultiValueRef(cl, form)
 
+	case *sexp.Let:
+		compileLetExpr(cl, form)
+
 	default:
+		return false
+	}
+
+	return true
+}
+
+func compileStmt(cl *Compiler, form sexp.Form) {
+	if !tryCompileStmt(cl, form) {
+		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
+	}
+}
+
+func compileExpr(cl *Compiler, form sexp.Form) {
+	if !tryCompileExpr(cl, form) {
 		panic(fmt.Sprintf("unexpected expr: %#v\n", form))
 	}
 }

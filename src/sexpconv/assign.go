@@ -146,11 +146,16 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			}
 
 		case *types.Slice:
-			return &sexp.SliceUpdate{
-				Slice: conv.Expr(lhs.X),
-				Index: conv.Expr(lhs.Index),
-				Expr:  expr,
+			slice := conv.Expr(lhs.X)
+			index := conv.Expr(lhs.Index)
+			if sexp.Cost(slice) > 4 {
+				return _let(slice, &sexp.SliceUpdate{
+					Slice: _it(slice.Type()),
+					Index: index,
+					Expr:  expr,
+				})
 			}
+			return &sexp.SliceUpdate{Slice: slice, Index: index, Expr: expr}
 
 		default:
 			panic("unimplemented")

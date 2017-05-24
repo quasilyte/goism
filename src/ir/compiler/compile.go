@@ -196,56 +196,64 @@ func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 	emit(cl, instr.ArraySet)
 }
 
+func compileLetExpr(cl *Compiler, form *sexp.Let) {
+	compileBind(cl, form.Bind)
+	compileExpr(cl, form.Expr)
+	emit(cl, instr.StackSet(1)) // Replace let binding with expr result
+}
+
+func compileLetStmt(cl *Compiler, form *sexp.Let) {
+	compileBind(cl, form.Bind)
+	compileStmt(cl, form.Stmt)
+	emit(cl, instr.Discard(1)) // Remove let binding
+}
+
 func compileSliceIndex(cl *Compiler, form *sexp.SliceIndex) {
-	if sexp.Cost(form.Slice) > 4 {
-		// Evaluate "slice" only once.
-		compileExpr(cl, form.Slice) // <slice>
-		emit(cl, instr.StackRef(0)) // <slice slice>
-		emit(cl, instr.Car)         // <slice data>
-		emit(cl, instr.StackRef(1)) // <slice data slice>
-		emit(cl, instr.Cdr)         // <slice data cdr(slice)>
-		emit(cl, instr.Car)         // <slice data offset>
-		compileExpr(cl, form.Index) // <slice data offset index>
-		emit(cl, instr.NumAdd)      // <slice data real-index>
-		emit(cl, instr.ArrayRef)    // <slice elem>
-		emit(cl, instr.StackSet(1)) // <elem>
-	} else {
-		// Evaluate "slice" twice.
-		compileExpr(cl, form.Slice) // <slice>
-		emit(cl, instr.Car)         // <data>
-		compileExpr(cl, form.Slice) // <data slice>
-		emit(cl, instr.Cdr)         // <data cdr(slice)>
-		emit(cl, instr.Car)         // <data offset>
-		compileExpr(cl, form.Index) // <data offset index>
-		emit(cl, instr.NumAdd)      // <data real-index>
-		emit(cl, instr.ArrayRef)    // <elem>
-	}
+	compileExpr(cl, form.Slice) // <slice>
+	emit(cl, instr.Car)         // <data>
+	compileExpr(cl, form.Slice) // <data slice>
+	emit(cl, instr.Cdr)         // <data cdr(slice)>
+	emit(cl, instr.Car)         // <data offset>
+	compileExpr(cl, form.Index) // <data offset index>
+	emit(cl, instr.NumAdd)      // <data real-index>
+	emit(cl, instr.ArrayRef)    // <elem>
 }
 
 func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
-	if sexp.Cost(form.Slice) > 4 {
-		compileExpr(cl, form.Slice) // <slice>
-		emit(cl, instr.StackRef(0)) // <slice slice>
-		emit(cl, instr.Car)         // <slice data>
-		compileExpr(cl, form.Index) // <slice data index>
-		emit(cl, instr.StackRef(2)) // <slice data index slice>
-		emit(cl, instr.Cdr)         // <slice data index cdr(slice)>
-		emit(cl, instr.Car)         // <slice data index offset>
-		emit(cl, instr.NumAdd)      // <slice data real-index>
-		compileExpr(cl, form.Expr)  // <slice data real-index val>
-		emit(cl, instr.ArraySet)    // <slice>
-		emit(cl, instr.Discard(1))  // <>
-	} else {
-		compileExpr(cl, form.Slice) // <slice>
-		emit(cl, instr.Car)         // <data>
-		compileExpr(cl, form.Index) // <data index>
-		compileExpr(cl, form.Slice) // <data index slice>
-		emit(cl, instr.Cdr)         // <data index cdr(slice)>
-		emit(cl, instr.Car)         // <data index offset>
-		emit(cl, instr.NumAdd)      // <data real-index>
-		compileExpr(cl, form.Expr)  // <data real-index val>
-		emit(cl, instr.ArraySet)    // <>
-	}
+	compileExpr(cl, form.Slice) // <slice>
+	emit(cl, instr.Car)         // <data>
+	compileExpr(cl, form.Index) // <data index>
+	compileExpr(cl, form.Slice) // <data index slice>
+	emit(cl, instr.Cdr)         // <data index cdr(slice)>
+	emit(cl, instr.Car)         // <data index offset>
+	emit(cl, instr.NumAdd)      // <data real-index>
+	compileExpr(cl, form.Expr)  // <data real-index val>
+	emit(cl, instr.ArraySet)    // <>
+
+	/*
+		if sexp.Cost(form.Slice) > 4 {
+			compileExpr(cl, form.Slice) // <slice>
+			emit(cl, instr.StackRef(0)) // <slice slice>
+			emit(cl, instr.Car)         // <slice data>
+			compileExpr(cl, form.Index) // <slice data index>
+			emit(cl, instr.StackRef(2)) // <slice data index slice>
+			emit(cl, instr.Cdr)         // <slice data index cdr(slice)>
+			emit(cl, instr.Car)         // <slice data index offset>
+			emit(cl, instr.NumAdd)      // <slice data real-index>
+			compileExpr(cl, form.Expr)  // <slice data real-index val>
+			emit(cl, instr.ArraySet)    // <slice>
+			emit(cl, instr.Discard(1))  // <>
+		} else {
+			compileExpr(cl, form.Slice) // <slice>
+			emit(cl, instr.Car)         // <data>
+			compileExpr(cl, form.Index) // <data index>
+			compileExpr(cl, form.Slice) // <data index slice>
+			emit(cl, instr.Cdr)         // <data index cdr(slice)>
+			emit(cl, instr.Car)         // <data index offset>
+			emit(cl, instr.NumAdd)      // <data real-index>
+			compileExpr(cl, form.Expr)  // <data real-index val>
+			emit(cl, instr.ArraySet)    // <>
+		}*/
 }
 
 func compileSliceLen(cl *Compiler, form *sexp.SliceLen) {

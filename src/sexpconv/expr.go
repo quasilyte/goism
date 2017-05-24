@@ -200,12 +200,18 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 		}
 
 	case *types.Slice:
-		return &sexp.SliceIndex{
-			Slice: conv.Expr(node.X),
-			Index: conv.Expr(node.Index),
-		}
+		slice := conv.Expr(node.X)
+		index := conv.Expr(node.Index)
 
-	// #TODO: slices, strings
+		if sexp.Cost(slice) > 4 {
+			return _let(slice, &sexp.SliceIndex{
+				Slice: _it(typ),
+				Index: index,
+			})
+		}
+		return &sexp.SliceIndex{Slice: slice, Index: index}
+
+	// #TODO: strings
 	default:
 		panic("unimplemented")
 	}
