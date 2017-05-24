@@ -31,6 +31,13 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 		return weakenArrayLit(form)
 	case *sexp.SparseArrayLit:
 		return weakenSparseArrayLit(form)
+
+	case *sexp.StrCast:
+		return weakenStrCast(form)
+	case *sexp.Call:
+		form.Args = reduceStrength(form.Args)
+	case sexp.CallStmt:
+		ReduceStrength(form.Call)
 	}
 
 	return form
@@ -121,6 +128,22 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 		// Count of zero values < 75%.
 		// Convert to ArrayLit.
 		return toArrayLit(form)
+	}
+
+	return form
+}
+
+func weakenStrCast(form *sexp.StrCast) sexp.Form {
+	if arg, ok := form.Arg.(*sexp.ArraySlice); ok {
+		// It is possible to convert array to string without
+		// creating a slice.
+		switch arg.Kind() {
+		case sexp.SpanWhole:
+			return sexp.NewConcat(arg.Array, sexp.String(""))
+		default:
+			sub := sexp.NewSubstr(arg.Array, arg.Low, arg.High)
+			return sexp.NewConcat(sub, sexp.String(""))
+		}
 	}
 
 	return form
