@@ -97,6 +97,11 @@ func Cost(form Form) int {
 		// #FIXME: dynamic scope variables should have higher cost.
 		return 1
 
+	case *Not:
+		return Cost(form.Arg) + 1
+	case *Neg:
+		return Cost(form.Arg) + 1
+
 	case *Let:
 		bindCost := Cost(form.Bind.Init) + 2
 		if form.Expr == nil {

@@ -230,6 +230,9 @@ type (
 	BitAnd struct{ Args [2]Form }
 	BitXor struct{ Args [2]Form }
 
+	Not struct{ Arg Form }
+	Neg struct{ Arg Form }
+
 	NumAddX struct {
 		Arg Form
 		X   int64

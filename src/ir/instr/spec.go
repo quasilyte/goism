@@ -28,6 +28,9 @@ var (
 	Add1 = unaryOp("add1")
 	Sub1 = unaryOp("sub1")
 
+	Not = unaryOp("not")
+	Neg = unaryOp("neg")
+
 	Car = unaryOp("car")
 	Cdr = unaryOp("cdr")
 )

@@ -167,6 +167,17 @@ func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 		return cv
 	}
 
+	arg := conv.Expr(node.X)
+
+	switch node.Op {
+	case token.NOT:
+		return &sexp.Not{Arg: arg}
+	case token.SUB:
+		return &sexp.Neg{Arg: arg}
+	case token.ADD:
+		return arg
+	}
+
 	panic("unimplemented")
 }
 
