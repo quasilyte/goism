@@ -6,29 +6,7 @@ import (
 
 type rewriteFunc func(Form) Form
 
-func rewriteList(forms []Form, f rewriteFunc) []Form {
-	for i, form := range forms {
-		forms[i] = Rewrite(form, f)
-	}
-	return forms
-}
-
-func rewriteBinOp(form Form, forms *[2]Form, f rewriteFunc) Form {
-	if form := f(form); form != nil {
-		return form
-	}
-	forms[0] = Rewrite(forms[0], f)
-	forms[1] = Rewrite(forms[1], f)
-	return form
-}
-
-func rewriteAtom(form Form, f rewriteFunc) Form {
-	if form := f(form); form != nil {
-		return form
-	}
-	return form
-}
-
+// Rewrite provides convenient way to update AST.
 func Rewrite(form Form, f rewriteFunc) Form {
 	switch form := form.(type) {
 	case *Block:
@@ -208,39 +186,32 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			form.Expr = Rewrite(form.Expr, f)
 		}
 
+	case *Not:
+		return rewriteUnaryOp(form, &form.Arg, f)
+	case *Neg:
+		return rewriteUnaryOp(form, &form.Arg, f)
+	case *AddX:
+		return rewriteUnaryOp(form, &form.Arg, f)
+	case *SubX:
+		return rewriteUnaryOp(form, &form.Arg, f)
+
 	case *Shl:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Arg = Rewrite(form.Arg, f)
-		form.N = Rewrite(form.N, f)
-
+		return rewriteBinOp(form, &form.Args, f)
 	case *Shr:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Arg = Rewrite(form.Arg, f)
-		form.N = Rewrite(form.N, f)
-
-	case *Concat:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Args = rewriteList(form.Args, f)
-
+		return rewriteBinOp(form, &form.Args, f)
 	case *BitOr:
 		return rewriteBinOp(form, &form.Args, f)
 	case *BitAnd:
 		return rewriteBinOp(form, &form.Args, f)
 	case *BitXor:
 		return rewriteBinOp(form, &form.Args, f)
-	case *NumAdd:
+	case *Add:
 		return rewriteBinOp(form, &form.Args, f)
-	case *NumSub:
+	case *Sub:
 		return rewriteBinOp(form, &form.Args, f)
-	case *NumMul:
+	case *Mul:
 		return rewriteBinOp(form, &form.Args, f)
-	case *NumQuo:
+	case *Quo:
 		return rewriteBinOp(form, &form.Args, f)
 	case *NumEq:
 		return rewriteBinOp(form, &form.Args, f)
@@ -267,9 +238,46 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case *StringGte:
 		return rewriteBinOp(form, &form.Args, f)
 
+	case *Concat:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Args = rewriteList(form.Args, f)
+
 	default:
 		panic(fmt.Sprintf("unexpected form: %#v", form))
 	}
 
+	return form
+}
+
+func rewriteList(forms []Form, f rewriteFunc) []Form {
+	for i, form := range forms {
+		forms[i] = Rewrite(form, f)
+	}
+	return forms
+}
+
+func rewriteUnaryOp(form Form, arg *Form, f rewriteFunc) Form {
+	if form := f(form); form != nil {
+		return form
+	}
+	*arg = Rewrite(*arg, f)
+	return form
+}
+
+func rewriteBinOp(form Form, args *[2]Form, f rewriteFunc) Form {
+	if form := f(form); form != nil {
+		return form
+	}
+	args[0] = Rewrite(args[0], f)
+	args[1] = Rewrite(args[1], f)
+	return form
+}
+
+func rewriteAtom(form Form, f rewriteFunc) Form {
+	if form := f(form); form != nil {
+		return form
+	}
 	return form
 }

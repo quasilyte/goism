@@ -48,17 +48,17 @@ func Cost(form Form) int {
 	case *Subslice:
 		return Cost(form.Slice) + Cost(form.Low) + Cost(form.High) + 16
 
-	case *NumAddX:
+	case *AddX:
 		return Cost(form.Arg) + int(form.X)
-	case *NumSubX:
+	case *SubX:
 		return Cost(form.Arg) + int(form.X)
-	case *NumAdd:
+	case *Add:
 		return binOpCost(1, form.Args)
-	case *NumSub:
+	case *Sub:
 		return binOpCost(1, form.Args)
-	case *NumMul:
+	case *Mul:
 		return binOpCost(2, form.Args)
-	case *NumQuo:
+	case *Quo:
 		return binOpCost(3, form.Args)
 	case *NumEq:
 		return binOpCost(1, form.Args)

@@ -195,6 +195,7 @@ type Return struct {
 	Results []Form
 }
 
+// Loop forms.
 type (
 	// Repeat is the simplest loop, it executes body N times.
 	//
@@ -223,50 +224,76 @@ type (
 	}
 )
 
-/* Builtin ops */
-
+// Unary ops.
 type (
-	Shl struct {
-		Arg Form
-		N   Form
-	}
-	Shr struct {
-		Arg Form
-		N   Form
-	}
-
-	BitOr  struct{ Args [2]Form }
-	BitAnd struct{ Args [2]Form }
-	BitXor struct{ Args [2]Form }
-
+	// Not = "!Arg".
 	Not struct{ Arg Form }
+	// Neg = "-Arg".
 	Neg struct{ Arg Form }
 
-	NumAddX struct {
+	// AddX = "Arg + X".
+	AddX struct {
 		Arg Form
 		X   int64
 	}
-	NumSubX struct {
+	// SubX = "Arg - X".
+	SubX struct {
 		Arg Form
 		X   int64
 	}
+)
 
-	NumAdd   struct{ Args [2]Form }
-	NumSub   struct{ Args [2]Form }
-	NumMul   struct{ Args [2]Form }
-	NumQuo   struct{ Args [2]Form }
-	NumEq    struct{ Args [2]Form }
+// Binary ops.
+type (
+	// Shl = "Args[0] << Args[1]".
+	Shl struct{ Args [2]Form }
+	// Shr = "Args[0] >> Args[1]".
+	Shr struct{ Args [2]Form }
+
+	// BitOr = "Args[0] | Args[1]".
+	BitOr struct{ Args [2]Form }
+	// BitAnd = "Args[0] & Args[1]".
+	BitAnd struct{ Args [2]Form }
+	// BitXor = "Args[0] ^ Args[1]".
+	BitXor struct{ Args [2]Form }
+
+	// Add = "Args[0] + Args[1]"
+	Add struct{ Args [2]Form }
+	// Sub = "Args[0] - Args[1]"
+	Sub struct{ Args [2]Form }
+	// Mul = "Args[0] * Args[1]"
+	Mul struct{ Args [2]Form }
+	// Quo = "Args[0] / Args[1]"
+	Quo struct{ Args [2]Form }
+	// NumEq = "Args[0] == Args[1]"
+	NumEq struct{ Args [2]Form }
+	// NumNotEq = "Args[0] != Args[1]"
 	NumNotEq struct{ Args [2]Form }
-	NumLt    struct{ Args [2]Form }
-	NumLte   struct{ Args [2]Form }
-	NumGt    struct{ Args [2]Form }
-	NumGte   struct{ Args [2]Form }
+	// NumLt = "Args[0] < Args[1]"
+	NumLt struct{ Args [2]Form }
+	// NumLte = "Args[0] <= Args[1]"
+	NumLte struct{ Args [2]Form }
+	// NumGt = "Args[0] > Args[1]"
+	NumGt struct{ Args [2]Form }
+	// NumGte = "Args[0] >= Args[1]"
+	NumGte struct{ Args [2]Form }
 
-	Concat      struct{ Args []Form }
-	StringEq    struct{ Args [2]Form }
+	// StringEq = "Args[0] == Args[1]"
+	StringEq struct{ Args [2]Form }
+	// StringNotEq = "Args[0] != Args[1]"
 	StringNotEq struct{ Args [2]Form }
-	StringLt    struct{ Args [2]Form }
-	StringLte   struct{ Args [2]Form }
-	StringGt    struct{ Args [2]Form }
-	StringGte   struct{ Args [2]Form }
+	// StringLt = "Args[0] < Args[1]"
+	StringLt struct{ Args [2]Form }
+	// StringLte = "Args[0] <= Args[1]"
+	StringLte struct{ Args [2]Form }
+	// StringGt = "Args[0] > Args[1]"
+	StringGt struct{ Args [2]Form }
+	// StringGte = "Args[0] >= Args[1]"
+	StringGte struct{ Args [2]Form }
+)
+
+// Variadic ops.
+type (
+	// Concat = "a + b + ...".
+	Concat struct{ Args []Form }
 )

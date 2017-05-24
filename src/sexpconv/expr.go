@@ -103,13 +103,13 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	if typ.Info()&types.IsNumeric != 0 {
 		switch node.Op {
 		case token.ADD:
-			return &sexp.NumAdd{Args: args}
+			return &sexp.Add{Args: args}
 		case token.SUB:
-			return &sexp.NumSub{Args: args}
+			return &sexp.Sub{Args: args}
 		case token.MUL:
-			return &sexp.NumMul{Args: args}
+			return &sexp.Mul{Args: args}
 		case token.QUO:
-			return &sexp.NumQuo{Args: args}
+			return &sexp.Quo{Args: args}
 		case token.EQL:
 			return &sexp.NumEq{Args: args}
 		case token.LSS:
@@ -125,9 +125,9 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 		case token.OR:
 			return &sexp.BitOr{Args: args}
 		case token.SHL:
-			return &sexp.Shl{Arg: args[0], N: args[1]}
+			return &sexp.Shl{Args: args}
 		case token.SHR:
-			return &sexp.Shr{Arg: args[0], N: args[1]}
+			return &sexp.Shr{Args: args}
 
 		default:
 			panic(fmt.Sprintf("unexpected num op: %#v", node.Op))

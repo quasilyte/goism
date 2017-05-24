@@ -119,9 +119,9 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 
 	args := [2]sexp.Form{conv.Expr(target), sexp.Int(1)}
 	if node.Tok == token.INC {
-		expr = &sexp.NumAdd{Args: args}
+		expr = &sexp.Add{Args: args}
 	} else {
-		expr = &sexp.NumSub{Args: args}
+		expr = &sexp.Sub{Args: args}
 	}
 
 	return &sexp.Rebind{

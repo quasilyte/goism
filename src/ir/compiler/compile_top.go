@@ -81,7 +81,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileSubslice(cl, form)
 
 	case *sexp.Shl:
-		call(cl, function.Lsh, form.Arg, form.N)
+		call(cl, function.Lsh, form.Arg(), form.N())
 	case *sexp.BitAnd:
 		call(cl, function.Logand, form.Args[0], form.Args[1])
 	case *sexp.BitOr:
@@ -92,17 +92,17 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	case *sexp.Neg:
 		compileUnaryOp(cl, instr.Neg, form.Arg)
 
-	case *sexp.NumAddX:
+	case *sexp.AddX:
 		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)
-	case *sexp.NumSubX:
+	case *sexp.SubX:
 		compileUnaryOps(cl, instr.Sub1, form.Arg, form.X)
-	case *sexp.NumAdd:
+	case *sexp.Add:
 		compileBinOp(cl, instr.NumAdd, form.Args)
-	case *sexp.NumSub:
+	case *sexp.Sub:
 		compileBinOp(cl, instr.NumSub, form.Args)
-	case *sexp.NumMul:
+	case *sexp.Mul:
 		compileBinOp(cl, instr.NumMul, form.Args)
-	case *sexp.NumQuo:
+	case *sexp.Quo:
 		compileBinOp(cl, instr.NumQuo, form.Args)
 	case *sexp.NumGt:
 		compileBinOp(cl, instr.NumGt, form.Args)

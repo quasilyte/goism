@@ -13,31 +13,15 @@ var (
 	typVoid   = types.Typ[types.Invalid]
 )
 
-func (atom Bool) Type() types.Type {
-	return typBool
-}
-func (atom Int) Type() types.Type {
-	return typInt
-}
-func (atom Float) Type() types.Type {
-	return typFloat
-}
-func (atom String) Type() types.Type {
-	return typString
-}
-func (atom Symbol) Type() types.Type {
-	return lisp.Types.Symbol
-}
+func (atom Bool) Type() types.Type   { return typBool }
+func (atom Int) Type() types.Type    { return typInt }
+func (atom Float) Type() types.Type  { return typFloat }
+func (atom String) Type() types.Type { return typString }
+func (atom Symbol) Type() types.Type { return lisp.Types.Symbol }
 
-func (lit *ArrayLit) Type() types.Type {
-	return lit.Typ
-}
-func (lit *SparseArrayLit) Type() types.Type {
-	return lit.Typ
-}
-func (lit *SliceLit) Type() types.Type {
-	return lit.Typ
-}
+func (lit *ArrayLit) Type() types.Type       { return lit.Typ }
+func (lit *SparseArrayLit) Type() types.Type { return lit.Typ }
+func (lit *SliceLit) Type() types.Type       { return lit.Typ }
 
 func (form *ArrayIndex) Type() types.Type {
 	return form.Array.Type().Underlying().(*types.Array).Elem()
@@ -80,41 +64,29 @@ func (form *TypeAssert) Type() types.Type {
 func (form *LispTypeAssert) Type() types.Type {
 	return form.Typ
 }
-func (form *FormList) Type() types.Type {
-	return typVoid
-}
-func (form *Block) Type() types.Type {
-	return typVoid
-}
-func (form *If) Type() types.Type {
-	return typVoid
-}
-func (form *Return) Type() types.Type {
-	return typVoid
-}
-func (form *Repeat) Type() types.Type {
-	return typVoid
-}
-func (form *DoTimes) Type() types.Type {
-	return typVoid
-}
-func (form *While) Type() types.Type {
-	return typVoid
-}
 
-func (op *Shl) Type() types.Type      { return op.Arg.Type() }
-func (op *Shr) Type() types.Type      { return op.Arg.Type() }
+func (form *FormList) Type() types.Type { return typVoid }
+func (form *Block) Type() types.Type    { return typVoid }
+func (form *If) Type() types.Type       { return typVoid }
+func (form *Return) Type() types.Type   { return typVoid }
+func (form *Repeat) Type() types.Type   { return typVoid }
+func (form *DoTimes) Type() types.Type  { return typVoid }
+func (form *While) Type() types.Type    { return typVoid }
+
+func (op *Not) Type() types.Type  { return typBool }
+func (op *Neg) Type() types.Type  { return op.Arg.Type() }
+func (op *AddX) Type() types.Type { return op.Arg.Type() }
+func (op *SubX) Type() types.Type { return op.Arg.Type() }
+
+func (op *Shl) Type() types.Type      { return op.Args[0].Type() }
+func (op *Shr) Type() types.Type      { return op.Args[0].Type() }
 func (op *BitOr) Type() types.Type    { return op.Args[0].Type() }
 func (op *BitAnd) Type() types.Type   { return op.Args[0].Type() }
 func (op *BitXor) Type() types.Type   { return op.Args[0].Type() }
-func (op *Not) Type() types.Type      { return typBool }
-func (op *Neg) Type() types.Type      { return op.Arg.Type() }
-func (op *NumAddX) Type() types.Type  { return op.Arg.Type() }
-func (op *NumSubX) Type() types.Type  { return op.Arg.Type() }
-func (op *NumAdd) Type() types.Type   { return op.Args[0].Type() }
-func (op *NumSub) Type() types.Type   { return op.Args[0].Type() }
-func (op *NumMul) Type() types.Type   { return op.Args[0].Type() }
-func (op *NumQuo) Type() types.Type   { return op.Args[0].Type() }
+func (op *Add) Type() types.Type      { return op.Args[0].Type() }
+func (op *Sub) Type() types.Type      { return op.Args[0].Type() }
+func (op *Mul) Type() types.Type      { return op.Args[0].Type() }
+func (op *Quo) Type() types.Type      { return op.Args[0].Type() }
 func (op *NumEq) Type() types.Type    { return op.Args[0].Type() }
 func (op *NumNotEq) Type() types.Type { return op.Args[0].Type() }
 func (op *NumLt) Type() types.Type    { return op.Args[0].Type() }
@@ -122,27 +94,14 @@ func (op *NumLte) Type() types.Type   { return op.Args[0].Type() }
 func (op *NumGt) Type() types.Type    { return op.Args[0].Type() }
 func (op *NumGte) Type() types.Type   { return op.Args[0].Type() }
 
-func (op *Concat) Type() types.Type {
-	return typString
-}
-func (op *StringEq) Type() types.Type {
-	return typString
-}
-func (op *StringNotEq) Type() types.Type {
-	return typString
-}
-func (op *StringLt) Type() types.Type {
-	return typString
-}
-func (op *StringLte) Type() types.Type {
-	return typString
-}
-func (op *StringGt) Type() types.Type {
-	return typString
-}
-func (op *StringGte) Type() types.Type {
-	return typString
-}
+func (op *StringEq) Type() types.Type    { return typString }
+func (op *StringNotEq) Type() types.Type { return typString }
+func (op *StringLt) Type() types.Type    { return typString }
+func (op *StringLte) Type() types.Type   { return typString }
+func (op *StringGt) Type() types.Type    { return typString }
+func (op *StringGte) Type() types.Type   { return typString }
+
+func (op *Concat) Type() types.Type { return typString }
 
 func (call *Call) Type() types.Type {
 	results := call.Fn.Results()

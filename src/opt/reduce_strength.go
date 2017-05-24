@@ -9,9 +9,9 @@ import (
 // equivalents.
 func ReduceStrength(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.NumAdd:
+	case *sexp.Add:
 		return weakenAdd(form)
-	case *sexp.NumSub:
+	case *sexp.Sub:
 		return weakenSub(form)
 
 	case *sexp.Bind:
@@ -43,7 +43,7 @@ func reduceStrength(forms []sexp.Form) []sexp.Form {
 	return forms
 }
 
-func weakenAdd(form *sexp.NumAdd) sexp.Form {
+func weakenAdd(form *sexp.Add) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
 			return addX(form.Args[b], 1)
@@ -72,7 +72,7 @@ func weakenAdd(form *sexp.NumAdd) sexp.Form {
 	return form
 }
 
-func weakenSub(form *sexp.NumSub) sexp.Form {
+func weakenSub(form *sexp.Sub) sexp.Form {
 	if numEq(form.Args[1], 1) {
 		return subX(form.Args[0], 1)
 	}

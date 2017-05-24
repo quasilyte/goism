@@ -45,7 +45,7 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	args := [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
 
 	if typ.Info()&types.IsNumeric != 0 {
-		return conv.assign(lhs, &sexp.NumAdd{Args: args})
+		return conv.assign(lhs, &sexp.Add{Args: args})
 	}
 	if typ.Kind() == types.String {
 		return conv.assign(lhs, &sexp.Concat{Args: args[:]})
@@ -55,19 +55,19 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 }
 
 func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.NumSub{
+	return conv.assign(lhs, &sexp.Sub{
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.NumMul{
+	return conv.assign(lhs, &sexp.Mul{
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }
 
 func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.NumQuo{
+	return conv.assign(lhs, &sexp.Quo{
 		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
 	})
 }

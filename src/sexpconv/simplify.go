@@ -19,8 +19,10 @@ func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.Shr:
 		return &sexp.Shl{
-			Arg: form.Arg,
-			N:   &sexp.Neg{Arg: form.N},
+			Args: [2]sexp.Form{
+				form.Arg(),
+				&sexp.Neg{Arg: form.N()},
+			},
 		}
 
 	case *sexp.DoTimes:
@@ -30,10 +32,10 @@ func simplify(form sexp.Form) sexp.Form {
 		}
 		form.Body.Forms = append(form.Body.Forms, &sexp.Rebind{
 			Name: form.Iter.Name,
-			Expr: _addX(form.Iter, 1),
+			Expr: sexp.NewAdd1(form.Iter),
 		})
 		loop := &sexp.While{
-			Cond: _numLt(form.Iter, form.N),
+			Cond: sexp.NewNumLt(form.Iter, form.N),
 			Body: form.Body,
 		}
 		return &sexp.Block{

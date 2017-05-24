@@ -33,32 +33,34 @@ func (form *Repeat) form()         {}
 func (form *DoTimes) form()        {}
 func (form *While) form()          {}
 
+func (op *Not) form()  {}
+func (op *Neg) form()  {}
+func (op *AddX) form() {}
+func (op *SubX) form() {}
+
 func (op *Shl) form()         {}
 func (op *Shr) form()         {}
 func (op *BitOr) form()       {}
 func (op *BitAnd) form()      {}
 func (op *BitXor) form()      {}
-func (op *Not) form()         {}
-func (op *Neg) form()         {}
-func (op *NumAddX) form()     {}
-func (op *NumSubX) form()     {}
-func (op *NumAdd) form()      {}
-func (op *NumSub) form()      {}
-func (op *NumMul) form()      {}
-func (op *NumQuo) form()      {}
+func (op *Add) form()         {}
+func (op *Sub) form()         {}
+func (op *Mul) form()         {}
+func (op *Quo) form()         {}
 func (op *NumEq) form()       {}
 func (op *NumNotEq) form()    {}
 func (op *NumLt) form()       {}
 func (op *NumLte) form()      {}
 func (op *NumGt) form()       {}
 func (op *NumGte) form()      {}
-func (op *Concat) form()      {}
 func (op *StringEq) form()    {}
 func (op *StringNotEq) form() {}
 func (op *StringLt) form()    {}
 func (op *StringLte) form()   {}
 func (op *StringGt) form()    {}
 func (op *StringGte) form()   {}
+
+func (op *Concat) form() {}
 
 func (call *Call) form()          {}
 func (form CallStmt) form()       {}
