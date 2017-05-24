@@ -46,17 +46,17 @@ func reduceStrength(forms []sexp.Form) []sexp.Form {
 func weakenAdd(form *sexp.NumAdd) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
-			return addX(form.Args[b], 1, form.Typ)
+			return addX(form.Args[b], 1)
 		}
 		if numEq(form.Args[a], 2) {
-			return addX(form.Args[b], 2, form.Typ)
+			return addX(form.Args[b], 2)
 		}
 		// Addition of negative number = substraction.
 		if numEq(form.Args[a], -1) {
-			return subX(form.Args[b], 1, form.Typ)
+			return subX(form.Args[b], 1)
 		}
 		if numEq(form.Args[a], -2) {
-			return subX(form.Args[b], 2, form.Typ)
+			return subX(form.Args[b], 2)
 		}
 		return nil
 	}
@@ -74,17 +74,17 @@ func weakenAdd(form *sexp.NumAdd) sexp.Form {
 
 func weakenSub(form *sexp.NumSub) sexp.Form {
 	if numEq(form.Args[1], 1) {
-		return subX(form.Args[0], 1, form.Typ)
+		return subX(form.Args[0], 1)
 	}
 	if numEq(form.Args[1], 2) {
-		return subX(form.Args[0], 2, form.Typ)
+		return subX(form.Args[0], 2)
 	}
 	// Substraction of negative number = addition.
 	if numEq(form.Args[1], -1) {
-		return addX(form.Args[0], 1, form.Typ)
+		return addX(form.Args[0], 1)
 	}
 	if numEq(form.Args[1], -2) {
-		return addX(form.Args[0], 2, form.Typ)
+		return addX(form.Args[0], 2)
 	}
 	return form
 }

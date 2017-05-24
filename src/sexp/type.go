@@ -102,42 +102,19 @@ func (form *While) Type() types.Type {
 	return typVoid
 }
 
-func (op *NumAddX) Type() types.Type {
-	return op.Typ
-}
-func (op *NumSubX) Type() types.Type {
-	return op.Typ
-}
-func (op *NumAdd) Type() types.Type {
-	return op.Typ
-}
-func (op *NumSub) Type() types.Type {
-	return op.Typ
-}
-func (op *NumMul) Type() types.Type {
-	return op.Typ
-}
-func (op *NumQuo) Type() types.Type {
-	return op.Typ
-}
-func (op *NumEq) Type() types.Type {
-	return op.Typ
-}
-func (op *NumNotEq) Type() types.Type {
-	return op.Typ
-}
-func (op *NumLt) Type() types.Type {
-	return op.Typ
-}
-func (op *NumLte) Type() types.Type {
-	return op.Typ
-}
-func (op *NumGt) Type() types.Type {
-	return op.Typ
-}
-func (op *NumGte) Type() types.Type {
-	return op.Typ
-}
+func (op *NumAddX) Type() types.Type  { return op.Arg.Type() }
+func (op *NumSubX) Type() types.Type  { return op.Arg.Type() }
+func (op *NumAdd) Type() types.Type   { return op.Args[0].Type() }
+func (op *NumSub) Type() types.Type   { return op.Args[0].Type() }
+func (op *NumMul) Type() types.Type   { return op.Args[0].Type() }
+func (op *NumQuo) Type() types.Type   { return op.Args[0].Type() }
+func (op *NumEq) Type() types.Type    { return op.Args[0].Type() }
+func (op *NumNotEq) Type() types.Type { return op.Args[0].Type() }
+func (op *NumLt) Type() types.Type    { return op.Args[0].Type() }
+func (op *NumLte) Type() types.Type   { return op.Args[0].Type() }
+func (op *NumGt) Type() types.Type    { return op.Args[0].Type() }
+func (op *NumGte) Type() types.Type   { return op.Args[0].Type() }
+
 func (op *Concat) Type() types.Type {
 	return typString
 }

@@ -1,7 +1,6 @@
 package opt
 
 import (
-	"go/types"
 	"sexp"
 )
 
@@ -16,10 +15,10 @@ func numEq(form sexp.Form, val int64) bool {
 	}
 }
 
-func addX(arg sexp.Form, x int64, typ *types.Basic) *sexp.NumAddX {
-	return &sexp.NumAddX{Arg: arg, X: x, Typ: typ}
+func addX(arg sexp.Form, x int64) *sexp.NumAddX {
+	return &sexp.NumAddX{Arg: arg, X: x}
 }
 
-func subX(arg sexp.Form, x int64, typ *types.Basic) *sexp.NumSubX {
-	return &sexp.NumSubX{Arg: arg, X: x, Typ: typ}
+func subX(arg sexp.Form, x int64) *sexp.NumSubX {
+	return &sexp.NumSubX{Arg: arg, X: x}
 }

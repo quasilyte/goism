@@ -233,55 +233,23 @@ type (
 	NumAddX struct {
 		Arg Form
 		X   int64
-		Typ *types.Basic
 	}
 
 	NumSubX struct {
 		Arg Form
 		X   int64
-		Typ *types.Basic
 	}
 
-	NumAdd struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumSub struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumMul struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumQuo struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumEq struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumNotEq struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumLt struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumLte struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumGt struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
-	NumGte struct {
-		Args [2]Form
-		Typ  *types.Basic
-	}
+	NumAdd   struct{ Args [2]Form }
+	NumSub   struct{ Args [2]Form }
+	NumMul   struct{ Args [2]Form }
+	NumQuo   struct{ Args [2]Form }
+	NumEq    struct{ Args [2]Form }
+	NumNotEq struct{ Args [2]Form }
+	NumLt    struct{ Args [2]Form }
+	NumLte   struct{ Args [2]Form }
+	NumGt    struct{ Args [2]Form }
+	NumGte   struct{ Args [2]Form }
 
 	Concat      struct{ Args []Form }
 	StringEq    struct{ Args [2]Form }
