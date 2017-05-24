@@ -283,7 +283,7 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 		ctor := &sexp.Call{
 			Fn: function.MakeVector,
 			Args: []sexp.Form{
-				sexp.Int{Val: typ.Len()},
+				sexp.Int(typ.Len()),
 				ZeroValue(typ.Elem()),
 			},
 		}

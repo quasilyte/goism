@@ -2,28 +2,28 @@ package sexp
 
 func GetBool(form Form) (bool, bool) {
 	if form, ok := form.(Bool); ok {
-		return form.Val, true
+		return bool(form), true
 	}
 	return false, false
 }
 
 func GetInt(form Form) (int64, bool) {
 	if form, ok := form.(Int); ok {
-		return form.Val, true
+		return int64(form), true
 	}
 	return 0, false
 }
 
 func GetFloat(form Form) (float64, bool) {
 	if form, ok := form.(Float); ok {
-		return form.Val, true
+		return float64(form), true
 	}
 	return 0.0, false
 }
 
 func GetString(form Form) (string, bool) {
 	if form, ok := form.(String); ok {
-		return form.Val, true
+		return string(form), true
 	}
 	return "", false
 }

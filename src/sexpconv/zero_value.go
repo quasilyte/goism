@@ -17,18 +17,18 @@ func ZeroValue(typ types.Type) sexp.Form {
 	case *types.Basic:
 		switch typ.Kind() {
 		case types.String:
-			return sexp.String{}
+			return sexp.String("")
 		case types.Bool:
-			return sexp.Bool{}
+			return sexp.Bool(false)
 
 		default:
 			info := typ.Info()
 
 			if info&types.IsFloat != 0 {
-				return sexp.Float{}
+				return sexp.Float(0)
 			}
 			if info&types.IsInteger != 0 {
-				return sexp.Int{}
+				return sexp.Int(0)
 			}
 		}
 
@@ -36,7 +36,7 @@ func ZeroValue(typ types.Type) sexp.Form {
 		ctor := &sexp.Call{
 			Fn: function.MakeVector,
 			Args: []sexp.Form{
-				sexp.Int{Val: typ.Len()},
+				sexp.Int(typ.Len()),
 				ZeroValue(typ.Elem()),
 			},
 		}

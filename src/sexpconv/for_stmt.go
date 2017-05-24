@@ -35,9 +35,9 @@ func (conv *Converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.
 	// for <KEY> := range <X>.
 	if node.Value == nil {
 		return &sexp.DoTimes{
-			N:     sexp.Int{Val: typ.Len()},
+			N:     sexp.Int(typ.Len()),
 			Iter:  sexp.Var{Name: key.Name, Typ: keyTyp},
-			Step:  sexp.Int{Val: 1},
+			Step:  sexp.Int(1),
 			Body:  body,
 			Scope: conv.info.Scopes[node],
 		}

@@ -117,7 +117,7 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
 	var expr sexp.Form
 
-	args := [2]sexp.Form{conv.Expr(target), sexp.Int{Val: 1}}
+	args := [2]sexp.Form{conv.Expr(target), sexp.Int(1)}
 	if node.Tok == token.INC {
 		expr = &sexp.NumAdd{Args: args}
 	} else {

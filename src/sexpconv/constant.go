@@ -35,7 +35,7 @@ func (conv *Converter) Constant(node ast.Expr) sexp.Form {
 }
 
 func constantString(cv constant.Value) sexp.String {
-	return sexp.String{Val: constant.StringVal(cv)}
+	return sexp.String(constant.StringVal(cv))
 }
 
 func constantInt(cv constant.Value) sexp.Int {
@@ -43,14 +43,14 @@ func constantInt(cv constant.Value) sexp.Int {
 	if !exact {
 		panic("can not handle inexact int") // #REFS: 17.
 	}
-	return sexp.Int{Val: val}
+	return sexp.Int(val)
 }
 
 func constantFloat(cv constant.Value) sexp.Float {
 	val, _ := constant.Float64Val(cv)
-	return sexp.Float{Val: val}
+	return sexp.Float(val)
 }
 
 func constantBool(cv constant.Value) sexp.Bool {
-	return sexp.Bool{Val: constant.BoolVal(cv)}
+	return sexp.Bool(constant.BoolVal(cv))
 }

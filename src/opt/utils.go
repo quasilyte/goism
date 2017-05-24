@@ -7,9 +7,10 @@ import (
 func numEq(form sexp.Form, val int64) bool {
 	switch form := form.(type) {
 	case sexp.Int:
-		return form.Val == val
+		return int64(form) == val
 	case sexp.Float:
-		return form.Val == float64(val)
+		return float64(form) == float64(val)
+
 	default:
 		return false
 	}

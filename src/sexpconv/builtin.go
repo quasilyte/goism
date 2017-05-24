@@ -13,7 +13,7 @@ func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
 		return conv.call(function.HashTableCount, arg)
 
 	case *types.Array:
-		return sexp.Int{Val: typ.Len()}
+		return sexp.Int(typ.Len())
 
 	case *types.Slice:
 		return &sexp.SliceLen{Slice: conv.Expr(arg)}
@@ -26,7 +26,7 @@ func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
 func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(arg).(type) {
 	case *types.Array:
-		return sexp.Int{Val: typ.Len()}
+		return sexp.Int(typ.Len())
 
 	case *types.Slice:
 		return &sexp.SliceCap{Slice: conv.Expr(arg)}

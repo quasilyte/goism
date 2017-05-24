@@ -33,7 +33,3 @@ func _addX(arg sexp.Form, x int64) *sexp.NumAddX {
 func _bitand(a, b sexp.Form) sexp.Form {
 	return &sexp.BitAnd{Args: [2]sexp.Form{a, b}}
 }
-
-func _int(val int64) sexp.Int {
-	return sexp.Int{Val: val}
-}

@@ -15,13 +15,13 @@ type Form interface {
 // Atoms.
 type (
 	// Bool = true or false literal.
-	Bool struct{ Val bool }
+	Bool bool
 	// Int = rune constant or integer literal.
-	Int struct{ Val int64 }
+	Int int64
 	// Float = floating point literal (of any supported format).
-	Float struct{ Val float64 }
+	Float float64
 	// String = raw/normal string literal.
-	String struct{ Val string }
+	String string
 	// Symbol = lisp.Symbol literal.
 	Symbol struct{ Val string }
 )

@@ -47,11 +47,11 @@ func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
 func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	switch form := form.(type) {
 	case sexp.Int:
-		emit(cl, instr.ConstRef(cl.cvec.InsertInt(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(form))))
 	case sexp.Float:
-		emit(cl, instr.ConstRef(cl.cvec.InsertFloat(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertFloat(float64(form))))
 	case sexp.String:
-		emit(cl, instr.ConstRef(cl.cvec.InsertString(form.Val)))
+		emit(cl, instr.ConstRef(cl.cvec.InsertString(string(form))))
 	case sexp.Symbol:
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Val)))
 	case sexp.Bool:

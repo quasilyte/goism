@@ -129,7 +129,7 @@ func compileUnaryOps(cl *Compiler, instr instr.Instr, arg sexp.Form, n int64) {
 }
 
 func compileBool(cl *Compiler, form sexp.Bool) {
-	if form.Val {
+	if bool(form) {
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym("t")))
 	} else {
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
