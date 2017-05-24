@@ -225,17 +225,17 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewriteBinOp(form, &form.Args, f)
 	case *NumGte:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringEq:
+	case *StrEq:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringNotEq:
+	case *StrNotEq:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringLt:
+	case *StrLt:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringLte:
+	case *StrLte:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringGt:
+	case *StrGt:
 		return rewriteBinOp(form, &form.Args, f)
-	case *StringGte:
+	case *StrGte:
 		return rewriteBinOp(form, &form.Args, f)
 
 	case *Concat:

@@ -139,15 +139,15 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 		case token.ADD:
 			return &sexp.Concat{Args: args[:]}
 		case token.EQL:
-			return &sexp.StringEq{Args: args}
+			return &sexp.StrEq{Args: args}
 		case token.LSS:
-			return &sexp.StringLt{Args: args}
+			return &sexp.StrLt{Args: args}
 		case token.GTR:
-			return &sexp.StringGt{Args: args}
+			return &sexp.StrGt{Args: args}
 		case token.LEQ:
-			return &sexp.StringLte{Args: args}
+			return &sexp.StrLte{Args: args}
 		case token.GEQ:
-			return &sexp.StringGte{Args: args}
+			return &sexp.StrGte{Args: args}
 
 		default:
 			panic(fmt.Sprintf("unexpected string op: %#v", node.Op))

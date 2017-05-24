@@ -94,12 +94,12 @@ func (op *NumLte) Type() types.Type   { return op.Args[0].Type() }
 func (op *NumGt) Type() types.Type    { return op.Args[0].Type() }
 func (op *NumGte) Type() types.Type   { return op.Args[0].Type() }
 
-func (op *StringEq) Type() types.Type    { return typString }
-func (op *StringNotEq) Type() types.Type { return typString }
-func (op *StringLt) Type() types.Type    { return typString }
-func (op *StringLte) Type() types.Type   { return typString }
-func (op *StringGt) Type() types.Type    { return typString }
-func (op *StringGte) Type() types.Type   { return typString }
+func (op *StrEq) Type() types.Type    { return typString }
+func (op *StrNotEq) Type() types.Type { return typString }
+func (op *StrLt) Type() types.Type    { return typString }
+func (op *StrLte) Type() types.Type   { return typString }
+func (op *StrGt) Type() types.Type    { return typString }
+func (op *StrGte) Type() types.Type   { return typString }
 
 func (op *Concat) Type() types.Type { return typString }
 

@@ -73,17 +73,17 @@ func Cost(form Form) int {
 
 	case *Concat:
 		return cost(form.Args) + 10
-	case *StringEq:
+	case *StrEq:
 		return binOpCost(2, form.Args)
-	case *StringNotEq:
+	case *StrNotEq:
 		return binOpCost(3, form.Args)
-	case *StringLt:
+	case *StrLt:
 		return binOpCost(2, form.Args)
-	case *StringLte:
+	case *StrLte:
 		return binOpCost(2, form.Args) + 6
-	case *StringGt:
+	case *StrGt:
 		return callCost(form.Args[:])
-	case *StringGte:
+	case *StrGte:
 		return callCost(form.Args[:]) + 6
 
 	case *Call:

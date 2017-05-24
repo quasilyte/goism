@@ -278,18 +278,18 @@ type (
 	// NumGte = "Args[0] >= Args[1]"
 	NumGte struct{ Args [2]Form }
 
-	// StringEq = "Args[0] == Args[1]"
-	StringEq struct{ Args [2]Form }
-	// StringNotEq = "Args[0] != Args[1]"
-	StringNotEq struct{ Args [2]Form }
-	// StringLt = "Args[0] < Args[1]"
-	StringLt struct{ Args [2]Form }
-	// StringLte = "Args[0] <= Args[1]"
-	StringLte struct{ Args [2]Form }
-	// StringGt = "Args[0] > Args[1]"
-	StringGt struct{ Args [2]Form }
-	// StringGte = "Args[0] >= Args[1]"
-	StringGte struct{ Args [2]Form }
+	// StrEq = "Args[0] == Args[1]"
+	StrEq struct{ Args [2]Form }
+	// StrNotEq = "Args[0] != Args[1]"
+	StrNotEq struct{ Args [2]Form }
+	// StrLt = "Args[0] < Args[1]"
+	StrLt struct{ Args [2]Form }
+	// StrLte = "Args[0] <= Args[1]"
+	StrLte struct{ Args [2]Form }
+	// StrGt = "Args[0] > Args[1]"
+	StrGt struct{ Args [2]Form }
+	// StrGte = "Args[0] >= Args[1]"
+	StrGte struct{ Args [2]Form }
 )
 
 // Variadic ops.
