@@ -120,6 +120,7 @@
                      (Go--slice-len src)))
       (Go--slice-set dst i (Go--slice-get src i)))))
 
+;; Simple re-slicing.
 (defun Go--subslice2 (slice low high)
   (Go--slice-len-bound slice low)
   (Go--slice-cap-bound slice high)
@@ -127,7 +128,6 @@
              (+ (Go--slice-offset slice) low)
              (- high low)
              (- (Go--slice-cap slice) low)))
-
 ;; Specialization for "slice[low:]".
 (defun Go--subslice-low (slice low)
   (Go--slice-len-bound slice low)
@@ -135,11 +135,25 @@
              (+ (Go--slice-offset slice) low)
              (- (Go--slice-len slice) low)
              (- (Go--slice-cap slice) low)))
-
-;; Specialization for "slice[:high]"
+;; Specialization for "slice[:high]".
 (defun Go--subslice-high (slice high)
   (Go--slice-cap-bound slice high)
   (Go--slice (Go--slice-data slice)
              (Go--slice-offset slice)
              high
              (Go--slice-cap slice)))
+
+;; Slicing an array: "arr[low:high]".
+(defun Go--array-slice (arr low high)
+  (Go--slice arr low (- high low) (- (length arr) low)))
+;; Specialization for "arr[:]".
+(defun Go--array-slice-whole (arr)
+  (let ((len (length arr)))
+    (Go--slice arr 0 len len)))
+;; Specialization for "arr[low:]".
+(defun Go--array-slice-low (arr low)
+  (let ((len (length arr)))
+    (Go--slice arr low (- len low) (- len low))))
+;; Specialization for "arr[:high]".
+(defun Go--array-slice-high (arr high)
+  (Go--slice arr 0 high (length arr)))
