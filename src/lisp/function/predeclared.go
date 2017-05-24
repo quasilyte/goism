@@ -21,6 +21,9 @@ var (
 	HashTableCount = NewNative("hash-table-count")
 	CopySequence   = NewNative("copy-sequence")
 	MakeVector     = NewNative("make-vector")
+	Lsh            = NewNative("lsh")
+	Logand         = NewNative("logand")
+	Logior         = NewNative("logior")
 )
 
 func AppendOne(typ *types.Slice) *Type {
