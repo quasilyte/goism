@@ -60,3 +60,4 @@ func (call *Call) form()          {}
 func (form CallStmt) form()       {}
 func (form *MultiValueRef) form() {}
 func (v Var) form()               {}
+func (form *Let) form()           {}

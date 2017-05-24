@@ -123,6 +123,18 @@ type Var struct {
 	Typ  types.Type
 }
 
+// Let introduces single binding that is visible to a
+// statement or expression. Binding is destroyed after
+// wrapped form is evaluated.
+type Let struct {
+	Bind *Bind
+
+	// Either of these two is set.
+	// Let wraps expression OR statement.
+	Expr Form
+	Stmt Form
+}
+
 /* Special forms */
 
 // Panic causes runtime panic and carries data along.

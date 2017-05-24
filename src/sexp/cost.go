@@ -42,7 +42,8 @@ func Cost(form Form) int {
 		return Cost(form.Slice) + 3
 
 	case *SliceIndex:
-		return Cost(form.Index) + Cost(form.Slice) + 6
+		// To take slice index, slice object must be referenced twice.
+		return Cost(form.Index) + Cost(form.Slice)*2 + 6
 
 	case *Subslice:
 		return Cost(form.Slice) + Cost(form.Low) + Cost(form.High) + 16
@@ -95,6 +96,13 @@ func Cost(form Form) int {
 	case Var:
 		// #FIXME: dynamic scope variables should have higher cost.
 		return 1
+
+	case *Let:
+		bindCost := Cost(form.Bind.Init) + 2
+		if form.Expr == nil {
+			return Cost(form.Stmt) + bindCost
+		}
+		return Cost(form.Expr) + bindCost
 
 	default:
 		panic(fmt.Sprintf("can not evaluate cost of %#v", form))

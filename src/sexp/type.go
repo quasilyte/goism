@@ -176,3 +176,9 @@ func (form *MultiValueRef) Type() types.Type {
 func (v Var) Type() types.Type {
 	return v.Typ
 }
+func (form *Let) Type() types.Type {
+	if form.Expr == nil {
+		return typVoid
+	}
+	return form.Expr.Type()
+}
