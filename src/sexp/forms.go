@@ -73,6 +73,13 @@ type ArrayCopy struct {
 	Array Form
 }
 
+// ArraySlice is array slicing (subslice) expression.
+type ArraySlice struct {
+	Array Form
+	Typ   *types.Slice
+	Span
+}
+
 type (
 	// SliceLen = "len(Slice)".
 	SliceLen struct{ Slice Form }
@@ -96,8 +103,13 @@ type SliceUpdate struct {
 // Subslice = "Slice[Low:High]".
 type Subslice struct {
 	Slice Form
-	Low   Form
-	High  Form
+	Span
+}
+
+// Substr = "Str[Low:High]".
+type Substr struct {
+	Str Form
+	Span
 }
 
 // Call expression is normal (direct) function invocation.
@@ -242,6 +254,9 @@ type (
 		Arg Form
 		X   int64
 	}
+
+	// StrCast = "string(Arg)".
+	StrCast struct{ Arg Form }
 )
 
 // Binary ops.

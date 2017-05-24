@@ -70,6 +70,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 		form.Array = Rewrite(form.Array, f)
 
+	case *ArraySlice:
+		return rewriteSpan(form, &form.Array, &form.Span, f)
+
 	case *SliceLen:
 		if form := f(form); form != nil {
 			return form
@@ -98,12 +101,10 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Expr = Rewrite(form.Expr, f)
 
 	case *Subslice:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Slice = Rewrite(form.Slice, f)
-		form.Low = Rewrite(form.Low, f)
-		form.High = Rewrite(form.High, f)
+		return rewriteSpan(form, &form.Slice, &form.Span, f)
+
+	case *Substr:
+		return rewriteSpan(form, &form.Str, &form.Span, f)
 
 	case *Panic:
 		if form := f(form); form != nil {
@@ -194,6 +195,8 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewriteUnaryOp(form, &form.Arg, f)
 	case *SubX:
 		return rewriteUnaryOp(form, &form.Arg, f)
+	case *StrCast:
+		return rewriteUnaryOp(form, &form.Arg, f)
 
 	case *Shl:
 		return rewriteBinOp(form, &form.Args, f)
@@ -248,6 +251,20 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		panic(fmt.Sprintf("unexpected form: %#v", form))
 	}
 
+	return form
+}
+
+func rewriteSpan(form Form, container *Form, span *Span, f rewriteFunc) Form {
+	if form := f(form); form != nil {
+		return form
+	}
+	*container = Rewrite(*container, f)
+	if span.Low != nil {
+		span.Low = Rewrite(span.Low, f)
+	}
+	if span.High != nil {
+		span.High = Rewrite(span.High, f)
+	}
 	return form
 }
 

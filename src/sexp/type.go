@@ -32,6 +32,9 @@ func (form *ArrayUpdate) Type() types.Type {
 func (form *ArrayCopy) Type() types.Type {
 	return form.Array.Type()
 }
+func (form *ArraySlice) Type() types.Type {
+	return form.Typ
+}
 func (form *SliceLen) Type() types.Type {
 	return typInt
 }
@@ -46,6 +49,9 @@ func (form *SliceUpdate) Type() types.Type {
 }
 func (form *Subslice) Type() types.Type {
 	return form.Slice.Type()
+}
+func (form *Substr) Type() types.Type {
+	return typString
 }
 
 func (form *Panic) Type() types.Type {
@@ -73,10 +79,11 @@ func (form *Repeat) Type() types.Type   { return typVoid }
 func (form *DoTimes) Type() types.Type  { return typVoid }
 func (form *While) Type() types.Type    { return typVoid }
 
-func (op *Not) Type() types.Type  { return typBool }
-func (op *Neg) Type() types.Type  { return op.Arg.Type() }
-func (op *AddX) Type() types.Type { return op.Arg.Type() }
-func (op *SubX) Type() types.Type { return op.Arg.Type() }
+func (op *Not) Type() types.Type     { return typBool }
+func (op *Neg) Type() types.Type     { return op.Arg.Type() }
+func (op *AddX) Type() types.Type    { return op.Arg.Type() }
+func (op *SubX) Type() types.Type    { return op.Arg.Type() }
+func (op *StrCast) Type() types.Type { return typString }
 
 func (op *Shl) Type() types.Type      { return op.Args[0].Type() }
 func (op *Shr) Type() types.Type      { return op.Args[0].Type() }

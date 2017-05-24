@@ -1,6 +1,32 @@
 package sexp
 
+import (
+	"go/types"
+)
+
 // Constructors for simple forms.
+
+func NewSubslice(slice, low, high Form) *Subslice {
+	return &Subslice{
+		Slice: slice,
+		Span:  Span{Low: low, High: high},
+	}
+}
+
+func NewArraySlice(array, low, high Form) *ArraySlice {
+	return &ArraySlice{
+		Array: array,
+		Typ:   types.NewSlice(array.Type().(*types.Array).Elem()),
+		Span:  Span{Low: low, High: high},
+	}
+}
+
+func NewSubstr(str, low, high Form) *Substr {
+	return &Substr{
+		Str:  str,
+		Span: Span{Low: low, High: high},
+	}
+}
 
 func NewNot(arg Form) *Not   { return &Not{Arg: arg} }
 func NewNeg(arg Form) *Neg   { return &Neg{Arg: arg} }

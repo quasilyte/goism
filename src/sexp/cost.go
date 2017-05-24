@@ -35,6 +35,9 @@ func Cost(form Form) int {
 	case *ArrayCopy:
 		return int(form.Type().(*types.Array).Len()) / 2
 
+	case *ArraySlice:
+		return Cost(form.Array) + spanCost(form.Span) + 4
+
 	case *SliceLen:
 		return Cost(form.Slice) + 3
 
@@ -42,11 +45,13 @@ func Cost(form Form) int {
 		return Cost(form.Slice) + 3
 
 	case *SliceIndex:
-		// To take slice index, slice object must be referenced twice.
 		return Cost(form.Index) + Cost(form.Slice)*2 + 6
 
 	case *Subslice:
-		return Cost(form.Slice) + Cost(form.Low) + Cost(form.High) + 16
+		return Cost(form.Slice) + spanCost(form.Span) + 6
+
+	case *Substr:
+		return Cost(form.Str) + spanCost(form.Span) + 1
 
 	case *AddX:
 		return Cost(form.Arg) + int(form.X)
@@ -112,6 +117,17 @@ func Cost(form Form) int {
 	default:
 		panic(fmt.Sprintf("can not evaluate cost of %#v", form))
 	}
+}
+
+func spanCost(span Span) int {
+	cost := 0
+	if span.Low != nil {
+		cost += Cost(span.Low)
+	}
+	if span.High != nil {
+		cost += Cost(span.High)
+	}
+	return cost
 }
 
 // Function invocation cost.
