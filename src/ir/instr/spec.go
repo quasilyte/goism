@@ -49,6 +49,13 @@ var (
 		Encoding: AttrEnc0,
 		Input:    AttrTake1,
 	}
+
+	Substr = Instr{
+		Name:     []byte("substr"),
+		Encoding: AttrEnc0,
+		Input:    AttrTake3,
+		Output:   AttrPushTmp,
+	}
 )
 
 func Concat(argc int) Instr {
