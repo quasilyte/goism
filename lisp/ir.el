@@ -114,18 +114,16 @@
                  ;; - Combined instructions -
                  (stack-ref stack-ref)
                  (discard discard)
-                 (concat comb5 [nil
-                                nil
-                                byte-concat2
-                                byte-concat3
-                                byte-concat4
-                                byte-concatN])
-                 (list comb5 [nil
-                              byte-list1
-                              byte-list2
-                              byte-list3
-                              byte-list4
-                              byte-listN])
+                 (concat concat [nil
+                                 nil
+                                 byte-concat2
+                                 byte-concat3
+                                 byte-concat4])
+                 (list list [nil
+                             byte-list1
+                             byte-list2
+                             byte-list3
+                             byte-list4])
                  ;; - Jump instructions -
                  (goto jmp)
                  (goto-if-nil jmp)
@@ -211,9 +209,12 @@
     (`jmp (let* ((lap-op (ir--info-data op-info))
                  (tag (ir--tag-ref tags arg)))
             (cons lap-op tag)))
-    (`comb5 (if (<= arg 4)
-                (list (aref (ir--info-data op-info) arg))
-              (cons (aref (ir--info-data op-info) 5) arg)))
+    (`concat (if (and (<= arg 4) (/= 1 arg))
+                 (list (aref (ir--info-data op-info) arg))
+               (cons byte-concatN arg)))
+    (`list (if (<= arg 4)
+               (list (aref (ir--info-data op-info) arg))
+             (cons 'byte-listN arg)))
     (_
      (error "Unexpected op kind for `%s'" op))))
 
