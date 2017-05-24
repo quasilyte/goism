@@ -90,6 +90,7 @@ func compileRebind(cl *Compiler, form *sexp.Rebind) {
 	compileExpr(cl, form.Expr)
 	if stIndex := cl.st.Find(form.Name); stIndex != -1 {
 		emit(cl, instr.StackSet(stIndex))
+		// "-1" because we popped stask element.
 		cl.st.Rebind(stIndex-1, form.Name)
 	} else {
 		emit(cl, instr.VarSet(cl.cvec.InsertSym(form.Name)))

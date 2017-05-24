@@ -59,11 +59,11 @@ func (st *ExecutionStack) Discard(n uint16) {
 	st.names = st.names[:len(st.names)-int(n)]
 }
 
-// Pop removes last element and returns it.
-func (st *ExecutionStack) Pop() string {
+// Replace = stack.rebind(index-1, stack.pop()).
+func (st *ExecutionStack) Replace(index uint16) {
 	name := st.names[len(st.names)-1]
-	st.names = st.names[:len(st.names)-1]
-	return name
+	st.Discard(1)
+	st.Rebind(int(index-1), name)
 }
 
 // Find lookups binding and returns its ref index (not normal index).
