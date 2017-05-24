@@ -7,6 +7,7 @@ import (
 	"lisp/function"
 )
 
+// Form = universal S-expression node (akin to Go ast.Node).
 type Form interface {
 	Type() types.Type
 	form()
@@ -28,7 +29,7 @@ type (
 
 // Composite literals.
 type (
-	// ArrayLit = [N]T{...}.
+	// ArrayLit = "[N]T{Vals...}".
 	ArrayLit struct {
 		Vals []Form
 		Typ  *types.Array
@@ -41,7 +42,7 @@ type (
 		Typ  *types.Array
 	}
 
-	// SliceLit = []T{...}.
+	// SliceLit = "[]T{Vals...}".
 	SliceLit struct {
 		Vals []Form
 		Typ  *types.Slice
@@ -73,9 +74,9 @@ type ArrayCopy struct {
 }
 
 type (
-	// SliceLen = "len(slice)".
+	// SliceLen = "len(Slice)".
 	SliceLen struct{ Slice Form }
-	// SliceCap = "cap(slice)".
+	// SliceCap = "cap(Slice)".
 	SliceCap struct{ Slice Form }
 )
 
@@ -92,7 +93,7 @@ type SliceUpdate struct {
 	Expr  Form
 }
 
-// Subslice = "slice[low:high]".
+// Subslice = "Slice[Low:High]".
 type Subslice struct {
 	Slice Form
 	Low   Form
