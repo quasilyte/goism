@@ -165,7 +165,7 @@
                  (num< op0 byte-lss)
                  (num>= op0 byte-geq)
                  (num<= op0 byte-leq)
-                 (neg op0)
+                 (neg op0 byte-negate)
                  (max op0)
                  (min op0)
                  (rem op0)
