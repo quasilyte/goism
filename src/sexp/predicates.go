@@ -1,5 +1,10 @@
 package sexp
 
+// IsStmt returns true for statement form.
+func IsStmt(form Form) bool {
+	return form.Type() == typVoid
+}
+
 // IsReturning returns true for forms that unconditionally
 // return from function.
 func IsReturning(form Form) bool {
