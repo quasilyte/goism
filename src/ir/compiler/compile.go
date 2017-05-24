@@ -248,16 +248,47 @@ func compileSliceCap(cl *Compiler, form *sexp.SliceCap) {
 }
 
 func compileSubslice(cl *Compiler, form *sexp.Subslice) {
-	typ := form.Slice.Type()
-	if form.Low != nil {
-		if form.High != nil {
-			call(cl, function.Subslice2(typ), form.Slice, form.Low, form.High)
-		} else {
-			call(cl, function.SubsliceLow(typ), form.Slice, form.Low)
-		}
-	} else if form.High != nil {
+	switch typ := form.Slice.Type(); form.Kind() {
+	case sexp.SpanLowOnly:
+		call(cl, function.SubsliceLow(typ), form.Slice, form.Low)
+	case sexp.SpanHighOnly:
 		call(cl, function.SubsliceHigh(typ), form.Slice, form.High)
-	} else {
+	case sexp.SpanBoth:
+		call(cl, function.Subslice2(typ), form.Slice, form.Low, form.High)
+	case sexp.SpanWhole:
 		/* Do nothing */
+	}
+}
+
+func compileSubstr(cl *Compiler, form *sexp.Substr) {
+	compileExpr(cl, form.Str)
+	if form.Low == nil {
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
+	} else {
+		compileExpr(cl, form.Low)
+	}
+	if form.High == nil {
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
+	} else {
+		compileExpr(cl, form.High)
+	}
+	emit(cl, instr.Substr)
+}
+
+func compileStrCast(cl *Compiler, form *sexp.StrCast) {
+	// []byte to string conversion.
+	panic("unimplemented")
+}
+
+func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
+	switch form.Kind() {
+	case sexp.SpanLowOnly:
+		call(cl, function.ArraySliceLow(form.Typ), form.Array, form.Low)
+	case sexp.SpanHighOnly:
+		call(cl, function.ArraySliceHigh(form.Typ), form.Array, form.High)
+	case sexp.SpanBoth:
+		call(cl, function.ArraySlice(form.Typ), form.Array, form.Low, form.High)
+	case sexp.SpanWhole:
+		call(cl, function.ArraySliceWhole(form.Typ), form.Array)
 	}
 }

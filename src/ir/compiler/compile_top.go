@@ -70,6 +70,8 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileArrayIndex(cl, form)
 	case *sexp.ArrayCopy:
 		compileArrayCopy(cl, form)
+	case *sexp.ArraySlice:
+		compileArraySlice(cl, form)
 
 	case *sexp.SliceIndex:
 		compileSliceIndex(cl, form)
@@ -79,6 +81,9 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileSliceCap(cl, form)
 	case *sexp.Subslice:
 		compileSubslice(cl, form)
+
+	case *sexp.Substr:
+		compileSubstr(cl, form)
 
 	case *sexp.Shl:
 		call(cl, function.Lsh, form.Arg(), form.N())
@@ -91,6 +96,8 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileUnaryOp(cl, instr.Not, form.Arg)
 	case *sexp.Neg:
 		compileUnaryOp(cl, instr.Neg, form.Arg)
+	case *sexp.StrCast:
+		compileStrCast(cl, form)
 
 	case *sexp.AddX:
 		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)
