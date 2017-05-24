@@ -16,7 +16,7 @@ var (
 func (atom Bool) Type() types.Type   { return typBool }
 func (atom Int) Type() types.Type    { return typInt }
 func (atom Float) Type() types.Type  { return typFloat }
-func (atom String) Type() types.Type { return typString }
+func (atom Str) Type() types.Type    { return typString }
 func (atom Symbol) Type() types.Type { return lisp.Types.Symbol }
 
 func (lit *ArrayLit) Type() types.Type       { return lit.Typ }

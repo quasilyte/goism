@@ -21,8 +21,8 @@ type (
 	Int int64
 	// Float = floating point literal (of any supported format).
 	Float float64
-	// String = raw/normal string literal.
-	String string
+	// Str = raw/normal string literal.
+	Str string
 	// Symbol = lisp.Symbol literal.
 	Symbol struct{ Val string }
 )

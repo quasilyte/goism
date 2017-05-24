@@ -139,10 +139,10 @@ func weakenStrCast(form *sexp.StrCast) sexp.Form {
 		// creating a slice.
 		switch arg.Kind() {
 		case sexp.SpanWhole:
-			return sexp.NewConcat(arg.Array, sexp.String(""))
+			return sexp.NewConcat(arg.Array, sexp.Str(""))
 		default:
 			sub := sexp.NewSubstr(arg.Array, arg.Low, arg.High)
-			return sexp.NewConcat(sub, sexp.String(""))
+			return sexp.NewConcat(sub, sexp.Str(""))
 		}
 	}
 

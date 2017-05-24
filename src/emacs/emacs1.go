@@ -13,5 +13,5 @@ import (
 
 // Insert calls Emacs "insert" function with single string argument.
 func Insert(text string) {
-	lisp.Call("insert", lisp.String(text))
+	lisp.Call("insert", lisp.Str(text))
 }

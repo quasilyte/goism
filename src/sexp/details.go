@@ -3,7 +3,7 @@ package sexp
 func (atom Bool) form()   {}
 func (atom Int) form()    {}
 func (atom Float) form()  {}
-func (atom String) form() {}
+func (atom Str) form()    {}
 func (atom Symbol) form() {}
 
 func (lit *ArrayLit) form()       {}

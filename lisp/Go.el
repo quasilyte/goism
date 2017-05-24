@@ -93,14 +93,14 @@ Requires `goel-translate-package' to be available."
 (defun Go--!object-float (x)
   (Go--!lisp-type-assert x "lisp.Float"))
 (defun Go--!object-string (x)
-  (Go--!lisp-type-assert x "lisp.String"))
+  (Go--!lisp-type-assert x "lisp.Str"))
 (defun Go--!object-symbol (x)
   (Go--!lisp-type-assert x "lisp.Symbol"))
 
 (defun Go--lisp-typename (x)
   (cond ((integerp x) "lisp.Int")
         ((floatp x) "lisp.Float")
-        ((stringp x) "lisp.String")
+        ((stringp x) "lisp.Str")
         ((symbolp x) "lisp.Symbol")
         (t (error "`%s' is not instance of lisp.Object" (type-of x)))))
 

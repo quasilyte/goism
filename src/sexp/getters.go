@@ -22,7 +22,7 @@ func GetFloat(form Form) (float64, bool) {
 }
 
 func GetString(form Form) (string, bool) {
-	if form, ok := form.(String); ok {
+	if form, ok := form.(Str); ok {
 		return string(form), true
 	}
 	return "", false

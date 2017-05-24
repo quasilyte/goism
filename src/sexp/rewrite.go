@@ -22,7 +22,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewriteAtom(form, f)
 	case Float:
 		return rewriteAtom(form, f)
-	case String:
+	case Str:
 		return rewriteAtom(form, f)
 	case Symbol:
 		return rewriteAtom(form, f)

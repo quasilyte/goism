@@ -17,7 +17,7 @@ func ZeroValue(typ types.Type) sexp.Form {
 	case *types.Basic:
 		switch typ.Kind() {
 		case types.String:
-			return sexp.String("")
+			return sexp.Str("")
 		case types.Bool:
 			return sexp.Bool(false)
 

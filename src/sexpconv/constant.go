@@ -34,8 +34,8 @@ func (conv *Converter) Constant(node ast.Expr) sexp.Form {
 	return nil
 }
 
-func constantString(cv constant.Value) sexp.String {
-	return sexp.String(constant.StringVal(cv))
+func constantString(cv constant.Value) sexp.Str {
+	return sexp.Str(constant.StringVal(cv))
 }
 
 func constantInt(cv constant.Value) sexp.Int {

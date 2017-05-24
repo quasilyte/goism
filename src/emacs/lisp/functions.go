@@ -17,7 +17,7 @@ func CallInt(fn string, srgs ...Object) Int { return 0 }
 func CallFloat(fn string, srgs ...Object) Float { return 0.0 }
 
 // CallString like Call, but return value is trusted to be string.
-func CallString(fn string, args ...Object) String { return "" }
+func CallString(fn string, args ...Object) Str { return "" }
 
 // CallBool like Call, but return value is trusted to be bool.
 func CallBool(fn string, args ...Object) Bool { return false }

@@ -10,8 +10,8 @@ type (
 	Int int
 	// Float <- floatp(x)
 	Float float64
-	// String <- stringp(x)
-	String string
+	// Str <- stringp(x)
+	Str string
 	// Bool <- t (any non-nil = true; nil = false)
 	Bool bool
 )

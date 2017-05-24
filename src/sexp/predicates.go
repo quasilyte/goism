@@ -38,7 +38,7 @@ func IsReturning(form Form) bool {
 
 func IsAtom(form Form) bool {
 	switch form.(type) {
-	case Bool, Int, Float, String, Symbol:
+	case Bool, Int, Float, Str, Symbol:
 		return true
 	default:
 		return false

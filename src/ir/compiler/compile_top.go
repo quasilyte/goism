@@ -50,7 +50,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(form))))
 	case sexp.Float:
 		emit(cl, instr.ConstRef(cl.cvec.InsertFloat(float64(form))))
-	case sexp.String:
+	case sexp.Str:
 		emit(cl, instr.ConstRef(cl.cvec.InsertString(string(form))))
 	case sexp.Symbol:
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Val)))

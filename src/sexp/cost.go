@@ -13,7 +13,7 @@ func Cost(form Form) int {
 	// Many aspects can be improved.
 
 	switch form := form.(type) {
-	case Bool, Int, Float, String, Symbol:
+	case Bool, Int, Float, Str, Symbol:
 		return 1
 
 	case *ArrayLit:
