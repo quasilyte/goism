@@ -12,9 +12,16 @@ import (
 // forms into IR because compiler does not recognize
 // some high level constructs.
 func Simplify(form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, simplify)
+}
+
+func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.Block:
-		form.Forms = simplify(form.Forms)
+	case *sexp.Shr:
+		return &sexp.Shl{
+			Arg: form.Arg,
+			N:   &sexp.Neg{Arg: form.N},
+		}
 
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
@@ -35,12 +42,5 @@ func Simplify(form sexp.Form) sexp.Form {
 		}
 	}
 
-	return form
-}
-
-func simplify(forms []sexp.Form) []sexp.Form {
-	for i, form := range forms {
-		forms[i] = Simplify(form)
-	}
-	return forms
+	return nil
 }
