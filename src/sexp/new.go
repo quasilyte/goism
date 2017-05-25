@@ -2,9 +2,14 @@ package sexp
 
 import (
 	"go/types"
+	"lisp/function"
 )
 
 // Constructors for simple forms.
+
+func NewCall(fn *function.Type, args ...Form) *Call {
+	return &Call{Fn: fn, Args: args}
+}
 
 func NewSubslice(slice, low, high Form) *Subslice {
 	return &Subslice{

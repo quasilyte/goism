@@ -125,15 +125,9 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	case *ast.IndexExpr:
 		switch typ := conv.typeOf(lhs.X).(type) {
 		case *types.Map:
-			call := &sexp.Call{
-				Fn: function.MapInsert,
-				Args: conv.valueCopyList([]sexp.Form{
-					conv.Expr(lhs.Index),
-					expr,
-					conv.Expr(lhs.X),
-				}),
+			return sexp.CallStmt{
+				Call: conv.call(function.MapInsert, lhs.Index, expr, lhs.X),
 			}
-			return sexp.CallStmt{Call: call}
 
 		case *types.Array:
 			return &sexp.ArrayUpdate{

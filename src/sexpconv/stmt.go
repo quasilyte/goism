@@ -93,10 +93,7 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 	if len(spec.Values) == 0 {
 		zv := ZeroValue(conv.typeOf(spec.Type))
 		for _, ident := range spec.Names {
-			forms = append(forms, &sexp.Bind{
-				Name: ident.Name,
-				Init: zv,
-			})
+			forms = append(forms, &sexp.Bind{Name: ident.Name, Init: zv})
 		}
 	} else {
 		for i, ident := range spec.Names {
@@ -111,22 +108,16 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 }
 
 func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
-	// "x++" == "x = x + 1"
-	// "x--" == "x = x - 1"
-
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
-	var expr sexp.Form
-
-	args := [2]sexp.Form{conv.Expr(target), sexp.Int(1)}
 	if node.Tok == token.INC {
-		expr = &sexp.Add{Args: args}
-	} else {
-		expr = &sexp.Sub{Args: args}
+		return &sexp.Rebind{
+			Name: target.Name,
+			Expr: sexp.NewAdd1(conv.Expr(target)),
+		}
 	}
-
 	return &sexp.Rebind{
 		Name: target.Name,
-		Expr: expr,
+		Expr: sexp.NewSub1(conv.Expr(target)),
 	}
 }
 

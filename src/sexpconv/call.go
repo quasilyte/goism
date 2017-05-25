@@ -8,11 +8,25 @@ import (
 	"sexp"
 )
 
-func (conv *Converter) call(fn *function.Type, args ...ast.Expr) *sexp.Call {
+func (conv *Converter) callExprList(fn *function.Type, args []ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
 		Args: conv.valueCopyList(conv.exprList(args)),
 	}
+}
+
+// Convenient function to generate function call node.
+// Recognizes ast.Expr and sexp.Form as arguments.
+func (conv *Converter) call(fn *function.Type, args ...interface{}) *sexp.Call {
+	forms := make([]sexp.Form, len(args))
+	for i, arg := range args {
+		if node, ok := arg.(ast.Expr); ok {
+			forms[i] = conv.valueCopy(conv.Expr(node))
+		} else {
+			forms[i] = conv.valueCopy(arg.(sexp.Form))
+		}
+	}
+	return &sexp.Call{Fn: fn, Args: forms}
 }
 
 func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
@@ -29,7 +43,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.intrinFuncCall(fn.Sel.Name, node.Args)
 		}
 
-		return conv.call(conv.makeFunction(fn.Sel, pkg.Name), node.Args...)
+		return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), node.Args)
 
 	case *ast.Ident: // f()
 		switch fn.Name {
@@ -53,17 +67,17 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "append":
 			return conv.appendBuiltin(node.Args)
 		case "copy":
-			return conv.call(function.SliceCopy, node.Args...)
+			return conv.callExprList(function.SliceCopy, node.Args)
 		case "panic":
 			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
 		case "print":
-			return conv.call(function.Print, node.Args...)
+			return conv.callExprList(function.Print, node.Args)
 		case "println":
-			return conv.call(function.Println, node.Args...)
+			return conv.callExprList(function.Println, node.Args)
 		case "delete":
 			return conv.call(function.Remhash, node.Args[1], node.Args[0])
 		default:
-			return conv.call(conv.makeFunction(fn, ""), node.Args...)
+			return conv.callExprList(conv.makeFunction(fn, ""), node.Args)
 		}
 
 	default:

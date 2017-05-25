@@ -45,19 +45,11 @@ func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
 		return conv.call(function.MakeMap(typ))
 
 	case *types.Slice:
-		lenArg := conv.Expr(args[1])
-		zvArg := ZeroValue(typ.Elem())
-		if len(args) == 3 {
-			capArg := conv.Expr(args[2])
-			return &sexp.Call{
-				Fn:   function.MakeSliceCap(typ),
-				Args: []sexp.Form{lenArg, capArg, zvArg},
-			}
+		zv := ZeroValue(typ.Elem())
+		if len(args) == 2 {
+			return conv.call(function.MakeSliceCap(typ), args[1], zv)
 		}
-		return &sexp.Call{
-			Fn:   function.MakeSlice(typ),
-			Args: []sexp.Form{lenArg, zvArg},
-		}
+		return conv.call(function.MakeSlice(typ), args[1], args[2], zv)
 
 	default:
 		panic("unimplemented")
@@ -70,5 +62,5 @@ func (conv *Converter) appendBuiltin(args []ast.Expr) sexp.Form {
 	}
 
 	typ := conv.typeOf(args[0]).(*types.Slice)
-	return conv.call(function.AppendOne(typ), args...)
+	return conv.callExprList(function.AppendOne(typ), args)
 }
