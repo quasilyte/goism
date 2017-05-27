@@ -38,8 +38,7 @@ func (form *While) form()          {}
 func (op UnaryOp) form() {}
 func (op BinOp) form()   {}
 
-func (call *Call) form()          {}
-func (form CallStmt) form()       {}
-func (form *MultiValueRef) form() {}
-func (v Var) form()               {}
-func (form *Let) form()           {}
+func (call *Call) form()    {}
+func (form CallStmt) form() {}
+func (v Var) form()         {}
+func (form *Let) form()     {}

@@ -123,13 +123,6 @@ type CallStmt struct {
 	*Call
 }
 
-// MultiValueRef is an expression that extracts nth
-// multi-value result.
-type MultiValueRef struct {
-	Index int
-	Typ   types.Type
-}
-
 // Var - reference to a global or local variable.
 type Var struct {
 	Name string

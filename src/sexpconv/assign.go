@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"lisp"
 	"lisp/function"
 	"sexp"
 )
@@ -87,9 +88,9 @@ func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
 	// Other results are assigned to a global variable.
 	// Index uniquely identifies variable used for storage.
 	for i := 1; i < len(node.Lhs); i++ {
-		forms[i] = conv.assign(node.Lhs[i], &sexp.MultiValueRef{
-			Index: i,
-			Typ:   tuple.At(i).Type(),
+		forms[i] = conv.assign(node.Lhs[i], sexp.Var{
+			Name: lisp.RetVars[i],
+			Typ:  tuple.At(i).Type(),
 		})
 	}
 

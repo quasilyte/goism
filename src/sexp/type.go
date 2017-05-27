@@ -92,9 +92,6 @@ func (call *Call) Type() types.Type {
 func (form CallStmt) Type() types.Type {
 	return typVoid
 }
-func (form *MultiValueRef) Type() types.Type {
-	return form.Typ
-}
 func (v Var) Type() types.Type {
 	return v.Typ
 }

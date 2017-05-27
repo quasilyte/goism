@@ -177,14 +177,6 @@ func compileCall(cl *Compiler, form *sexp.Call) {
 	}
 }
 
-func compileMultiValueRef(cl *Compiler, form *sexp.MultiValueRef) {
-	if form.Index+1 > len(lisp.RetVars) {
-		panic("too many return values")
-	}
-	sym := lisp.RetVars[form.Index]
-	emit(cl, instr.VarRef(cl.cvec.InsertSym(sym)))
-}
-
 func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)

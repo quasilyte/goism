@@ -134,8 +134,6 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 
 	case *sexp.Call:
 		compileCall(cl, form)
-	case *sexp.MultiValueRef:
-		compileMultiValueRef(cl, form)
 
 	case *sexp.Let:
 		compileLetExpr(cl, form)
