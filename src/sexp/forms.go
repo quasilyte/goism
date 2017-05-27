@@ -25,6 +25,11 @@ type (
 	Str string
 	// Symbol = lisp.Symbol literal.
 	Symbol struct{ Val string }
+	// Var - reference to a global or local variable.
+	Var struct {
+		Name string
+		Typ  types.Type
+	}
 )
 
 // Composite literals.
@@ -109,12 +114,6 @@ type Call struct {
 // CallStmt is a Call which discards returned results.
 type CallStmt struct {
 	*Call
-}
-
-// Var - reference to a global or local variable.
-type Var struct {
-	Name string
-	Typ  types.Type
 }
 
 // Let introduces single binding that is visible to a

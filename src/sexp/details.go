@@ -5,6 +5,7 @@ func (atom Int) form()    {}
 func (atom Float) form()  {}
 func (atom Str) form()    {}
 func (atom Symbol) form() {}
+func (atom Var) form()    {}
 
 func (lit *ArrayLit) form()       {}
 func (lit *SparseArrayLit) form() {}
@@ -37,5 +38,4 @@ func (op BinOp) form()   {}
 
 func (call *Call) form()    {}
 func (form CallStmt) form() {}
-func (v Var) form()         {}
 func (form *Let) form()     {}

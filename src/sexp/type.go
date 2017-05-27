@@ -18,60 +18,42 @@ func (atom Int) Type() types.Type    { return typInt }
 func (atom Float) Type() types.Type  { return typFloat }
 func (atom Str) Type() types.Type    { return typString }
 func (atom Symbol) Type() types.Type { return lisp.Types.Symbol }
+func (atom Var) Type() types.Type    { return atom.Typ }
+
+func (op *UnaryOp) Type() types.Type { return op.X.Type() }
+func (op *BinOp) Type() types.Type   { return op.Args[0].Type() }
 
 func (lit *ArrayLit) Type() types.Type       { return lit.Typ }
 func (lit *SparseArrayLit) Type() types.Type { return lit.Typ }
 func (lit *SliceLit) Type() types.Type       { return lit.Typ }
 
+func (form *ArrayUpdate) Type() types.Type { return typVoid }
+func (form *SliceUpdate) Type() types.Type { return typVoid }
+func (form *Panic) Type() types.Type       { return typVoid }
+func (form *Bind) Type() types.Type        { return typVoid }
+func (form *Rebind) Type() types.Type      { return typVoid }
+func (form *FormList) Type() types.Type    { return typVoid }
+func (form *Block) Type() types.Type       { return typVoid }
+func (form *If) Type() types.Type          { return typVoid }
+func (form *Return) Type() types.Type      { return typVoid }
+func (form *Repeat) Type() types.Type      { return typVoid }
+func (form *DoTimes) Type() types.Type     { return typVoid }
+func (form *While) Type() types.Type       { return typVoid }
+func (form CallStmt) Type() types.Type     { return typVoid }
+
 func (form *ArrayIndex) Type() types.Type {
 	return form.Array.Type().Underlying().(*types.Array).Elem()
-}
-func (form *ArrayUpdate) Type() types.Type {
-	return typVoid
-}
-func (form *ArraySlice) Type() types.Type {
-	return form.Typ
 }
 func (form *SliceIndex) Type() types.Type {
 	return form.Slice.Type().Underlying().(*types.Slice).Elem()
 }
-func (form *SliceUpdate) Type() types.Type {
-	return typVoid
-}
-func (form *Subslice) Type() types.Type {
-	return form.Slice.Type()
-}
-func (form *Substr) Type() types.Type {
-	return typString
-}
 
-func (form *Panic) Type() types.Type {
-	return typVoid
-}
-func (form *Bind) Type() types.Type {
-	return typVoid
-}
-func (form *Rebind) Type() types.Type {
-	return typVoid
-}
+func (form *ArraySlice) Type() types.Type { return form.Typ }
+func (form *Subslice) Type() types.Type   { return form.Slice.Type() }
+func (form *Substr) Type() types.Type     { return typString }
 
-func (form *TypeAssert) Type() types.Type {
-	return form.Typ
-}
-func (form *LispTypeAssert) Type() types.Type {
-	return form.Typ
-}
-
-func (form *FormList) Type() types.Type { return typVoid }
-func (form *Block) Type() types.Type    { return typVoid }
-func (form *If) Type() types.Type       { return typVoid }
-func (form *Return) Type() types.Type   { return typVoid }
-func (form *Repeat) Type() types.Type   { return typVoid }
-func (form *DoTimes) Type() types.Type  { return typVoid }
-func (form *While) Type() types.Type    { return typVoid }
-
-func (op *UnaryOp) Type() types.Type { return op.X.Type() }
-func (op *BinOp) Type() types.Type   { return op.Args[0].Type() }
+func (form *TypeAssert) Type() types.Type     { return form.Typ }
+func (form *LispTypeAssert) Type() types.Type { return form.Typ }
 
 func (call *Call) Type() types.Type {
 	results := call.Fn.Results()
@@ -80,12 +62,7 @@ func (call *Call) Type() types.Type {
 	}
 	return results
 }
-func (form CallStmt) Type() types.Type {
-	return typVoid
-}
-func (v Var) Type() types.Type {
-	return v.Typ
-}
+
 func (form *Let) Type() types.Type {
 	if form.Expr == nil {
 		return typVoid
