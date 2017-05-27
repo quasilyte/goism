@@ -5,6 +5,7 @@ import (
 	"lisp"
 )
 
+// This importer handles "emacs/lisp" special package import.
 type emacsImporter struct {
 	impl types.Importer
 }

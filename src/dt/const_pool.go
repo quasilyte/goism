@@ -85,9 +85,7 @@ func (cp *ConstPool) Bytes() []byte {
 	for _, x := range cp.vals {
 		switch x := x.(type) {
 		case string:
-			buf.WriteByte('"')
 			buf.WriteString(x)
-			buf.WriteByte('"')
 		case int64:
 			buf.WriteString(strconv.FormatInt(x, 10))
 		case float64:

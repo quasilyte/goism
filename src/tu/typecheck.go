@@ -7,19 +7,18 @@ import (
 	"go/types"
 )
 
-type goPackage struct {
-	*ast.Package
-	info     *types.Info
-	topLevel *types.Scope
+type typecheckRes struct {
+	info *types.Info
+	pkg  *types.Package
 }
 
-var typeCheckCfg = types.Config{
+var typecheckCfg = types.Config{
 	Importer: &emacsImporter{
 		impl: importer.Default(),
 	},
 }
 
-func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, error) {
+func typecheck(fSet *token.FileSet, files []*ast.File) (typecheckRes, error) {
 	info := &types.Info{
 		Types:      make(map[ast.Expr]types.TypeAndValue),
 		Defs:       make(map[*ast.Ident]types.Object),
@@ -28,16 +27,6 @@ func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, 
 		Scopes:     make(map[ast.Node]*types.Scope),
 	}
 
-	files := make([]*ast.File, 0, len(parsedPkg.Files))
-	for _, file := range parsedPkg.Files {
-		files = append(files, file)
-	}
-
-	checkedPkg, err := typeCheckCfg.Check("$PATH", fSet, files, info)
-	goPkg := &goPackage{
-		Package:  parsedPkg,
-		info:     info,
-		topLevel: checkedPkg.Scope(),
-	}
-	return goPkg, err
+	pkg, err := typecheckCfg.Check("$PATH", fSet, files, info)
+	return typecheckRes{info: info, pkg: pkg}, err
 }

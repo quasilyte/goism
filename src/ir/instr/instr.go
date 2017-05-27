@@ -37,3 +37,7 @@ type Instr struct {
 	Output   outputMode
 	Data     uint16
 }
+
+func (ins *Instr) IsInvalid() bool {
+	return len(ins.Name) == 0
+}

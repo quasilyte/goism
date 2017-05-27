@@ -1,5 +1,7 @@
 package instr
 
+var Invalid = Instr{}
+
 // Jump instruction names.
 var (
 	Jmp       = []byte("goto")
@@ -10,13 +12,19 @@ var (
 
 // Binary ops.
 var (
-	NumEq    = binOp("num=")
-	NumGt    = binOp("num>")
-	NumLt    = binOp("num<")
-	NumSub   = binOp("sub")
-	NumAdd   = binOp("add")
-	NumMul   = binOp("mul")
-	NumQuo   = binOp("quo")
+	NumEq  = binOp("num=")
+	NumGt  = binOp("num>")
+	NumLt  = binOp("num<")
+	NumGte = binOp("num>=")
+	NumLte = binOp("num<=")
+	NumSub = binOp("sub")
+	NumAdd = binOp("add")
+	NumMul = binOp("mul")
+	NumQuo = binOp("quo")
+
+	StrEq = binOp("str=")
+	StrLt = binOp("str<")
+
 	ArrayRef = binOp("array-ref")
 
 	SetCar = binOp("setcar")
@@ -56,6 +64,8 @@ var (
 		Input:    AttrTake3,
 		Output:   AttrPushTmp,
 	}
+
+	Concat2 = Concat(2)
 )
 
 func Concat(argc int) Instr {

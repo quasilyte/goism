@@ -3,27 +3,43 @@ package compiler
 import (
 	"bytes"
 	"dt"
+	"go/types"
 	"ir"
 	"tu"
+	"xast"
 )
 
 type Compiler struct {
-	buf         bytes.Buffer
-	cvec        *dt.ConstPool
-	st          *dt.ExecutionStack
-	lastLabelID uint16
+	ast *xast.Tree
+
+	*types.Info
+
+	cvec *dt.ConstPool
+	st   *dt.ExecutionStack
+
+	buf bytes.Buffer // IR output is written here
+
+	lastLabelID int // Unique jmp label ID counter
+
+	pkg *tu.Package
 }
 
-func New() *Compiler {
+func New(pkg *tu.Package) *Compiler {
 	return &Compiler{
+		Info: pkg.TypeInfo,
+
 		cvec: &dt.ConstPool{},
+		st:   &dt.ExecutionStack{},
+
+		pkg: pkg,
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Object {
-	cl.reset(f.Params)
+func (cl *Compiler) CompileFunc(fn *tu.Func) *ir.Object {
+	cl.reset(fn)
 
-	compileStmtList(cl, f.Body.Forms)
+	preprocessTree(fn.Tree)
+	cl.compileStmtList(fn.Root.List)
 
 	return &ir.Object{
 		StackUsage: cl.st.MaxLen(),
@@ -33,9 +49,19 @@ func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Object {
 }
 
 // Prepare compiler for re-use.
-func (cl *Compiler) reset(bindings []string) {
+func (cl *Compiler) reset(fn *tu.Func) {
+	cl.ast = fn.Tree
 	cl.buf.Truncate(0)
 	cl.cvec.Clear()
-	cl.st = dt.NewExecutionStack(bindings)
-	cl.lastLabelID = 0
+	cl.st.Clear()
+
+	cl.initStack(fn)
+}
+
+func (cl *Compiler) initStack(fn *tu.Func) {
+	for _, field := range fn.Decl.Type.Params.List {
+		for _, ident := range field.Names {
+			cl.st.PushVar(ident.Name)
+		}
+	}
 }

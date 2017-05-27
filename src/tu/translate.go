@@ -1,13 +1,6 @@
 package tu
 
-import (
-	"go/ast"
-	"go/types"
-	"lisp"
-	"sexp"
-	"sexpconv"
-)
-
+/*
 func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 	pkg := &Package{
 		Name:    goPkg.Name,
@@ -96,3 +89,4 @@ func translateFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
 		DocString: decl.Doc.Text(),
 	})
 }
+*/

@@ -12,14 +12,13 @@ type ExecutionStack struct {
 	maxLen int
 }
 
-// NewExecutionStack creates new stack that is
-// populated by provided bindings.
-func NewExecutionStack(bindings []string) *ExecutionStack {
-	names := make([]string, 0, len(bindings)+8)
-	return &ExecutionStack{
-		names:  append(names, bindings...),
-		maxLen: len(bindings),
-	}
+func (st *ExecutionStack) Len() int {
+	return len(st.names)
+}
+
+func (st *ExecutionStack) Clear() {
+	st.names = st.names[:0]
+	st.maxLen = 0
 }
 
 // MaxLen returns max stack length recorded.
@@ -41,6 +40,11 @@ func (st *ExecutionStack) Rebind(ref int, name string) {
 // Push adds new unnamed value to stack.
 func (st *ExecutionStack) Push() {
 	st.push("")
+}
+
+// PushVar is like calling Push followed by a Bind(name).
+func (st *ExecutionStack) PushVar(name string) {
+	st.push(name)
 }
 
 // Dup pushes specified stack element (copies it).

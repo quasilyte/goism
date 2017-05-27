@@ -4,6 +4,8 @@ import (
 	"ir/instr"
 )
 
+// IR emitting functions.
+
 func emit(cl *Compiler, ins instr.Instr) {
 	switch ins.Input {
 	case instr.AttrTakeNothing:
@@ -42,6 +44,8 @@ func emit(cl *Compiler, ins instr.Instr) {
 		cl.st.Push()
 		emit(cl, instr.Discard(1))
 	}
+
+	// fmt.Printf("%-16s%4d %s\n", string(ins.Name), ins.Data, cl.st.String())
 }
 
 func emitJmp(cl *Compiler, label label) {

@@ -8,7 +8,7 @@ import (
 	"reflect"
 )
 
-func parsePackage(fSet *token.FileSet, pkgPath string) (*ast.Package, error) {
+func parse(fSet *token.FileSet, pkgPath string) (*ast.Package, error) {
 	const parseFlags = parser.ParseComments
 
 	pkgs, err := parser.ParseDir(fSet, pkgPath, nil, parseFlags)
