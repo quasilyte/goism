@@ -42,34 +42,31 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 
 func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	typ := conv.basicTypeOf(rhs)
-	args := [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)}
+	x, y := conv.Expr(lhs), conv.Expr(rhs)
 
 	if typ.Info()&types.IsNumeric != 0 {
-		return conv.assign(lhs, &sexp.Add{Args: args})
+		return conv.assign(lhs, sexp.NewAdd(x, y))
 	}
 	if typ.Kind() == types.String {
-		return conv.assign(lhs, &sexp.Concat{Args: args[:]})
+		return conv.assign(lhs, sexp.NewConcat(x, y))
 	}
 
 	panic("unimplemented")
 }
 
 func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.Sub{
-		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
-	})
+	x, y := conv.Expr(lhs), conv.Expr(rhs)
+	return conv.assign(lhs, sexp.NewSub(x, y))
 }
 
 func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.Mul{
-		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
-	})
+	x, y := conv.Expr(lhs), conv.Expr(rhs)
+	return conv.assign(lhs, sexp.NewMul(x, y))
 }
 
 func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
-	return conv.assign(lhs, &sexp.Quo{
-		Args: [2]sexp.Form{conv.Expr(lhs), conv.Expr(rhs)},
-	})
+	x, y := conv.Expr(lhs), conv.Expr(rhs)
+	return conv.assign(lhs, sexp.NewQuo(x, y))
 }
 
 func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
@@ -167,6 +164,7 @@ func (conv *Converter) ignoredExpr(expr sexp.Form) sexp.Form {
 
 	default:
 		// Ignored completely.
+
 		return emptyForm
 	}
 }

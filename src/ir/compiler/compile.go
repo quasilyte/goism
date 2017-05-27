@@ -275,7 +275,7 @@ func compileSubstr(cl *Compiler, form *sexp.Substr) {
 	emit(cl, instr.Substr)
 }
 
-func compileStrCast(cl *Compiler, form *sexp.StrCast) {
+func compileStrCast(cl *Compiler, form *sexp.UnaryOp) {
 	// []byte to string conversion.
 	panic("unimplemented")
 }

@@ -95,39 +95,36 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	}
 
 	typ := conv.basicTypeOf(node.X)
-	args := [2]sexp.Form{
-		conv.Expr(node.X),
-		conv.Expr(node.Y),
-	}
+	x, y := conv.Expr(node.X), conv.Expr(node.Y)
 
 	if typ.Info()&types.IsNumeric != 0 {
 		switch node.Op {
 		case token.ADD:
-			return &sexp.Add{Args: args}
+			return sexp.NewAdd(x, y)
 		case token.SUB:
-			return &sexp.Sub{Args: args}
+			return sexp.NewSub(x, y)
 		case token.MUL:
-			return &sexp.Mul{Args: args}
+			return sexp.NewMul(x, y)
 		case token.QUO:
-			return &sexp.Quo{Args: args}
+			return sexp.NewQuo(x, y)
 		case token.EQL:
-			return &sexp.NumEq{Args: args}
+			return sexp.NewNumEq(x, y)
 		case token.LSS:
-			return &sexp.NumLt{Args: args}
+			return sexp.NewNumLt(x, y)
 		case token.GTR:
-			return &sexp.NumGt{Args: args}
+			return sexp.NewNumGt(x, y)
 		case token.LEQ:
-			return &sexp.NumLte{Args: args}
+			return sexp.NewNumLte(x, y)
 		case token.GEQ:
-			return &sexp.NumGte{Args: args}
+			return sexp.NewNumGte(x, y)
 		case token.AND:
-			return &sexp.BitAnd{Args: args}
+			return sexp.NewBitAnd(x, y)
 		case token.OR:
-			return &sexp.BitOr{Args: args}
+			return sexp.NewBitOr(x, y)
 		case token.SHL:
-			return &sexp.Shl{Args: args}
+			return sexp.NewShl(x, y)
 		case token.SHR:
-			return &sexp.Shr{Args: args}
+			return sexp.NewShr(x, y)
 
 		default:
 			panic(fmt.Sprintf("unexpected num op: %#v", node.Op))
@@ -137,17 +134,17 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	if typ.Kind() == types.String {
 		switch node.Op {
 		case token.ADD:
-			return &sexp.Concat{Args: args[:]}
+			return sexp.NewConcat(x, y)
 		case token.EQL:
-			return &sexp.StrEq{Args: args}
+			return sexp.NewStrEq(x, y)
 		case token.LSS:
-			return &sexp.StrLt{Args: args}
+			return sexp.NewStrLt(x, y)
 		case token.GTR:
-			return &sexp.StrGt{Args: args}
+			return sexp.NewStrGt(x, y)
 		case token.LEQ:
-			return &sexp.StrLte{Args: args}
+			return sexp.NewStrLte(x, y)
 		case token.GEQ:
-			return &sexp.StrGte{Args: args}
+			return sexp.NewStrGte(x, y)
 
 		default:
 			panic(fmt.Sprintf("unexpected string op: %#v", node.Op))
@@ -175,15 +172,15 @@ func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 		return cv
 	}
 
-	arg := conv.Expr(node.X)
+	x := conv.Expr(node.X)
 
 	switch node.Op {
 	case token.NOT:
-		return &sexp.Not{Arg: arg}
+		return sexp.NewNot(x)
 	case token.SUB:
-		return &sexp.Neg{Arg: arg}
+		return sexp.NewNeg(x)
 	case token.ADD:
-		return arg
+		return x
 	}
 
 	panic("unimplemented")

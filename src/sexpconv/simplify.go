@@ -17,12 +17,10 @@ func Simplify(form sexp.Form) sexp.Form {
 
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.Shr:
-		return &sexp.Shl{
-			Args: [2]sexp.Form{
-				form.Arg(),
-				&sexp.Neg{Arg: form.N()},
-			},
+	case *sexp.BinOp:
+		if form.Kind == sexp.OpShl {
+			x, y := form.Args[0], form.Args[1]
+			return sexp.NewShl(x, sexp.NewNeg(y))
 		}
 
 	case *sexp.DoTimes:

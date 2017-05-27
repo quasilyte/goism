@@ -27,8 +27,3 @@ func GetString(form Form) (string, bool) {
 	}
 	return "", false
 }
-
-func (form *Shl) Arg() Form { return form.Args[0] }
-func (form *Shl) N() Form   { return form.Args[1] }
-func (form *Shr) Arg() Form { return form.Args[0] }
-func (form *Shr) N() Form   { return form.Args[1] }

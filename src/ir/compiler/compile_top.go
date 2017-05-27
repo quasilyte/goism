@@ -85,41 +85,52 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	case *sexp.Substr:
 		compileSubstr(cl, form)
 
-	case *sexp.Shl:
-		call(cl, function.Lsh, form.Arg(), form.N())
-	case *sexp.BitAnd:
-		call(cl, function.Logand, form.Args[0], form.Args[1])
-	case *sexp.BitOr:
-		call(cl, function.Logior, form.Args[0], form.Args[1])
+	case *sexp.BinOp:
+		switch form.Kind {
+		case sexp.OpShl:
+			call(cl, function.Lsh, form.Args[0], form.Args[1])
+		case sexp.OpBitAnd:
+			call(cl, function.Logand, form.Args[0], form.Args[1])
+		case sexp.OpBitOr:
+			call(cl, function.Logior, form.Args[0], form.Args[1])
+		case sexp.OpAdd:
+			compileBinOp(cl, instr.NumAdd, form.Args)
+		case sexp.OpSub:
+			compileBinOp(cl, instr.NumSub, form.Args)
+		case sexp.OpMul:
+			compileBinOp(cl, instr.NumMul, form.Args)
+		case sexp.OpQuo:
+			compileBinOp(cl, instr.NumQuo, form.Args)
+		case sexp.OpNumGt:
+			compileBinOp(cl, instr.NumGt, form.Args)
+		case sexp.OpNumLt:
+			compileBinOp(cl, instr.NumLt, form.Args)
+		case sexp.OpNumEq:
+			compileBinOp(cl, instr.NumEq, form.Args)
+		case sexp.OpConcat:
+			compileBinOp(cl, instr.Concat(2), form.Args)
+		}
 
-	case *sexp.Not:
-		compileUnaryOp(cl, instr.Not, form.Arg)
-	case *sexp.Neg:
-		compileUnaryOp(cl, instr.Neg, form.Arg)
-	case *sexp.StrCast:
-		compileStrCast(cl, form)
+	case *sexp.UnaryOp:
+		switch form.Kind {
+		case sexp.OpNot:
+			compileUnaryOp(cl, instr.Not, form.X)
+		case sexp.OpNeg:
+			compileUnaryOp(cl, instr.Neg, form.X)
+		case sexp.OpStrCast:
+			compileStrCast(cl, form)
 
-	case *sexp.AddX:
-		compileUnaryOps(cl, instr.Add1, form.Arg, form.X)
-	case *sexp.SubX:
-		compileUnaryOps(cl, instr.Sub1, form.Arg, form.X)
-	case *sexp.Add:
-		compileBinOp(cl, instr.NumAdd, form.Args)
-	case *sexp.Sub:
-		compileBinOp(cl, instr.NumSub, form.Args)
-	case *sexp.Mul:
-		compileBinOp(cl, instr.NumMul, form.Args)
-	case *sexp.Quo:
-		compileBinOp(cl, instr.NumQuo, form.Args)
-	case *sexp.NumGt:
-		compileBinOp(cl, instr.NumGt, form.Args)
-	case *sexp.NumLt:
-		compileBinOp(cl, instr.NumLt, form.Args)
-	case *sexp.NumEq:
-		compileBinOp(cl, instr.NumEq, form.Args)
-
-	case *sexp.Concat:
-		compileVariadicOp(cl, instr.Concat(len(form.Args)), form.Args)
+		case sexp.OpSub1:
+			compileUnaryOp(cl, instr.Sub1, form.X)
+		case sexp.OpSub2:
+			compileUnaryOp(cl, instr.Sub1, form.X)
+			compileUnaryOp(cl, instr.Sub1, form.X)
+		case sexp.OpAdd1:
+			compileUnaryOp(cl, instr.Add1, form.X)
+		case sexp.OpAdd2:
+			compileUnaryOp(cl, instr.Add1, form.X)
+			compileUnaryOp(cl, instr.Add1, form.X)
+		}
 
 	case *sexp.Call:
 		compileCall(cl, form)

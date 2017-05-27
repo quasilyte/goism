@@ -187,65 +187,18 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			form.Expr = Rewrite(form.Expr, f)
 		}
 
-	case *Not:
-		return rewriteUnaryOp(form, &form.Arg, f)
-	case *Neg:
-		return rewriteUnaryOp(form, &form.Arg, f)
-	case *AddX:
-		return rewriteUnaryOp(form, &form.Arg, f)
-	case *SubX:
-		return rewriteUnaryOp(form, &form.Arg, f)
-	case *StrCast:
-		return rewriteUnaryOp(form, &form.Arg, f)
-
-	case *Shl:
-		return rewriteBinOp(form, &form.Args, f)
-	case *Shr:
-		return rewriteBinOp(form, &form.Args, f)
-	case *BitOr:
-		return rewriteBinOp(form, &form.Args, f)
-	case *BitAnd:
-		return rewriteBinOp(form, &form.Args, f)
-	case *BitXor:
-		return rewriteBinOp(form, &form.Args, f)
-	case *Add:
-		return rewriteBinOp(form, &form.Args, f)
-	case *Sub:
-		return rewriteBinOp(form, &form.Args, f)
-	case *Mul:
-		return rewriteBinOp(form, &form.Args, f)
-	case *Quo:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumEq:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumNotEq:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumLt:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumLte:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumGt:
-		return rewriteBinOp(form, &form.Args, f)
-	case *NumGte:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrEq:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrNotEq:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrLt:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrLte:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrGt:
-		return rewriteBinOp(form, &form.Args, f)
-	case *StrGte:
-		return rewriteBinOp(form, &form.Args, f)
-
-	case *Concat:
+	case *UnaryOp:
 		if form := f(form); form != nil {
 			return form
 		}
-		form.Args = rewriteList(form.Args, f)
+		form.X = Rewrite(form.X, f)
+
+	case *BinOp:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Args[0] = Rewrite(form.Args[0], f)
+		form.Args[1] = Rewrite(form.Args[1], f)
 
 	default:
 		panic(fmt.Sprintf("unexpected form: %#v", form))

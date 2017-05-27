@@ -33,33 +33,40 @@ func NewSubstr(str, low, high Form) *Substr {
 	}
 }
 
-func NewNot(arg Form) *Not   { return &Not{Arg: arg} }
-func NewNeg(arg Form) *Neg   { return &Neg{Arg: arg} }
-func NewAdd1(arg Form) *AddX { return &AddX{Arg: arg, X: 1} }
-func NewSub1(arg Form) *SubX { return &SubX{Arg: arg, X: 1} }
+func NewNot(arg Form) *UnaryOp     { return newOp1(OpNot, arg) }
+func NewNeg(arg Form) *UnaryOp     { return newOp1(OpNeg, arg) }
+func NewAdd1(arg Form) *UnaryOp    { return newOp1(OpAdd1, arg) }
+func NewAdd2(arg Form) *UnaryOp    { return newOp1(OpAdd1, arg) }
+func NewSub1(arg Form) *UnaryOp    { return newOp1(OpSub1, arg) }
+func NewSub2(arg Form) *UnaryOp    { return newOp1(OpSub2, arg) }
+func NewStrCast(arg Form) *UnaryOp { return newOp1(OpStrCast, arg) }
 
-func NewShl(a, b Form) *Shl           { return &Shl{Args: [2]Form{a, b}} }
-func NewShr(a, b Form) *Shr           { return &Shr{Args: [2]Form{a, b}} }
-func NewBitOr(a, b Form) *BitOr       { return &BitOr{Args: [2]Form{a, b}} }
-func NewBitAnd(a, b Form) *BitAnd     { return &BitAnd{Args: [2]Form{a, b}} }
-func NewBitXor(a, b Form) *BitXor     { return &BitXor{Args: [2]Form{a, b}} }
-func NewAdd(a, b Form) *Add           { return &Add{Args: [2]Form{a, b}} }
-func NewSub(a, b Form) *Sub           { return &Sub{Args: [2]Form{a, b}} }
-func NewMul(a, b Form) *Mul           { return &Mul{Args: [2]Form{a, b}} }
-func NewQuo(a, b Form) *Quo           { return &Quo{Args: [2]Form{a, b}} }
-func NewNumEq(a, b Form) *NumEq       { return &NumEq{Args: [2]Form{a, b}} }
-func NewNumNotEq(a, b Form) *NumNotEq { return &NumNotEq{Args: [2]Form{a, b}} }
-func NewNumLt(a, b Form) *NumLt       { return &NumLt{Args: [2]Form{a, b}} }
-func NewNumLte(a, b Form) *NumLte     { return &NumLte{Args: [2]Form{a, b}} }
-func NewNumGt(a, b Form) *NumGt       { return &NumGt{Args: [2]Form{a, b}} }
-func NewNumGte(a, b Form) *NumGte     { return &NumGte{Args: [2]Form{a, b}} }
-func NewStrEq(a, b Form) *StrEq       { return &StrEq{Args: [2]Form{a, b}} }
-func NewStrNotEq(a, b Form) *StrNotEq { return &StrNotEq{Args: [2]Form{a, b}} }
-func NewStrLt(a, b Form) *StrLt       { return &StrLt{Args: [2]Form{a, b}} }
-func NewStrLte(a, b Form) *StrLte     { return &StrLte{Args: [2]Form{a, b}} }
-func NewStrGt(a, b Form) *StrGt       { return &StrGt{Args: [2]Form{a, b}} }
-func NewStrGte(a, b Form) *StrGte     { return &StrGte{Args: [2]Form{a, b}} }
+func NewShl(x, y Form) *BinOp    { return newOp2(OpShl, x, y) }
+func NewShr(x, y Form) *BinOp    { return newOp2(OpShr, x, y) }
+func NewBitOr(x, y Form) *BinOp  { return newOp2(OpBitOr, x, y) }
+func NewBitAnd(x, y Form) *BinOp { return newOp2(OpBitAnd, x, y) }
+func NewBitXor(x, y Form) *BinOp { return newOp2(OpBitXor, x, y) }
+func NewAdd(x, y Form) *BinOp    { return newOp2(OpAdd, x, y) }
+func NewSub(x, y Form) *BinOp    { return newOp2(OpSub, x, y) }
+func NewMul(x, y Form) *BinOp    { return newOp2(OpMul, x, y) }
+func NewQuo(x, y Form) *BinOp    { return newOp2(OpQuo, x, y) }
+func NewNumEq(x, y Form) *BinOp  { return newOp2(OpNumEq, x, y) }
+func NewNumNeq(x, y Form) *BinOp { return newOp2(OpNumNeq, x, y) }
+func NewNumLt(x, y Form) *BinOp  { return newOp2(OpNumLt, x, y) }
+func NewNumLte(x, y Form) *BinOp { return newOp2(OpNumLte, x, y) }
+func NewNumGt(x, y Form) *BinOp  { return newOp2(OpNumGt, x, y) }
+func NewNumGte(x, y Form) *BinOp { return newOp2(OpNumGte, x, y) }
+func NewStrEq(x, y Form) *BinOp  { return newOp2(OpStrEq, x, y) }
+func NewStrNeq(x, y Form) *BinOp { return newOp2(OpStrNeq, x, y) }
+func NewStrLt(x, y Form) *BinOp  { return newOp2(OpStrLt, x, y) }
+func NewStrLte(x, y Form) *BinOp { return newOp2(OpStrLte, x, y) }
+func NewStrGt(x, y Form) *BinOp  { return newOp2(OpStrGt, x, y) }
+func NewStrGte(x, y Form) *BinOp { return newOp2(OpStrGte, x, y) }
+func NewConcat(x, y Form) *BinOp { return newOp2(OpConcat, x, y) }
 
-func NewConcat(args ...Form) *Concat {
-	return &Concat{Args: args}
+func newOp2(kind OpKind, x, y Form) *BinOp {
+	return &BinOp{Kind: kind, Args: [2]Form{x, y}}
+}
+func newOp1(kind OpKind, x Form) *UnaryOp {
+	return &UnaryOp{Kind: kind, X: x}
 }

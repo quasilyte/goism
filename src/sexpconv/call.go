@@ -57,7 +57,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "float32", "float64":
 			return conv.Expr(node.Args[0])
 		case "string":
-			return &sexp.StrCast{Arg: conv.Expr(node.Args[0])}
+			return sexp.NewStrCast(conv.Expr(node.Args[0]))
 		case "make":
 			return conv.makeBuiltin(node.Args)
 		case "len":

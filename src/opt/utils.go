@@ -15,11 +15,3 @@ func numEq(form sexp.Form, val int64) bool {
 		return false
 	}
 }
-
-func addX(arg sexp.Form, x int64) *sexp.AddX {
-	return &sexp.AddX{Arg: arg, X: x}
-}
-
-func subX(arg sexp.Form, x int64) *sexp.SubX {
-	return &sexp.SubX{Arg: arg, X: x}
-}

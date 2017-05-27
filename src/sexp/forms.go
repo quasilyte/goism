@@ -237,79 +237,56 @@ type (
 	}
 )
 
-// Unary ops.
-type (
-	// Not = "!Arg".
-	Not struct{ Arg Form }
-	// Neg = "-Arg".
-	Neg struct{ Arg Form }
+type UnaryOp struct {
+	Kind OpKind
+	X    Form
+}
 
-	// AddX = "Arg + X".
-	AddX struct {
-		Arg Form
-		X   int64
-	}
-	// SubX = "Arg - X".
-	SubX struct {
-		Arg Form
-		X   int64
-	}
+type BinOp struct {
+	Kind OpKind
+	Args [2]Form
+}
 
-	// StrCast = "string(Arg)".
-	StrCast struct{ Arg Form }
-)
+type OpKind int
 
-// Binary ops.
-type (
-	// Shl = "Args[0] << Args[1]".
-	Shl struct{ Args [2]Form }
-	// Shr = "Args[0] >> Args[1]".
-	Shr struct{ Args [2]Form }
+const (
+	OpInvalid OpKind = iota
 
-	// BitOr = "Args[0] | Args[1]".
-	BitOr struct{ Args [2]Form }
-	// BitAnd = "Args[0] & Args[1]".
-	BitAnd struct{ Args [2]Form }
-	// BitXor = "Args[0] ^ Args[1]".
-	BitXor struct{ Args [2]Form }
+	/* Num ops */
 
-	// Add = "Args[0] + Args[1]"
-	Add struct{ Args [2]Form }
-	// Sub = "Args[0] - Args[1]"
-	Sub struct{ Args [2]Form }
-	// Mul = "Args[0] * Args[1]"
-	Mul struct{ Args [2]Form }
-	// Quo = "Args[0] / Args[1]"
-	Quo struct{ Args [2]Form }
-	// NumEq = "Args[0] == Args[1]"
-	NumEq struct{ Args [2]Form }
-	// NumNotEq = "Args[0] != Args[1]"
-	NumNotEq struct{ Args [2]Form }
-	// NumLt = "Args[0] < Args[1]"
-	NumLt struct{ Args [2]Form }
-	// NumLte = "Args[0] <= Args[1]"
-	NumLte struct{ Args [2]Form }
-	// NumGt = "Args[0] > Args[1]"
-	NumGt struct{ Args [2]Form }
-	// NumGte = "Args[0] >= Args[1]"
-	NumGte struct{ Args [2]Form }
+	OpShl    // Shl = "Args[0] << Args[1]".
+	OpShr    // Shr = "Args[0] >> Args[1]".
+	OpBitOr  //  BitOr = "Args[0] | Args[1]".
+	OpBitAnd // BitAnd = "Args[0] & Args[1]".
+	OpBitXor // BitXor = "Args[0] ^ Args[1]".
+	OpAdd    // Add = "Args[0] + Args[1]"
+	OpSub    // Sub = "Args[0] - Args[1]"
+	OpMul    // Mul = "Args[0] * Args[1]"
+	OpQuo    // Quo = "Args[0] / Args[1]"
+	OpNumEq  // NumEq = "Args[0] == Args[1]"
+	OpNumNeq // NumNeq = "Args[0] != Args[1]"
+	OpNumLt  // NumLt = "Args[0] < Args[1]"
+	OpNumLte // NumLte = "Args[0] <= Args[1]"
+	OpNumGt  // NumGt = "Args[0] > Args[1]"
+	OpNumGte // NumGte = "Args[0] >= Args[1]"
 
-	// StrEq = "Args[0] == Args[1]"
-	StrEq struct{ Args [2]Form }
-	// StrNotEq = "Args[0] != Args[1]"
-	StrNotEq struct{ Args [2]Form }
-	// StrLt = "Args[0] < Args[1]"
-	StrLt struct{ Args [2]Form }
-	// StrLte = "Args[0] <= Args[1]"
-	StrLte struct{ Args [2]Form }
-	// StrGt = "Args[0] > Args[1]"
-	StrGt struct{ Args [2]Form }
-	// StrGte = "Args[0] >= Args[1]"
-	StrGte struct{ Args [2]Form }
-)
+	/* Str ops */
 
-// Variadic ops.
-type (
-	// Concat = "a + b + ...".
-	Concat struct{ Args []Form }
+	OpConcat // Concat = "Args[0] + Args[1]"
+	OpStrEq  // StrEq = "Args[0] == Args[1]"
+	OpStrNeq // StrNeq = "Args[0] != Args[1]"
+	OpStrLt  // StrLt = "Args[0] < Args[1]"
+	OpStrLte // StrLte = "Args[0] <= Args[1]"
+	OpStrGt  // StrGt = "Args[0] > Args[1]"
+	OpStrGte // StrGte = "Args[0] >= Args[1]"
+
+	/* Unary ops */
+
+	OpNot     // Not = "!Arg"
+	OpNeg     // Neg = "-Arg"
+	OpAdd1    // OpAdd1 = "Arg+1"
+	OpAdd2    // OpAdd2 = "Arg+2"
+	OpSub1    // OpAdd1 = "Arg-1"
+	OpSub2    // OpAdd2 = "Arg-2"
+	OpStrCast // StrCast = "string(Arg)"
 )

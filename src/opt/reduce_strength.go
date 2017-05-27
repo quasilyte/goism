@@ -9,10 +9,18 @@ import (
 // equivalents.
 func ReduceStrength(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.Add:
-		return weakenAdd(form)
-	case *sexp.Sub:
-		return weakenSub(form)
+	case *sexp.BinOp:
+		switch form.Kind {
+		case sexp.OpAdd:
+			return weakenAdd(form)
+		case sexp.OpSub:
+			return weakenSub(form)
+		}
+
+	case *sexp.UnaryOp:
+		if form.Kind == sexp.OpStrCast {
+			return weakenStrCast(form)
+		}
 
 	case *sexp.Bind:
 		form.Init = ReduceStrength(form.Init)
@@ -32,8 +40,6 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 	case *sexp.SparseArrayLit:
 		return weakenSparseArrayLit(form)
 
-	case *sexp.StrCast:
-		return weakenStrCast(form)
 	case *sexp.Call:
 		form.Args = reduceStrength(form.Args)
 	case sexp.CallStmt:
@@ -50,20 +56,20 @@ func reduceStrength(forms []sexp.Form) []sexp.Form {
 	return forms
 }
 
-func weakenAdd(form *sexp.Add) sexp.Form {
+func weakenAdd(form *sexp.BinOp) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
-			return addX(form.Args[b], 1)
+			return sexp.NewAdd1(form.Args[b])
 		}
 		if numEq(form.Args[a], 2) {
-			return addX(form.Args[b], 2)
+			return sexp.NewAdd2(form.Args[b])
 		}
 		// Addition of negative number = substraction.
 		if numEq(form.Args[a], -1) {
-			return subX(form.Args[b], 1)
+			return sexp.NewSub1(form.Args[b])
 		}
 		if numEq(form.Args[a], -2) {
-			return subX(form.Args[b], 2)
+			return sexp.NewSub2(form.Args[b])
 		}
 		return nil
 	}
@@ -79,19 +85,19 @@ func weakenAdd(form *sexp.Add) sexp.Form {
 	return form
 }
 
-func weakenSub(form *sexp.Sub) sexp.Form {
+func weakenSub(form *sexp.BinOp) sexp.Form {
 	if numEq(form.Args[1], 1) {
-		return subX(form.Args[0], 1)
+		return sexp.NewSub1(form.Args[0])
 	}
 	if numEq(form.Args[1], 2) {
-		return subX(form.Args[0], 2)
+		return sexp.NewSub2(form.Args[0])
 	}
 	// Substraction of negative number = addition.
 	if numEq(form.Args[1], -1) {
-		return addX(form.Args[0], 1)
+		return sexp.NewAdd1(form.Args[0])
 	}
 	if numEq(form.Args[1], -2) {
-		return addX(form.Args[0], 2)
+		return sexp.NewAdd2(form.Args[0])
 	}
 	return form
 }
@@ -133,8 +139,8 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	return form
 }
 
-func weakenStrCast(form *sexp.StrCast) sexp.Form {
-	if arg, ok := form.Arg.(*sexp.ArraySlice); ok {
+func weakenStrCast(form *sexp.UnaryOp) sexp.Form {
+	if arg, ok := form.X.(*sexp.ArraySlice); ok {
 		// It is possible to convert array to string without
 		// creating a slice.
 		switch arg.Kind() {

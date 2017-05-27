@@ -21,6 +21,8 @@ var (
 
 	SetCar = binOp("setcar")
 	SetCdr = binOp("setcdr")
+
+	Concat2 = Concat(2)
 )
 
 // Unary ops.

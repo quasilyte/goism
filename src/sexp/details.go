@@ -35,35 +35,8 @@ func (form *Repeat) form()         {}
 func (form *DoTimes) form()        {}
 func (form *While) form()          {}
 
-func (op *Not) form()     {}
-func (op *Neg) form()     {}
-func (op *AddX) form()    {}
-func (op *SubX) form()    {}
-func (op *StrCast) form() {}
-
-func (op *Shl) form()      {}
-func (op *Shr) form()      {}
-func (op *BitOr) form()    {}
-func (op *BitAnd) form()   {}
-func (op *BitXor) form()   {}
-func (op *Add) form()      {}
-func (op *Sub) form()      {}
-func (op *Mul) form()      {}
-func (op *Quo) form()      {}
-func (op *NumEq) form()    {}
-func (op *NumNotEq) form() {}
-func (op *NumLt) form()    {}
-func (op *NumLte) form()   {}
-func (op *NumGt) form()    {}
-func (op *NumGte) form()   {}
-func (op *StrEq) form()    {}
-func (op *StrNotEq) form() {}
-func (op *StrLt) form()    {}
-func (op *StrLte) form()   {}
-func (op *StrGt) form()    {}
-func (op *StrGte) form()   {}
-
-func (op *Concat) form() {}
+func (op UnaryOp) form() {}
+func (op BinOp) form()   {}
 
 func (call *Call) form()          {}
 func (form CallStmt) form()       {}

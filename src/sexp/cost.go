@@ -53,43 +53,10 @@ func Cost(form Form) int {
 	case *Substr:
 		return Cost(form.Str) + spanCost(form.Span) + 1
 
-	case *AddX:
-		return Cost(form.Arg) + int(form.X)
-	case *SubX:
-		return Cost(form.Arg) + int(form.X)
-	case *Add:
-		return binOpCost(1, form.Args)
-	case *Sub:
-		return binOpCost(1, form.Args)
-	case *Mul:
-		return binOpCost(2, form.Args)
-	case *Quo:
-		return binOpCost(3, form.Args)
-	case *NumEq:
-		return binOpCost(1, form.Args)
-	case *NumLt:
-		return binOpCost(1, form.Args)
-	case *NumLte:
-		return binOpCost(1, form.Args)
-	case *NumGt:
-		return binOpCost(1, form.Args)
-	case *NumGte:
-		return binOpCost(1, form.Args)
-
-	case *Concat:
-		return cost(form.Args) + 10
-	case *StrEq:
-		return binOpCost(2, form.Args)
-	case *StrNotEq:
-		return binOpCost(3, form.Args)
-	case *StrLt:
-		return binOpCost(2, form.Args)
-	case *StrLte:
-		return binOpCost(2, form.Args) + 6
-	case *StrGt:
-		return callCost(form.Args[:])
-	case *StrGte:
-		return callCost(form.Args[:]) + 6
+	case *BinOp:
+		return Cost(form.Args[0]) + Cost(form.Args[1]) + baseOpCost[form.Kind]
+	case *UnaryOp:
+		return Cost(form.X) + baseOpCost[form.Kind]
 
 	case *Call:
 		// #FIXME: this is not correct way to calculate
@@ -102,11 +69,6 @@ func Cost(form Form) int {
 		// #FIXME: dynamic scope variables should have higher cost.
 		return 1
 
-	case *Not:
-		return Cost(form.Arg) + 1
-	case *Neg:
-		return Cost(form.Arg) + 1
-
 	case *Let:
 		bindCost := Cost(form.Bind.Init) + 2
 		if form.Expr == nil {
@@ -117,6 +79,42 @@ func Cost(form Form) int {
 	default:
 		panic(fmt.Sprintf("can not evaluate cost of %#v", form))
 	}
+}
+
+const baseCallCost = 3
+
+var baseOpCost = [...]int{
+	OpShl:    1,
+	OpShr:    1,
+	OpBitOr:  1,
+	OpBitAnd: 1,
+	OpBitXor: 1,
+	OpAdd:    1,
+	OpSub:    1,
+	OpMul:    2,
+	OpQuo:    3,
+	OpNumEq:  1,
+	OpNumNeq: 1,
+	OpNumLt:  1,
+	OpNumLte: 1,
+	OpNumGt:  1,
+	OpNumGte: 1,
+
+	OpConcat: 8,
+	OpStrEq:  3,
+	OpStrNeq: 4,
+	OpStrLt:  1,
+	OpStrLte: 5,
+	OpStrGt:  baseCallCost,
+	OpStrGte: 5 + baseCallCost,
+
+	OpNot:     1,
+	OpNeg:     1,
+	OpAdd1:    1,
+	OpAdd2:    1,
+	OpSub1:    1,
+	OpSub2:    1,
+	OpStrCast: 2,
 }
 
 func spanCost(span Span) int {
@@ -133,12 +131,7 @@ func spanCost(span Span) int {
 // Function invocation cost.
 // Does not account called function complexity.
 func callCost(args []Form) int {
-	const baseCallCost = 2
 	return cost(args) + len(args) + baseCallCost
-}
-
-func binOpCost(base int, args [2]Form) int {
-	return Cost(args[0]) + Cost(args[1]) + base
 }
 
 func cost(forms []Form) int {

@@ -79,36 +79,8 @@ func (form *Repeat) Type() types.Type   { return typVoid }
 func (form *DoTimes) Type() types.Type  { return typVoid }
 func (form *While) Type() types.Type    { return typVoid }
 
-func (op *Not) Type() types.Type     { return typBool }
-func (op *Neg) Type() types.Type     { return op.Arg.Type() }
-func (op *AddX) Type() types.Type    { return op.Arg.Type() }
-func (op *SubX) Type() types.Type    { return op.Arg.Type() }
-func (op *StrCast) Type() types.Type { return typString }
-
-func (op *Shl) Type() types.Type      { return op.Args[0].Type() }
-func (op *Shr) Type() types.Type      { return op.Args[0].Type() }
-func (op *BitOr) Type() types.Type    { return op.Args[0].Type() }
-func (op *BitAnd) Type() types.Type   { return op.Args[0].Type() }
-func (op *BitXor) Type() types.Type   { return op.Args[0].Type() }
-func (op *Add) Type() types.Type      { return op.Args[0].Type() }
-func (op *Sub) Type() types.Type      { return op.Args[0].Type() }
-func (op *Mul) Type() types.Type      { return op.Args[0].Type() }
-func (op *Quo) Type() types.Type      { return op.Args[0].Type() }
-func (op *NumEq) Type() types.Type    { return op.Args[0].Type() }
-func (op *NumNotEq) Type() types.Type { return op.Args[0].Type() }
-func (op *NumLt) Type() types.Type    { return op.Args[0].Type() }
-func (op *NumLte) Type() types.Type   { return op.Args[0].Type() }
-func (op *NumGt) Type() types.Type    { return op.Args[0].Type() }
-func (op *NumGte) Type() types.Type   { return op.Args[0].Type() }
-
-func (op *StrEq) Type() types.Type    { return typString }
-func (op *StrNotEq) Type() types.Type { return typString }
-func (op *StrLt) Type() types.Type    { return typString }
-func (op *StrLte) Type() types.Type   { return typString }
-func (op *StrGt) Type() types.Type    { return typString }
-func (op *StrGte) Type() types.Type   { return typString }
-
-func (op *Concat) Type() types.Type { return typString }
+func (op *UnaryOp) Type() types.Type { return op.X.Type() }
+func (op *BinOp) Type() types.Type   { return op.Args[0].Type() }
 
 func (call *Call) Type() types.Type {
 	results := call.Fn.Results()
