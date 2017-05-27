@@ -15,6 +15,12 @@ var opKindToInstr = [...]instr.Instr{
 	sexp.OpNumLt:  instr.NumLt,
 	sexp.OpNumEq:  instr.NumEq,
 	sexp.OpConcat: instr.Concat2,
+	sexp.OpNot:    instr.Not,
+	sexp.OpNeg:    instr.Neg,
+	sexp.OpAdd1:   instr.Add1,
+	sexp.OpSub1:   instr.Sub1,
+	sexp.OpAdd2:   instr.Add1,
+	sexp.OpSub2:   instr.Sub1,
 }
 
 func compileStmtList(cl *Compiler, forms []sexp.Form) {
@@ -133,9 +139,20 @@ func compileBinOp(cl *Compiler, form *sexp.BinOp) {
 	}
 }
 
-func compileUnaryOp(cl *Compiler, ins instr.Instr, arg sexp.Form) {
-	compileExpr(cl, arg)
-	emit(cl, ins)
+func compileUnaryOp(cl *Compiler, form *sexp.UnaryOp) {
+	switch form.Kind {
+	case sexp.OpStrCast:
+		compileStrCast(cl, form)
+	case sexp.OpArrayCopy:
+		call(cl, "copy-sequence", form.X)
+
+	default:
+		compileExpr(cl, form.X)
+		emit(cl, opKindToInstr[form.Kind])
+		if form.Kind == sexp.OpAdd2 || form.Kind == sexp.OpSub2 {
+			emit(cl, opKindToInstr[form.Kind])
+		}
+	}
 }
 
 func compileBool(cl *Compiler, form sexp.Bool) {

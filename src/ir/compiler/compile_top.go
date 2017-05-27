@@ -82,31 +82,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileBinOp(cl, form)
 
 	case *sexp.UnaryOp:
-		switch form.Kind {
-		case sexp.OpNot:
-			compileUnaryOp(cl, instr.Not, form.X)
-		case sexp.OpNeg:
-			compileUnaryOp(cl, instr.Neg, form.X)
-		case sexp.OpStrCast:
-			compileStrCast(cl, form)
-		case sexp.OpArrayCopy:
-			call(cl, "copy-sequence", form.X)
-		case sexp.OpSub1:
-			compileUnaryOp(cl, instr.Sub1, form.X)
-		case sexp.OpSub2:
-			compileUnaryOp(cl, instr.Sub1, form.X)
-			compileUnaryOp(cl, instr.Sub1, form.X)
-		case sexp.OpAdd1:
-			compileUnaryOp(cl, instr.Add1, form.X)
-		case sexp.OpAdd2:
-			compileUnaryOp(cl, instr.Add1, form.X)
-			compileUnaryOp(cl, instr.Add1, form.X)
-
-		case sexp.OpSliceLen:
-			compileSliceLen(cl, form)
-		case sexp.OpSliceCap:
-			compileSliceCap(cl, form)
-		}
+		compileUnaryOp(cl, form)
 
 	case *sexp.Call:
 		compileCall(cl, form.Fn.Name(), form.Args)
