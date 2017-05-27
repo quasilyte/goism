@@ -32,9 +32,6 @@ func Cost(form Form) int {
 	case *ArrayIndex:
 		return Cost(form.Index) + Cost(form.Array) + 1
 
-	case *ArrayCopy:
-		return int(form.Type().(*types.Array).Len()) / 2
-
 	case *ArraySlice:
 		return Cost(form.Array) + spanCost(form.Span) + 4
 
@@ -55,7 +52,11 @@ func Cost(form Form) int {
 
 	case *BinOp:
 		return Cost(form.Args[0]) + Cost(form.Args[1]) + baseOpCost[form.Kind]
+
 	case *UnaryOp:
+		if form.Kind == OpArrayCopy {
+			return Cost(form.X) + int(form.Type().(*types.Array).Len())/2
+		}
 		return Cost(form.X) + baseOpCost[form.Kind]
 
 	case *Call:

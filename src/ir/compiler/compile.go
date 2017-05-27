@@ -155,9 +155,9 @@ func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
 	}
 }
 
-func compileArrayCopy(cl *Compiler, form *sexp.ArrayCopy) {
+func compileArrayCopy(cl *Compiler, form *sexp.UnaryOp) {
 	emit(cl, instr.ConstRef(cl.cvec.InsertSym("copy-sequence")))
-	compileExpr(cl, form.Array)
+	compileExpr(cl, form.X)
 	emit(cl, instr.Call(1))
 }
 

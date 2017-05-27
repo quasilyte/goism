@@ -68,8 +68,6 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
-	case *sexp.ArrayCopy:
-		compileArrayCopy(cl, form)
 	case *sexp.ArraySlice:
 		compileArraySlice(cl, form)
 
@@ -119,7 +117,8 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 			compileUnaryOp(cl, instr.Neg, form.X)
 		case sexp.OpStrCast:
 			compileStrCast(cl, form)
-
+		case sexp.OpArrayCopy:
+			compileArrayCopy(cl, form)
 		case sexp.OpSub1:
 			compileUnaryOp(cl, instr.Sub1, form.X)
 		case sexp.OpSub2:

@@ -68,11 +68,6 @@ type ArrayUpdate struct {
 	Expr  Form
 }
 
-// ArrayCopy used for array copy insertions.
-type ArrayCopy struct {
-	Array Form
-}
-
 // ArraySlice is array slicing (subslice) expression.
 type ArraySlice struct {
 	Array Form
@@ -282,4 +277,5 @@ const (
 	OpSub1    // OpAdd1 = "Arg-1"
 	OpSub2    // OpAdd2 = "Arg-2"
 	OpStrCast // StrCast = "string(Arg)"
+	OpArrayCopy
 )

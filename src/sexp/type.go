@@ -29,9 +29,6 @@ func (form *ArrayIndex) Type() types.Type {
 func (form *ArrayUpdate) Type() types.Type {
 	return typVoid
 }
-func (form *ArrayCopy) Type() types.Type {
-	return form.Array.Type()
-}
 func (form *ArraySlice) Type() types.Type {
 	return form.Typ
 }
