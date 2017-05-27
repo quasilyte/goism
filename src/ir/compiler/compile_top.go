@@ -79,30 +79,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileSubstr(cl, form)
 
 	case *sexp.BinOp:
-		switch form.Kind {
-		case sexp.OpShl:
-			call(cl, "lsh", form.Args[0], form.Args[1])
-		case sexp.OpBitAnd:
-			call(cl, "logand", form.Args[0], form.Args[1])
-		case sexp.OpBitOr:
-			call(cl, "logior", form.Args[0], form.Args[1])
-		case sexp.OpAdd:
-			compileBinOp(cl, instr.NumAdd, form.Args)
-		case sexp.OpSub:
-			compileBinOp(cl, instr.NumSub, form.Args)
-		case sexp.OpMul:
-			compileBinOp(cl, instr.NumMul, form.Args)
-		case sexp.OpQuo:
-			compileBinOp(cl, instr.NumQuo, form.Args)
-		case sexp.OpNumGt:
-			compileBinOp(cl, instr.NumGt, form.Args)
-		case sexp.OpNumLt:
-			compileBinOp(cl, instr.NumLt, form.Args)
-		case sexp.OpNumEq:
-			compileBinOp(cl, instr.NumEq, form.Args)
-		case sexp.OpConcat:
-			compileBinOp(cl, instr.Concat(2), form.Args)
-		}
+		compileBinOp(cl, form)
 
 	case *sexp.UnaryOp:
 		switch form.Kind {

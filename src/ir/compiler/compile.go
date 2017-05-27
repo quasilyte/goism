@@ -6,6 +6,17 @@ import (
 	"sexp"
 )
 
+var opKindToInstr = [...]instr.Instr{
+	sexp.OpAdd:    instr.NumAdd,
+	sexp.OpSub:    instr.NumSub,
+	sexp.OpMul:    instr.NumMul,
+	sexp.OpQuo:    instr.NumQuo,
+	sexp.OpNumGt:  instr.NumGt,
+	sexp.OpNumLt:  instr.NumLt,
+	sexp.OpNumEq:  instr.NumEq,
+	sexp.OpConcat: instr.Concat2,
+}
+
 func compileStmtList(cl *Compiler, forms []sexp.Form) {
 	for _, form := range forms {
 		compileStmt(cl, form)
@@ -106,10 +117,20 @@ func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
 	}
 }
 
-func compileBinOp(cl *Compiler, ins instr.Instr, args [2]sexp.Form) {
-	compileExpr(cl, args[0])
-	compileExpr(cl, args[1])
-	emit(cl, ins)
+func compileBinOp(cl *Compiler, form *sexp.BinOp) {
+	switch form.Kind {
+	case sexp.OpShl:
+		call(cl, "lsh", form.Args[0], form.Args[1])
+	case sexp.OpBitAnd:
+		call(cl, "logand", form.Args[0], form.Args[1])
+	case sexp.OpBitOr:
+		call(cl, "logior", form.Args[0], form.Args[1])
+
+	default:
+		compileExpr(cl, form.Args[0])
+		compileExpr(cl, form.Args[1])
+		emit(cl, opKindToInstr[form.Kind])
+	}
 }
 
 func compileUnaryOp(cl *Compiler, ins instr.Instr, arg sexp.Form) {
