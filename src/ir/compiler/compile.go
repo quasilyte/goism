@@ -111,21 +111,9 @@ func compileBinOp(cl *Compiler, ins instr.Instr, args [2]sexp.Form) {
 	emit(cl, ins)
 }
 
-func compileVariadicOp(cl *Compiler, ins instr.Instr, args []sexp.Form) {
-	compileExprList(cl, args)
-	emit(cl, ins)
-}
-
 func compileUnaryOp(cl *Compiler, ins instr.Instr, arg sexp.Form) {
 	compileExpr(cl, arg)
 	emit(cl, ins)
-}
-
-func compileUnaryOps(cl *Compiler, instr instr.Instr, arg sexp.Form, n int64) {
-	compileExpr(cl, arg)
-	for i := int64(0); i < n; i++ {
-		emit(cl, instr)
-	}
 }
 
 func compileBool(cl *Compiler, form sexp.Bool) {
