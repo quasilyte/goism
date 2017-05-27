@@ -16,7 +16,7 @@ func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
 		return sexp.Int(typ.Len())
 
 	case *types.Slice:
-		return &sexp.SliceLen{Slice: conv.Expr(arg)}
+		return sexp.NewSliceLen(conv.Expr(arg))
 
 	default:
 		panic("unimplemented")
@@ -29,7 +29,7 @@ func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
 		return sexp.Int(typ.Len())
 
 	case *types.Slice:
-		return &sexp.SliceCap{Slice: conv.Expr(arg)}
+		return sexp.NewSliceCap(conv.Expr(arg))
 
 	default:
 		panic("unimplemented")

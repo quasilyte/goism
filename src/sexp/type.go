@@ -32,12 +32,6 @@ func (form *ArrayUpdate) Type() types.Type {
 func (form *ArraySlice) Type() types.Type {
 	return form.Typ
 }
-func (form *SliceLen) Type() types.Type {
-	return typInt
-}
-func (form *SliceCap) Type() types.Type {
-	return typInt
-}
 func (form *SliceIndex) Type() types.Type {
 	return form.Slice.Type().Underlying().(*types.Slice).Elem()
 }

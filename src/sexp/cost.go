@@ -35,12 +35,6 @@ func Cost(form Form) int {
 	case *ArraySlice:
 		return Cost(form.Array) + spanCost(form.Span) + 4
 
-	case *SliceLen:
-		return Cost(form.Slice) + 3
-
-	case *SliceCap:
-		return Cost(form.Slice) + 3
-
 	case *SliceIndex:
 		return Cost(form.Index) + Cost(form.Slice)*2 + 6
 
@@ -116,6 +110,9 @@ var baseOpCost = [...]int{
 	OpSub1:    1,
 	OpSub2:    1,
 	OpStrCast: 2,
+
+	OpSliceCap: 3,
+	OpSliceLen: 3,
 }
 
 func spanCost(span Span) int {

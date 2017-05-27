@@ -75,13 +75,6 @@ type ArraySlice struct {
 	Span
 }
 
-type (
-	// SliceLen = "len(Slice)".
-	SliceLen struct{ Slice Form }
-	// SliceCap = "cap(Slice)".
-	SliceCap struct{ Slice Form }
-)
-
 // SliceIndex is slice index expression.
 type SliceIndex struct {
 	Slice Form
@@ -278,4 +271,6 @@ const (
 	OpSub2    // OpAdd2 = "Arg-2"
 	OpStrCast // StrCast = "string(Arg)"
 	OpArrayCopy
+	OpSliceCap // SliceCap = "cap(Arg)"
+	OpSliceLen // SliceLen = "len(Arg)"
 )

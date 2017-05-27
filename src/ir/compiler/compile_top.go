@@ -73,10 +73,6 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 
 	case *sexp.SliceIndex:
 		compileSliceIndex(cl, form)
-	case *sexp.SliceLen:
-		compileSliceLen(cl, form)
-	case *sexp.SliceCap:
-		compileSliceCap(cl, form)
 	case *sexp.Subslice:
 		compileSubslice(cl, form)
 
@@ -129,6 +125,11 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		case sexp.OpAdd2:
 			compileUnaryOp(cl, instr.Add1, form.X)
 			compileUnaryOp(cl, instr.Add1, form.X)
+
+		case sexp.OpSliceLen:
+			compileSliceLen(cl, form)
+		case sexp.OpSliceCap:
+			compileSliceCap(cl, form)
 		}
 
 	case *sexp.Call:

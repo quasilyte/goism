@@ -13,8 +13,6 @@ func (lit *SliceLit) form()       {}
 func (form *ArrayIndex) form()  {}
 func (form *ArrayUpdate) form() {}
 func (form *ArraySlice) form()  {}
-func (form *SliceLen) form()    {}
-func (form *SliceCap) form()    {}
 func (form *SliceIndex) form()  {}
 func (form *SliceUpdate) form() {}
 func (form *Subslice) form()    {}

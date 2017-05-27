@@ -67,18 +67,6 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case *ArraySlice:
 		return rewriteSpan(form, &form.Array, &form.Span, f)
 
-	case *SliceLen:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Slice = Rewrite(form.Slice, f)
-
-	case *SliceCap:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Slice = Rewrite(form.Slice, f)
-
 	case *SliceIndex:
 		if form := f(form); form != nil {
 			return form
