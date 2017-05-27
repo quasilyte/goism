@@ -3,7 +3,6 @@ package compiler
 import (
 	"fmt"
 	"ir/instr"
-	"lisp/function"
 	"sexp"
 )
 
@@ -24,7 +23,7 @@ func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
 	case sexp.CallStmt:
 		compileCallStmt(cl, form)
 	case *sexp.Panic:
-		compilePanic(cl, form)
+		call(cl, "Go--panic", form.ErrorData)
 	case *sexp.Repeat:
 		compileRepeat(cl, form)
 	case *sexp.While:
@@ -60,11 +59,11 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileVar(cl, form)
 
 	case *sexp.ArrayLit:
-		call(cl, function.Vector, form.Vals...)
+		call(cl, "vector", form.Vals...)
 	case *sexp.SparseArrayLit:
 		compileSparseArrayLit(cl, form)
 	case *sexp.SliceLit:
-		call(cl, function.MakeSliceFromList(form.Typ), form.Vals...)
+		call(cl, "Go--make-slice-from-list", form.Vals...)
 
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
@@ -82,11 +81,11 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 	case *sexp.BinOp:
 		switch form.Kind {
 		case sexp.OpShl:
-			call(cl, function.Lsh, form.Args[0], form.Args[1])
+			call(cl, "lsh", form.Args[0], form.Args[1])
 		case sexp.OpBitAnd:
-			call(cl, function.Logand, form.Args[0], form.Args[1])
+			call(cl, "logand", form.Args[0], form.Args[1])
 		case sexp.OpBitOr:
-			call(cl, function.Logior, form.Args[0], form.Args[1])
+			call(cl, "logior", form.Args[0], form.Args[1])
 		case sexp.OpAdd:
 			compileBinOp(cl, instr.NumAdd, form.Args)
 		case sexp.OpSub:
@@ -133,7 +132,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		}
 
 	case *sexp.Call:
-		compileCall(cl, form)
+		compileCall(cl, form.Fn.Name(), form.Args)
 
 	case *sexp.Let:
 		compileLetExpr(cl, form)

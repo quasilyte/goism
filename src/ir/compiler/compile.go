@@ -3,7 +3,6 @@ package compiler
 import (
 	"ir/instr"
 	"lisp"
-	"lisp/function"
 	"sexp"
 )
 
@@ -98,9 +97,11 @@ func compileRebind(cl *Compiler, form *sexp.Rebind) {
 }
 
 func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
-	compileCall(cl, form.Call)
+	compileCall(cl, form.Fn.Name(), form.Args)
 
-	if !form.Fn.IsPanic() && !form.Fn.IsVoid() {
+	if form.Fn.IsPanic() {
+		cl.st.Discard(1)
+	} else {
 		emit(cl, instr.Discard(1))
 	}
 }
@@ -134,7 +135,7 @@ func compileVar(cl *Compiler, form sexp.Var) {
 }
 
 func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
-	compileCall(cl, form.Ctor)
+	compileCall(cl, form.Ctor.Fn.Name(), form.Ctor.Args)
 	for _, val := range form.Vals {
 		emit(cl, instr.StackRef(0)) // Array
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(val.Index)))
@@ -149,20 +150,10 @@ func compileArrayCopy(cl *Compiler, form *sexp.UnaryOp) {
 	emit(cl, instr.Call(1))
 }
 
-func compilePanic(cl *Compiler, form *sexp.Panic) {
-	call(cl, function.Panic, form.ErrorData)
-}
-
-func compileCall(cl *Compiler, form *sexp.Call) {
-	emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Fn.Name())))
-	compileExprList(cl, form.Args)
-	emit(cl, instr.Call(len(form.Args)))
-
-	if form.Fn.IsPanic() {
-		cl.st.Discard(1)
-	} else if form.Fn.IsVoid() {
-		emit(cl, instr.Discard(1))
-	}
+func compileCall(cl *Compiler, name string, args []sexp.Form) {
+	emit(cl, instr.ConstRef(cl.cvec.InsertSym(name)))
+	compileExprList(cl, args)
+	emit(cl, instr.Call(len(args)))
 }
 
 func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
@@ -228,13 +219,13 @@ func compileSliceCap(cl *Compiler, form *sexp.UnaryOp) {
 }
 
 func compileSubslice(cl *Compiler, form *sexp.Subslice) {
-	switch typ := form.Slice.Type(); form.Kind() {
+	switch form.Kind() {
 	case sexp.SpanLowOnly:
-		call(cl, function.SubsliceLow(typ), form.Slice, form.Low)
+		call(cl, "Go--subslice-low", form.Slice, form.Low)
 	case sexp.SpanHighOnly:
-		call(cl, function.SubsliceHigh(typ), form.Slice, form.High)
+		call(cl, "Go--subslice-high", form.Slice, form.High)
 	case sexp.SpanBoth:
-		call(cl, function.Subslice2(typ), form.Slice, form.Low, form.High)
+		call(cl, "Go--subslice2", form.Slice, form.Low, form.High)
 	case sexp.SpanWhole:
 		/* Do nothing */
 	}
@@ -263,12 +254,12 @@ func compileStrCast(cl *Compiler, form *sexp.UnaryOp) {
 func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
 	switch form.Kind() {
 	case sexp.SpanLowOnly:
-		call(cl, function.ArraySliceLow(form.Typ), form.Array, form.Low)
+		call(cl, "Go--array-slice-low", form.Array, form.Low)
 	case sexp.SpanHighOnly:
-		call(cl, function.ArraySliceHigh(form.Typ), form.Array, form.High)
+		call(cl, "Go--array-slice-high", form.Array, form.High)
 	case sexp.SpanBoth:
-		call(cl, function.ArraySlice(form.Typ), form.Array, form.Low, form.High)
+		call(cl, "Go--array-slice", form.Array, form.Low, form.High)
 	case sexp.SpanWhole:
-		call(cl, function.ArraySliceWhole(form.Typ), form.Array)
+		call(cl, "Go--array-slice-whole", form.Array)
 	}
 }
