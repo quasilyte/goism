@@ -113,7 +113,7 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		case sexp.OpStrCast:
 			compileStrCast(cl, form)
 		case sexp.OpArrayCopy:
-			compileArrayCopy(cl, form)
+			call(cl, "copy-sequence", form.X)
 		case sexp.OpSub1:
 			compileUnaryOp(cl, instr.Sub1, form.X)
 		case sexp.OpSub2:
