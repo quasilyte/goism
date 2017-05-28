@@ -33,15 +33,15 @@ func NewSubstr(str, low, high Form) *Substr {
 	}
 }
 
-func NewNot(arg Form) *UnaryOp      { return newOp1(OpNot, arg) }
-func NewNeg(arg Form) *UnaryOp      { return newOp1(OpNeg, arg) }
-func NewAdd1(arg Form) *UnaryOp     { return newOp1(OpAdd1, arg) }
-func NewAdd2(arg Form) *UnaryOp     { return newOp1(OpAdd1, arg) }
-func NewSub1(arg Form) *UnaryOp     { return newOp1(OpSub1, arg) }
-func NewSub2(arg Form) *UnaryOp     { return newOp1(OpSub2, arg) }
-func NewStrCast(arg Form) *UnaryOp  { return newOp1(OpStrCast, arg) }
-func NewSliceLen(arg Form) *UnaryOp { return newOp1(OpSliceLen, arg) }
-func NewSliceCap(arg Form) *UnaryOp { return newOp1(OpSliceCap, arg) }
+func NewNot(x Form) *UnaryOp      { return newOp1(OpNot, x) }
+func NewNeg(x Form) *UnaryOp      { return newOp1(OpNeg, x) }
+func NewAdd1(x Form) *UnaryOp     { return newOp1(OpAdd1, x) }
+func NewAdd2(x Form) *UnaryOp     { return newOp1(OpAdd1, x) }
+func NewSub1(x Form) *UnaryOp     { return newOp1(OpSub1, x) }
+func NewSub2(x Form) *UnaryOp     { return newOp1(OpSub2, x) }
+func NewStrCast(x Form) *UnaryOp  { return newOp1(OpStrCast, x) }
+func NewSliceLen(x Form) *UnaryOp { return newOp1(OpSliceLen, x) }
+func NewSliceCap(x Form) *UnaryOp { return newOp1(OpSliceCap, x) }
 
 func NewShl(x, y Form) *BinOp    { return newOp2(OpShl, x, y) }
 func NewShr(x, y Form) *BinOp    { return newOp2(OpShr, x, y) }
