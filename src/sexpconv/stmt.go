@@ -62,9 +62,7 @@ func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 }
 
 func (conv *Converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
-	return &sexp.Block{
-		Forms: conv.stmtList(node.List),
-	}
+	return &sexp.Block{Forms: conv.stmtList(node.List)}
 }
 
 func (conv *Converter) DeclStmt(node *ast.DeclStmt) sexp.Form {

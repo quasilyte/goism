@@ -17,7 +17,7 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 	case *ast.Ident:
 		return conv.Ident(node)
 	case *ast.BasicLit:
-		return conv.BasicLit(node)
+		return conv.Constant(node)
 	case *ast.BinaryExpr:
 		return conv.BinaryExpr(node)
 	case *ast.CallExpr:
@@ -68,10 +68,6 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 		Name: node.Name,
 		Typ:  typ,
 	}
-}
-
-func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
-	return conv.Constant(node)
 }
 
 func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
