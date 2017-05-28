@@ -3,7 +3,6 @@ package sexpconv
 import (
 	"fmt"
 	"go/ast"
-	"go/constant"
 	"go/token"
 	"go/types"
 	"lisp"
@@ -72,21 +71,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 }
 
 func (conv *Converter) BasicLit(node *ast.BasicLit) sexp.Form {
-	typ := conv.typeOf(node)
-
-	if types.Identical(typ, lisp.Types.Symbol) {
-		return sexp.Symbol{Val: constant.StringVal(conv.valueOf(node))}
-	}
-
-	info := conv.typeOf(node).Underlying().(*types.Basic).Info()
-
-	if info&types.IsFloat != 0 {
-		return constantFloat(conv.valueOf(node))
-	}
-	if info&types.IsString != 0 {
-		return constantString(conv.valueOf(node))
-	}
-	return constantInt(conv.valueOf(node))
+	return conv.Constant(node)
 }
 
 func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
