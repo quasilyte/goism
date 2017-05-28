@@ -11,6 +11,7 @@ type goPackage struct {
 	*ast.Package
 	info     *types.Info
 	topLevel *types.Scope
+	fileSet  *token.FileSet
 }
 
 var typeCheckCfg = types.Config{
@@ -38,6 +39,7 @@ func typecheckPackage(fSet *token.FileSet, parsedPkg *ast.Package) (*goPackage, 
 		Package:  parsedPkg,
 		info:     info,
 		topLevel: checkedPkg.Scope(),
+		fileSet:  fSet,
 	}
 	return goPkg, err
 }

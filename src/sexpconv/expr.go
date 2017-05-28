@@ -36,7 +36,7 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 		return conv.SliceExpr(node)
 
 	default:
-		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
+		panic(errUnexpectedExpr(conv, node))
 	}
 }
 

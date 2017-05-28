@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"path/filepath"
 	"sexp"
+	"sexpconv"
 )
 
 // Package contains information about parsed code.
@@ -35,7 +36,7 @@ type Func struct {
 //
 // It parses and typechecks specified package,
 // then converts generated objects into our format.
-func TranslatePackage(pkgPath string) (*Package, error) {
+func TranslatePackage(pkgPath string) (pkg *Package, err error) {
 	fSet := token.NewFileSet()
 
 	parsedPkg, err := parsePackage(fSet, pkgPath)
@@ -48,6 +49,18 @@ func TranslatePackage(pkgPath string) (*Package, error) {
 		return nil, err
 	}
 
+	defer func() {
+		switch panicArg := recover().(type) {
+		case nil:
+			return
+		case sexpconv.Error:
+			pkg = nil
+			err = panicArg
+			return
+		default:
+			panic(panicArg)
+		}
+	}()
 	pkgComment := packageComment(parsedPkg.Files)
 	return translatePackage(checkedPkg, pkgComment), nil
 }

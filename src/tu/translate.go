@@ -18,7 +18,7 @@ func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 		},
 	}
 	varsWithInit := make(map[string]struct{})
-	conv := sexpconv.NewConverter(goPkg.info, goPkg.Name)
+	conv := sexpconv.NewConverter(goPkg.Name, goPkg.info, goPkg.fileSet)
 	initForms := &pkg.Init.Body.Forms
 
 	for _, init := range goPkg.info.InitOrder {

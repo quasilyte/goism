@@ -29,7 +29,7 @@ func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 		return conv.RangeStmt(node)
 
 	default:
-		panic(fmt.Sprintf("unexpected stmt: %#v\n", node))
+		panic(errUnexpectedStmt(conv, node))
 	}
 }
 

@@ -3,6 +3,7 @@ package sexpconv
 import (
 	"go/ast"
 	"go/constant"
+	"go/token"
 	"go/types"
 	"sexp"
 )
@@ -10,6 +11,7 @@ import (
 type Converter struct {
 	symPrefix string
 	info      *types.Info
+	fileSet   *token.FileSet
 
 	// Context type is used to resolve "untyped" constants.
 	ctxType types.Type
@@ -17,10 +19,11 @@ type Converter struct {
 	retType *types.Tuple
 }
 
-func NewConverter(info *types.Info, pkgName string) *Converter {
+func NewConverter(pkgName string, info *types.Info, fSet *token.FileSet) *Converter {
 	return &Converter{
 		symPrefix: "Go-" + pkgName + ".",
 		info:      info,
+		fileSet:   fSet,
 	}
 }
 
