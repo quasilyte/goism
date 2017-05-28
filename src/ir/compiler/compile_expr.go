@@ -41,7 +41,7 @@ func compileBinOp(cl *Compiler, form *sexp.BinOp) {
 func compileUnaryOp(cl *Compiler, form *sexp.UnaryOp) {
 	switch form.Kind {
 	case sexp.OpStrCast:
-		compileStrCast(cl, form)
+		call(cl, "Go--slice-to-str", form.X)
 	case sexp.OpArrayCopy:
 		call(cl, "copy-sequence", form.X)
 
@@ -156,11 +156,6 @@ func compileSubstr(cl *Compiler, form *sexp.Substr) {
 		compileExpr(cl, form.High)
 	}
 	emit(cl, instr.Substr)
-}
-
-func compileStrCast(cl *Compiler, form *sexp.UnaryOp) {
-	// []byte to string conversion.
-	panic("unimplemented")
 }
 
 func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
