@@ -163,5 +163,6 @@
   (if (Go--slice-fast? slice)
       (concat (Go--slice-data slice) "")
     (concat (substring (Go--slice-data slice)
-                       (Go--slice-offset slice))
+                       (Go--slice-offset slice)
+                       (+ (Go--slice-offset slice) (Go--slice-len slice)))
             "")))
