@@ -22,6 +22,11 @@ func NewExecutionStack(bindings []string) *ExecutionStack {
 	}
 }
 
+// Len returns current stack size.
+func (st *ExecutionStack) Len() int {
+	return len(st.names)
+}
+
 // MaxLen returns max stack length recorded.
 func (st *ExecutionStack) MaxLen() int {
 	return st.maxLen

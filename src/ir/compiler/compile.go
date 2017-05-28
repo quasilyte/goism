@@ -36,9 +36,10 @@ func compileExprList(cl *Compiler, forms []sexp.Form) {
 }
 
 func compileBlock(cl *Compiler, form *sexp.Block) {
+	depth := cl.st.Len()
 	compileStmtList(cl, form.Forms)
-	if form.Scope.Len() != 0 {
-		emit(cl, instr.Discard(form.Scope.Len()))
+	if scopeSize := cl.st.Len() - depth; scopeSize != 0 {
+		emit(cl, instr.Discard(scopeSize))
 	}
 }
 

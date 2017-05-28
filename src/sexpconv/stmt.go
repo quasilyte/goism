@@ -64,7 +64,6 @@ func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 func (conv *Converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
 	return &sexp.Block{
 		Forms: conv.stmtList(node.List),
-		Scope: conv.info.Scopes[node],
 	}
 }
 

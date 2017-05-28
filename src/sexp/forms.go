@@ -13,6 +13,53 @@ type Form interface {
 	form()
 }
 
+type OpKind int
+
+const (
+	OpInvalid OpKind = iota
+
+	/* Num ops */
+
+	OpShl    // Shl = "X << Y".
+	OpShr    // Shr = "X >> Y".
+	OpBitOr  //  BitOr = "X | Y".
+	OpBitAnd // BitAnd = "X & Y".
+	OpBitXor // BitXor = "X ^ Y".
+	OpAdd    // Add = "X + Y"
+	OpSub    // Sub = "X - Y"
+	OpMul    // Mul = "X * Y"
+	OpQuo    // Quo = "X / Y"
+	OpNumEq  // NumEq = "X == Y"
+	OpNumNeq // NumNeq = "X != Y"
+	OpNumLt  // NumLt = "X < Y"
+	OpNumLte // NumLte = "X <= Y"
+	OpNumGt  // NumGt = "X > Y"
+	OpNumGte // NumGte = "X >= Y"
+
+	/* Str ops */
+
+	OpConcat // Concat = "X + Y"
+	OpStrEq  // StrEq = "X == Y"
+	OpStrNeq // StrNeq = "X != Y"
+	OpStrLt  // StrLt = "X < Y"
+	OpStrLte // StrLte = "X <= Y"
+	OpStrGt  // StrGt = "X > Y"
+	OpStrGte // StrGte = "X >= Y"
+
+	/* Unary ops */
+
+	OpNot     // Not = "!X"
+	OpNeg     // Neg = "-X"
+	OpAdd1    // OpAdd1 = "X+1"
+	OpAdd2    // OpAdd2 = "X+2"
+	OpSub1    // OpAdd1 = "X-1"
+	OpSub2    // OpAdd2 = "X-2"
+	OpStrCast // StrCast = "string(X)"
+	OpArrayCopy
+	OpSliceCap // SliceCap = "cap(X)"
+	OpSliceLen // SliceLen = "len(X)"
+)
+
 // Atoms.
 type (
 	// Bool = true or false literal.
@@ -29,6 +76,21 @@ type (
 	Var struct {
 		Name string
 		Typ  types.Type
+	}
+)
+
+// Operators.
+type (
+	// UnaryOp = "op(X)".
+	UnaryOp struct {
+		Kind OpKind
+		X    Form
+	}
+
+	// BinOp = "op(X, Y)".
+	BinOp struct {
+		Kind OpKind
+		Args [2]Form
 	}
 )
 
@@ -170,7 +232,6 @@ type FormList struct {
 // Unlike FormList, it creates a new lexical scope.
 type Block struct {
 	Forms []Form
-	Scope *types.Scope
 }
 
 // If statement evaluates test expression and,
@@ -215,61 +276,4 @@ type (
 		Cond Form
 		Body *Block
 	}
-)
-
-type UnaryOp struct {
-	Kind OpKind
-	X    Form
-}
-
-type BinOp struct {
-	Kind OpKind
-	Args [2]Form
-}
-
-type OpKind int
-
-const (
-	OpInvalid OpKind = iota
-
-	/* Num ops */
-
-	OpShl    // Shl = "Args[0] << Args[1]".
-	OpShr    // Shr = "Args[0] >> Args[1]".
-	OpBitOr  //  BitOr = "Args[0] | Args[1]".
-	OpBitAnd // BitAnd = "Args[0] & Args[1]".
-	OpBitXor // BitXor = "Args[0] ^ Args[1]".
-	OpAdd    // Add = "Args[0] + Args[1]"
-	OpSub    // Sub = "Args[0] - Args[1]"
-	OpMul    // Mul = "Args[0] * Args[1]"
-	OpQuo    // Quo = "Args[0] / Args[1]"
-	OpNumEq  // NumEq = "Args[0] == Args[1]"
-	OpNumNeq // NumNeq = "Args[0] != Args[1]"
-	OpNumLt  // NumLt = "Args[0] < Args[1]"
-	OpNumLte // NumLte = "Args[0] <= Args[1]"
-	OpNumGt  // NumGt = "Args[0] > Args[1]"
-	OpNumGte // NumGte = "Args[0] >= Args[1]"
-
-	/* Str ops */
-
-	OpConcat // Concat = "Args[0] + Args[1]"
-	OpStrEq  // StrEq = "Args[0] == Args[1]"
-	OpStrNeq // StrNeq = "Args[0] != Args[1]"
-	OpStrLt  // StrLt = "Args[0] < Args[1]"
-	OpStrLte // StrLte = "Args[0] <= Args[1]"
-	OpStrGt  // StrGt = "Args[0] > Args[1]"
-	OpStrGte // StrGte = "Args[0] >= Args[1]"
-
-	/* Unary ops */
-
-	OpNot     // Not = "!Arg"
-	OpNeg     // Neg = "-Arg"
-	OpAdd1    // OpAdd1 = "Arg+1"
-	OpAdd2    // OpAdd2 = "Arg+2"
-	OpSub1    // OpAdd1 = "Arg-1"
-	OpSub2    // OpAdd2 = "Arg-2"
-	OpStrCast // StrCast = "string(Arg)"
-	OpArrayCopy
-	OpSliceCap // SliceCap = "cap(Arg)"
-	OpSliceLen // SliceLen = "len(Arg)"
 )

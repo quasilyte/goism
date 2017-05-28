@@ -62,7 +62,6 @@ func (conv *Converter) ForStmt(node *ast.ForStmt) sexp.Form {
 		init := conv.Stmt(node.Init)
 		loop = &sexp.Block{
 			Forms: []sexp.Form{init, loop},
-			Scope: conv.info.Scopes[node],
 		}
 	}
 

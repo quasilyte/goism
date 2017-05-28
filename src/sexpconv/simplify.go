@@ -38,7 +38,6 @@ func simplify(form sexp.Form) sexp.Form {
 		}
 		return &sexp.Block{
 			Forms: []sexp.Form{bindKey, loop},
-			Scope: form.Scope,
 		}
 	}
 
