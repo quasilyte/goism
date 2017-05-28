@@ -1,14 +1,73 @@
 package tu
 
 import (
+	"bytes"
 	"go/ast"
+	"go/token"
 	"go/types"
 	"lisp"
+	"path/filepath"
 	"sexp"
 	"sexpconv"
 )
 
-func translatePackage(goPkg *goPackage, pkgComment string) *Package {
+func translatePackage(pkgPath string) (pkg *Package, err error) {
+	fSet := token.NewFileSet()
+
+	parsedPkg, err := parsePackage(fSet, pkgPath)
+	if err != nil {
+		return nil, err
+	}
+
+	checkedPkg, err := typecheckPackage(fSet, parsedPkg)
+	if err != nil {
+		return nil, err
+	}
+
+	defer func() {
+		switch panicArg := recover().(type) {
+		case nil:
+			return
+		case sexpconv.Error:
+			pkg = nil
+			err = panicArg
+			return
+		default:
+			panic(panicArg)
+		}
+	}()
+	pkgComment := packageComment(parsedPkg.Files)
+	return convertPackage(checkedPkg, pkgComment), nil
+}
+
+func packageComment(files map[string]*ast.File) string {
+	var buf bytes.Buffer
+	buf.WriteString(";; ") // To avoid expensive prepend in the end.
+
+	for name, file := range files {
+		if file.Doc != nil {
+			buf.WriteString("\t<")
+			buf.WriteString(filepath.Base(name))
+			buf.WriteString(">\n")
+			buf.WriteString(file.Doc.Text())
+		}
+	}
+
+	if buf.Len() == len(";; ") {
+		return ""
+	}
+
+	// Remove trailing newline.
+	buf.Truncate(buf.Len() - 1)
+
+	// Properly format comment text.
+	comment := bytes.Replace(buf.Bytes(), []byte(`"`), []byte(`\"`), -1)
+	comment = bytes.Replace(comment, []byte("\n"), []byte("\n;; "), -1)
+
+	return string(comment)
+}
+
+func convertPackage(goPkg *goPackage, pkgComment string) *Package {
 	pkg := &Package{
 		Name:    goPkg.Name,
 		Comment: pkgComment,
@@ -65,7 +124,7 @@ func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 	for _, file := range goPkg.Files {
 		for _, decl := range file.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
-				translateFunc(pkg, conv, decl)
+				convertFunc(pkg, conv, decl)
 			}
 		}
 	}
@@ -73,7 +132,7 @@ func translatePackage(goPkg *goPackage, pkgComment string) *Package {
 	return pkg
 }
 
-func translateFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
+func convertFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
 	// Collect flat list of param names.
 	params := decl.Type.Params
 	paramNames := make([]string, 0, params.NumFields())
