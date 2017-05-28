@@ -50,12 +50,12 @@
 
 ;; Boundary checks.
 (defmacro Go--slice-len-bound (slice index)
-  `(unless (and (>= ,index 0)
-                (< ,index (Go--slice-len ,slice)))
+  `(when (and (< ,index 0)
+              (> ,index (Go--slice-len ,slice)))
      (Go--panic "slice bounds out of range")))
 (defmacro Go--slice-cap-bound (slice index)
-  `(unless (and (>= ,index 0)
-                (>= ,index (Go--slice-cap ,slice)))
+  `(when (and (< ,index 0)
+              (> ,index (Go--slice-cap ,slice)))
      (Go--panic "slice bounds out of range")))
 
 ;; Slices without offset are consedered `fast'.
@@ -157,3 +157,11 @@
 ;; Specialization for "arr[:high]".
 (defun Go--array-slice-high (arr high)
   (Go--slice arr 0 high (length arr)))
+
+;; Convert byte slice to string: "string(slice)".
+(defun Go--slice-to-str (slice)
+  (if (Go--slice-fast? slice)
+      (concat (Go--slice-data slice) "")
+    (concat (substring (Go--slice-data slice)
+                       (Go--slice-offset slice))
+            "")))
