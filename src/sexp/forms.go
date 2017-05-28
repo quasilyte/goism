@@ -116,138 +116,63 @@ type (
 	}
 )
 
-// SparseArrayVal is SparseArrayLit member initializer.
-type SparseArrayVal struct {
-	Index int64
-	Expr  Form
-}
+// Special forms and statements.
+type (
+	// ArrayUpdate is array index expression with assignment.
+	ArrayUpdate struct {
+		Array Form
+		Index Form
+		Expr  Form
+	}
 
-// ArrayIndex is array index expression.
-type ArrayIndex struct {
-	Array Form
-	Index Form
-}
+	// SliceUpdate is slice index expression with assignment.
+	SliceUpdate struct {
+		Slice Form
+		Index Form
+		Expr  Form
+	}
 
-// ArrayUpdate is array index expression with assignment.
-type ArrayUpdate struct {
-	Array Form
-	Index Form
-	Expr  Form
-}
+	// Panic causes runtime panic and carries data along.
+	Panic struct {
+		ErrorData Form
+	}
 
-// ArraySlice is array slicing (subslice) expression.
-type ArraySlice struct {
-	Array Form
-	Typ   *types.Slice
-	Span
-}
+	// Bind associates name with expression (initializer).
+	// Binding has lexical scoping.
+	Bind struct {
+		Name string
+		Init Form
+	}
 
-// SliceIndex is slice index expression.
-type SliceIndex struct {
-	Slice Form
-	Index Form
-}
+	// Rebind changes symbol value.
+	Rebind struct {
+		Name string
+		Expr Form
+	}
 
-// SliceUpdate is slice index expression with assignment.
-type SliceUpdate struct {
-	Slice Form
-	Index Form
-	Expr  Form
-}
+	// FormList packs multiple forms together (like "progn").
+	FormList struct{ Forms []Form }
 
-// Subslice = "Slice[Low:High]".
-type Subslice struct {
-	Slice Form
-	Span
-}
+	// Block is a list of statements.
+	// Unlike FormList, it creates a new lexical scope.
+	Block struct{ Forms []Form }
 
-// Substr = "Str[Low:High]".
-type Substr struct {
-	Str Form
-	Span
-}
+	// If statement evaluates test expression and,
+	// depending on the result, one of the branches gets
+	// executed. Else branch is optional.
+	If struct {
+		Cond Form
+		Then *Block
+		Else Form
+	}
 
-// Call expression is normal (direct) function invocation.
-type Call struct {
-	Fn   *function.Type
-	Args []Form
-}
+	// Return statement exits the function and returns
+	// one or more values to the caller.
+	Return struct{ Results []Form }
 
-// CallStmt is a Call which discards returned results.
-type CallStmt struct {
-	*Call
-}
-
-// Let introduces single binding that is visible to a
-// statement or expression. Binding is destroyed after
-// wrapped form is evaluated.
-type Let struct {
-	Bind *Bind
-
-	// Either of these two is set.
-	// Let wraps expression OR statement.
-	Expr Form
-	Stmt Form
-}
-
-/* Special forms */
-
-// Panic causes runtime panic and carries data along.
-type Panic struct {
-	ErrorData Form
-}
-
-// Bind associates name with expression (initializer).
-// Binding has lexical scoping.
-type Bind struct {
-	Name string
-	Init Form
-}
-
-// Rebind changes symbol value.
-type Rebind struct {
-	Name string
-	Expr Form
-}
-
-// TypeAssert coerces expression to specified type; panics on failure.
-type TypeAssert struct {
-	Expr Form
-	Typ  types.Type
-}
-
-// LispTypeAssert is a special case of type assert, it
-// operates on unboxed Elisp values.
-type LispTypeAssert struct {
-	Expr Form
-	Typ  types.Type
-}
-
-// FormList packs multiple forms together (like "progn").
-type FormList struct {
-	Forms []Form
-}
-
-// Block is a list of statements.
-// Unlike FormList, it creates a new lexical scope.
-type Block struct {
-	Forms []Form
-}
-
-// If statement evaluates test expression and,
-// depending on the result, one of the branches gets
-// executed. Else branch is optional.
-type If struct {
-	Cond Form
-	Then *Block
-	Else Form
-}
-
-// Return statement exits the function and returns
-// one or more values to the caller.
-type Return struct {
-	Results []Form
-}
+	// CallStmt is a Call which discards returned results.
+	CallStmt struct{ *Call }
+)
 
 // Loop forms.
 type (
@@ -277,3 +202,77 @@ type (
 		Body *Block
 	}
 )
+
+// Index expressions.
+type (
+	// ArrayIndex is array index expression.
+	ArrayIndex struct {
+		Array Form
+		Index Form
+	}
+
+	// SliceIndex is slice index expression.
+	SliceIndex struct {
+		Slice Form
+		Index Form
+	}
+)
+
+// Span expressions.
+type (
+	// ArraySlice is array slicing (subslice) expression.
+	ArraySlice struct {
+		Array Form
+		Typ   *types.Slice
+		Span
+	}
+
+	// Subslice = "Slice[Low:High]".
+	Subslice struct {
+		Slice Form
+		Span
+	}
+
+	// Substr = "Str[Low:High]".
+	Substr struct {
+		Str Form
+		Span
+	}
+)
+
+// TypeAssert coerces expression to specified type; panics on failure.
+type TypeAssert struct {
+	Expr Form
+	Typ  types.Type
+}
+
+// LispTypeAssert is a special case of type assert, it
+// operates on unboxed Elisp values.
+type LispTypeAssert struct {
+	Expr Form
+	Typ  types.Type
+}
+
+// Call expression is normal (direct) function invocation.
+type Call struct {
+	Fn   *function.Type
+	Args []Form
+}
+
+// Let introduces single binding that is visible to a
+// statement or expression. Binding is destroyed after
+// wrapped form is evaluated.
+type Let struct {
+	Bind *Bind
+
+	// Either of these two is set.
+	// Let wraps expression OR statement.
+	Expr Form
+	Stmt Form
+}
+
+// SparseArrayVal is SparseArrayLit member initializer.
+type SparseArrayVal struct {
+	Index int64
+	Expr  Form
+}

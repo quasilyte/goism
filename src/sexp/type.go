@@ -36,10 +36,11 @@ func (form *FormList) Type() types.Type    { return typVoid }
 func (form *Block) Type() types.Type       { return typVoid }
 func (form *If) Type() types.Type          { return typVoid }
 func (form *Return) Type() types.Type      { return typVoid }
-func (form *Repeat) Type() types.Type      { return typVoid }
-func (form *DoTimes) Type() types.Type     { return typVoid }
-func (form *While) Type() types.Type       { return typVoid }
 func (form CallStmt) Type() types.Type     { return typVoid }
+
+func (form *Repeat) Type() types.Type  { return typVoid }
+func (form *DoTimes) Type() types.Type { return typVoid }
+func (form *While) Type() types.Type   { return typVoid }
 
 func (form *ArrayIndex) Type() types.Type {
 	return form.Array.Type().Underlying().(*types.Array).Elem()
