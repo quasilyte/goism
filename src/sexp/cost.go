@@ -22,7 +22,7 @@ func Cost(form Form) int {
 	case *SparseArrayLit:
 		valuesCost := 0
 		for _, val := range form.Vals {
-			valuesCost += Cost(val.Expr)
+			valuesCost += Cost(val)
 		}
 		return valuesCost*3 + 1
 

@@ -40,7 +40,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			return form
 		}
 		for i := range form.Vals {
-			form.Vals[i].Expr = Rewrite(form.Vals[i].Expr, f)
+			form.Vals[i] = Rewrite(form.Vals[i], f)
 		}
 
 	case *SliceLit:

@@ -175,10 +175,10 @@ func compileVar(cl *Compiler, form sexp.Var) {
 
 func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
 	compileCall(cl, form.Ctor.Fn.Name(), form.Ctor.Args)
-	for _, val := range form.Vals {
+	for i, val := range form.Vals {
 		emit(cl, instr.StackRef(0)) // Array
-		emit(cl, instr.ConstRef(cl.cvec.InsertInt(val.Index)))
-		compileExpr(cl, val.Expr)
+		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(i))))
+		compileExpr(cl, val)
 		emit(cl, instr.ArraySet)
 	}
 }

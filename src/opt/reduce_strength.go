@@ -112,8 +112,8 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	toArrayLit := func(form *sexp.SparseArrayLit) *sexp.ArrayLit {
 		zv := sexpconv.ZeroValue(form.Typ.Elem())
 		vals := make([]sexp.Form, int(form.Typ.Len()))
-		for _, val := range form.Vals {
-			vals[val.Index] = val.Expr
+		for i, val := range form.Vals {
+			vals[i] = val
 		}
 		for i := range vals {
 			if vals[i] == nil {

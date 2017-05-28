@@ -273,12 +273,9 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 	}
 
 	if len(node.Elts) != int(typ.Len()) {
-		vals := make([]sexp.SparseArrayVal, len(node.Elts))
+		vals := make(map[int]sexp.Form, len(node.Elts))
 		for i, elt := range node.Elts {
-			vals[i] = sexp.SparseArrayVal{
-				Index: int64(i),
-				Expr:  conv.Expr(elt),
-			}
+			vals[i] = conv.Expr(elt)
 		}
 		ctor := &sexp.Call{
 			Fn: function.MakeVector,

@@ -105,7 +105,7 @@ type (
 	// SparseArrayLit is like ArrayLit, but does not store zero values.
 	SparseArrayLit struct {
 		Ctor *Call
-		Vals []SparseArrayVal
+		Vals map[int]Form
 		Typ  *types.Array
 	}
 
@@ -269,10 +269,4 @@ type Let struct {
 	// Let wraps expression OR statement.
 	Expr Form
 	Stmt Form
-}
-
-// SparseArrayVal is SparseArrayLit member initializer.
-type SparseArrayVal struct {
-	Index int64
-	Expr  Form
 }
