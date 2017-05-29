@@ -40,6 +40,13 @@ func (conv *Converter) valueCopy(form sexp.Form) sexp.Form {
 	return form
 }
 
+func isGlobal(obj types.Object) bool {
+	objScope := obj.Parent()
+	// If parent scope is Universe, then object scope
+	// is Package => it is global.
+	return objScope.Parent() == types.Universe
+}
+
 func isArray(typ types.Type) bool {
 	_, ok := typ.Underlying().(*types.Array)
 	return ok
