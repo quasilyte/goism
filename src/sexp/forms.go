@@ -136,14 +136,20 @@ type (
 	}
 
 	// Bind associates name with expression (initializer).
-	// Binding has lexical scoping.
+	// Introduces local variable.
 	Bind struct {
 		Name string
 		Init Form
 	}
 
-	// Rebind changes symbol value.
+	// Rebind changes local symbol value.
 	Rebind struct {
+		Name string
+		Expr Form
+	}
+
+	// VarUpdate changes global variable value.
+	VarUpdate struct {
 		Name string
 		Expr Form
 	}

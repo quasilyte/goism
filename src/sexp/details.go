@@ -19,6 +19,7 @@ func (form *SliceUpdate) form() {}
 func (form *Panic) form()       {}
 func (form *Bind) form()        {}
 func (form *Rebind) form()      {}
+func (form *VarUpdate) form()   {}
 func (form *FormList) form()    {}
 func (form *Block) form()       {}
 func (form *If) form()          {}

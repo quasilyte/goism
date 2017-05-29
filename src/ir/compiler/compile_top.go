@@ -20,6 +20,8 @@ func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
 		compileBind(cl, form)
 	case *sexp.Rebind:
 		compileRebind(cl, form)
+	case *sexp.VarUpdate:
+		compileVarUpdate(cl, form)
 	case sexp.CallStmt:
 		compileCallStmt(cl, form)
 	case *sexp.Panic:

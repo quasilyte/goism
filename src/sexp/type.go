@@ -32,6 +32,7 @@ func (form *SliceUpdate) Type() types.Type { return typVoid }
 func (form *Panic) Type() types.Type       { return typVoid }
 func (form *Bind) Type() types.Type        { return typVoid }
 func (form *Rebind) Type() types.Type      { return typVoid }
+func (form *VarUpdate) Type() types.Type   { return typVoid }
 func (form *FormList) Type() types.Type    { return typVoid }
 func (form *Block) Type() types.Type       { return typVoid }
 func (form *If) Type() types.Type          { return typVoid }

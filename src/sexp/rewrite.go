@@ -106,6 +106,12 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 		form.Expr = Rewrite(form.Expr, f)
 
+	case *VarUpdate:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Expr = Rewrite(form.Expr, f)
+
 	case *TypeAssert:
 		if form := f(form); form != nil {
 			return form

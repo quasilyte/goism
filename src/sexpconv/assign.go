@@ -116,6 +116,9 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			return conv.ignoredExpr(expr)
 		}
 		if def := conv.info.Defs[lhs]; def == nil {
+			if isGlobal(conv.info.Uses[lhs]) {
+				return &sexp.VarUpdate{Name: lhs.Name, Expr: expr}
+			}
 			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
 		}
 		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
