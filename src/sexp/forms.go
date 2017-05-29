@@ -51,9 +51,7 @@ const (
 	OpNot     // Not = "!X"
 	OpNeg     // Neg = "-X"
 	OpAdd1    // OpAdd1 = "X+1"
-	OpAdd2    // OpAdd2 = "X+2"
 	OpSub1    // OpAdd1 = "X-1"
-	OpSub2    // OpAdd2 = "X-2"
 	OpStrCast // StrCast = "string(X)"
 	OpArrayCopy
 	OpSliceCap // SliceCap = "cap(X)"

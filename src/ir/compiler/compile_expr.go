@@ -18,8 +18,6 @@ var opKindToInstr = [...]instr.Instr{
 	sexp.OpNeg:    instr.Neg,
 	sexp.OpAdd1:   instr.Add1,
 	sexp.OpSub1:   instr.Sub1,
-	sexp.OpAdd2:   instr.Add1,
-	sexp.OpSub2:   instr.Sub1,
 }
 
 func compileBinOp(cl *Compiler, form *sexp.BinOp) {
@@ -48,9 +46,6 @@ func compileUnaryOp(cl *Compiler, form *sexp.UnaryOp) {
 	default:
 		compileExpr(cl, form.X)
 		emit(cl, opKindToInstr[form.Kind])
-		if form.Kind == sexp.OpAdd2 || form.Kind == sexp.OpSub2 {
-			emit(cl, opKindToInstr[form.Kind])
-		}
 	}
 }
 

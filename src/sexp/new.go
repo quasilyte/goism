@@ -36,9 +36,7 @@ func NewSubstr(str, low, high Form) *Substr {
 func NewNot(x Form) *UnaryOp      { return newOp1(OpNot, x) }
 func NewNeg(x Form) *UnaryOp      { return newOp1(OpNeg, x) }
 func NewAdd1(x Form) *UnaryOp     { return newOp1(OpAdd1, x) }
-func NewAdd2(x Form) *UnaryOp     { return newOp1(OpAdd1, x) }
 func NewSub1(x Form) *UnaryOp     { return newOp1(OpSub1, x) }
-func NewSub2(x Form) *UnaryOp     { return newOp1(OpSub2, x) }
 func NewStrCast(x Form) *UnaryOp  { return newOp1(OpStrCast, x) }
 func NewSliceLen(x Form) *UnaryOp { return newOp1(OpSliceLen, x) }
 func NewSliceCap(x Form) *UnaryOp { return newOp1(OpSliceCap, x) }

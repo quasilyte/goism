@@ -62,14 +62,14 @@ func weakenAdd(form *sexp.BinOp) sexp.Form {
 			return sexp.NewAdd1(form.Args[b])
 		}
 		if numEq(form.Args[a], 2) {
-			return sexp.NewAdd2(form.Args[b])
+			return sexp.NewAdd1(sexp.NewAdd1(form.Args[b]))
 		}
 		// Addition of negative number = substraction.
 		if numEq(form.Args[a], -1) {
 			return sexp.NewSub1(form.Args[b])
 		}
 		if numEq(form.Args[a], -2) {
-			return sexp.NewSub2(form.Args[b])
+			return sexp.NewSub1(sexp.NewSub1(form.Args[b]))
 		}
 		return nil
 	}
@@ -90,14 +90,14 @@ func weakenSub(form *sexp.BinOp) sexp.Form {
 		return sexp.NewSub1(form.Args[0])
 	}
 	if numEq(form.Args[1], 2) {
-		return sexp.NewSub2(form.Args[0])
+		return sexp.NewSub1(sexp.NewSub1(form.Args[0]))
 	}
 	// Substraction of negative number = addition.
 	if numEq(form.Args[1], -1) {
 		return sexp.NewAdd1(form.Args[0])
 	}
 	if numEq(form.Args[1], -2) {
-		return sexp.NewAdd2(form.Args[0])
+		return sexp.NewAdd1(sexp.NewAdd1(form.Args[0]))
 	}
 	return form
 }

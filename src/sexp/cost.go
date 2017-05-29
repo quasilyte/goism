@@ -106,9 +106,7 @@ var baseOpCost = [...]int{
 	OpNot:     1,
 	OpNeg:     1,
 	OpAdd1:    1,
-	OpAdd2:    1,
 	OpSub1:    1,
-	OpSub2:    1,
 	OpStrCast: 2,
 
 	OpSliceCap: 3,
