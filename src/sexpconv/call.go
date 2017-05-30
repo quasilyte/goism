@@ -90,8 +90,7 @@ func (conv *Converter) makeFunction(fn *ast.Ident, pkgName string) *function.Typ
 	sig := conv.typeOf(fn).(*types.Signature)
 
 	if pkgName == "" {
-		qualName := conv.symPrefix + fn.Name
-		return function.New(qualName, sig)
+		return function.New(conv.env.Intern(fn.Name), sig)
 	}
 	qualName := "Go-" + pkgName + "." + fn.Name
 	return function.New(qualName, sig)

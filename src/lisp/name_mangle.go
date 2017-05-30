@@ -2,7 +2,7 @@ package lisp
 
 const symPrefix = "Go-"
 
-func VarName(pkgName string, varName string) string {
+func varName(pkgName string, varName string) string {
 	totalLen := len(symPrefix) + len(pkgName) + len(".") + len(varName)
 	buf := make([]byte, totalLen)
 
