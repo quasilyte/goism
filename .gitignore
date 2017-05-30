@@ -3,3 +3,4 @@ pkg
 bin
 src/emacs/scratch
 src/main/main.go
+build
