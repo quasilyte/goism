@@ -13,12 +13,14 @@ import (
 	"tu"
 )
 
-func main() {
+func init() {
 	program := &util.ProgramInfo
 	program.Description =
 		"Translate single Go package into IR format."
-	program.Name = "goel-translate-package"
+	program.Name = "goel_translate_package"
+}
 
+func main() {
 	util.ParseArgv(util.ArgvSchema{
 		"pkgPath": {
 			Help: "Path to Go package to be translated",
