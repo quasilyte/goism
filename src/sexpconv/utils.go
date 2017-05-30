@@ -2,9 +2,9 @@ package sexpconv
 
 import (
 	"go/ast"
-	"go/types"
 	"lisp/function"
 	"sexp"
+	"xtypes"
 )
 
 func (conv *Converter) exprList(nodes []ast.Expr) []sexp.Form {
@@ -31,25 +31,13 @@ func (conv *Converter) valueCopyList(forms []sexp.Form) []sexp.Form {
 }
 
 func (conv *Converter) valueCopy(form sexp.Form) sexp.Form {
-	if isArray(form.Type()) && !isArrayLit(form) {
+	if xtypes.IsArray(form.Type()) && !isArrayLit(form) {
 		return &sexp.Call{
 			Fn:   function.CopySequence,
 			Args: []sexp.Form{form},
 		}
 	}
 	return form
-}
-
-func isGlobal(obj types.Object) bool {
-	objScope := obj.Parent()
-	// If parent scope is Universe, then object scope
-	// is Package => it is global.
-	return objScope.Parent() == types.Universe
-}
-
-func isArray(typ types.Type) bool {
-	_, ok := typ.Underlying().(*types.Array)
-	return ok
 }
 
 func isArrayLit(form sexp.Form) bool {

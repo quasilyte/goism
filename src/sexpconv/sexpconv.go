@@ -7,6 +7,7 @@ import (
 	"go/types"
 	"lisp"
 	"sexp"
+	"xast"
 )
 
 type Converter struct {
@@ -39,7 +40,7 @@ func (conv *Converter) FuncBody(name *ast.Ident, block *ast.BlockStmt) *sexp.Blo
 }
 
 func (conv *Converter) VarInit(lhs []*ast.Ident, rhs ast.Expr) sexp.Form {
-	return conv.identAssign(lhs, []ast.Expr{rhs})
+	return conv.genAssign(xast.ExprSlice(lhs), []ast.Expr{rhs})
 }
 
 func (conv *Converter) VarZeroInit(sym string, typ types.Type) sexp.Form {

@@ -7,6 +7,7 @@ import (
 	"lisp"
 	"lisp/function"
 	"sexp"
+	"xtypes"
 )
 
 // Go blank identifier which allows a value to be evaluated, but discarded.
@@ -34,19 +35,11 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 		return conv.quoAssign(node.Lhs[0], node.Rhs[0])
 
 	default:
-		return conv.exprAssign(node.Lhs, node.Rhs)
+		return conv.genAssign(node.Lhs, node.Rhs)
 	}
 }
 
-func (conv *Converter) identAssign(lhs []*ast.Ident, rhs []ast.Expr) sexp.Form {
-	exprLhs := make([]ast.Expr, len(lhs))
-	for i := range lhs {
-		exprLhs[i] = lhs[i]
-	}
-	return conv.exprAssign(exprLhs, rhs)
-}
-
-func (conv *Converter) exprAssign(lhs, rhs []ast.Expr) sexp.Form {
+func (conv *Converter) genAssign(lhs, rhs []ast.Expr) sexp.Form {
 	if len(lhs) == len(rhs) {
 		return conv.singleValueAssign(lhs, rhs)
 	}
@@ -129,7 +122,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			return conv.ignoredExpr(expr)
 		}
 		if conv.info.Defs[lhs] == nil {
-			if isGlobal(conv.info.Uses[lhs]) {
+			if xtypes.IsGlobal(conv.info.Uses[lhs]) {
 				return &sexp.VarUpdate{
 					Name: conv.env.Intern(lhs.Name),
 					Expr: conv.valueCopy(expr),

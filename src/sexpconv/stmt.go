@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"sexp"
+	"xast"
 )
 
 func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
@@ -95,7 +96,8 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 			}
 		}
 	} else {
-		forms = append(forms, conv.identAssign(spec.Names, spec.Values))
+		lhs := xast.ExprSlice(spec.Names)
+		forms = append(forms, conv.genAssign(lhs, spec.Values))
 	}
 	return forms
 }

@@ -8,6 +8,7 @@ import (
 	"lisp"
 	"lisp/function"
 	"sexp"
+	"xtypes"
 )
 
 func (conv *Converter) Expr(node ast.Expr) sexp.Form {
@@ -65,7 +66,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 		}
 	}
 
-	if isGlobal(obj) {
+	if xtypes.IsGlobal(obj) {
 		return sexp.Var{Name: conv.env.Intern(node.Name), Typ: typ}
 	}
 	return sexp.Var{Name: node.Name, Typ: typ}
@@ -223,7 +224,7 @@ func (conv *Converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
 	if node.High != nil {
 		high = conv.Expr(node.High)
 	}
-	if isArray(conv.typeOf(node.X)) {
+	if xtypes.IsArray(conv.typeOf(node.X)) {
 		return sexp.NewArraySlice(conv.Expr(node.X), low, high)
 	}
 	return sexp.NewSubslice(conv.Expr(node.X), low, high)
