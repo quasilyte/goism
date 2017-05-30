@@ -1,7 +1,7 @@
 package sexpconv
 
 import (
-	"fmt"
+	"exn"
 	"go/ast"
 	"go/types"
 	"lisp/function"
@@ -35,7 +35,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	case *ast.SelectorExpr: // x.sel()
 		sel := conv.info.Selections[fn]
 		if sel != nil {
-			panic("method calls unimplemented")
+			panic(exn.NoImpl("method calls"))
 		}
 
 		pkg := fn.X.(*ast.Ident)
@@ -81,7 +81,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		}
 
 	default:
-		panic(fmt.Sprintf("unexpected func: %#v", node.Fun))
+		panic(errUnexpectedExpr(conv, node))
 	}
 }
 

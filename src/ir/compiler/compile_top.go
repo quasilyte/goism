@@ -1,12 +1,12 @@
 package compiler
 
 import (
-	"fmt"
+	"exn"
 	"ir/instr"
 	"sexp"
 )
 
-func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
+func compileStmt(cl *Compiler, form sexp.Form) {
 	switch form := form.(type) {
 	case *sexp.Return:
 		compileReturn(cl, form)
@@ -39,13 +39,11 @@ func tryCompileStmt(cl *Compiler, form sexp.Form) bool {
 		compileLetStmt(cl, form)
 
 	default:
-		return false
+		panic(exn.Logic("unexpected stmt: %#v", form))
 	}
-
-	return true
 }
 
-func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
+func compileExpr(cl *Compiler, form sexp.Form) {
 	switch form := form.(type) {
 	case sexp.Int:
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(form))))
@@ -93,20 +91,6 @@ func tryCompileExpr(cl *Compiler, form sexp.Form) bool {
 		compileLetExpr(cl, form)
 
 	default:
-		return false
-	}
-
-	return true
-}
-
-func compileStmt(cl *Compiler, form sexp.Form) {
-	if !tryCompileStmt(cl, form) {
-		panic(fmt.Sprintf("unexpected stmt: %#v\n", form))
-	}
-}
-
-func compileExpr(cl *Compiler, form sexp.Form) {
-	if !tryCompileExpr(cl, form) {
-		panic(fmt.Sprintf("unexpected expr: %#v\n", form))
+		panic(exn.Logic("unexpected expr: %#v", form))
 	}
 }

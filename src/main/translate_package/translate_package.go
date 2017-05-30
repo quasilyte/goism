@@ -1,6 +1,7 @@
 package main
 
 import (
+	"exn"
 	"fmt"
 	"ir"
 	"ir/compiler"
@@ -33,6 +34,8 @@ func main() {
 			Init: "true",
 		},
 	})
+
+	defer func() { util.CheckError(exn.Catch(recover())) }()
 
 	pkg, err := tu.TranslatePackage(util.Argv("pkgPath"))
 	util.CheckError(err)

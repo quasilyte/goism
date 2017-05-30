@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -13,14 +14,13 @@ func (conv *Converter) RangeStmt(node *ast.RangeStmt) sexp.Form {
 		return conv.foreachArray(node, typ)
 
 	default:
-		panic("unimplemented")
+		panic(exn.NoImpl("for/range for %T", typ))
 	}
 }
 
 func (conv *Converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.Form {
 	if node.Tok == token.ASSIGN {
-		// Only handling ":=" (DEFINE) for now.
-		panic("unimplemented")
+		panic(exn.NoImpl("'=' assign in for initializer"))
 	}
 
 	body := conv.BlockStmt(node.Body)
@@ -44,7 +44,7 @@ func (conv *Converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.
 	}
 
 	// For <KEY>, <VAL> := range <X>.
-	panic("unimplemented")
+	panic(exn.NoImpl("for loop variant"))
 }
 
 func (conv *Converter) ForStmt(node *ast.ForStmt) sexp.Form {

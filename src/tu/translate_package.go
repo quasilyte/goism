@@ -2,6 +2,7 @@ package tu
 
 import (
 	"bytes"
+	"exn"
 	"fmt"
 	"go/ast"
 	"go/importer"
@@ -27,17 +28,7 @@ func translatePackage(pkgPath string) (pkg *Package, err error) {
 	unit := newUnit(parseRes, typecheckRes, env)
 
 	// Handle errors that can be thrown by AST convertion procedure.
-	defer func() {
-		switch panicArg := recover().(type) {
-		case nil:
-			return // No panic happened
-		case sexpconv.Error:
-			err = panicArg
-			return // Return convertion error
-		default:
-			panic(panicArg) // Unexpected panic
-		}
-	}()
+	defer func() { err = exn.Catch(recover()) }()
 	convertInitializers(unit)
 	convertFuncs(unit)
 	comment := packageComment(unit.pkg.Files)

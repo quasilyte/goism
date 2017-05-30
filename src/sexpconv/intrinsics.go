@@ -1,7 +1,7 @@
 package sexpconv
 
 import (
-	"fmt"
+	"exn"
 	"go/ast"
 	"go/constant"
 	"lisp/function"
@@ -27,7 +27,7 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		return conv.intrinIntern(args[0])
 
 	default:
-		panic(fmt.Sprintf("invalid intrinsic: %s", sym))
+		panic(exn.User("`%s' is not a valid intrinsic", sym))
 	}
 }
 

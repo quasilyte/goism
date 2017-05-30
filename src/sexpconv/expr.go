@@ -1,7 +1,6 @@
 package sexpconv
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -110,7 +109,7 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 			return sexp.NewShr(x, y)
 
 		default:
-			panic(fmt.Sprintf("unexpected num op: %#v", node.Op))
+			panic(errUnexpectedExpr(conv, node))
 		}
 	}
 
@@ -130,11 +129,11 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 			return sexp.NewStrGte(x, y)
 
 		default:
-			panic(fmt.Sprintf("unexpected string op: %#v", node.Op))
+			panic(errUnexpectedExpr(conv, node))
 		}
 	}
 
-	panic("unimplemented")
+	panic(errUnexpectedExpr(conv, node))
 }
 
 func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
@@ -142,12 +141,7 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 		return cv
 	}
 
-	sel := conv.info.Selections[node]
-	if sel != nil {
-		panic("unimplemented")
-	}
-
-	panic(fmt.Sprintf("unexpected selector: %#v", node))
+	panic(errUnexpectedExpr(conv, node))
 }
 
 func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
@@ -166,7 +160,7 @@ func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 		return x
 	}
 
-	panic("unimplemented")
+	panic(errUnexpectedExpr(conv, node))
 }
 
 func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
@@ -212,7 +206,7 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 
 	// #TODO: strings
 	default:
-		panic("unimplemented")
+		panic(errUnexpectedExpr(conv, node))
 	}
 }
 
@@ -238,7 +232,7 @@ func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 		return conv.sliceLit(node, typ)
 
 	default:
-		panic(fmt.Sprintf("unexpected comp. lit: %#v\n", node))
+		panic(errUnexpectedExpr(conv, node))
 	}
 }
 

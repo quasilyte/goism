@@ -1,7 +1,7 @@
 package sexpconv
 
 import (
-	"fmt"
+	"assert"
 	"go/ast"
 	"go/constant"
 	"go/types"
@@ -27,7 +27,7 @@ func (conv *Converter) Constant(node ast.Expr) sexp.Form {
 			return constantBool(cv)
 
 		default:
-			panic(fmt.Sprintf("unexpected constant: %#v", cv))
+			panic(errUnexpectedExpr(conv, node))
 		}
 	}
 
@@ -40,9 +40,7 @@ func constantString(cv constant.Value) sexp.Str {
 
 func constantInt(cv constant.Value) sexp.Int {
 	val, exact := constant.Int64Val(cv)
-	if !exact {
-		panic("can not handle inexact int") // #REFS: 17.
-	}
+	assert.True(exact)
 	return sexp.Int(val)
 }
 

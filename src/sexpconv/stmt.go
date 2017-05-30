@@ -1,7 +1,7 @@
 package sexpconv
 
 import (
-	"fmt"
+	"exn"
 	"go/ast"
 	"go/token"
 	"sexp"
@@ -36,7 +36,7 @@ func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 
 func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 	if node.Init != nil {
-		panic("unimplemented")
+		panic(exn.NoImpl("if with initializer"))
 	}
 
 	test := conv.Expr(node.Cond)
@@ -74,7 +74,7 @@ func (conv *Converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
 		return conv.varDecl(decl)
 	}
 
-	panic("unimplemented")
+	panic(errUnexpectedStmt(conv, node))
 }
 
 func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
@@ -124,6 +124,6 @@ func (conv *Converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
 		return sexp.CallStmt{Call: form}
 
 	default:
-		panic(fmt.Sprintf("unexpected expr: %#v\n", node))
+		panic(errUnexpectedStmt(conv, node))
 	}
 }

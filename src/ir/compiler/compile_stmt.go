@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"assert"
 	"ir/instr"
 	"lisp"
 	"sexp"
@@ -52,7 +53,7 @@ func compileIf(cl *Compiler, form *sexp.If) {
 }
 
 func compileRepeat(cl *Compiler, form *sexp.Repeat) {
-	assert(form.N <= 256)
+	assert.True(form.N <= 256)
 	for i := int64(0); i < form.N; i++ {
 		compileBlock(cl, form.Body)
 	}

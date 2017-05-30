@@ -1,6 +1,7 @@
 package bench
 
 import (
+	"assert"
 	"math/rand"
 	"reflect"
 	"testing"
@@ -29,26 +30,20 @@ func Run(b *testing.B, bench func(*int)) {
 // RandInt64Slice generates slice of 50 random int64 elements.
 func RandInt64Slice() []int64 {
 	res, ok := quick.Value(reflect.TypeOf([]int64{}), random)
-	if !ok {
-		panic("failed to create random []int64")
-	}
+	assert.True(ok)
 	return res.Interface().([]int64)
 }
 
 // RandFloat64Slice generates slice of 50 random float64 elements.
 func RandFloat64Slice() []float64 {
 	res, ok := quick.Value(reflect.TypeOf([]float64{}), random)
-	if !ok {
-		panic("failed to create random []float64")
-	}
+	assert.True(ok)
 	return res.Interface().([]float64)
 }
 
 // RandStringSlice generates slice of 50 random string elements.
 func RandStringSlice() []string {
 	res, ok := quick.Value(reflect.TypeOf([]string{}), random)
-	if !ok {
-		panic("failed to create random []string")
-	}
+	assert.True(ok)
 	return res.Interface().([]string)
 }

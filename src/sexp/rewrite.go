@@ -1,7 +1,7 @@
 package sexp
 
 import (
-	"fmt"
+	"exn"
 )
 
 type rewriteFunc func(Form) Form
@@ -189,7 +189,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Args[1] = Rewrite(form.Args[1], f)
 
 	default:
-		panic(fmt.Sprintf("unexpected form: %#v", form))
+		panic(exn.Logic("unexpected form: %#v", form))
 	}
 
 	return form

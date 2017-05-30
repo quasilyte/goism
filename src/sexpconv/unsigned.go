@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"go/types"
 	"sexp"
 )
@@ -23,7 +24,7 @@ func uintElem(form sexp.Form, dstTyp types.Type) sexp.Form {
 		return sexp.NewBitAnd(form, sexp.Int(0xFFFFFF))
 
 	case types.Uint64:
-		panic("unimplemented")
+		panic(exn.NoImpl("uint64 coercion in array/slice context"))
 
 	default:
 		return form

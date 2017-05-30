@@ -1,6 +1,7 @@
 package export
 
 import (
+	"exn"
 	"strings"
 	"tu"
 )
@@ -9,7 +10,7 @@ import (
 func argsDescriptor(fn *tu.Func) int {
 	arity := len(fn.Params)
 	if arity > 127 {
-		panic("can not have more than 127 positional parameters")
+		panic(exn.User("can not have more than 127 positional parameters"))
 	}
 
 	positionalArgs := uint32(arity) // First 7 bits: required args

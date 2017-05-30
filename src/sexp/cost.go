@@ -1,7 +1,7 @@
 package sexp
 
 import (
-	"fmt"
+	"exn"
 	"go/types"
 )
 
@@ -72,7 +72,7 @@ func Cost(form Form) int {
 		return Cost(form.Expr) + bindCost
 
 	default:
-		panic(fmt.Sprintf("can not evaluate cost of %#v", form))
+		panic(exn.Logic("can not evaluate cost of %#v", form))
 	}
 }
 

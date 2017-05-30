@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -49,15 +50,10 @@ func (conv *Converter) genAssign(lhs, rhs []ast.Expr) sexp.Form {
 func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	typ := conv.basicTypeOf(rhs)
 	x, y := conv.Expr(lhs), conv.Expr(rhs)
-
-	if typ.Info()&types.IsNumeric != 0 {
-		return conv.assign(lhs, sexp.NewAdd(x, y))
-	}
 	if typ.Kind() == types.String {
 		return conv.assign(lhs, sexp.NewConcat(x, y))
 	}
-
-	panic("unimplemented")
+	return conv.assign(lhs, sexp.NewAdd(x, y))
 }
 
 func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
@@ -159,12 +155,12 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			return &sexp.SliceUpdate{Slice: slice, Index: index, Expr: expr}
 
 		default:
-			panic("unimplemented")
+			panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
 		}
 
 	// #TODO: struct assign, indirect assign
 	default:
-		panic("unimplemented")
+		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
 	}
 }
 

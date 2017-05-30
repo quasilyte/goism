@@ -1,7 +1,7 @@
 package sexpconv
 
 import (
-	"fmt"
+	"exn"
 	"go/types"
 	"lisp"
 	"lisp/function"
@@ -43,7 +43,7 @@ func ZeroValue(typ types.Type) sexp.Form {
 		return nilMap
 	}
 
-	panic(fmt.Sprintf("can not provide zero value for %#v", typ))
+	panic(exn.NoImpl("can not provide zero value for %#v", typ))
 }
 
 // Nil values
