@@ -18,13 +18,21 @@ func convertInitializers(u *unit) {
 				idents[i] = blankIdent
 			} else {
 				idents[i] = &ast.Ident{Name: v.Name()}
+				u.ti.Uses[idents[i]] = v
 				vars = append(vars, u.env.Intern(v.Name()))
 			}
 		}
 
 		body = append(body, u.conv.VarInit(idents, init.Rhs))
+
+		// Clear information that was added to type info above.
+		for _, ident := range idents {
+			delete(u.ti.Uses, ident)
+		}
 	}
 
+	// InitOrder misses entries for variables without explicit
+	// initializers. They are collected here.
 	for _, name := range u.topScope.Names() {
 		if v, ok := u.topScope.Lookup(name).(*types.Var); ok {
 			if u.env.Contains(v.Name()) {

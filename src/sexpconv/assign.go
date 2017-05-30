@@ -128,13 +128,13 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		if lhs.Name == blankIdent {
 			return conv.ignoredExpr(expr)
 		}
-		if isGlobal(conv, lhs) {
-			return &sexp.VarUpdate{
-				Name: conv.env.Intern(lhs.Name),
-				Expr: conv.valueCopy(expr),
-			}
-		}
 		if conv.info.Defs[lhs] == nil {
+			if isGlobal(conv.info.Uses[lhs]) {
+				return &sexp.VarUpdate{
+					Name: conv.env.Intern(lhs.Name),
+					Expr: conv.valueCopy(expr),
+				}
+			}
 			return &sexp.Rebind{Name: lhs.Name, Expr: conv.valueCopy(expr)}
 		}
 		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
