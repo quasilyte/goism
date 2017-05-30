@@ -1,6 +1,6 @@
-;;; -*- lexical-binding: t -*-
+;; {{ define "rt/slice" }}
+;; Go `slice' data type emulation.
 
-;; Constructors.
 (defmacro Go--slice (data offset len cap)
   `(cons ,data
          (cons ,offset
@@ -65,16 +65,6 @@
   `(= 0 (Go--slice-offset ,slice)))
 (defmacro Go--slices-fast? (a b)
   `(= 0 (Go--slice-offset ,a) (Go--slice-offset ,b)))
-
-;; Extend slice storage with new data buffer.
-(defmacro Go--slice-extend (slice )
-  `(progn
-     (Go--slice-data! ,slice
-                      (vconcat (Go--slice-data ,slice)
-                               ,extra-data))
-     (Go--slice-cap! ,slice
-                     (+ (Go--slice-cap ,slice)
-                        (length ,extra-data)))))
 
 ;; Append specialization for "append(slice, val)".
 (defun Go--slice-push (slice val)
@@ -166,3 +156,5 @@
                        (Go--slice-offset slice)
                        (+ (Go--slice-offset slice) (Go--slice-len slice)))
             "")))
+
+;; {{ end }}

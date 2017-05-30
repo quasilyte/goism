@@ -1,113 +1,84 @@
-;;; -*- lexical-binding: t -*-
-
-;; ir -- Go.el intermediate format that is converted to Emacs lapcode.
-
-(eval-when-compile
-  ;; Like `pop', but mutates list cells.
-  (defmacro pop! (list)
-    `(prog1
-         (car ,list)
-       (setcar ,list (nth 1 ,list))
-       (setcdr ,list (cddr ,list))))
-  (defmacro not-eq (x y)
-    `(not (eq ,x ,y))))
-
-;; { IR package }
-;; Output of Go.el compiler.
-
-(defmacro defun-ir (name args depth cvec &rest instrs)
-  (declare (indent defun))
-  (let* ((instrs (nconc instrs '(end)))
-         (args-desc (byte-compile-make-args-desc args))
-         (bytecode (byte-compile-lapcode
-                    (byte-optimize-lapcode
-                     (ir--to-lapcode instrs)))))
-    `(defalias ',name
-       ,(make-byte-code args-desc
-                        bytecode
-                        cvec
-                        depth))))
+;; {{ define "ir/ir" }}
+;; Go.el IR compiler.
 
 ;; Output IR package PKG to temp buffer.
 ;; Caller can decide to inspect/eval/save generated contents.
 ;; PKG is consumed.
-(defun ir--pkg-compile (pkg)
+(defun Go--ir-pkg-compile (pkg)
   (with-output-to-temp-buffer "*IR compile*"
     (let ((pkg-name (pop! pkg))
           (pkg-comment (pop! pkg)))
-      (ir--pkg-write-header pkg-name pkg)
+      (Go--ir-pkg-write-header pkg-name)
       (when (not (string= "" pkg-comment))
-        (ir--pkg-write-comment pkg-comment))
-      (ir--pkg-write-body pkg)
-      (ir--pkg-write-footer pkg-name))
+        (Go--ir-pkg-write-comment pkg-comment))
+      (Go--ir-pkg-write-body pkg)
+      (Go--ir-pkg-write-footer pkg-name))
     (with-current-buffer standard-output
       (emacs-lisp-mode)
       (setq buffer-read-only t))))
 
-(defun ir--pkg-write-header (pkg-name pkg)
+(defun Go--ir-pkg-write-header (pkg-name)
   (princ ";;; -*- lexical-binding: t -*-\n")
   (princ (format ";;; %s --- translated Go package\n" pkg-name))
   (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n"))
 
-(defun ir--pkg-write-comment (pkg-comment)
+(defun Go--ir-pkg-write-comment (pkg-comment)
   (princ "\n;;; Commentary:\n")
   (princ pkg-comment)
   (princ "\n\n;;; Code:\n"))
 
-(defun ir--pkg-write-footer (pkg-name)
+(defun Go--ir-pkg-write-footer (pkg-name)
   (princ (format "\n;;; %s ends here" pkg-name)))
 
-(defun ir--pkg-write-body (pkg)
+(defun Go--ir-pkg-write-body (pkg)
   (let (token)
     (while (setq token (pop! pkg))
       (pcase token
-        (`fn (ir--pkg-write-fn pkg))
-        (`vars (ir--pkg-write-vars pkg))
-        (`expr (ir--pkg-write-expr pkg))
+        (`fn (Go--ir-pkg-write-fn pkg))
+        (`vars (Go--ir-pkg-write-vars pkg))
+        (`expr (Go--ir-pkg-write-expr pkg))
         (_ (error "Unexpected token `%s'" token))))))
 
-(defun ir--pkg-write-fn (pkg)
+(defun Go--ir-pkg-write-fn (pkg)
   (let* ((name (pop! pkg))
-         (body (ir--fn-body pkg)))
+         (body (Go--ir-fn-body pkg)))
     (prin1 `(defalias ',name ,body))
     (terpri)))
 
-(defun ir--pkg-write-vars (pkg)
+(defun Go--ir-pkg-write-vars (pkg)
   (let (name)
     (while (not-eq 'end (setq name (pop! pkg)))
       (prin1 `(defvar ,name nil ""))
       (terpri))))
 
-(defun ir--pkg-write-expr (pkg)
+(defun Go--ir-pkg-write-expr (pkg)
   (let* ((cvec (pop! pkg))
          (stack-cap (pop! pkg))
-         (bytecode (ir--to-bytecode pkg)))
+         (bytecode (Go--ir-to-bytecode pkg)))
     (prin1 `(byte-code ,bytecode ,cvec ,stack-cap))
     (terpri)))
 
-;; { Bytecode generation }
-
-(defun ir--to-bytecode (pkg)
+(defun Go--ir-to-bytecode (pkg)
   (byte-compile-lapcode
    (byte-optimize-lapcode
-    (ir--to-lapcode pkg))))
+    (Go--ir-to-lapcode pkg))))
 
-(defun ir--fn-body (pkg)
+(defun Go--ir-fn-body (pkg)
   (let* ((args-desc (pop! pkg))
          (cvec (pop! pkg))
          (stack-cap (pop! pkg))
          (doc-string (pop! pkg)))
     (make-byte-code args-desc
-                    (ir--to-bytecode pkg)
+                    (Go--ir-to-bytecode pkg)
                     cvec
                     stack-cap
                     doc-string)))
 
-(defsubst ir--make-info (kind data) (cons kind data))
-(defsubst ir--info-kind (info) (car info))
-(defsubst ir--info-data (info) (cdr info))
+(defsubst Go--ir-make-info (kind data) (cons kind data))
+(defsubst Go--ir-info-kind (info) (car info))
+(defsubst Go--ir-info-data (info) (cdr info))
 
-(defconst ir--table
+(defconst Go--ir-table
   (let ((table (make-hash-table :test #'eq)))
     (dolist (x '(;; - Special instructions -
                  (label label ir-label)
@@ -176,28 +147,28 @@
              (kind (nth 1 x))
              (data (or (nth 2 x)
                        (intern (format "byte-%s" instr)))))
-        (puthash instr (ir--make-info kind data) table)))
+        (puthash instr (Go--ir-make-info kind data) table)))
     table))
 
-(defun ir--to-lapcode (pkg)
+(defun Go--ir-to-lapcode (pkg)
   (let ((tags (make-hash-table :test #'eq))
         op
         op-info
         arg
         output)
     (while (not-eq 'end (setq op (pop! pkg)))
-      (setq op-info (gethash op ir--table)
-            arg (if (eq 'op0 (ir--info-kind op-info))
+      (setq op-info (gethash op Go--ir-table)
+            arg (if (eq 'op0 (Go--ir-info-kind op-info))
                     nil
                   (pop! pkg)))
-      (push (ir--lap-instr tags op-info op arg) output))
+      (push (Go--ir-lap-instr tags op-info op arg) output))
     (nreverse output)))
 
-(defun ir--lap-instr (tags op-info op arg)
+(defun Go--ir-lap-instr (tags op-info op arg)
   ;; Patterns in `pcase' are sorted by frequency order.
-  (pcase (ir--info-kind op-info)
-    (`op0 (list (ir--info-data op-info)))
-    (`op1 (let ((lap-op (ir--info-data op-info)))
+  (pcase (Go--ir-info-kind op-info)
+    (`op0 (list (Go--ir-info-data op-info)))
+    (`op1 (let ((lap-op (Go--ir-info-data op-info)))
             (cons lap-op arg)))
     (`stack-ref (if (= arg 0)
                     (list 'byte-dup)
@@ -205,19 +176,21 @@
     (`discard (if (= arg 1)
                   (list 'byte-discard)
                 (cons 'byte-discardN arg)))
-    (`label (ir--tag-ref tags arg))
-    (`jmp (let* ((lap-op (ir--info-data op-info))
-                 (tag (ir--tag-ref tags arg)))
+    (`label (Go--ir-tag-ref tags arg))
+    (`jmp (let* ((lap-op (Go--ir-info-data op-info))
+                 (tag (Go--ir-tag-ref tags arg)))
             (cons lap-op tag)))
     (`concat (if (and (<= arg 4) (/= 1 arg))
-                 (list (aref (ir--info-data op-info) arg))
+                 (list (aref (Go--ir-info-data op-info) arg))
                (cons byte-concatN arg)))
     (`list (if (<= arg 4)
-               (list (aref (ir--info-data op-info) arg))
+               (list (aref (Go--ir-info-data op-info) arg))
              (cons 'byte-listN arg)))
     (_
      (error "Unexpected op kind for `%s'" op))))
 
-(defun ir--tag-ref (tags id)
+(defun Go--ir-tag-ref (tags id)
   (or (gethash id tags)
       (puthash id (list 'TAG (hash-table-count tags)) tags)))
+
+;; {{ end }}
