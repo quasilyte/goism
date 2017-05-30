@@ -38,23 +38,12 @@ func (conv *Converter) FuncBody(name *ast.Ident, block *ast.BlockStmt) *sexp.Blo
 	return body
 }
 
-func (conv *Converter) VarInit(lhs []string, rhs ast.Expr) sexp.Form {
-	if len(lhs) == 1 {
-		return &sexp.VarUpdate{Name: lhs[0], Expr: conv.Expr(rhs)}
-	}
-	list := &sexp.FormList{Forms: make([]sexp.Form, len(lhs))}
-	for i, form := range conv.rhsMultiValues(rhs) {
-		if lhs[i] == "_" {
-			list.Forms[i] = conv.ignoredExpr(form)
-		} else {
-			list.Forms[i] = &sexp.VarUpdate{Name: lhs[i], Expr: form}
-		}
-	}
-	return list
+func (conv *Converter) VarInit(lhs []*ast.Ident, rhs ast.Expr) sexp.Form {
+	return conv.identAssign(lhs, []ast.Expr{rhs})
 }
 
-func (conv *Converter) VarZeroInit(name string, typ types.Type) sexp.Form {
-	return &sexp.VarUpdate{Name: name, Expr: ZeroValue(typ)}
+func (conv *Converter) VarZeroInit(sym string, typ types.Type) sexp.Form {
+	return &sexp.VarUpdate{Name: sym, Expr: ZeroValue(typ)}
 }
 
 func (conv *Converter) valueOf(node ast.Expr) constant.Value {

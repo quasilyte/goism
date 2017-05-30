@@ -45,8 +45,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 		return cv
 	}
 
-	obj := conv.info.Uses[node]
-	typ := obj.Type()
+	typ := conv.typeOf(node)
 
 	if typ, ok := typ.(*types.Basic); ok {
 		// Coerce untyped nil to correct value depending on
@@ -65,7 +64,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 		}
 	}
 
-	if isGlobal(obj) {
+	if isGlobal(conv, node) {
 		return sexp.Var{Name: conv.env.Intern(node.Name), Typ: typ}
 	}
 	return sexp.Var{Name: node.Name, Typ: typ}

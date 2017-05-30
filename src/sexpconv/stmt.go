@@ -95,11 +95,7 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 			}
 		}
 	} else {
-		lhs := make([]ast.Expr, len(spec.Names))
-		for i, ident := range spec.Names {
-			lhs[i] = ident
-		}
-		forms = append(forms, conv.universalAssign(lhs, spec.Values))
+		forms = append(forms, conv.identAssign(spec.Names, spec.Values))
 	}
 	return forms
 }

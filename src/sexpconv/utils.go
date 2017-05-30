@@ -40,8 +40,13 @@ func (conv *Converter) valueCopy(form sexp.Form) sexp.Form {
 	return form
 }
 
-func isGlobal(obj types.Object) bool {
-	objScope := obj.Parent()
+func isGlobal(conv *Converter, ident *ast.Ident) bool {
+	// Only top level symbols are interned.
+	if conv.env.Contains(ident.Name) {
+		return true
+	}
+
+	objScope := conv.info.ObjectOf(ident).Parent()
 	// If parent scope is Universe, then object scope
 	// is Package => it is global.
 	return objScope.Parent() == types.Universe

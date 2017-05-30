@@ -34,11 +34,19 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 		return conv.quoAssign(node.Lhs[0], node.Rhs[0])
 
 	default:
-		return conv.universalAssign(node.Lhs, node.Rhs)
+		return conv.exprAssign(node.Lhs, node.Rhs)
 	}
 }
 
-func (conv *Converter) universalAssign(lhs, rhs []ast.Expr) sexp.Form {
+func (conv *Converter) identAssign(lhs []*ast.Ident, rhs []ast.Expr) sexp.Form {
+	exprLhs := make([]ast.Expr, len(lhs))
+	for i := range lhs {
+		exprLhs[i] = lhs[i]
+	}
+	return conv.exprAssign(exprLhs, rhs)
+}
+
+func (conv *Converter) exprAssign(lhs, rhs []ast.Expr) sexp.Form {
 	if len(lhs) == len(rhs) {
 		return conv.singleValueAssign(lhs, rhs)
 	}
@@ -120,14 +128,14 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		if lhs.Name == blankIdent {
 			return conv.ignoredExpr(expr)
 		}
-		if def := conv.info.Defs[lhs]; def == nil {
-			if isGlobal(conv.info.Uses[lhs]) {
-				return &sexp.VarUpdate{
-					Name: conv.env.Intern(lhs.Name),
-					Expr: expr,
-				}
+		if isGlobal(conv, lhs) {
+			return &sexp.VarUpdate{
+				Name: conv.env.Intern(lhs.Name),
+				Expr: conv.valueCopy(expr),
 			}
-			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
+		}
+		if conv.info.Defs[lhs] == nil {
+			return &sexp.Rebind{Name: lhs.Name, Expr: conv.valueCopy(expr)}
 		}
 		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
 
