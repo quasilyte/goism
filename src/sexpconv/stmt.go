@@ -90,16 +90,16 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 	if len(spec.Values) == 0 {
 		zv := ZeroValue(conv.typeOf(spec.Type))
 		for _, ident := range spec.Names {
-			forms = append(forms, &sexp.Bind{Name: ident.Name, Init: zv})
+			if ident.Name != "_" {
+				forms = append(forms, &sexp.Bind{Name: ident.Name, Init: zv})
+			}
 		}
 	} else {
+		lhs := make([]ast.Expr, len(spec.Names))
 		for i, ident := range spec.Names {
-			conv.ctxType = conv.typeOf(ident)
-			forms = append(forms, &sexp.Bind{
-				Name: ident.Name,
-				Init: conv.Expr(spec.Values[i]),
-			})
+			lhs[i] = ident
 		}
+		forms = append(forms, conv.universalAssign(lhs, spec.Values))
 	}
 	return forms
 }

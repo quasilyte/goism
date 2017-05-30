@@ -34,11 +34,15 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 		return conv.quoAssign(node.Lhs[0], node.Rhs[0])
 
 	default:
-		if len(node.Rhs) == len(node.Lhs) {
-			return conv.singleValueAssign(node)
-		}
-		return conv.multiValueAssign(node)
+		return conv.universalAssign(node.Lhs, node.Rhs)
 	}
+}
+
+func (conv *Converter) universalAssign(lhs, rhs []ast.Expr) sexp.Form {
+	if len(lhs) == len(rhs) {
+		return conv.singleValueAssign(lhs, rhs)
+	}
+	return conv.multiValueAssign(lhs, rhs[0])
 }
 
 func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
@@ -70,40 +74,41 @@ func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, sexp.NewQuo(x, y))
 }
 
-func (conv *Converter) multiValueAssign(node *ast.AssignStmt) *sexp.FormList {
-	forms := make([]sexp.Form, len(node.Lhs))
+func (conv *Converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
+	tuple := conv.typeOf(rhs).(*types.Tuple)
+	forms := make([]sexp.Form, tuple.Len())
 
-	tuple := conv.typeOf(node.Rhs[0]).(*types.Tuple)
-
-	// First result is returned in a normal way.
-	if isBlankIdent(node.Lhs[0]) {
-		// Do a call, but discard the return value.
-		forms[0] = sexp.CallStmt{
-			Call: conv.Expr(node.Rhs[0]).(*sexp.Call),
-		}
-	} else {
-		forms[0] = conv.assign(node.Lhs[0], conv.Expr(node.Rhs[0]))
-	}
+	// First result is evaluated in a normal way.
+	forms[0] = conv.Expr(rhs)
 
 	// Other results are assigned to a global variable.
 	// Index uniquely identifies variable used for storage.
-	for i := 1; i < len(node.Lhs); i++ {
-		forms[i] = conv.assign(node.Lhs[i], sexp.Var{
+	for i := 1; i < tuple.Len(); i++ {
+		forms[i] = sexp.Var{
 			Name: lisp.RetVars[i],
 			Typ:  tuple.At(i).Type(),
-		})
+		}
+	}
+
+	return forms
+}
+
+func (conv *Converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) *sexp.FormList {
+	forms := make([]sexp.Form, len(lhs))
+
+	for i, rhs := range conv.rhsMultiValues(rhs) {
+		forms[i] = conv.assign(lhs[i], rhs)
 	}
 
 	return &sexp.FormList{Forms: forms}
 }
 
-func (conv *Converter) singleValueAssign(node *ast.AssignStmt) *sexp.FormList {
+func (conv *Converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
-	for i, lhs := range node.Lhs {
-		conv.ctxType = conv.typeOf(lhs)
-		rhs := conv.Expr(node.Rhs[i])
-		forms = append(forms, conv.assign(lhs, rhs))
+	for i := range lhs {
+		conv.ctxType = conv.typeOf(lhs[i])
+		forms = append(forms, conv.assign(lhs[i], conv.Expr(rhs[i])))
 	}
 
 	return &sexp.FormList{Forms: forms}
@@ -117,7 +122,10 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		}
 		if def := conv.info.Defs[lhs]; def == nil {
 			if isGlobal(conv.info.Uses[lhs]) {
-				return &sexp.VarUpdate{Name: lhs.Name, Expr: expr}
+				return &sexp.VarUpdate{
+					Name: conv.env.Intern(lhs.Name),
+					Expr: expr,
+				}
 			}
 			return &sexp.Rebind{Name: lhs.Name, Expr: expr}
 		}
@@ -168,7 +176,6 @@ func (conv *Converter) ignoredExpr(expr sexp.Form) sexp.Form {
 
 	default:
 		// Ignored completely.
-
 		return emptyForm
 	}
 }

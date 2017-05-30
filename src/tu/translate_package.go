@@ -11,15 +11,20 @@ import (
 	"lisp"
 	"path/filepath"
 	"reflect"
-	"sexp"
 	"sexpconv"
 )
 
 func translatePackage(pkgPath string) (pkg *Package, err error) {
-	ctx, err := typecheckPkg(parsePkg(pkgPath))
+	parseRes, err := parsePkg(pkgPath)
 	if err != nil {
 		return nil, err
 	}
+	typecheckRes, err := typecheckPkg(parseRes)
+	if err != nil {
+		return nil, err
+	}
+	env := lisp.NewEnv(parseRes.pkg.Name)
+	unit := newUnit(parseRes, typecheckRes, env)
 
 	// Handle errors that can be thrown by AST convertion procedure.
 	defer func() {
@@ -33,9 +38,10 @@ func translatePackage(pkgPath string) (pkg *Package, err error) {
 			panic(panicArg) // Unexpected panic
 		}
 	}()
-	pkg = convertPkg(ctx)
-	pkg.Comment = packageComment(ctx.pkg.Files)
-	return pkg, nil
+	convertInitializers(unit)
+	convertFuncs(unit)
+	comment := packageComment(unit.pkg.Files)
+	return newPackage(unit, comment), nil
 }
 
 type parseRes struct {
@@ -44,9 +50,19 @@ type parseRes struct {
 }
 
 type typecheckRes struct {
-	*parseRes
 	ti       *types.Info
 	topScope *types.Scope
+}
+
+type unit struct {
+	*parseRes
+	*typecheckRes
+	conv *sexpconv.Converter
+
+	env   *lisp.Env
+	vars  []string
+	init  *Func
+	funcs []*Func
 }
 
 func parsePkg(pkgPath string) (*parseRes, error) {
@@ -70,11 +86,7 @@ func parsePkg(pkgPath string) (*parseRes, error) {
 	return nil, fmt.Errorf("can not find Go package in %s", pkgPath)
 }
 
-func typecheckPkg(ctx *parseRes, parseErr error) (*typecheckRes, error) {
-	if parseErr != nil {
-		return nil, parseErr
-	}
-
+func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
 	cfg := types.Config{
 		Importer: &emacsImporter{impl: importer.Default()},
 	}
@@ -92,99 +104,28 @@ func typecheckPkg(ctx *parseRes, parseErr error) (*typecheckRes, error) {
 	}
 
 	pkg, err := cfg.Check(ctx.pkg.Name, ctx.fSet, files, ti)
-	return &typecheckRes{
-		parseRes: ctx,
-		ti:       ti,
-		topScope: pkg.Scope(),
-	}, err
+	return &typecheckRes{ti: ti, topScope: pkg.Scope()}, err
 }
 
-func convertPkg(ctx *typecheckRes) *Package {
-	pkg := &Package{
-		Name: ctx.pkg.Name,
-		Init: &Func{
-			Name: "init",
-			Body: &sexp.Block{},
-		},
+func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *lisp.Env) *unit {
+	fSet := parseRes.fSet
+	ti := typecheckRes.ti
+	return &unit{
+		parseRes:     parseRes,
+		typecheckRes: typecheckRes,
+		conv:         sexpconv.NewConverter(env, ti, fSet),
+		env:          env,
 	}
-
-	varsWithInit := make(map[string]struct{})
-	conv := sexpconv.NewConverter(ctx.pkg.Name, ctx.ti, ctx.fSet)
-	initForms := &pkg.Init.Body.Forms
-
-	for _, init := range ctx.ti.InitOrder {
-		if len(init.Lhs) != 1 {
-			// #FIXME: handle "x, y := f()" assignments.
-			panic("unimplemented")
-		}
-
-		name := init.Lhs[0].Name()
-		varsWithInit[name] = struct{}{}
-		lispName := lisp.VarName(pkg.Name, name)
-
-		pkg.Vars = append(pkg.Vars, lispName)
-		form := conv.VarInit(lispName, init.Rhs)
-		*initForms = append(*initForms, form)
-	}
-
-	for _, objName := range ctx.topScope.Names() {
-		obj := ctx.topScope.Lookup(objName)
-
-		switch obj.(type) {
-		case *types.Var:
-			// info.InitOrder misses entries for variables
-			// without initializers. We need to collect them here.
-			if _, ok := varsWithInit[objName]; !ok {
-				name := lisp.VarName(pkg.Name, objName)
-				pkg.Vars = append(pkg.Vars, name)
-				form := conv.VarZeroInit(name, obj.Type())
-				*initForms = append(*initForms, form)
-			}
-
-		case *types.TypeName:
-			// #FIXME: collect types.
-			panic("unimplemented")
-		}
-	}
-
-	if len(*initForms) != 0 {
-		*initForms = append(*initForms, &sexp.Return{})
-	}
-
-	// Collect functions.
-	for _, file := range ctx.pkg.Files {
-		for _, decl := range file.Decls {
-			if decl, ok := decl.(*ast.FuncDecl); ok {
-				convertFunc(pkg, conv, decl)
-			}
-		}
-	}
-
-	return pkg
 }
 
-func convertFunc(pkg *Package, conv *sexpconv.Converter, decl *ast.FuncDecl) {
-	// Collect flat list of param names.
-	params := decl.Type.Params
-	paramNames := make([]string, 0, params.NumFields())
-	for _, param := range params.List {
-		for _, paramIdent := range param.Names {
-			paramNames = append(paramNames, paramIdent.Name)
-		}
+func newPackage(u *unit, comment string) *Package {
+	return &Package{
+		Name:    u.pkg.Name,
+		Vars:    u.vars,
+		Funcs:   u.funcs,
+		Init:    u.init,
+		Comment: comment,
 	}
-
-	body := conv.FuncBody(decl.Name, decl.Body)
-	// Adding return statement.
-	// It is needed in void functions without explicit "return".
-	// In all other cases, optimizations will wipe it out.
-	body.Forms = append(body.Forms, &sexp.Return{})
-
-	pkg.Funcs = append(pkg.Funcs, &Func{
-		Name:      "Go-" + pkg.Name + "." + decl.Name.Name,
-		Params:    paramNames,
-		Body:      body,
-		DocString: decl.Doc.Text(),
-	})
 }
 
 func packageComment(files map[string]*ast.File) string {
