@@ -130,7 +130,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 		form.Cond = Rewrite(form.Cond, f)
 		form.Then = Rewrite(form.Then, f).(*Block)
-		form.Else = Rewrite(form.Else, f)
+		if form.Else != nil {
+			form.Else = Rewrite(form.Else, f)
+		}
 
 	case *Return:
 		if form := f(form); form != nil {
