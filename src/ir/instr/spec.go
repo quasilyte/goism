@@ -13,6 +13,8 @@ var (
 	NumEq    = binOp("num=")
 	NumGt    = binOp("num>")
 	NumLt    = binOp("num<")
+	NumLte   = binOp("num<=")
+	NumGte   = binOp("num>=")
 	NumSub   = binOp("sub")
 	NumAdd   = binOp("add")
 	NumMul   = binOp("mul")

@@ -12,6 +12,8 @@ var opKindToInstr = [...]instr.Instr{
 	sexp.OpQuo:    instr.NumQuo,
 	sexp.OpNumGt:  instr.NumGt,
 	sexp.OpNumLt:  instr.NumLt,
+	sexp.OpNumLte: instr.NumLte,
+	sexp.OpNumGte: instr.NumGte,
 	sexp.OpNumEq:  instr.NumEq,
 	sexp.OpConcat: instr.Concat2,
 	sexp.OpNot:    instr.Not,
