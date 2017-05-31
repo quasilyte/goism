@@ -176,6 +176,7 @@ Debugger entered--Lisp error: (void-function Go-mylib\.GreetMsg)
 ```
 
 `Go-mylib.GreetMsg` is undefined.
+
 That is correct, you have not loaded `mylib` yet.
 Execute `M-x Go-load-by-name RET mylib` and run `Foo` again.
 
