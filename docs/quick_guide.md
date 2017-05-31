@@ -186,7 +186,7 @@ Execute `M-x Go-load-by-name RET mylib` and run `Foo` again.
 * Some fundamental Elisp types are available via `emacs/lisp` package
 * Go maps are Elisp hash tables
 * Go arrays implemented via Elisp vectors
-* Go slices are emulated with shared vectors
+* Go slices are emulated by vectors with {offset, len, cap}.
 * Go structures use untagged vectors
 * Go interfaces use `(type-info . data)` pairs
 
