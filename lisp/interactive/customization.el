@@ -11,9 +11,4 @@ If remain empty, system PATH is used."
   :group 'Go.el
   :type 'directory)
 
-(defcustom Go-emacs-pkg-root ""
-  "Path to `emacs' Go package."
-  :group 'Go.el
-  :type 'directory)
-
 ;; {{ end }}
