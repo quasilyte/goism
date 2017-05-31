@@ -2,6 +2,7 @@ VERSION=0.1.0
 PREFIX=/usr/local
 DESTDIR=
 DST=$(DESTDIR)$(PREFIX)
+GOPATH=~/.emacs.d/Go.el
 
 all: lisp translate_package
 
@@ -20,9 +21,9 @@ clean:
 	rm -rf build/* bin/*
 
 install:
-	mkdir -p ~/go/src/emacs/
-	cp -R src/emacs/example ~/go/src/emacs/
-	cp -R src/emacs/emacs ~/go/src/emacs/
+	mkdir -p $(GOPATH)/src/emacs
+	cp -R src/emacs/example $(GOPATH)/src/emacs/
+	cp -R src/emacs/emacs $(GOPATH)/src/emacs/
 	cp bin/goel_translate_package $(DST)/bin/
 	chmod 755 $(DST)/bin/goel_translate_package
 
