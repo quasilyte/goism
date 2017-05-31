@@ -30,11 +30,11 @@ close to the [specs](https://golang.org/ref/spec) as possible.
 Different optimizations are performed during this translation,
 so it is not going to be any slower than "native" Emacs Lisp.
 
-### How to use it (install)
+### How to use it
+
+[See quick guide](docs/quick_guide.md).
 
 > TODO: emacs package installation
-
-Refer to the [quick guide](docs/quick_guide.md) to get more information.
 
 ## Docs
 
