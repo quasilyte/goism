@@ -1,7 +1,7 @@
 # Quick guide
 
 This guide presents a shortest way to learn `Go.el`.
-Details describeв elsewhere.
+Details described elsewhere.
 
 ## 1. Preparations
 
