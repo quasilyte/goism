@@ -23,9 +23,11 @@ Look at the `Makefile` to get clues what you will miss without `install`.
 
 Because `Go.el` is not a proper Emacs package yet,
 you have to `load` it manually. 
+
 Options:
-a) `(load "<...>/Go.el/build/Go.elc")`
-b) Visit `build/Go.elc` buffer and run `M-x RET eval-buffer`
+* `(load "<...>/Go.el/build/Go.elc")`
+* Visit `build/Go.elc` buffer and run `M-x RET eval-buffer`
+
 There is `build/Go.el` file if you want to inspect package sources
 before loading them.
 
@@ -59,6 +61,9 @@ Switch to that buffer and do `M-x eval-buffer`.
 ```
 
 You have just executed Go code inside Emacs.
+
+To make it more convenient, you can bind a hotkey,
+for example `(global-set-key (kbd "C-x g") 'Go-translate-by-name)`.
 
 ## 2. Basic usage
 
