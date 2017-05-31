@@ -20,6 +20,9 @@ clean:
 	rm -rf build/* bin/*
 
 install:
+	mkdir -p ~/go/src/emacs/
+	cp -R src/emacs/example ~/go/src/emacs/
+	cp -R src/emacs/emacs ~/go/src/emacs/
 	cp bin/goel_translate_package $(DST)/bin/
 	chmod 755 $(DST)/bin/goel_translate_package
 
