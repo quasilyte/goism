@@ -1,21 +1,29 @@
 # Quick guide
 
-This guide aims to be as short and informative, as possible. 
+This guide presents a shortest way to learn `Go.el`.
+Details describes elsewhere.
 
 ## 1. Preparations
 
-### 1.1 Install
+### 1.1 Prerequisites
+
+* `go` 1.6 or above
+* `emacs` 24.1 or above (lexical scoping)
+* Fundamental tools like `make` and `git`
+
+### 1.2 Install
 
 ```
-# Assuming your current directory is <...>.
 # Download repository.
 git clone https://github.com/Quasilyte/Go.el.git
 cd 'Go.el'
 # Build everything.
 make all
-# Install emacs packages and compiled binaries
+# Install bundled emacs packages and compiled binaries.
 sudo make install
 ```
+
+> `<...>` inside paths means "directory which contains cloned Go.el"
 
 Note that you can avoid `make install`.
 This guide is written for the case when you do install it.
@@ -31,7 +39,7 @@ Options:
 There is `build/Go.el` file if you want to inspect package sources
 before loading them.
 
-### 1.2 Setup environment
+### 1.3 Setup environment
 
 If you did `make install`, skip this section.
 
@@ -46,7 +54,7 @@ For example, `(Go-translate-by-name "foo")`
 will look for `~/go/src/emacs/foo`.
 This can be customized with `Go-emacs-package-path` variable.
 
-### 1.3 Check installation
+### 1.4 Check installation
 
 Run `M-x Go-translate-by-name` and enter `example` package name.
 You should see `*IR compile*` temporary buffer which contain
@@ -55,15 +63,19 @@ compiled Go package.
 Switch to that buffer and do `M-x eval-buffer`.
 
 ```
+;; You can paste this code in *Scratch* buffer and
+;; evaluate it with `eval-region'.
+
 (Go-example.PrintFiveLetters [?a ?b ?c ?d ?e])
 (Go-example.PrintMessage "Hello, Emacs!") 
-;; Check *Messages* buffer.
+
+;; Check the *Messages* buffer.
 ```
 
 You have just executed Go code inside Emacs.
 
-To make it more convenient, you can bind a hotkey,
-for example `(global-set-key (kbd "C-x g") 'Go-translate-by-name)`.
+> You can bind compilation to a hotkey:
+> `(global-set-key (kbd "C-x g") 'Go-translate-by-name)`
 
 ## 2. Basic usage
 
