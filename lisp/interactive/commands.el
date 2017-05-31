@@ -23,7 +23,7 @@ Requires `goel_translate_package' to be available."
   "Like `Go-translate-by-path', but prepends `Go-emacs-gopath'
 to specified package name."
   (interactive "sGo package name: ")
-  (Go-translate-by-path (concat Go-emacs-gopath "/" pkg-name)))
+  (Go-translate-by-path (concat Go-emacs-gopath "/src/emacs/" pkg-name)))
 
 (defun Go-load-by-name (pkg-name)
   "Calls `Go-translate-by-name', evaluates output buffer and then closes it.
@@ -53,15 +53,18 @@ Requires `goel_translate_package' to be available."
   "Like `Go-disassemble-by-path', but prepends `Go-emacs-package-path'
 to specified package name."
   (interactive "sGo package name: ")
-  (Go-disassemble-by-path (concat Go-emacs-gopath "/" pkg-name)))
+  (Go-disassemble-by-path (concat Go-emacs-gopath "/src/emacs/" pkg-name)))
 
 (defun Go--exec (cmd &rest args)
   (let* ((cmd (if (string= "" Go-utils-path)
                   cmd
                 (format "%s/%s" Go-utils-path cmd)))
+         (env (cons (format "GOPATH=%s" (expand-file-name Go-emacs-gopath))
+                    process-environment))
          (res (with-temp-buffer
-                (cons (apply #'call-process cmd nil t nil args)
-                      (buffer-string)))))
+                (let ((process-environment env))
+                  (cons (apply #'call-process cmd nil t nil args)
+                        (buffer-string))))))
     (when (/= 0 (Go--cmd-exit-code res))
       (error (Go--cmd-output res)))
     res))
