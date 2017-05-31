@@ -23,11 +23,11 @@
 ;;; Code:
 
 {{- template "utils" -}}
-;; <IR compilation>
-{{- template "ir/ir" -}}
 ;; <Public section>
 {{- template "public/customization" -}}
 {{- template "public/commands" -}}
+;; <IR compilation>
+{{- template "ir/ir" -}}
 ;; <Runtime implementation>
 {{- template "rt/magic-vars" -}}
 {{- template "rt/builtin" -}}
