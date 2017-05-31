@@ -5,7 +5,7 @@
 ;; Caller can decide to inspect/eval/save generated contents.
 ;; PKG is consumed.
 (defun Go--ir-pkg-compile (pkg)
-  (with-output-to-temp-buffer "*IR compile*"
+  (with-output-to-temp-buffer Go-output-buffer-name
     (let ((pkg-name (pop! pkg))
           (pkg-comment (pop! pkg)))
       (Go--ir-pkg-write-header pkg-name)

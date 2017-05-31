@@ -11,9 +11,14 @@ If remain empty, system PATH is used."
   :group 'Go.el
   :type 'directory)
 
-(defcustom Go-emacs-package-path "~/go/src/emacs"
-  "Default path used to find Go `emacs' package."
+(defcustom Go-emacs-gopath "~/.emacs.d/Go.el"
+  "GOPATH used for Emacs Go packages."
   :group 'Go.el
   :type 'directory)
+
+(defcustom Go-output-buffer-name "*Go.el compile*"
+  "Temporary buffer name that is used for output."
+  :group 'Go.el
+  :type 'buffer-name)
 
 ;; {{ end }}
