@@ -44,9 +44,10 @@ before loading them.
 
 You need to choose a directory which will be 
 set as a `GOPATH` for `Go.el` code.
-`~/emacs.d/Go.el/` can be suitable.
+Choose `~/.emacs.d/Go.el/` if you want more defaults to
+work out-of-the-box.
 
-Add `export GOPATH=~/emacs.d/Go.el/` to your `~/.bashrc`.
+Add `export GOPATH=~/.emacs.d/Go.el/` to your `~/.bashrc`.
 If you choose different location, update `Go-emacs-gopath`
 variable (can be done through `M-x customize`, 
 group `development`->`Go.el`).
@@ -56,6 +57,8 @@ If you already have `GOPATH` set, then switch it temporary
 or use current workspace for the rest of the guide.
 
 ### 1.4 Check installation
+
+At this point you need to have `Go.el` loaded into Emacs (see **1.2**).
 
 `<...>/Go.el/src/emacs` contains useful packages that
 are copied into `~/.emacs.d/Go.el/src/emacs` during `make install`.
@@ -88,7 +91,7 @@ This means that the package `guide` we are about to create
 will have `emacs/guide` path.
 
 ```shell
-sudo mkdir -p $GOPATH/src/emacs/guide
+mkdir -p $GOPATH/src/emacs/guide
 emacs $GOPATH/src/emacs/guide/guide.go
 ```
 
@@ -139,9 +142,9 @@ Multiple package comments are permitted, they are joined together.
 ```shell
 # Create another package.
 
-mkdir -p $(go env GOROOT)/src/emacs/mylib
+mkdir -p $GOPATH/src/emacs/mylib
 
-cat << EOF > ~$(go env GOROOT)/src/emacs/mylib/mylib.go
+cat << EOF > $GOPATH/src/emacs/mylib/mylib.go
 package mylib
 
 const FavNumber = 256
@@ -164,17 +167,103 @@ func Foo() {
 }
 ```
 
-### 2.2 EmacsX utility packages
+Now try to evaluate `(Go-guide.Foo)`.
+You should get this:
+```
+Debugger entered--Lisp error: (void-function Go-mylib\.GreetMsg)
+  Go-mylib\.GreetMsg("Lisp hacker")
+  Go-guide\.Foo()
+```
 
-> Mockup
+`Go-mylib.GreetMsg` is undefined.
+That is correct, you have not loaded `mylib` yet.
+Execute `M-x Go-load-by-name RET mylib` and run `Foo` again.
 
-### 2.3 Running Go code from Emacs
+### 2.3 Type mapping overview
 
-> Mockup
+* Integers, floats and strings map in intuitive way
+* Some fundamental Elisp types are available via `emacs/lisp` package
+* Go maps are Elisp hash tables
+* Go arrays implemented via Elisp vectors
+* Go slices are emulated with shared vectors
+* Go structures use untagged vectors
+* Go interfaces use `(type-info . data)` pairs
 
+Pointers are in TODO list, but their representation is not yet decided.
+Unsigned integers of different fixed sizes are emulated, 
+but in a tricky way; to get more details, 
+see [translation spec](translation_spec.md).
+
+### 2.4 emacs/lisp package
+
+You can call any Emacs Lisp function with `lisp.Call`:
+`lisp.Call("insert", lisp.Str("Text to be inserted"))`.
+
+`lisp.Call` returns `lisp.Object` which is an interface type.
+Underlying object may be `lisp.Int`, `lisp.Symbol`, ...
+
+```go
+package example
+
+import "emacs/lisp"
+
+func usingLispPackage(a, b int) int {
+	x := lisp.Call("+", lisp.Int(a), lisp.Int(b))
+	// `x' is `lisp.Object'.  But we know it is int,
+	// because `+' for two ints should return int.
+	var xLispInt := x.(lisp.Int) 
+	var xInt := int(xLispInt)
+	// When we know the exact return type of lisp
+	// function, special Call form can be used.
+	y := lisp.CallInt("+", lisp.Int(a), lisp.Int(b))
+	// `y' is `lisp.Int'.
+	return int(y)
+}
+```
+
+Look into `emacs/lisp` package sources to see full API.
+
+### 2.5 emacs/emacs utility package
+
+`emacs/lisp` package is very low-level and tedious to use
+for functions that are frequently used.
+
+Package `emacs/emacs`, which is bundled with `Go.el`,
+provides convenience wrappers around `emacs/lisp`.
+It is written as an ordinary `Go.el` package so
+you can write such a package by yourself.
+
+```go
+// Compare:
+lisp.Call("insert", lisp.Str("123"))
+emacs.Insert("123")
+```
 
 ## 3. Conventions, best practices and advices
 
 ### 3.1 Public API design
 
-> Mockup
+Two kinds of packages should be distinguished.
+The first kind is libraries that are intended tobe used
+from Go code (written for Emacs).
+Nothing special about them.
+
+The second kind is a packages that expose functions
+to be called from Emacs Lisp directly. 
+Important points:
+* Take and return `emacs/lisp` package types
+* Do not use multiple return values
+
+```go
+// BAD
+func f1(x int) int { return x }
+// GOOD
+func f1(x lisp.Int) lisp.Int { return x }
+
+// BAD
+func f2() (int, int) { return 1, 2 }
+// GOOD
+func f2() lisp.Object { 
+	return lisp.Call("cons", lisp.Int(1), lisp.Int(2)) 
+}
+```
