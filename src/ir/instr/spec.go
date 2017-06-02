@@ -19,10 +19,11 @@ var (
 	NumAdd   = binOp("add")
 	NumMul   = binOp("mul")
 	NumQuo   = binOp("quo")
+	StrEq    = binOp("str=")
+	StrLt    = binOp("str<")
 	ArrayRef = binOp("array-ref")
 
-	SetCar = binOp("setcar")
-	SetCdr = binOp("setcdr")
+	Cons = binOp("cons")
 
 	Concat2 = Concat(2)
 )
@@ -59,6 +60,18 @@ var (
 		Encoding: AttrEnc0,
 		Input:    AttrTake3,
 		Output:   AttrPushTmp,
+	}
+	SetCar = Instr{
+		Name:     []byte("setcar"),
+		Encoding: AttrEnc0,
+		Input:    AttrTake2,
+		Output:   AttrPushAndDiscard,
+	}
+	SetCdr = Instr{
+		Name:     []byte("setcdr"),
+		Encoding: AttrEnc0,
+		Input:    AttrTake2,
+		Output:   AttrPushAndDiscard,
 	}
 )
 
