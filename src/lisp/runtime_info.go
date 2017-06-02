@@ -12,3 +12,10 @@ var RetVars = [...]string{
 	6: "Go--ret-7",
 	7: "Go--ret-8",
 }
+
+var ThrowingFuncs = map[string]bool{
+	"Go--panic": true,
+	"error":     true,
+	"throw":     true,
+	"signal":    true,
+}
