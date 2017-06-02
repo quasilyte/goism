@@ -13,3 +13,7 @@ func True(x bool) {
 func Nil(err error) {
 	assertTrue(err != nil)
 }
+
+func Unreachable() {
+	panic("internal error: unreachable statement executed")
+}
