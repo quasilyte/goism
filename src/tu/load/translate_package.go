@@ -116,7 +116,6 @@ func newPackage(u *unit, comment string) *tu.Package {
 		Vars:    u.vars,
 		Funcs:   u.funcs,
 		Init:    u.init,
-		Env:     u.env,
 		Comment: comment,
 	}
 }

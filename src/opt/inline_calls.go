@@ -1,40 +1,46 @@
 package opt
 
 import (
-	"fmt"
 	"sexp"
-	"tu"
 )
 
-func InlineCalls(env *tu.Env, form sexp.Form) sexp.Form {
-	switch form := form.(type) {
-	case *sexp.Block:
-		form.Forms = inlineCalls(env, form.Forms)
-	case *sexp.Return:
-		form.Results = inlineCalls(env, form.Results)
+// InlineCalls inlines suitable functions calls inside form.
+func InlineCalls(form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, func(form sexp.Form) sexp.Form {
+		if form, ok := form.(*sexp.Call); ok {
+			return inlineCall(form.Fn, form.Args)
+		}
+		return nil
+	})
+}
 
-	case *sexp.Call:
-		fn := form.Fn
-		body := fn.Body
-		if !inlineable(body) {
-			return form
-		}
-		expr := body.Forms[0].(*sexp.Return).Results[0]
-		fmt.Printf("expr=%#v\n", expr)
-		bindings := make([]*sexp.Bind, len(fn.Params))
-		for i, paramName := range fn.Params {
-			bindings[i] = &sexp.Bind{
-				Name: paramName,
-				Init: form.Args[i],
-			}
-		}
-		return &sexp.Let{
-			Bindings: bindings,
-			Expr:     expr,
-		}
-
+func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
+	body := fn.Body
+	if !inlineable(body) {
+		return nil
 	}
-	return form
+
+	expr := body.Forms[0].(*sexp.Return).Results[0]
+	bindings := make([]*sexp.Bind, 0, len(fn.Params))
+	for i, param := range fn.Params {
+		if sexp.Cost(args[i]) == 1 {
+			injectValue(param, args[i], expr)
+		} else {
+			bindings = append(bindings, &sexp.Bind{
+				Name: param,
+				Init: args[i],
+			})
+		}
+	}
+
+	if len(bindings) == 0 {
+		// Perfect inlining, no let wrapper is needed.
+		return expr
+	}
+	return &sexp.Let{
+		Bindings: bindings,
+		Expr:     expr,
+	}
 }
 
 func inlineable(body *sexp.Block) bool {
@@ -46,11 +52,4 @@ func inlineable(body *sexp.Block) bool {
 		return false
 	}
 	return len(form.Results) == 1 && sexp.Cost(form) <= 20
-}
-
-func inlineCalls(env *tu.Env, forms []sexp.Form) []sexp.Form {
-	for i, form := range forms {
-		forms[i] = InlineCalls(env, form)
-	}
-	return forms
 }

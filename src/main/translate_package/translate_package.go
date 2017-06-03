@@ -57,7 +57,7 @@ func main() {
 }
 
 func produceAsm(pkg *tu.Package) {
-	cl := compiler.New(pkg.Env)
+	cl := compiler.New()
 
 	if len(pkg.Vars) > 0 {
 		fmt.Println("variables:")
@@ -81,7 +81,7 @@ func produceAsm(pkg *tu.Package) {
 }
 
 func producePackage(pkg *tu.Package) {
-	cl := compiler.New(pkg.Env)
+	cl := compiler.New()
 
 	output := export.NewBuilder(pkg)
 
@@ -117,7 +117,7 @@ func dumpFunction(fn *sexp.Func, obj *ir.Object) {
 func optimizePackage(pkg *tu.Package) {
 	for _, fn := range pkg.Funcs {
 		opt.RemoveDeadCode(fn.Body)
-		opt.InlineCalls(pkg.Env, fn.Body)
+		opt.InlineCalls(fn.Body)
 		opt.ReduceStrength(fn.Body)
 	}
 }

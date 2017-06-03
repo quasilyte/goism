@@ -15,3 +15,13 @@ func numEq(form sexp.Form, val int64) bool {
 		return false
 	}
 }
+
+// Inline all sym references with val inside form.
+func injectValue(sym string, val, form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, func(form sexp.Form) sexp.Form {
+		if form, ok := form.(sexp.Var); ok && form.Name == sym {
+			return val
+		}
+		return nil
+	})
+}

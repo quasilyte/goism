@@ -5,7 +5,6 @@ import (
 	"dt"
 	"ir"
 	"sexp"
-	"tu"
 )
 
 type Compiler struct {
@@ -13,13 +12,11 @@ type Compiler struct {
 	cvec        *dt.ConstPool
 	st          *dt.ExecutionStack
 	lastLabelID uint16
-	env         *tu.Env
 }
 
-func New(env *tu.Env) *Compiler {
+func New() *Compiler {
 	return &Compiler{
 		cvec: &dt.ConstPool{},
-		env:  env,
 	}
 }
 

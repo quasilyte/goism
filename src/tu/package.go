@@ -15,7 +15,5 @@ type Package struct {
 	Vars []string
 	Init *sexp.Func
 
-	Env *Env
-
 	Comment string
 }
