@@ -11,6 +11,7 @@ import (
 // Form = universal S-expression node (akin to Go ast.Node).
 type Form interface {
 	Type() types.Type
+	Copy() Form
 	form()
 }
 
@@ -51,15 +52,6 @@ type (
 	Var struct {
 		Name string
 		Typ  types.Type
-	}
-)
-
-// Operators.
-type (
-	// UnaryOp = "op(X)".
-	UnaryOp struct {
-		Kind OpKind
-		X    Form
 	}
 )
 
