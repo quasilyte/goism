@@ -49,14 +49,18 @@ func ZeroValue(typ types.Type) sexp.Form {
 		return nilMap
 
 	case *types.Named:
-		if typ, ok := typ.Underlying().(*types.Struct); ok {
+		utyp := typ.Underlying()
+		if typ, ok := utyp.(*types.Struct); ok {
 			vals := make([]sexp.Form, typ.NumFields())
 			for i := range vals {
 				vals[i] = ZeroValue(typ.Field(i).Type())
 			}
 			return &sexp.StructLit{Vals: vals, Typ: typ}
 		}
-		return basicTypeZeroValue(typ.Underlying().(*types.Basic))
+		if _, ok := utyp.(*types.Interface); ok {
+			return nilInterface
+		}
+		return basicTypeZeroValue(utyp.(*types.Basic))
 	}
 
 	panic(exn.NoImpl("can not provide zero value for %#v", typ))
