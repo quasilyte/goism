@@ -20,15 +20,19 @@ func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 		return nil
 	}
 
-	expr := body.Forms[0].(*sexp.Return).Results[0]
+	expr := body.Forms[0].(*sexp.Return).Results[0].Copy()
+
 	bindings := make([]*sexp.Bind, 0, len(fn.Params))
 	for i, param := range fn.Params {
-		if sexp.Cost(args[i]) == 1 {
-			injectValue(param, args[i], expr)
+		arg := InlineCalls(args[i])
+		if sexp.Cost(arg) == 1 {
+			expr = injectValue(param, arg, expr)
+		} else if countUsages(param, expr) == 1 {
+			expr = injectValue(param, arg, expr)
 		} else {
 			bindings = append(bindings, &sexp.Bind{
 				Name: param,
-				Init: args[i],
+				Init: arg,
 			})
 		}
 	}
