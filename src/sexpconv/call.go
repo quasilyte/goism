@@ -75,9 +75,9 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "append":
 			return conv.appendBuiltin(args)
 		case "copy":
-			return conv.lispCall(function.SliceCopy, args[0], args[0])
+			return conv.lispCall(function.SliceCopy, args[0], args[1])
 		case "panic":
-			return &sexp.Panic{ErrorData: conv.Expr(args[0])}
+			return conv.lispCall(function.Panic, args[0])
 		case "print":
 			panic(errUnexpectedExpr(conv, node))
 		case "println":

@@ -52,9 +52,6 @@ func (form *StructUpdate) Copy() Form {
 		Typ:    form.Typ,
 	}
 }
-func (form *Panic) Copy() Form {
-	return &Panic{ErrorData: form.ErrorData.Copy()}
-}
 func (form *Bind) Copy() Form {
 	return &Bind{Init: form.Init.Copy()}
 }

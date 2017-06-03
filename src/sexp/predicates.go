@@ -25,9 +25,6 @@ func IsThrow(form Form) bool {
 // return from function.
 func IsReturning(form Form) bool {
 	switch form := form.(type) {
-	case *Panic:
-		return true
-
 	case *Return:
 		return true
 
@@ -47,6 +44,8 @@ func IsReturning(form Form) bool {
 
 	case *Call:
 		return rt.ThrowingFuncs[form.Fn.Name]
+	case *LispCall:
+		return rt.ThrowingFuncs[form.Fn.Sym]
 	}
 
 	return false

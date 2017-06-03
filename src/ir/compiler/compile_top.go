@@ -24,8 +24,6 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileVarUpdate(cl, form.Name, form.Expr)
 	case *sexp.ExprStmt:
 		compileExprStmt(cl, form)
-	case *sexp.Panic:
-		call(cl, "Go--panic", form.ErrorData)
 	case *sexp.Repeat:
 		compileRepeat(cl, form)
 	case *sexp.While:

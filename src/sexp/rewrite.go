@@ -88,12 +88,6 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case *Substr:
 		return rewriteSpan(form, &form.Str, &form.Span, f)
 
-	case *Panic:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.ErrorData = Rewrite(form.ErrorData, f)
-
 	case *Bind:
 		if form := f(form); form != nil {
 			return form

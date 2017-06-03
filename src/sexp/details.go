@@ -15,7 +15,6 @@ func (lit *StructLit) form()      {}
 func (form *ArrayUpdate) form()  {}
 func (form *SliceUpdate) form()  {}
 func (form *StructUpdate) form() {}
-func (form *Panic) form()        {}
 func (form *Bind) form()         {}
 func (form *Rebind) form()       {}
 func (form *VarUpdate) form()    {}

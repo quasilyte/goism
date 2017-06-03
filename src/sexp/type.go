@@ -28,7 +28,6 @@ func (form *StructLit) Type() types.Type     { return form.Typ }
 func (form *ArrayUpdate) Type() types.Type  { return typVoid }
 func (form *SliceUpdate) Type() types.Type  { return typVoid }
 func (form *StructUpdate) Type() types.Type { return typVoid }
-func (form *Panic) Type() types.Type        { return typVoid }
 func (form *Bind) Type() types.Type         { return typVoid }
 func (form *Rebind) Type() types.Type       { return typVoid }
 func (form *VarUpdate) Type() types.Type    { return typVoid }

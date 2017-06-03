@@ -108,11 +108,6 @@ type (
 		Typ    *types.Struct
 	}
 
-	// Panic causes runtime panic and carries data along.
-	Panic struct {
-		ErrorData Form
-	}
-
 	// Bind associates name with expression (initializer).
 	// Introduces local variable.
 	Bind struct {
