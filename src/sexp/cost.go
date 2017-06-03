@@ -17,17 +17,20 @@ func Cost(form Form) int {
 		return 1
 
 	case *ArrayLit:
-		return cost(form.Vals) + 1
+		return cost(form.Vals) + 2
 
 	case *SparseArrayLit:
 		valuesCost := 0
 		for _, val := range form.Vals {
 			valuesCost += Cost(val)
 		}
-		return valuesCost*3 + 1
+		return valuesCost*3 + 2
 
 	case *SliceLit:
 		return cost(form.Vals) + 10
+
+	case *StructLit:
+		return cost(form.Vals) + 2
 
 	case *ArrayIndex:
 		return Cost(form.Index) + Cost(form.Array) + 1
