@@ -11,6 +11,7 @@ import (
 	"go/types"
 	"path/filepath"
 	"reflect"
+	"sexp"
 	"sexpconv"
 	"tu"
 )
@@ -52,8 +53,8 @@ type unit struct {
 
 	env   *tu.Env
 	vars  []string
-	init  *tu.Func
-	funcs []*tu.Func
+	init  *sexp.Func
+	funcs []*sexp.Func
 }
 
 func parsePkg(pkgPath string) (*parseRes, error) {

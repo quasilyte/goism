@@ -3,12 +3,11 @@ package sexpconv
 import (
 	"exn"
 	"go/ast"
-	"go/types"
 	"lisp/function"
 	"sexp"
 )
 
-func (conv *Converter) callExprList(fn *function.Fn, args []ast.Expr) *sexp.Call {
+func (conv *Converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
 		Args: conv.valueCopyList(conv.exprList(args)),
@@ -29,7 +28,7 @@ func (conv *Converter) uniArgList(args []interface{}) []sexp.Form {
 
 // Convenient function to generate function call node.
 // Recognizes ast.Expr and sexp.Form as arguments.
-func (conv *Converter) call(fn *function.Fn, args ...interface{}) *sexp.Call {
+func (conv *Converter) call(fn *sexp.Func, args ...interface{}) *sexp.Call {
 	return &sexp.Call{Fn: fn, Args: conv.uniArgList(args)}
 }
 
@@ -51,7 +50,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.intrinFuncCall(fn.Sel.Name, args)
 		}
 
-		return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), args)
+		// return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), args)
+		panic("!!!")
 
 	case *ast.Ident: // f()
 		switch fn.Name {
@@ -85,21 +85,10 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "delete":
 			return conv.lispCall(function.Remhash, args[1], args[0])
 		default:
-			return conv.callExprList(conv.env.Func(fn.Name).Typ, args)
+			return conv.callExprList(conv.env.Func(fn.Name), args)
 		}
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
 	}
-}
-
-func (conv *Converter) makeFunction(fn *ast.Ident, pkgName string) *function.Fn {
-	// #FIXME: can also be *types.Names (type cast), etc.
-	sig := conv.typeOf(fn).(*types.Signature)
-
-	if pkgName == "" {
-		return function.New(conv.env.InternVar(fn.Name), sig)
-	}
-	qualName := "Go-" + pkgName + "." + fn.Name
-	return function.New(qualName, sig)
 }

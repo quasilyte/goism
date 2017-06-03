@@ -1,16 +1,20 @@
 package tu
 
+import (
+	"sexp"
+)
+
 type Env struct {
 	pkgName string
 	symbols map[string]string
-	funcs   map[string]*Func
+	funcs   map[string]*sexp.Func
 }
 
 func NewEnv(pkgName string) *Env {
 	return &Env{
 		pkgName: pkgName,
 		symbols: make(map[string]string),
-		funcs:   make(map[string]*Func),
+		funcs:   make(map[string]*sexp.Func),
 	}
 }
 
@@ -18,13 +22,11 @@ func (env *Env) PkgName() string {
 	return env.pkgName
 }
 
-func (env *Env) SetFuncs(funcs []*Func) {
-	for _, fn := range funcs {
-		env.funcs[fn.Typ.Name()] = fn
-	}
+func (env *Env) AddFunc(name string, fn *sexp.Func) {
+	env.funcs[name] = fn
 }
 
-func (env *Env) Func(name string) *Func {
+func (env *Env) Func(name string) *sexp.Func {
 	return env.funcs[name]
 }
 

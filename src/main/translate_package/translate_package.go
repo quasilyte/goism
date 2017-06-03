@@ -8,6 +8,7 @@ import (
 	"ir/export"
 	"main/util"
 	"opt"
+	"sexp"
 	"sexpconv"
 	"strings"
 	"tu"
@@ -99,12 +100,12 @@ func producePackage(pkg *tu.Package) {
 	fmt.Print(string(output.Build()))
 }
 
-func compileFunc(cl *compiler.Compiler, fn *tu.Func) *ir.Object {
+func compileFunc(cl *compiler.Compiler, fn *sexp.Func) *ir.Object {
 	sexpconv.Simplify(fn.Body)
 	return cl.CompileFunc(fn)
 }
 
-func dumpFunction(fn *tu.Func, obj *ir.Object) {
+func dumpFunction(fn *sexp.Func, obj *ir.Object) {
 	fmt.Printf(
 		"  fn %s {args=%s max-stack=%d}\n",
 		fn.Name, fn.Params, obj.StackUsage,

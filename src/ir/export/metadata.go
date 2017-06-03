@@ -2,12 +2,12 @@ package export
 
 import (
 	"exn"
+	"sexp"
 	"strings"
-	"tu"
 )
 
 // Return properly encoded bytecode function argument descriptor.
-func argsDescriptor(fn *tu.Func) int {
+func argsDescriptor(fn *sexp.Func) int {
 	arity := len(fn.Params)
 	if arity > 127 {
 		panic(exn.User("can not have more than 127 positional parameters"))
@@ -24,7 +24,7 @@ func argsDescriptor(fn *tu.Func) int {
 }
 
 // Return extended function documentation string.
-func docString(fn *tu.Func) string {
+func docString(fn *sexp.Func) string {
 	if len(fn.Params) == 0 {
 		return fn.DocString
 	}

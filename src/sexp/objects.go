@@ -1,8 +1,6 @@
 package sexp
 
-import (
-	"lisp/function"
-)
+import "go/types"
 
 type Func struct {
 	Name     string
@@ -10,7 +8,8 @@ type Func struct {
 	Params   []string
 	Variadic bool
 
-	Typ *function.Fn
+	Results    *types.Tuple
+	Complexity int
 
 	DocString string
 }

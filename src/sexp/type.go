@@ -60,7 +60,7 @@ func (form *TypeAssert) Type() types.Type     { return form.Typ }
 func (form *LispTypeAssert) Type() types.Type { return form.Typ }
 
 func (call *Call) Type() types.Type {
-	results := call.Fn.Results()
+	results := call.Fn.Results
 	if results.Len() == 1 {
 		return results.At(0).Type()
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"dt"
 	"ir"
+	"sexp"
 	"tu"
 )
 
@@ -22,7 +23,7 @@ func New(env *tu.Env) *Compiler {
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *tu.Func) *ir.Object {
+func (cl *Compiler) CompileFunc(f *sexp.Func) *ir.Object {
 	cl.reset(f.Params)
 
 	compileStmtList(cl, f.Body.Forms)

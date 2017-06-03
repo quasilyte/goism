@@ -257,7 +257,7 @@ type LispCall struct {
 
 // Call expression is normal (direct) function invocation.
 type Call struct {
-	Fn   *function.Fn
+	Fn   *Func
 	Args []Form
 }
 

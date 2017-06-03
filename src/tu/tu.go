@@ -1,7 +1,6 @@
 package tu
 
 import (
-	"lisp/function"
 	"sexp"
 )
 
@@ -9,26 +8,14 @@ import (
 type Package struct {
 	Name string
 
-	Funcs []*Func
+	Funcs []*sexp.Func
 
 	// Vars are sorted in order that should be used
 	// during initialization.
 	Vars []string
-	Init *Func
+	Init *sexp.Func
 
 	Env *Env
 
 	Comment string
-}
-
-// Func is a Go->sexp converted function.
-type Func struct {
-	Name     string
-	Body     *sexp.Block
-	Params   []string
-	Variadic bool
-
-	Typ *function.Fn
-
-	DocString string
 }

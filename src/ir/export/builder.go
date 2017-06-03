@@ -2,6 +2,7 @@ package export
 
 import (
 	"ir"
+	"sexp"
 	"tu"
 )
 
@@ -34,7 +35,7 @@ func (b *Builder) Build() []byte {
 }
 
 // AddFunc pushes function definition into package.
-func (b *Builder) AddFunc(fn *tu.Func, obj *ir.Object) {
+func (b *Builder) AddFunc(fn *sexp.Func, obj *ir.Object) {
 	w := &b.w
 
 	w.WriteSymbol("fn")

@@ -3,8 +3,7 @@ package load
 import (
 	"go/ast"
 	"go/types"
-	"lisp/function"
-	"tu"
+	"sexp"
 )
 
 var emptyTuple = types.NewTuple()
@@ -17,14 +16,19 @@ func convertFuncs(u *unit) {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
 				decls = append(decls, decl)
 
+				fn := &sexp.Func{}
 				sig := u.ti.Defs[decl.Name].Type().(*types.Signature)
-				typ := function.New(decl.Name.Name, sig)
-				u.funcs = append(u.funcs, &tu.Func{Typ: typ})
+				if results := sig.Results(); results != nil {
+					fn.Results = results
+				} else {
+					fn.Results = emptyTuple
+				}
+
+				u.funcs = append(u.funcs, fn)
+				u.env.AddFunc(decl.Name.Name, fn)
 			}
 		}
 	}
-
-	u.env.SetFuncs(u.funcs)
 
 	for i, decl := range decls {
 		// Collect flat list of param names.

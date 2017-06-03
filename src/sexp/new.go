@@ -8,7 +8,7 @@ import (
 
 // Constructors for simple forms.
 
-func NewCall(fn *function.Fn, args ...Form) *Call {
+func NewCall(fn *Func, args ...Form) *Call {
 	return &Call{Fn: fn, Args: args}
 }
 

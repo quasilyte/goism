@@ -12,7 +12,7 @@ func IsStmt(form Form) bool {
 func IsThrow(form Form) bool {
 	switch form := form.(type) {
 	case *Call:
-		return form.Fn.IsPanic()
+		return rt.ThrowingFuncs[form.Fn.Name]
 	case *LispCall:
 		return rt.ThrowingFuncs[form.Fn.Sym]
 
@@ -46,7 +46,7 @@ func IsReturning(form Form) bool {
 		return IsReturning(form.Expr)
 
 	case *Call:
-		return form.Fn.IsPanic()
+		return rt.ThrowingFuncs[form.Fn.Name]
 	}
 
 	return false

@@ -14,7 +14,7 @@ func InlineCalls(env *tu.Env, form sexp.Form) sexp.Form {
 		form.Results = inlineCalls(env, form.Results)
 
 	case *sexp.Call:
-		fn := env.Func(form.Fn.Name())
+		fn := form.Fn
 		body := fn.Body
 		if !inlineable(body) {
 			return form

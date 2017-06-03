@@ -83,7 +83,7 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.LispCall:
 		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.Call:
-		compileCall(cl, cl.env.Func(form.Fn.Name()).Name, form.Args)
+		compileCall(cl, form.Fn.Name, form.Args)
 	case *sexp.InstrCall:
 		compileInstrCall(cl, form)
 

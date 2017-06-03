@@ -4,7 +4,6 @@ import (
 	"go/ast"
 	"go/types"
 	"sexp"
-	"tu"
 )
 
 func convertInitializers(u *unit) {
@@ -49,7 +48,7 @@ func convertInitializers(u *unit) {
 		body = append(body, &sexp.Return{})
 	}
 
-	u.init = &tu.Func{
+	u.init = &sexp.Func{
 		Name: "init",
 		Body: &sexp.Block{Forms: body},
 	}
