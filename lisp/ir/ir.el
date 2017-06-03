@@ -142,6 +142,7 @@
                  (equal op0)
                  (not op0)
                  (cons op0)
+                 (length op0)
                  (return op0)))
       (let* ((instr (nth 0 x))
              (kind (nth 1 x))

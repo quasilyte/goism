@@ -38,6 +38,8 @@ var (
 
 	Car = unaryOp("car")
 	Cdr = unaryOp("cdr")
+
+	Length = unaryOp("length")
 )
 
 // Other ops without explicit parameter.

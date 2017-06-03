@@ -22,6 +22,7 @@ var nameToInstr = map[string]instr.Instr{
 	"string=":   instr.StrEq,
 	"string<":   instr.StrLt,
 	"substring": instr.Substr,
+	"length":    instr.Length,
 }
 
 func (conv *Converter) instrCall(name string, args []ast.Expr) *sexp.InstrCall {
