@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"ir/instr"
+	"lisp/rt"
 	"sexp"
 )
 
@@ -79,6 +80,7 @@ func compileSliceIndex(cl *Compiler, form *sexp.SliceIndex) {
 	emit(cl, instr.ArrayRef)    // <elem>
 }
 
+/*
 func compileSliceLen(cl *Compiler, form *sexp.UnaryOp) {
 	compileExpr(cl, form.X)
 	emit(cl, instr.Cdr)
@@ -92,6 +94,7 @@ func compileSliceCap(cl *Compiler, form *sexp.UnaryOp) {
 	emit(cl, instr.Cdr)
 	emit(cl, instr.Cdr)
 }
+*/
 
 func compileSubslice(cl *Compiler, form *sexp.Subslice) {
 	switch form.Kind() {
@@ -135,25 +138,25 @@ func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
 }
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
-	switch structReprOf(form.Typ) {
-	case structAtom:
+	switch rt.StructReprOf(form.Typ) {
+	case rt.StructAtom:
 		compileExpr(cl, form.Vals[0])
 
-	case structCons:
+	case rt.StructCons:
 		compileExprList(cl, form.Vals)
 		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
 
-	case structVec:
+	case rt.StructVec:
 		call(cl, "vector", form.Vals...)
 	}
 }
 
 func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
-	switch structReprOf(form.Typ) {
-	case structAtom:
+	switch rt.StructReprOf(form.Typ) {
+	case rt.StructAtom:
 		compileExpr(cl, form.Struct)
 
-	case structCons:
+	case rt.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index)
 		if form.Typ.NumFields() == form.Index+1 { // Last index.
@@ -162,7 +165,7 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 			emit(cl, instr.Car)
 		}
 
-	case structVec:
+	case rt.StructVec:
 		compileArrayIndex(cl, &sexp.ArrayIndex{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

@@ -2,6 +2,7 @@ package sexp
 
 import (
 	"exn"
+	"lisp/rt"
 )
 
 // Cost returns a value that approximates computational
@@ -50,8 +51,14 @@ func Cost(form Form) int {
 		const defaultFnComplexity = 5
 		return callCost(form.Args) + defaultFnComplexity
 
+	case *LispCall:
+		return cost(form.Args) + 1
+
 	case *InstrCall:
 		return cost(form.Args)
+
+	case *StructIndex:
+		return structIndexCost(form)
 
 	case Var:
 		// #FIXME: dynamic scope variables should have higher cost.
@@ -113,4 +120,17 @@ func cost(forms []Form) int {
 		total += Cost(form)
 	}
 	return total
+}
+
+func structIndexCost(form *StructIndex) int {
+	switch rt.StructReprOf(form.Typ) {
+	case rt.StructAtom:
+		return 1 + Cost(form.Struct)
+	case rt.StructCons:
+		return form.Index + Cost(form.Struct)
+	case rt.StructVec:
+		return 3 + Cost(form.Struct)
+	default:
+		return 0
+	}
 }

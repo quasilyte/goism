@@ -120,8 +120,8 @@ func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
 }
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
-	switch structReprOf(form.Typ) {
-	case structAtom:
+	switch rt.StructReprOf(form.Typ) {
+	case rt.StructAtom:
 		s := form.Struct.(sexp.Var)
 		if cl.st.Find(s.Name) != -1 {
 			compileRebind(cl, s.Name, form.Expr)
@@ -129,7 +129,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			compileVarUpdate(cl, s.Name, form.Expr)
 		}
 
-	case structCons:
+	case rt.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index-1)
 		compileExpr(cl, form.Expr)
@@ -139,7 +139,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			emit(cl, instr.SetCar)
 		}
 
-	case structVec:
+	case rt.StructVec:
 		compileArrayUpdate(cl, &sexp.ArrayUpdate{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),
