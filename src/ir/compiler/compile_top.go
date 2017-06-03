@@ -60,12 +60,8 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case sexp.Var:
 		compileVar(cl, form)
 
-	case *sexp.ArrayLit:
-		call(cl, "vector", form.Vals...)
 	case *sexp.SparseArrayLit:
 		compileSparseArrayLit(cl, form)
-	case *sexp.SliceLit:
-		call(cl, "Go--make-slice-from-list", form.Vals...)
 
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)

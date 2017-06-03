@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"lisp/function"
 	"sexp"
 )
 
@@ -15,8 +16,26 @@ func Simplify(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, simplify)
 }
 
+func simplifyList(forms []sexp.Form) []sexp.Form {
+	for i, form := range forms {
+		forms[i] = sexp.Rewrite(form, simplify)
+	}
+	return forms
+}
+
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
+	case *sexp.SliceLit:
+		return &sexp.LispCall{
+			Fn: function.ArrayToSlice,
+			Args: []sexp.Form{
+				sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...),
+			},
+		}
+
+	case *sexp.ArrayLit:
+		return sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...)
+
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,
