@@ -66,7 +66,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 	}
 
 	if xtypes.IsGlobal(obj) {
-		return sexp.Var{Name: conv.env.Intern(node.Name), Typ: typ}
+		return sexp.Var{Name: conv.env.InternVar(node.Name), Typ: typ}
 	}
 	return sexp.Var{Name: node.Name, Typ: typ}
 }
@@ -124,9 +124,11 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 		case token.GTR:
 			return sexp.NewStrGt(x, y)
 		case token.LEQ:
-			return sexp.NewStrLte(x, y)
+			panic(errUnexpectedExpr(conv, node))
+			// return sexp.NewStrLte(x, y)
 		case token.GEQ:
-			return sexp.NewStrGte(x, y)
+			panic(errUnexpectedExpr(conv, node))
+			// return sexp.NewStrGte(x, y)
 
 		default:
 			panic(errUnexpectedExpr(conv, node))
@@ -139,6 +141,19 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
+	}
+
+	typ := conv.typeOf(node.X)
+	if typ, ok := typ.Underlying().(*types.Struct); ok {
+		for i := 0; i <= typ.NumFields(); i++ {
+			if typ.Field(i).Name() == node.Sel.Name {
+				return &sexp.StructIndex{
+					Struct: conv.Expr(node.X),
+					Index:  i,
+					Typ:    typ,
+				}
+			}
+		}
 	}
 
 	panic(errUnexpectedExpr(conv, node))
@@ -168,7 +183,7 @@ func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 	expr := conv.Expr(node.X)
 	assertTyp := conv.typeOf(node.Type)
 
-	if exprTyp.Underlying() == lisp.Types.Object {
+	if exprTyp.Underlying() == lisp.TypObject {
 		return &sexp.LispTypeAssert{Expr: expr, Typ: assertTyp}
 	}
 	return &sexp.TypeAssert{Expr: expr, Typ: assertTyp}
@@ -177,7 +192,7 @@ func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
-		return &sexp.Call{
+		return &sexp.LispCall{
 			Fn: function.Gethash,
 			Args: conv.valueCopyList([]sexp.Form{
 				conv.Expr(node.Index),
@@ -230,6 +245,8 @@ func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 		return conv.arrayLit(node, typ)
 	case *types.Slice:
 		return conv.sliceLit(node, typ)
+	case *types.Named:
+		return conv.structLit(node, typ.Underlying().(*types.Struct))
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
@@ -254,7 +271,7 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 		for i, elt := range node.Elts {
 			vals[i] = conv.Expr(elt)
 		}
-		ctor := &sexp.Call{
+		ctor := &sexp.LispCall{
 			Fn: function.MakeVector,
 			Args: []sexp.Form{
 				sexp.Int(typ.Len()),
@@ -270,4 +287,23 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 
 	// Each element has explicit initializer.
 	return &sexp.ArrayLit{Vals: conv.exprList(node.Elts), Typ: typ}
+}
+
+func (conv *Converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp.Form {
+	vals := make([]sexp.Form, typ.NumFields())
+	for _, elt := range node.Elts {
+		kv := elt.(*ast.KeyValueExpr)
+		key := kv.Key.(*ast.Ident)
+		for i := 0; i < typ.NumFields(); i++ {
+			if key.Name == typ.Field(i).Name() {
+				vals[i] = conv.Expr(kv.Value)
+			}
+		}
+	}
+	for i, val := range vals {
+		if val == nil {
+			vals[i] = ZeroValue(typ.Field(i).Type())
+		}
+	}
+	return &sexp.StructLit{Vals: vals, Typ: typ}
 }

@@ -117,13 +117,5 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 }
 
 func (conv *Converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
-	switch form := conv.Expr(node.X).(type) {
-	case *sexp.Panic:
-		return form
-	case *sexp.Call:
-		return sexp.CallStmt{Call: form}
-
-	default:
-		panic(errUnexpectedStmt(conv, node))
-	}
+	return &sexp.ExprStmt{Expr: conv.Expr(node.X)}
 }

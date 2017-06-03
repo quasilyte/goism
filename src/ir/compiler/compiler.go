@@ -12,11 +12,13 @@ type Compiler struct {
 	cvec        *dt.ConstPool
 	st          *dt.ExecutionStack
 	lastLabelID uint16
+	env         *tu.Env
 }
 
-func New() *Compiler {
+func New(env *tu.Env) *Compiler {
 	return &Compiler{
 		cvec: &dt.ConstPool{},
+		env:  env,
 	}
 }
 

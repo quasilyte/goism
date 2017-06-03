@@ -19,11 +19,11 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 	case *sexp.Bind:
 		compileBind(cl, form)
 	case *sexp.Rebind:
-		compileRebind(cl, form)
+		compileRebind(cl, form.Name, form.Expr)
 	case *sexp.VarUpdate:
-		compileVarUpdate(cl, form)
-	case sexp.CallStmt:
-		compileCallStmt(cl, form)
+		compileVarUpdate(cl, form.Name, form.Expr)
+	case *sexp.ExprStmt:
+		compileExprStmt(cl, form)
 	case *sexp.Panic:
 		call(cl, "Go--panic", form.ErrorData)
 	case *sexp.Repeat:
@@ -34,6 +34,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileArrayUpdate(cl, form)
 	case *sexp.SliceUpdate:
 		compileSliceUpdate(cl, form)
+	case *sexp.StructUpdate:
+		compileStructUpdate(cl, form)
 
 	case *sexp.Let:
 		compileLetStmt(cl, form)
@@ -78,14 +80,17 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.Substr:
 		compileSubstr(cl, form)
 
-	case *sexp.BinOp:
-		compileBinOp(cl, form)
-
-	case *sexp.UnaryOp:
-		compileUnaryOp(cl, form)
-
+	case *sexp.LispCall:
+		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.Call:
-		compileCall(cl, form.Fn.Name(), form.Args)
+		compileCall(cl, cl.env.Func(form.Fn.Name()).Name, form.Args)
+	case *sexp.InstrCall:
+		compileInstrCall(cl, form)
+
+	case *sexp.StructLit:
+		compileStructLit(cl, form)
+	case *sexp.StructIndex:
+		compileStructIndex(cl, form)
 
 	case *sexp.Let:
 		compileLetExpr(cl, form)

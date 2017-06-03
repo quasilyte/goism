@@ -1,4 +1,4 @@
-package tu
+package load
 
 import (
 	"bytes"
@@ -9,13 +9,13 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
-	"lisp"
 	"path/filepath"
 	"reflect"
 	"sexpconv"
+	"tu"
 )
 
-func translatePackage(pkgPath string) (pkg *Package, err error) {
+func translatePackage(pkgPath string) (pkg *tu.Package, err error) {
 	parseRes, err := parsePkg(pkgPath)
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func translatePackage(pkgPath string) (pkg *Package, err error) {
 	if err != nil {
 		return nil, err
 	}
-	env := lisp.NewEnv(parseRes.pkg.Name)
+	env := tu.NewEnv(parseRes.pkg.Name)
 	unit := newUnit(parseRes, typecheckRes, env)
 
 	// Handle errors that can be thrown by AST convertion procedure.
@@ -50,10 +50,10 @@ type unit struct {
 	*typecheckRes
 	conv *sexpconv.Converter
 
-	env   *lisp.Env
+	env   *tu.Env
 	vars  []string
-	init  *Func
-	funcs []*Func
+	init  *tu.Func
+	funcs []*tu.Func
 }
 
 func parsePkg(pkgPath string) (*parseRes, error) {
@@ -98,7 +98,7 @@ func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
 	return &typecheckRes{ti: ti, topScope: pkg.Scope()}, err
 }
 
-func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *lisp.Env) *unit {
+func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *tu.Env) *unit {
 	fSet := parseRes.fSet
 	ti := typecheckRes.ti
 	return &unit{
@@ -109,12 +109,13 @@ func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *lisp.Env) *uni
 	}
 }
 
-func newPackage(u *unit, comment string) *Package {
-	return &Package{
+func newPackage(u *unit, comment string) *tu.Package {
+	return &tu.Package{
 		Name:    u.pkg.Name,
 		Vars:    u.vars,
 		Funcs:   u.funcs,
 		Init:    u.init,
+		Env:     u.env,
 		Comment: comment,
 	}
 }

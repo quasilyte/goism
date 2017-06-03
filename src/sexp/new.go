@@ -2,13 +2,18 @@ package sexp
 
 import (
 	"go/types"
+	"ir/instr"
 	"lisp/function"
 )
 
 // Constructors for simple forms.
 
-func NewCall(fn *function.Type, args ...Form) *Call {
+func NewCall(fn *function.Fn, args ...Form) *Call {
 	return &Call{Fn: fn, Args: args}
+}
+
+func NewLispCall(fn *function.LispFn, args ...Form) *LispCall {
+	return &LispCall{Fn: fn, Args: args}
 }
 
 func NewSubslice(slice, low, high Form) *Subslice {
@@ -33,40 +38,36 @@ func NewSubstr(str, low, high Form) *Substr {
 	}
 }
 
-func NewNot(x Form) *UnaryOp      { return newOp1(OpNot, x) }
-func NewNeg(x Form) *UnaryOp      { return newOp1(OpNeg, x) }
-func NewAdd1(x Form) *UnaryOp     { return newOp1(OpAdd1, x) }
-func NewSub1(x Form) *UnaryOp     { return newOp1(OpSub1, x) }
-func NewStrCast(x Form) *UnaryOp  { return newOp1(OpStrCast, x) }
-func NewSliceLen(x Form) *UnaryOp { return newOp1(OpSliceLen, x) }
-func NewSliceCap(x Form) *UnaryOp { return newOp1(OpSliceCap, x) }
+func NewNot(x Form) *InstrCall    { return newOp1(instr.Not, x) }
+func NewNeg(x Form) *InstrCall    { return newOp1(instr.Neg, x) }
+func NewAdd1(x Form) *InstrCall   { return newOp1(instr.Add1, x) }
+func NewSub1(x Form) *InstrCall   { return newOp1(instr.Sub1, x) }
+func NewStrCast(x Form) *LispCall { return NewLispCall(function.StrCast, x) }
 
-func NewShl(x, y Form) *BinOp    { return newOp2(OpShl, x, y) }
-func NewShr(x, y Form) *BinOp    { return newOp2(OpShr, x, y) }
-func NewBitOr(x, y Form) *BinOp  { return newOp2(OpBitOr, x, y) }
-func NewBitAnd(x, y Form) *BinOp { return newOp2(OpBitAnd, x, y) }
-func NewBitXor(x, y Form) *BinOp { return newOp2(OpBitXor, x, y) }
-func NewAdd(x, y Form) *BinOp    { return newOp2(OpAdd, x, y) }
-func NewSub(x, y Form) *BinOp    { return newOp2(OpSub, x, y) }
-func NewMul(x, y Form) *BinOp    { return newOp2(OpMul, x, y) }
-func NewQuo(x, y Form) *BinOp    { return newOp2(OpQuo, x, y) }
-func NewNumEq(x, y Form) *BinOp  { return newOp2(OpNumEq, x, y) }
-func NewNumNeq(x, y Form) *BinOp { return newOp2(OpNumNeq, x, y) }
-func NewNumLt(x, y Form) *BinOp  { return newOp2(OpNumLt, x, y) }
-func NewNumLte(x, y Form) *BinOp { return newOp2(OpNumLte, x, y) }
-func NewNumGt(x, y Form) *BinOp  { return newOp2(OpNumGt, x, y) }
-func NewNumGte(x, y Form) *BinOp { return newOp2(OpNumGte, x, y) }
-func NewStrEq(x, y Form) *BinOp  { return newOp2(OpStrEq, x, y) }
-func NewStrNeq(x, y Form) *BinOp { return newOp2(OpStrNeq, x, y) }
-func NewStrLt(x, y Form) *BinOp  { return newOp2(OpStrLt, x, y) }
-func NewStrLte(x, y Form) *BinOp { return newOp2(OpStrLte, x, y) }
-func NewStrGt(x, y Form) *BinOp  { return newOp2(OpStrGt, x, y) }
-func NewStrGte(x, y Form) *BinOp { return newOp2(OpStrGte, x, y) }
-func NewConcat(x, y Form) *BinOp { return newOp2(OpConcat, x, y) }
+func NewShl(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, y) }
+func NewShr(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, NewNeg(y)) }
+func NewBitOr(x, y Form) *LispCall   { return NewLispCall(function.Logior, x, y) }
+func NewBitAnd(x, y Form) *LispCall  { return NewLispCall(function.Logand, x, y) }
+func NewBitXor(x, y Form) *LispCall  { return NewLispCall(function.Logxor, x, y) }
+func NewAdd(x, y Form) *InstrCall    { return newOp2(instr.NumAdd, x, y) }
+func NewSub(x, y Form) *InstrCall    { return newOp2(instr.NumSub, x, y) }
+func NewMul(x, y Form) *InstrCall    { return newOp2(instr.NumMul, x, y) }
+func NewQuo(x, y Form) *InstrCall    { return newOp2(instr.NumQuo, x, y) }
+func NewNumEq(x, y Form) *InstrCall  { return newOp2(instr.NumEq, x, y) }
+func NewNumNeq(x, y Form) *InstrCall { return NewNot(NewNumEq(x, y)) }
+func NewNumLt(x, y Form) *InstrCall  { return newOp2(instr.NumLt, x, y) }
+func NewNumLte(x, y Form) *InstrCall { return newOp2(instr.NumLte, x, y) }
+func NewNumGt(x, y Form) *InstrCall  { return newOp2(instr.NumGt, x, y) }
+func NewNumGte(x, y Form) *InstrCall { return newOp2(instr.NumGte, x, y) }
+func NewStrEq(x, y Form) *InstrCall  { return newOp2(instr.StrEq, x, y) }
+func NewStrNeq(x, y Form) *InstrCall { return NewNot(NewStrEq(x, y)) }
+func NewStrLt(x, y Form) *InstrCall  { return newOp2(instr.StrLt, x, y) }
+func NewStrGt(x, y Form) *LispCall   { return NewLispCall(function.StrGt, x, y) }
+func NewConcat(x, y Form) *InstrCall { return newOp2(instr.Concat2, x, y) }
 
-func newOp2(kind OpKind, x, y Form) *BinOp {
-	return &BinOp{Kind: kind, Args: [2]Form{x, y}}
+func newOp1(ins instr.Instr, x Form) *InstrCall {
+	return &InstrCall{Instr: ins, Args: []Form{x}}
 }
-func newOp1(kind OpKind, x Form) *UnaryOp {
-	return &UnaryOp{Kind: kind, X: x}
+func newOp2(ins instr.Instr, x, y Form) *InstrCall {
+	return &InstrCall{Instr: ins, Args: []Form{x, y}}
 }

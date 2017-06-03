@@ -1,6 +1,8 @@
 package opt
 
 import (
+	"bytes"
+	"lisp/function"
 	"sexp"
 	"sexpconv"
 )
@@ -9,16 +11,15 @@ import (
 // equivalents.
 func ReduceStrength(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.BinOp:
-		switch form.Kind {
-		case sexp.OpAdd:
+	case *sexp.InstrCall:
+		if bytes.Equal([]byte("add"), form.Instr.Name) {
 			return weakenAdd(form)
-		case sexp.OpSub:
+		} else if bytes.Equal([]byte("sub"), form.Instr.Name) {
 			return weakenSub(form)
 		}
 
-	case *sexp.UnaryOp:
-		if form.Kind == sexp.OpStrCast {
+	case *sexp.LispCall:
+		if form.Fn == function.StrCast {
 			return weakenStrCast(form)
 		}
 
@@ -42,8 +43,10 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 
 	case *sexp.Call:
 		form.Args = reduceStrength(form.Args)
-	case sexp.CallStmt:
-		ReduceStrength(form.Call)
+	case *sexp.ExprStmt:
+		form.Expr = ReduceStrength(form.Expr)
+	case *sexp.Return:
+		form.Results = reduceStrength(form.Results)
 	}
 
 	return form
@@ -56,7 +59,7 @@ func reduceStrength(forms []sexp.Form) []sexp.Form {
 	return forms
 }
 
-func weakenAdd(form *sexp.BinOp) sexp.Form {
+func weakenAdd(form *sexp.InstrCall) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
 			return sexp.NewAdd1(form.Args[b])
@@ -85,7 +88,7 @@ func weakenAdd(form *sexp.BinOp) sexp.Form {
 	return form
 }
 
-func weakenSub(form *sexp.BinOp) sexp.Form {
+func weakenSub(form *sexp.InstrCall) sexp.Form {
 	if numEq(form.Args[1], 1) {
 		return sexp.NewSub1(form.Args[0])
 	}
@@ -139,8 +142,8 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	return form
 }
 
-func weakenStrCast(form *sexp.UnaryOp) sexp.Form {
-	if arg, ok := form.X.(*sexp.ArraySlice); ok {
+func weakenStrCast(form *sexp.LispCall) sexp.Form {
+	if arg, ok := form.Args[0].(*sexp.ArraySlice); ok {
 		// It is possible to convert array to string without
 		// creating a slice.
 		switch arg.Kind() {

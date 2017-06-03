@@ -1,6 +1,7 @@
 package tu
 
 import (
+	"lisp/function"
 	"sexp"
 )
 
@@ -15,22 +16,19 @@ type Package struct {
 	Vars []string
 	Init *Func
 
+	Env *Env
+
 	Comment string
 }
 
-// Func is a Sexp function.
+// Func is a Go->sexp converted function.
 type Func struct {
-	Name      string
-	Body      *sexp.Block
-	Params    []string
-	Variadic  bool
-	DocString string
-}
+	Name     string
+	Body     *sexp.Block
+	Params   []string
+	Variadic bool
 
-// TranslatePackage converts Go package into Sexp package.
-//
-// It parses and typechecks specified package,
-// then converts generated objects into our format.
-func TranslatePackage(pkgPath string) (pkg *Package, err error) {
-	return translatePackage(pkgPath)
+	Typ *function.Fn
+
+	DocString string
 }

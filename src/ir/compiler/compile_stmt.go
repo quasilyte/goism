@@ -3,7 +3,7 @@ package compiler
 import (
 	"assert"
 	"ir/instr"
-	"lisp"
+	"lisp/rt"
 	"sexp"
 )
 
@@ -25,7 +25,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
-			sym := lisp.RetVars[i]
+			sym := rt.RetVars[i]
 			emit(cl, instr.VarSet(cl.cvec.InsertSym(sym)))
 		}
 		emit(cl, instr.Return)
@@ -75,23 +75,25 @@ func compileBind(cl *Compiler, form *sexp.Bind) {
 	cl.st.Bind(form.Name)
 }
 
-func compileRebind(cl *Compiler, form *sexp.Rebind) {
-	compileExpr(cl, form.Expr)
-	stIndex := cl.st.Find(form.Name)
+func compileRebind(cl *Compiler, name string, expr sexp.Form) {
+	compileExpr(cl, expr)
+	stIndex := cl.st.Find(name)
 	emit(cl, instr.StackSet(stIndex))
-	// "-1" because we popped stask element.
-	cl.st.Rebind(stIndex-1, form.Name)
+	// "-1" because we have just popped stask element.
+	cl.st.Rebind(stIndex-1, name)
 }
 
-func compileVarUpdate(cl *Compiler, form *sexp.VarUpdate) {
+func compileVarUpdate(cl *Compiler, name string, expr sexp.Form) {
+	compileExpr(cl, expr)
+	emit(cl, instr.VarSet(cl.cvec.InsertSym(name)))
+}
+
+func compileExprStmt(cl *Compiler, form *sexp.ExprStmt) {
 	compileExpr(cl, form.Expr)
-	emit(cl, instr.VarSet(cl.cvec.InsertSym(form.Name)))
-}
-
-func compileCallStmt(cl *Compiler, form sexp.CallStmt) {
-	compileCall(cl, form.Fn.Name(), form.Args)
-
-	if form.Fn.IsPanic() {
+	if _, ok := form.Expr.(*sexp.InstrCall); ok {
+		return // No cleanup is needed
+	}
+	if sexp.IsThrow(form.Expr) {
 		cl.st.Discard(1)
 	} else {
 		emit(cl, instr.Discard(1))
@@ -115,4 +117,33 @@ func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
 	emit(cl, instr.NumAdd)      // <data real-index>
 	compileExpr(cl, form.Expr)  // <data real-index val>
 	emit(cl, instr.ArraySet)    // <>
+}
+
+func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
+	switch structReprOf(form.Typ) {
+	case structAtom:
+		s := form.Struct.(sexp.Var)
+		if cl.st.Find(s.Name) != -1 {
+			compileRebind(cl, s.Name, form.Expr)
+		} else {
+			compileVarUpdate(cl, s.Name, form.Expr)
+		}
+
+	case structCons:
+		compileExpr(cl, form.Struct)
+		emitN(cl, instr.Cdr, form.Index-1)
+		compileExpr(cl, form.Expr)
+		if form.Typ.NumFields() == form.Index+1 { // Last index.
+			emit(cl, instr.SetCdr)
+		} else {
+			emit(cl, instr.SetCar)
+		}
+
+	case structVec:
+		compileArrayUpdate(cl, &sexp.ArrayUpdate{
+			Array: form.Struct,
+			Index: sexp.Int(form.Index),
+			Expr:  form.Expr,
+		})
+	}
 }

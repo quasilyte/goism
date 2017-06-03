@@ -1,4 +1,5 @@
-package lisp
+package tu
+
 
 const symPrefix = "Go-"
 

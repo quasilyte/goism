@@ -13,8 +13,8 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Forms = rewriteList(form.Forms, f)
 	case *FormList:
 		form.Forms = rewriteList(form.Forms, f)
-	case CallStmt:
-		Rewrite(form.Call, f)
+	case *ExprStmt:
+		form.Expr = Rewrite(form.Expr, f)
 
 	case Bool:
 		return rewriteAtom(form, f)
@@ -160,7 +160,17 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Cond = Rewrite(form.Cond, f)
 		form.Body = Rewrite(form.Body, f).(*Block)
 
+	case *LispCall:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Args = rewriteList(form.Args, f)
 	case *Call:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Args = rewriteList(form.Args, f)
+	case *InstrCall:
 		if form := f(form); form != nil {
 			return form
 		}
@@ -170,25 +180,31 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		if form := f(form); form != nil {
 			return form
 		}
-		form.Bind = Rewrite(form.Bind, f).(*Bind)
+		for i, bind := range form.Bindings {
+			form.Bindings[i] = Rewrite(bind, f).(*Bind)
+		}
 		if form.Expr == nil {
 			form.Stmt = Rewrite(form.Stmt, f)
 		} else {
 			form.Expr = Rewrite(form.Expr, f)
 		}
 
-	case *UnaryOp:
+	case *StructLit:
 		if form := f(form); form != nil {
 			return form
 		}
-		form.X = Rewrite(form.X, f)
-
-	case *BinOp:
+		form.Vals = rewriteList(form.Vals, f)
+	case *StructIndex:
 		if form := f(form); form != nil {
 			return form
 		}
-		form.Args[0] = Rewrite(form.Args[0], f)
-		form.Args[1] = Rewrite(form.Args[1], f)
+		form.Struct = Rewrite(form.Struct, f)
+	case *StructUpdate:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Struct = Rewrite(form.Struct, f)
+		form.Expr = Rewrite(form.Expr, f)
 
 	default:
 		panic(exn.Logic("unexpected form: %#v", form))

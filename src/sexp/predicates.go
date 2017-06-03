@@ -1,8 +1,24 @@
 package sexp
 
+import (
+	"lisp/rt"
+)
+
 // IsStmt returns true for statement form.
 func IsStmt(form Form) bool {
 	return form.Type() == typVoid
+}
+
+func IsThrow(form Form) bool {
+	switch form := form.(type) {
+	case *Call:
+		return form.Fn.IsPanic()
+	case *LispCall:
+		return rt.ThrowingFuncs[form.Fn.Sym]
+
+	default:
+		return false
+	}
 }
 
 // IsReturning returns true for forms that unconditionally
@@ -26,8 +42,8 @@ func IsReturning(form Form) bool {
 		// If both branches return, whole statement returns.
 		return IsReturning(form.Then) && IsReturning(form.Else)
 
-	case CallStmt:
-		return form.Fn.IsPanic()
+	case *ExprStmt:
+		return IsReturning(form.Expr)
 
 	case *Call:
 		return form.Fn.IsPanic()

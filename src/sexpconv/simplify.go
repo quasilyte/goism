@@ -17,12 +17,6 @@ func Simplify(form sexp.Form) sexp.Form {
 
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.BinOp:
-		if form.Kind == sexp.OpShl {
-			x, y := form.Args[0], form.Args[1]
-			return sexp.NewShl(x, sexp.NewNeg(y))
-		}
-
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,

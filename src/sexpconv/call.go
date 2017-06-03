@@ -8,16 +8,14 @@ import (
 	"sexp"
 )
 
-func (conv *Converter) callExprList(fn *function.Type, args []ast.Expr) *sexp.Call {
+func (conv *Converter) callExprList(fn *function.Fn, args []ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
 		Args: conv.valueCopyList(conv.exprList(args)),
 	}
 }
 
-// Convenient function to generate function call node.
-// Recognizes ast.Expr and sexp.Form as arguments.
-func (conv *Converter) call(fn *function.Type, args ...interface{}) *sexp.Call {
+func (conv *Converter) uniArgList(args []interface{}) []sexp.Form {
 	forms := make([]sexp.Form, len(args))
 	for i, arg := range args {
 		if node, ok := arg.(ast.Expr); ok {
@@ -26,12 +24,22 @@ func (conv *Converter) call(fn *function.Type, args ...interface{}) *sexp.Call {
 			forms[i] = conv.valueCopy(arg.(sexp.Form))
 		}
 	}
-	return &sexp.Call{Fn: fn, Args: forms}
+	return forms
+}
+
+// Convenient function to generate function call node.
+// Recognizes ast.Expr and sexp.Form as arguments.
+func (conv *Converter) call(fn *function.Fn, args ...interface{}) *sexp.Call {
+	return &sexp.Call{Fn: fn, Args: conv.uniArgList(args)}
+}
+
+func (conv *Converter) lispCall(fn *function.LispFn, args ...interface{}) *sexp.LispCall {
+	return &sexp.LispCall{Fn: fn, Args: conv.uniArgList(args)}
 }
 
 func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	// #REFS: 2.
-	switch fn := node.Fun.(type) {
+	switch args := node.Args; fn := node.Fun.(type) {
 	case *ast.SelectorExpr: // x.sel()
 		sel := conv.info.Selections[fn]
 		if sel != nil {
@@ -40,44 +48,44 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 
 		pkg := fn.X.(*ast.Ident)
 		if pkg.Name == "lisp" {
-			return conv.intrinFuncCall(fn.Sel.Name, node.Args)
+			return conv.intrinFuncCall(fn.Sel.Name, args)
 		}
 
-		return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), node.Args)
+		return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), args)
 
 	case *ast.Ident: // f()
 		switch fn.Name {
 		// Unsigned types are not handled at this level.
 		case "uint", "uint8", "byte", "uint16", "uint32", "uint64":
-			return conv.Expr(node.Args[0])
+			return conv.Expr(args[0])
 		// All signed integer types are treated as aliases.
 		case "int", "int8", "int16", "int32", "rune", "int64":
-			return conv.Expr(node.Args[0])
+			return conv.Expr(args[0])
 		// All float types are considered float64
 		case "float32", "float64":
-			return conv.Expr(node.Args[0])
+			return conv.Expr(args[0])
 		case "string":
-			return sexp.NewStrCast(conv.Expr(node.Args[0]))
+			return sexp.NewStrCast(conv.Expr(args[0]))
 		case "make":
-			return conv.makeBuiltin(node.Args)
+			return conv.makeBuiltin(args)
 		case "len":
-			return conv.lenBuiltin(node.Args[0])
+			return conv.lenBuiltin(args[0])
 		case "cap":
-			return conv.capBuiltin(node.Args[0])
+			return conv.capBuiltin(args[0])
 		case "append":
-			return conv.appendBuiltin(node.Args)
+			return conv.appendBuiltin(args)
 		case "copy":
-			return conv.callExprList(function.SliceCopy, node.Args)
+			return conv.lispCall(function.SliceCopy, args[0], args[0])
 		case "panic":
-			return &sexp.Panic{ErrorData: conv.Expr(node.Args[0])}
+			return &sexp.Panic{ErrorData: conv.Expr(args[0])}
 		case "print":
-			return conv.callExprList(function.Print, node.Args)
+			panic(errUnexpectedExpr(conv, node))
 		case "println":
-			return conv.callExprList(function.Println, node.Args)
+			panic(errUnexpectedExpr(conv, node))
 		case "delete":
-			return conv.call(function.Remhash, node.Args[1], node.Args[0])
+			return conv.lispCall(function.Remhash, args[1], args[0])
 		default:
-			return conv.callExprList(conv.makeFunction(fn, ""), node.Args)
+			return conv.callExprList(conv.env.Func(fn.Name).Typ, args)
 		}
 
 	default:
@@ -85,12 +93,12 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	}
 }
 
-func (conv *Converter) makeFunction(fn *ast.Ident, pkgName string) *function.Type {
+func (conv *Converter) makeFunction(fn *ast.Ident, pkgName string) *function.Fn {
 	// #FIXME: can also be *types.Names (type cast), etc.
 	sig := conv.typeOf(fn).(*types.Signature)
 
 	if pkgName == "" {
-		return function.New(conv.env.Intern(fn.Name), sig)
+		return function.New(conv.env.InternVar(fn.Name), sig)
 	}
 	qualName := "Go-" + pkgName + "." + fn.Name
 	return function.New(qualName, sig)

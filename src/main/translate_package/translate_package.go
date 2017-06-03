@@ -11,6 +11,7 @@ import (
 	"sexpconv"
 	"strings"
 	"tu"
+	"tu/load"
 )
 
 func init() {
@@ -39,7 +40,7 @@ func main() {
 
 	defer func() { util.CheckError(exn.Catch(recover())) }()
 
-	pkg, err := tu.TranslatePackage(util.Argv("pkgPath"))
+	pkg, err := load.Package(util.Argv("pkgPath"))
 	util.CheckError(err)
 
 	if util.Argv("opt") != "false" {
@@ -55,7 +56,7 @@ func main() {
 }
 
 func produceAsm(pkg *tu.Package) {
-	cl := compiler.New()
+	cl := compiler.New(pkg.Env)
 
 	if len(pkg.Vars) > 0 {
 		fmt.Println("variables:")
@@ -79,7 +80,7 @@ func produceAsm(pkg *tu.Package) {
 }
 
 func producePackage(pkg *tu.Package) {
-	cl := compiler.New()
+	cl := compiler.New(pkg.Env)
 
 	output := export.NewBuilder(pkg)
 
@@ -115,6 +116,7 @@ func dumpFunction(fn *tu.Func, obj *ir.Object) {
 func optimizePackage(pkg *tu.Package) {
 	for _, fn := range pkg.Funcs {
 		opt.RemoveDeadCode(fn.Body)
+		opt.InlineCalls(pkg.Env, fn.Body)
 		opt.ReduceStrength(fn.Body)
 	}
 }

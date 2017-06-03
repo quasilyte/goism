@@ -5,8 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"lisp"
 	"lisp/function"
+	"lisp/rt"
 	"sexp"
 	"xtypes"
 )
@@ -82,7 +82,7 @@ func (conv *Converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
 	// Index uniquely identifies variable used for storage.
 	for i := 1; i < tuple.Len(); i++ {
 		forms[i] = sexp.Var{
-			Name: lisp.RetVars[i],
+			Name: rt.RetVars[i],
 			Typ:  tuple.At(i).Type(),
 		}
 	}
@@ -120,7 +120,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		if conv.info.Defs[lhs] == nil {
 			if xtypes.IsGlobal(conv.info.Uses[lhs]) {
 				return &sexp.VarUpdate{
-					Name: conv.env.Intern(lhs.Name),
+					Name: conv.env.InternVar(lhs.Name),
 					Expr: conv.valueCopy(expr),
 				}
 			}
@@ -131,8 +131,8 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	case *ast.IndexExpr:
 		switch typ := conv.typeOf(lhs.X).(type) {
 		case *types.Map:
-			return sexp.CallStmt{
-				Call: conv.call(function.MapInsert, lhs.Index, expr, lhs.X),
+			return &sexp.ExprStmt{
+				Expr: conv.lispCall(function.MapInsert, lhs.Index, expr, lhs.X),
 			}
 
 		case *types.Array:
@@ -158,6 +158,22 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
 		}
 
+	case *ast.SelectorExpr:
+		typ := conv.typeOf(lhs.X)
+		if typ, ok := typ.Underlying().(*types.Struct); ok {
+			for i := 0; i <= typ.NumFields(); i++ {
+				if typ.Field(i).Name() == lhs.Sel.Name {
+					return &sexp.StructUpdate{
+						Struct: conv.Expr(lhs.X),
+						Index:  i,
+						Expr:   expr,
+						Typ:    typ,
+					}
+				}
+			}
+		}
+		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
+
 	// #TODO: struct assign, indirect assign
 	default:
 		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
@@ -169,7 +185,7 @@ func (conv *Converter) ignoredExpr(expr sexp.Form) sexp.Form {
 	case *sexp.Call:
 		// Function call can not be ignored because
 		// it may have side effects.
-		return sexp.CallStmt{Call: expr}
+		return &sexp.ExprStmt{Expr: expr}
 
 	default:
 		// Ignored completely.

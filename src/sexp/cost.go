@@ -2,7 +2,6 @@ package sexp
 
 import (
 	"exn"
-	"go/types"
 )
 
 // Cost returns a value that approximates computational
@@ -44,15 +43,6 @@ func Cost(form Form) int {
 	case *Substr:
 		return Cost(form.Str) + spanCost(form.Span) + 1
 
-	case *BinOp:
-		return Cost(form.Args[0]) + Cost(form.Args[1]) + baseOpCost[form.Kind]
-
-	case *UnaryOp:
-		if form.Kind == OpArrayCopy {
-			return Cost(form.X) + int(form.Type().(*types.Array).Len())/2
-		}
-		return Cost(form.X) + baseOpCost[form.Kind]
-
 	case *Call:
 		// #FIXME: this is not correct way to calculate
 		// function call cost. We need to know function
@@ -60,16 +50,25 @@ func Cost(form Form) int {
 		const defaultFnComplexity = 5
 		return callCost(form.Args) + defaultFnComplexity
 
+	case *InstrCall:
+		return cost(form.Args)
+
 	case Var:
 		// #FIXME: dynamic scope variables should have higher cost.
 		return 1
 
 	case *Let:
-		bindCost := Cost(form.Bind.Init) + 2
+		bindCost := len(form.Bindings) * 2
+		for _, bind := range form.Bindings {
+			bindCost += Cost(bind.Init)
+		}
 		if form.Expr == nil {
 			return Cost(form.Stmt) + bindCost
 		}
 		return Cost(form.Expr) + bindCost
+
+	case *Return:
+		return cost(form.Results) + len(form.Results)
 
 	default:
 		panic(exn.Logic("can not evaluate cost of %#v", form))
@@ -84,33 +83,11 @@ var baseOpCost = [...]int{
 	OpBitOr:  1,
 	OpBitAnd: 1,
 	OpBitXor: 1,
-	OpAdd:    1,
-	OpSub:    1,
-	OpMul:    2,
-	OpQuo:    3,
-	OpNumEq:  1,
-	OpNumNeq: 1,
-	OpNumLt:  1,
-	OpNumLte: 1,
-	OpNumGt:  1,
-	OpNumGte: 1,
 
-	OpConcat: 8,
-	OpStrEq:  3,
 	OpStrNeq: 4,
-	OpStrLt:  1,
 	OpStrLte: 5,
 	OpStrGt:  baseCallCost,
 	OpStrGte: 5 + baseCallCost,
-
-	OpNot:     1,
-	OpNeg:     1,
-	OpAdd1:    1,
-	OpSub1:    1,
-	OpStrCast: 2,
-
-	OpSliceCap: 3,
-	OpSliceLen: 3,
 }
 
 func spanCost(span Span) int {

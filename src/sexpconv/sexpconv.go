@@ -5,15 +5,15 @@ import (
 	"go/constant"
 	"go/token"
 	"go/types"
-	"lisp"
 	"sexp"
+	"tu"
 	"xast"
 )
 
 type Converter struct {
 	info    *types.Info
 	fileSet *token.FileSet
-	env     *lisp.Env
+	env     *tu.Env
 
 	// Context type is used to resolve "untyped" constants.
 	ctxType types.Type
@@ -21,7 +21,7 @@ type Converter struct {
 	retType *types.Tuple
 }
 
-func NewConverter(env *lisp.Env, info *types.Info, fSet *token.FileSet) *Converter {
+func NewConverter(env *tu.Env, info *types.Info, fSet *token.FileSet) *Converter {
 	return &Converter{
 		env:     env,
 		info:    info,
@@ -56,5 +56,5 @@ func (conv *Converter) typeOf(node ast.Expr) types.Type {
 }
 
 func (conv *Converter) basicTypeOf(node ast.Expr) *types.Basic {
-	return conv.info.TypeOf(node).(*types.Basic)
+	return conv.info.TypeOf(node).Underlying().(*types.Basic)
 }

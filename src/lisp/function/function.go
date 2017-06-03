@@ -3,11 +3,12 @@ package function
 import (
 	"go/types"
 	"lisp"
+	"lisp/rt"
 )
 
 var (
 	emptyTuple    = types.NewTuple()
-	nativeResults = tuple(lisp.Types.Object)
+	nativeResults = tuple(lisp.TypObject)
 )
 
 func tuple(typs ...types.Type) *types.Tuple {
@@ -18,50 +19,36 @@ func tuple(typs ...types.Type) *types.Tuple {
 	return types.NewTuple(vars...)
 }
 
-type Type struct {
+type Fn struct {
 	name       string
 	results    *types.Tuple
 	Complexity int
 }
 
-func NewNative(name string) *Type {
-	return &Type{
-		name:    name,
-		results: nativeResults,
-	}
-}
-
-func New(name string, sig *types.Signature) *Type {
-	f := &Type{name: name}
+func New(name string, sig *types.Signature) *Fn {
+	fn := &Fn{name: name}
 
 	if results := sig.Results(); results != nil {
-		f.results = results
+		fn.results = results
 	} else {
-		f.results = emptyTuple
+		fn.results = emptyTuple
 	}
 
-	return f
+	return fn
 }
 
-func (f *Type) Name() string {
-	return f.name
+func (fn *Fn) Name() string {
+	return fn.name
 }
 
-func (f *Type) Results() *types.Tuple {
-	return f.results
+func (fn *Fn) Results() *types.Tuple {
+	return fn.results
 }
 
-func (f *Type) IsVoid() bool {
-	return f.results.Len() == 0
+func (fn *Fn) IsVoid() bool {
+	return fn.results.Len() == 0
 }
 
-func (f *Type) IsPanic() bool {
-	return panicFunctions[f.name]
-}
-
-var panicFunctions = map[string]bool{
-	"Go--panic": true,
-	"error":     true,
-	"throw":     true,
-	"signal":    true,
+func (fn *Fn) IsPanic() bool {
+	return rt.ThrowingFuncs[fn.name]
 }

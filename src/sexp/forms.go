@@ -4,6 +4,7 @@ package sexp
 
 import (
 	"go/types"
+	"ir/instr"
 	"lisp/function"
 )
 
@@ -25,37 +26,13 @@ const (
 	OpBitOr  //  BitOr = "X | Y".
 	OpBitAnd // BitAnd = "X & Y".
 	OpBitXor // BitXor = "X ^ Y".
-	OpAdd    // Add = "X + Y"
-	OpSub    // Sub = "X - Y"
-	OpMul    // Mul = "X * Y"
-	OpQuo    // Quo = "X / Y"
-	OpNumEq  // NumEq = "X == Y"
-	OpNumNeq // NumNeq = "X != Y"
-	OpNumLt  // NumLt = "X < Y"
-	OpNumLte // NumLte = "X <= Y"
-	OpNumGt  // NumGt = "X > Y"
-	OpNumGte // NumGte = "X >= Y"
 
 	/* Str ops */
 
-	OpConcat // Concat = "X + Y"
-	OpStrEq  // StrEq = "X == Y"
 	OpStrNeq // StrNeq = "X != Y"
-	OpStrLt  // StrLt = "X < Y"
 	OpStrLte // StrLte = "X <= Y"
 	OpStrGt  // StrGt = "X > Y"
 	OpStrGte // StrGte = "X >= Y"
-
-	/* Unary ops */
-
-	OpNot     // Not = "!X"
-	OpNeg     // Neg = "-X"
-	OpAdd1    // OpAdd1 = "X+1"
-	OpSub1    // OpAdd1 = "X-1"
-	OpStrCast // StrCast = "string(X)"
-	OpArrayCopy
-	OpSliceCap // SliceCap = "cap(X)"
-	OpSliceLen // SliceLen = "len(X)"
 )
 
 // Atoms.
@@ -84,12 +61,6 @@ type (
 		Kind OpKind
 		X    Form
 	}
-
-	// BinOp = "op(X, Y)".
-	BinOp struct {
-		Kind OpKind
-		Args [2]Form
-	}
 )
 
 // Composite literals.
@@ -102,7 +73,7 @@ type (
 
 	// SparseArrayLit is like ArrayLit, but does not store zero values.
 	SparseArrayLit struct {
-		Ctor *Call
+		Ctor Form
 		Vals map[int]Form
 		Typ  *types.Array
 	}
@@ -111,6 +82,13 @@ type (
 	SliceLit struct {
 		Vals []Form
 		Typ  *types.Slice
+	}
+
+	// StructLit is an expression that yields struct object.
+	// Each struct member (field) has explicit initializer.
+	StructLit struct {
+		Vals []Form
+		Typ  *types.Struct
 	}
 )
 
@@ -128,6 +106,14 @@ type (
 		Slice Form
 		Index Form
 		Expr  Form
+	}
+
+	// StructUpdate = "Struct.[Index] = Expr".
+	StructUpdate struct {
+		Struct Form
+		Index  int
+		Expr   Form
+		Typ    *types.Struct
 	}
 
 	// Panic causes runtime panic and carries data along.
@@ -174,8 +160,8 @@ type (
 	// one or more values to the caller.
 	Return struct{ Results []Form }
 
-	// CallStmt is a Call which discards returned results.
-	CallStmt struct{ *Call }
+	// ExprStmt is a Call which discards returned results.
+	ExprStmt struct{ Expr Form }
 )
 
 // Loop forms.
@@ -220,6 +206,13 @@ type (
 		Slice Form
 		Index Form
 	}
+
+	// StructIndex is struct selector expression.
+	StructIndex struct {
+		Struct Form
+		Index  int
+		Typ    *types.Struct
+	}
 )
 
 // Span expressions.
@@ -257,17 +250,29 @@ type LispTypeAssert struct {
 	Typ  types.Type
 }
 
-// Call expression is normal (direct) function invocation.
-type Call struct {
-	Fn   *function.Type
+type LispCall struct {
+	Fn   *function.LispFn
 	Args []Form
 }
 
-// Let introduces single binding that is visible to a
-// statement or expression. Binding is destroyed after
+// Call expression is normal (direct) function invocation.
+type Call struct {
+	Fn   *function.Fn
+	Args []Form
+}
+
+// InstrCall is optimized version of Call/Op.
+// Used when there is dedicated opcode available.
+type InstrCall struct {
+	Instr instr.Instr
+	Args  []Form
+}
+
+// Let introduces bindings that are visible to a
+// statement or expression. Bindings are destroyed after
 // wrapped form is evaluated.
 type Let struct {
-	Bind *Bind
+	Bindings []*Bind
 
 	// Either of these two is set.
 	// Let wraps expression OR statement.

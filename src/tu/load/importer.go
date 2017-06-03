@@ -1,4 +1,4 @@
-package tu
+package load
 
 import (
 	"go/types"

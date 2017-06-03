@@ -12,7 +12,7 @@ import (
 func (conv *Converter) Constant(node ast.Expr) sexp.Form {
 	if cv := conv.valueOf(node); cv != nil {
 		typ := conv.typeOf(node)
-		if types.Identical(typ, lisp.Types.Symbol) {
+		if types.Identical(typ, lisp.TypSymbol) {
 			return sexp.Symbol{Val: constant.StringVal(cv)}
 		}
 

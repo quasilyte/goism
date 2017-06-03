@@ -16,12 +16,18 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		// convertion, so we ignore them.
 		return conv.Expr(args[0])
 
-	case "CallInt", "CallFloat", "CallString", "CallBool", "CallSymbol":
+	case "CallInt", "CallFloat", "CallStr", "CallBool", "CallSymbol":
 		fallthrough
 	case "Call":
 		// #FIXME: non-constant symbols should also be valid.
 		name := constant.StringVal(conv.valueOf(args[0]))
-		return conv.callExprList(function.NewNative(name), args[1:])
+		if call := conv.instrCall(name, args[1:]); call != nil {
+			return call
+		}
+		return &sexp.LispCall{
+			Fn:   &function.LispFn{Sym: name},
+			Args: conv.exprList(args[1:]),
+		}
 
 	case "Intern":
 		return conv.intrinIntern(args[0])
@@ -40,5 +46,5 @@ func (conv *Converter) intrinIntern(arg ast.Expr) sexp.Form {
 		return sexp.Symbol{Val: s}
 	}
 
-	return conv.call(function.Intern, arg)
+	return conv.lispCall(function.Intern, arg)
 }

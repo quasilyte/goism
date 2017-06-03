@@ -5,52 +5,6 @@ import (
 	"sexp"
 )
 
-var opKindToInstr = [...]instr.Instr{
-	sexp.OpAdd:    instr.NumAdd,
-	sexp.OpSub:    instr.NumSub,
-	sexp.OpMul:    instr.NumMul,
-	sexp.OpQuo:    instr.NumQuo,
-	sexp.OpNumGt:  instr.NumGt,
-	sexp.OpNumLt:  instr.NumLt,
-	sexp.OpNumLte: instr.NumLte,
-	sexp.OpNumGte: instr.NumGte,
-	sexp.OpNumEq:  instr.NumEq,
-	sexp.OpConcat: instr.Concat2,
-	sexp.OpNot:    instr.Not,
-	sexp.OpNeg:    instr.Neg,
-	sexp.OpAdd1:   instr.Add1,
-	sexp.OpSub1:   instr.Sub1,
-}
-
-func compileBinOp(cl *Compiler, form *sexp.BinOp) {
-	switch form.Kind {
-	case sexp.OpShl:
-		call(cl, "lsh", form.Args[0], form.Args[1])
-	case sexp.OpBitAnd:
-		call(cl, "logand", form.Args[0], form.Args[1])
-	case sexp.OpBitOr:
-		call(cl, "logior", form.Args[0], form.Args[1])
-
-	default:
-		compileExpr(cl, form.Args[0])
-		compileExpr(cl, form.Args[1])
-		emit(cl, opKindToInstr[form.Kind])
-	}
-}
-
-func compileUnaryOp(cl *Compiler, form *sexp.UnaryOp) {
-	switch form.Kind {
-	case sexp.OpStrCast:
-		call(cl, "Go--slice-to-str", form.X)
-	case sexp.OpArrayCopy:
-		call(cl, "copy-sequence", form.X)
-
-	default:
-		compileExpr(cl, form.X)
-		emit(cl, opKindToInstr[form.Kind])
-	}
-}
-
 func compileBool(cl *Compiler, form sexp.Bool) {
 	if bool(form) {
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym("t")))
@@ -69,7 +23,7 @@ func compileVar(cl *Compiler, form sexp.Var) {
 }
 
 func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
-	compileCall(cl, form.Ctor.Fn.Name(), form.Ctor.Args)
+	compileExpr(cl, form.Ctor)
 	for i, val := range form.Vals {
 		emit(cl, instr.StackRef(0)) // Array
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(i))))
@@ -84,6 +38,11 @@ func compileCall(cl *Compiler, name string, args []sexp.Form) {
 	emit(cl, instr.Call(len(args)))
 }
 
+func compileInstrCall(cl *Compiler, form *sexp.InstrCall) {
+	compileExprList(cl, form.Args)
+	emit(cl, form.Instr)
+}
+
 func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)
@@ -91,15 +50,22 @@ func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
 }
 
 func compileLetExpr(cl *Compiler, form *sexp.Let) {
-	compileBind(cl, form.Bind)
+	for _, bind := range form.Bindings {
+		compileBind(cl, bind)
+	}
 	compileExpr(cl, form.Expr)
-	emit(cl, instr.StackSet(1)) // Replace let binding with expr result
+	emit(cl, instr.StackSet(len(form.Bindings)))
+	if len(form.Bindings) > 1 {
+		emit(cl, instr.Discard(len(form.Bindings)-1))
+	}
 }
 
 func compileLetStmt(cl *Compiler, form *sexp.Let) {
-	compileBind(cl, form.Bind)
+	for _, bind := range form.Bindings {
+		compileBind(cl, bind)
+	}
 	compileStmt(cl, form.Stmt)
-	emit(cl, instr.Discard(1)) // Remove let binding
+	emit(cl, instr.Discard(len(form.Bindings)))
 }
 
 func compileSliceIndex(cl *Compiler, form *sexp.SliceIndex) {
@@ -165,5 +131,41 @@ func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
 		call(cl, "Go--array-slice", form.Array, form.Low, form.High)
 	case sexp.SpanWhole:
 		call(cl, "Go--array-slice-whole", form.Array)
+	}
+}
+
+func compileStructLit(cl *Compiler, form *sexp.StructLit) {
+	switch structReprOf(form.Typ) {
+	case structAtom:
+		compileExpr(cl, form.Vals[0])
+
+	case structCons:
+		compileExprList(cl, form.Vals)
+		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
+
+	case structVec:
+		call(cl, "vector", form.Vals...)
+	}
+}
+
+func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
+	switch structReprOf(form.Typ) {
+	case structAtom:
+		compileExpr(cl, form.Struct)
+
+	case structCons:
+		compileExpr(cl, form.Struct)
+		emitN(cl, instr.Cdr, form.Index)
+		if form.Typ.NumFields() == form.Index+1 { // Last index.
+			emit(cl, instr.Cdr)
+		} else {
+			emit(cl, instr.Car)
+		}
+
+	case structVec:
+		compileArrayIndex(cl, &sexp.ArrayIndex{
+			Array: form.Struct,
+			Index: sexp.Int(form.Index),
+		})
 	}
 }

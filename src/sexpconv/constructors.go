@@ -10,14 +10,15 @@ func _it(typ types.Type) sexp.Var {
 }
 
 func _let(val sexp.Form, form sexp.Form) *sexp.Let {
+	bindings := []*sexp.Bind{&sexp.Bind{Name: "_it", Init: val}}
 	if sexp.IsStmt(form) {
 		return &sexp.Let{
-			Bind: &sexp.Bind{Name: "_it", Init: val},
-			Stmt: form,
+			Bindings: bindings,
+			Stmt:     form,
 		}
 	}
 	return &sexp.Let{
-		Bind: &sexp.Bind{Name: "_it", Init: val},
-		Expr: form,
+		Bindings: bindings,
+		Expr:     form,
 	}
 }

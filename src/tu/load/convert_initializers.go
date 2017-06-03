@@ -1,9 +1,10 @@
-package tu
+package load
 
 import (
 	"go/ast"
 	"go/types"
 	"sexp"
+	"tu"
 )
 
 func convertInitializers(u *unit) {
@@ -19,7 +20,7 @@ func convertInitializers(u *unit) {
 			} else {
 				idents[i] = &ast.Ident{Name: v.Name()}
 				u.ti.Uses[idents[i]] = v
-				vars = append(vars, u.env.Intern(v.Name()))
+				vars = append(vars, u.env.InternVar(v.Name()))
 			}
 		}
 
@@ -35,10 +36,10 @@ func convertInitializers(u *unit) {
 	// initializers. They are collected here.
 	for _, name := range u.topScope.Names() {
 		if v, ok := u.topScope.Lookup(name).(*types.Var); ok {
-			if u.env.Contains(v.Name()) {
+			if u.env.ContainsVar(v.Name()) {
 				continue
 			}
-			sym := u.env.Intern(v.Name())
+			sym := u.env.InternVar(v.Name())
 			vars = append(vars, sym)
 			body = append(body, u.conv.VarZeroInit(sym, v.Type()))
 		}
@@ -48,7 +49,7 @@ func convertInitializers(u *unit) {
 		body = append(body, &sexp.Return{})
 	}
 
-	u.init = &Func{
+	u.init = &tu.Func{
 		Name: "init",
 		Body: &sexp.Block{Forms: body},
 	}

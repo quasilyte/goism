@@ -1,4 +1,4 @@
-package lisp
+package rt
 
 // RetVars are used in multi-value returns.
 // Every return value, except first one, is bound
