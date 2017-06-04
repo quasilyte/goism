@@ -7,6 +7,8 @@ import (
 )
 
 var (
+	FnPanic *sexp.Func
+
 	FnSliceLen *sexp.Func
 	FnSliceCap *sexp.Func
 	FnSliceGet *sexp.Func
@@ -20,6 +22,8 @@ func InitFuncs(env *tu.Env) {
 		}
 		panic(exn.Logic("`emacs/rt' misses `%s' function", name))
 	}
+
+	FnPanic = mustFindFunc("Panic")
 
 	FnSliceLen = mustFindFunc("SliceLen")
 	FnSliceCap = mustFindFunc("SliceCap")

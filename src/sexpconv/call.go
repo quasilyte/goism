@@ -3,6 +3,7 @@ package sexpconv
 import (
 	"exn"
 	"go/ast"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 )
@@ -79,7 +80,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "copy":
 			return conv.lispCall(function.SliceCopy, args[0], args[1])
 		case "panic":
-			return conv.lispCall(function.Panic, args[0])
+			return conv.call(rt.FnPanic, args[0])
 		case "print":
 			panic(errUnexpectedExpr(conv, node))
 		case "println":
