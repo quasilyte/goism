@@ -52,7 +52,7 @@ func inlineableForm(body *sexp.Block) sexp.Form {
 	}
 
 	worthToInline := func(form sexp.Form) bool {
-		return sexp.Cost(form) <= 15
+		return sexp.Cost(form) <= 12
 	}
 
 	switch form := body.Forms[0].(type) {
@@ -61,7 +61,7 @@ func inlineableForm(body *sexp.Block) sexp.Form {
 			return nil
 		}
 		if worthToInline(form.Results[0]) {
-			form.Results[0].Copy()
+			return form.Results[0].Copy()
 		}
 
 	case *sexp.ExprStmt:
