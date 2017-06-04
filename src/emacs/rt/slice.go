@@ -63,3 +63,15 @@ func BytesToStr(slice Slice) lisp.Str {
 		copyArraySpan(slice.data, slice.offset, slice.offset+slice.len),
 	)
 }
+
+func sliceLenBound(slice Slice, index lisp.Int) {
+	if index < 0 || index > slice.len {
+		Panic(lisp.Str("slice bounds out of range"))
+	}
+}
+
+func sliceCapBound(slice Slice, index lisp.Int) {
+	if index < 0 || index > slice.cap {
+		Panic(lisp.Str("slice bounds out of range"))
+	}
+}
