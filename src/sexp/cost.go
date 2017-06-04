@@ -55,7 +55,7 @@ func Cost(form Form) int {
 		return callCost(form.Args) + defaultFnComplexity
 
 	case *LispCall:
-		return cost(form.Args) + 1
+		return lispCallCost(form)
 
 	case *InstrCall:
 		return cost(form.Args) + 1
@@ -72,16 +72,7 @@ func Cost(form Form) int {
 		for _, bind := range form.Bindings {
 			bindCost += Cost(bind.Init)
 		}
-		if form.Expr == nil {
-			return Cost(form.Stmt) + bindCost
-		}
 		return Cost(form.Expr) + bindCost
-
-	case *Return:
-		return cost(form.Results) + len(form.Results)
-
-	case *ExprStmt:
-		return Cost(form.Expr) + 1
 
 	case *And:
 		return Cost(form.X) + Cost(form.Y) + 3
@@ -95,19 +86,6 @@ func Cost(form Form) int {
 }
 
 const baseCallCost = 3
-
-var baseOpCost = [...]int{
-	OpShl:    1,
-	OpShr:    1,
-	OpBitOr:  1,
-	OpBitAnd: 1,
-	OpBitXor: 1,
-
-	OpStrNeq: 4,
-	OpStrLte: 5,
-	OpStrGt:  baseCallCost,
-	OpStrGte: 5 + baseCallCost,
-}
 
 func spanCost(span Span) int {
 	cost := 0
@@ -145,4 +123,12 @@ func structIndexCost(form *StructIndex) int {
 	default:
 		return 0
 	}
+}
+
+func lispCallCost(form *LispCall) int {
+	cost := callCost(form.Args)
+	if old_rt.ThrowingFuncs[form.Fn.Sym] {
+		cost += 3
+	}
+	return cost
 }

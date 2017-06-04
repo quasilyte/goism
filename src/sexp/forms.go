@@ -15,27 +15,6 @@ type Form interface {
 	form()
 }
 
-type OpKind int
-
-const (
-	OpInvalid OpKind = iota
-
-	/* Num ops */
-
-	OpShl    // Shl = "X << Y".
-	OpShr    // Shr = "X >> Y".
-	OpBitOr  //  BitOr = "X | Y".
-	OpBitAnd // BitAnd = "X & Y".
-	OpBitXor // BitXor = "X ^ Y".
-
-	/* Str ops */
-
-	OpStrNeq // StrNeq = "X != Y"
-	OpStrLte // StrLte = "X <= Y"
-	OpStrGt  // StrGt = "X > Y"
-	OpStrGte // StrGte = "X >= Y"
-)
-
 // Atoms.
 type (
 	// Bool = true or false literal.

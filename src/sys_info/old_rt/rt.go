@@ -15,7 +15,7 @@ var RetVars = [...]string{
 
 var ThrowingFuncs = map[string]bool{
 	"Go--panic":   true,
-	"Go-rt.panic": true,
+	"Go-rt.Panic": true,
 	"error":       true,
 	"throw":       true,
 	"signal":      true,
