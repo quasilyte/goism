@@ -123,11 +123,18 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 
 	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)
-		emitN(cl, instr.Cdr, form.Index-1)
-		compileExpr(cl, form.Expr)
-		if form.Typ.NumFields() == form.Index+1 { // Last index.
+		if form.Index == 0 {
+			// First member.
+			compileExpr(cl, form.Expr)
+			emit(cl, instr.SetCar)
+		} else if form.Typ.NumFields() == form.Index+1 {
+			// Last member.
+			emitN(cl, instr.Cdr, form.Index-1)
+			compileExpr(cl, form.Expr)
 			emit(cl, instr.SetCdr)
 		} else {
+			emitN(cl, instr.Cdr, form.Index)
+			compileExpr(cl, form.Expr)
 			emit(cl, instr.SetCar)
 		}
 
