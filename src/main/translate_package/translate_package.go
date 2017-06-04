@@ -41,12 +41,7 @@ func main() {
 
 	defer func() { util.CheckError(exn.Catch(recover())) }()
 
-	pkg, err := load.Package(util.Argv("pkgPath"))
-	util.CheckError(err)
-
-	if util.Argv("opt") != "false" {
-		optimizePackage(pkg)
-	}
+	pkg := loadPackage(util.Argv("pkgPath"), util.Argv("opt") != "false")
 
 	switch util.Argv("output") {
 	case "pkg":
@@ -54,6 +49,15 @@ func main() {
 	case "asm":
 		produceAsm(pkg)
 	}
+}
+
+func loadPackage(pkgPath string, optimize bool) *tu.Package {
+	pkg, err := load.Package(util.Argv("pkgPath"))
+	util.CheckError(err)
+	if optimize {
+		optimizePackage(pkg)
+	}
+	return pkg
 }
 
 func produceAsm(pkg *tu.Package) {
