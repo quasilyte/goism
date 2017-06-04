@@ -58,7 +58,7 @@ func Cost(form Form) int {
 		return cost(form.Args) + 1
 
 	case *InstrCall:
-		return cost(form.Args)
+		return cost(form.Args) + 1
 
 	case *StructIndex:
 		return structIndexCost(form)
@@ -139,7 +139,7 @@ func structIndexCost(form *StructIndex) int {
 	case old_rt.StructAtom:
 		return 1 + Cost(form.Struct)
 	case old_rt.StructCons:
-		return form.Index + Cost(form.Struct)
+		return 1 + form.Index + Cost(form.Struct)
 	case old_rt.StructVec:
 		return 3 + Cost(form.Struct)
 	default:
