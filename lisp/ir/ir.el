@@ -110,6 +110,8 @@
                  ;; - Instructions without argument -
                  (setcar op0)
                  (setcdr op0)
+                 (memq op0)
+                 (member op0)
                  (car op0)
                  (cdr op0)
                  (array-ref op0 byte-aref)

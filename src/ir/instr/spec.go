@@ -2,10 +2,12 @@ package instr
 
 // Jump instruction names.
 var (
-	Jmp       = []byte("goto")
-	JmpNil    = []byte("goto-if-nil")
-	JmpNotNil = []byte("goto-if-not-nil")
-	Label     = []byte("label")
+	Jmp              = []byte("goto")
+	JmpNil           = []byte("goto-if-nil")
+	JmpNotNil        = []byte("goto-if-not-nil")
+	JmpNilElsePop    = []byte("goto-if-nil-else-pop")
+	JmpNotNilElsePop = []byte("goto-if-not-nil-else-pop")
+	Label            = []byte("label")
 )
 
 // Binary ops.
@@ -23,7 +25,9 @@ var (
 	StrLt    = binOp("str<")
 	ArrayRef = binOp("array-ref")
 
-	Cons = binOp("cons")
+	Cons   = binOp("cons")
+	Memq   = binOp("memq")
+	Member = binOp("member")
 
 	Concat2 = Concat(2)
 )
@@ -80,6 +84,16 @@ var (
 func Concat(argc int) Instr {
 	return Instr{
 		Name:     []byte("concat"),
+		Encoding: AttrEnc1,
+		Input:    AttrTakeN,
+		Output:   AttrPushTmp,
+		Data:     uint16(argc),
+	}
+}
+
+func List(argc int) Instr {
+	return Instr{
+		Name:     []byte("list"),
 		Encoding: AttrEnc1,
 		Input:    AttrTakeN,
 		Output:   AttrPushTmp,

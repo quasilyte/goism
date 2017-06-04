@@ -2,7 +2,6 @@ package sexpconv
 
 import "ir/instr"
 import "sexp"
-import "go/ast"
 
 var nameToInstr = map[string]instr.Instr{
 	"cons":      instr.Cons,
@@ -23,15 +22,19 @@ var nameToInstr = map[string]instr.Instr{
 	"string<":   instr.StrLt,
 	"substring": instr.Substr,
 	"length":    instr.Length,
+	"not":       instr.Not,
+	"memq":      instr.Memq,
+	"member":    instr.Member,
 }
 
-func (conv *Converter) instrCall(name string, args []ast.Expr) *sexp.InstrCall {
+func (conv *Converter) instrCall(name string, args []sexp.Form) sexp.Form {
 	if name == "concat" {
-		return &sexp.InstrCall{
-			Instr: instr.Concat(len(args)),
-			Args:  conv.valueCopyList(conv.exprList(args)),
-		}
+		return &sexp.InstrCall{Instr: instr.Concat(len(args)), Args: args}
 	}
+	if name == "list" {
+		return &sexp.InstrCall{Instr: instr.List(len(args)), Args: args}
+	}
+
 	ins, ok := nameToInstr[name]
 	if !ok {
 		return nil
@@ -39,8 +42,5 @@ func (conv *Converter) instrCall(name string, args []ast.Expr) *sexp.InstrCall {
 	if len(args) > 3 || len(args) != int(ins.Input) {
 		return nil
 	}
-	return &sexp.InstrCall{
-		Instr: ins,
-		Args:  conv.valueCopyList(conv.exprList(args)),
-	}
+	return &sexp.InstrCall{Instr: ins, Args: args}
 }

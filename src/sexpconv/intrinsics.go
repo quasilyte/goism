@@ -21,12 +21,13 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	case "Call":
 		// #FIXME: non-constant symbols should also be valid.
 		name := constant.StringVal(conv.valueOf(args[0]))
-		if call := conv.instrCall(name, args[1:]); call != nil {
+		args := conv.valueCopyList(conv.exprList(args[1:]))
+		if call := conv.instrCall(name, args); call != nil {
 			return call
 		}
 		return &sexp.LispCall{
 			Fn:   &function.LispFn{Sym: name},
-			Args: conv.exprList(args[1:]),
+			Args: args,
 		}
 
 	case "Intern":
