@@ -3,9 +3,9 @@ package sexpconv
 import (
 	"exn"
 	"go/types"
-	"lisp"
-	"lisp/function"
+	"magic_pkg/emacs/lisp"
 	"sexp"
+	"sys_info/function"
 )
 
 func basicTypeZeroValue(typ *types.Basic) sexp.Form {

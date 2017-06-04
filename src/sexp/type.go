@@ -2,7 +2,7 @@ package sexp
 
 import (
 	"go/types"
-	"lisp"
+	"magic_pkg/emacs/lisp"
 )
 
 var (

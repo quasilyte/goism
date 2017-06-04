@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/types"
-	"lisp"
+	"magic_pkg/emacs/lisp"
 	"sexp"
 )
 

@@ -2,7 +2,7 @@ package sexp
 
 import (
 	"exn"
-	"lisp/rt"
+	"sys_info/old_rt"
 )
 
 // Cost returns a value that approximates computational
@@ -135,12 +135,12 @@ func cost(forms []Form) int {
 }
 
 func structIndexCost(form *StructIndex) int {
-	switch rt.StructReprOf(form.Typ) {
-	case rt.StructAtom:
+	switch old_rt.StructReprOf(form.Typ) {
+	case old_rt.StructAtom:
 		return 1 + Cost(form.Struct)
-	case rt.StructCons:
+	case old_rt.StructCons:
 		return form.Index + Cost(form.Struct)
-	case rt.StructVec:
+	case old_rt.StructVec:
 		return 3 + Cost(form.Struct)
 	default:
 		return 0

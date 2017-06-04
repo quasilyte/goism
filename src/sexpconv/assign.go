@@ -5,9 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"lisp/function"
-	"lisp/rt"
 	"sexp"
+	"sys_info/function"
+	"sys_info/old_rt"
 	"xtypes"
 )
 
@@ -82,7 +82,7 @@ func (conv *Converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
 	// Index uniquely identifies variable used for storage.
 	for i := 1; i < tuple.Len(); i++ {
 		forms[i] = sexp.Var{
-			Name: rt.RetVars[i],
+			Name: old_rt.RetVars[i],
 			Typ:  tuple.At(i).Type(),
 		}
 	}

@@ -1,9 +1,9 @@
 package opt
 
 import (
-	"lisp/function"
 	"sexp"
 	"sexpconv"
+	"sys_info/function"
 )
 
 // ReduceStrength replaces operations with their less expensive

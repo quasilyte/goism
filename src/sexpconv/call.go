@@ -3,8 +3,8 @@ package sexpconv
 import (
 	"exn"
 	"go/ast"
-	"lisp/function"
 	"sexp"
+	"sys_info/function"
 )
 
 func (conv *Converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {

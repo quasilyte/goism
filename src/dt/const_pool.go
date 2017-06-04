@@ -2,7 +2,7 @@ package dt
 
 import (
 	"bytes"
-	"lisp"
+	"magic_pkg/emacs/lisp"
 	"strconv"
 )
 

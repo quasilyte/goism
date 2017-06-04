@@ -3,8 +3,8 @@ package compiler
 import (
 	"assert"
 	"ir/instr"
-	"lisp/rt"
 	"sexp"
+	"sys_info/old_rt"
 )
 
 func compileBlock(cl *Compiler, form *sexp.Block) {
@@ -25,7 +25,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
-			sym := rt.RetVars[i]
+			sym := old_rt.RetVars[i]
 			emit(cl, instr.VarSet(cl.cvec.InsertSym(sym)))
 		}
 		emit(cl, instr.Return)
@@ -124,8 +124,8 @@ func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
 }
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
-	switch rt.StructReprOf(form.Typ) {
-	case rt.StructAtom:
+	switch old_rt.StructReprOf(form.Typ) {
+	case old_rt.StructAtom:
 		s := form.Struct.(sexp.Var)
 		if cl.st.Find(s.Name) != -1 {
 			compileRebind(cl, s.Name, form.Expr)
@@ -133,7 +133,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			compileVarUpdate(cl, s.Name, form.Expr)
 		}
 
-	case rt.StructCons:
+	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index-1)
 		compileExpr(cl, form.Expr)
@@ -143,7 +143,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			emit(cl, instr.SetCar)
 		}
 
-	case rt.StructVec:
+	case old_rt.StructVec:
 		compileArrayUpdate(cl, &sexp.ArrayUpdate{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

@@ -3,7 +3,7 @@ package sexp
 import (
 	"go/types"
 	"ir/instr"
-	"lisp/function"
+	"sys_info/function"
 )
 
 // Constructors for simple forms.

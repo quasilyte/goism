@@ -2,8 +2,8 @@ package compiler
 
 import (
 	"ir/instr"
-	"lisp/rt"
 	"sexp"
+	"sys_info/old_rt"
 )
 
 func compileBool(cl *Compiler, form sexp.Bool) {
@@ -130,25 +130,25 @@ func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
 }
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
-	switch rt.StructReprOf(form.Typ) {
-	case rt.StructAtom:
+	switch old_rt.StructReprOf(form.Typ) {
+	case old_rt.StructAtom:
 		compileExpr(cl, form.Vals[0])
 
-	case rt.StructCons:
+	case old_rt.StructCons:
 		compileExprList(cl, form.Vals)
 		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
 
-	case rt.StructVec:
+	case old_rt.StructVec:
 		call(cl, "vector", form.Vals...)
 	}
 }
 
 func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
-	switch rt.StructReprOf(form.Typ) {
-	case rt.StructAtom:
+	switch old_rt.StructReprOf(form.Typ) {
+	case old_rt.StructAtom:
 		compileExpr(cl, form.Struct)
 
-	case rt.StructCons:
+	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index)
 		if form.Typ.NumFields() == form.Index+1 { // Last index.
@@ -157,7 +157,7 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 			emit(cl, instr.Car)
 		}
 
-	case rt.StructVec:
+	case old_rt.StructVec:
 		compileArrayIndex(cl, &sexp.ArrayIndex{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

@@ -2,8 +2,8 @@ package sexpconv
 
 import (
 	"go/ast"
-	"lisp/function"
 	"sexp"
+	"sys_info/function"
 	"xtypes"
 )
 

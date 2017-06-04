@@ -4,9 +4,9 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"lisp"
-	"lisp/function"
+	"magic_pkg/emacs/lisp"
 	"sexp"
+	"sys_info/function"
 	"xtypes"
 )
 

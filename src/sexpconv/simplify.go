@@ -1,8 +1,8 @@
 package sexpconv
 
 import (
-	"lisp/function"
 	"sexp"
+	"sys_info/function"
 )
 
 // Simplify translates semantic-rich forms into

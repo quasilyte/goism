@@ -4,8 +4,8 @@ import (
 	"exn"
 	"go/ast"
 	"go/constant"
-	"lisp/function"
 	"sexp"
+	"sys_info/function"
 )
 
 func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {

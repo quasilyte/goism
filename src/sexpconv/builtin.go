@@ -4,8 +4,8 @@ import (
 	"exn"
 	"go/ast"
 	"go/types"
-	"lisp/function"
 	"sexp"
+	"sys_info/function"
 )
 
 func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {

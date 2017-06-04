@@ -2,7 +2,7 @@ package load
 
 import (
 	"go/types"
-	"lisp"
+	"magic_pkg/emacs/lisp"
 )
 
 type emacsImporter struct {

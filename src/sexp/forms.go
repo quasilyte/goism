@@ -5,7 +5,7 @@ package sexp
 import (
 	"go/types"
 	"ir/instr"
-	"lisp/function"
+	"sys_info/function"
 )
 
 // Form = universal S-expression node (akin to Go ast.Node).
