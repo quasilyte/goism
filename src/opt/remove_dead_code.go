@@ -6,26 +6,47 @@ import (
 
 // RemoveDeadCode removes unreachable statements and expressions
 // from given sexp form.
-func RemoveDeadCode(form sexp.Form) {
+func RemoveDeadCode(form sexp.Form) sexp.Form {
+	cr := codeRemover{}
+	return cr.rewrite(form)
+}
+
+type codeRemover struct{}
+
+func (cr codeRemover) rewrite(form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, cr.walkForm)
+}
+
+func (cr codeRemover) walkForm(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.If:
-		RemoveDeadCode(form.Then)
+		if b, ok := form.Cond.(sexp.Bool); ok && !bool(b) {
+			return sexp.EmptyStmt
+		}
+		cr.rewrite(form.Then)
 		if form.Else != nil {
-			RemoveDeadCode(form.Else)
+			cr.rewrite(form.Else)
 		}
 
 	case *sexp.Block:
-		form.Forms = removeDeadCode(form.Forms)
+		form.Forms = cr.walkBody(form.Forms)
+
 	case *sexp.FormList:
-		form.Forms = removeDeadCode(form.Forms)
+		form.Forms = cr.walkBody(form.Forms)
+
 	case *sexp.While:
-		RemoveDeadCode(form.Body)
+		if b, ok := form.Cond.(sexp.Bool); ok && !bool(b) {
+			return sexp.EmptyStmt
+		}
+		cr.rewrite(form.Body)
 	}
+
+	return nil
 }
 
-func removeDeadCode(forms []sexp.Form) []sexp.Form {
+func (cr codeRemover) walkBody(forms []sexp.Form) []sexp.Form {
 	for i, form := range forms {
-		RemoveDeadCode(form)
+		forms[i] = cr.rewrite(form)
 		if sexp.IsReturning(form) {
 			return forms[:i+1]
 		}
