@@ -1,7 +1,6 @@
 package opt
 
 import (
-	"bytes"
 	"lisp/function"
 	"sexp"
 	"sexpconv"
@@ -12,10 +11,15 @@ import (
 func ReduceStrength(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.InstrCall:
-		if bytes.Equal([]byte("add"), form.Instr.Name) {
+		switch string(form.Instr.Name) {
+		case "add":
 			return weakenAdd(form)
-		} else if bytes.Equal([]byte("sub"), form.Instr.Name) {
+		case "sub":
 			return weakenSub(form)
+		case "concat":
+			return weakenConcat(form)
+		case "list":
+			return weakenList(form)
 		}
 
 	case *sexp.LispCall:
@@ -155,5 +159,23 @@ func weakenStrCast(form *sexp.LispCall) sexp.Form {
 		}
 	}
 
+	return form
+}
+
+func weakenConcat(form *sexp.InstrCall) sexp.Form {
+	switch len(form.Args) {
+	case 0:
+		return sexp.Str("")
+	case 1:
+		return form.Args[0]
+	default:
+		return form
+	}
+}
+
+func weakenList(form *sexp.InstrCall) sexp.Form {
+	if len(form.Args) == 0 {
+		return sexp.Symbol{Val: "nil"}
+	}
 	return form
 }
