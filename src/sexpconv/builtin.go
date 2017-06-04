@@ -4,6 +4,7 @@ import (
 	"exn"
 	"go/ast"
 	"go/types"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 )
@@ -17,7 +18,7 @@ func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
 		return sexp.Int(typ.Len())
 
 	case *types.Slice:
-		panic(exn.NoImpl("len(slice)"))
+		return conv.call(rt.FnSliceLen, arg)
 
 	default:
 		panic(exn.Conv(conv.fileSet, "can't apply len", arg))
@@ -30,7 +31,7 @@ func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
 		return sexp.Int(typ.Len())
 
 	case *types.Slice:
-		panic(exn.NoImpl("cap(slice)"))
+		return conv.call(rt.FnSliceCap, arg)
 
 	default:
 		panic(exn.Conv(conv.fileSet, "can't apply cap", arg))

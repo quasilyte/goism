@@ -5,6 +5,7 @@ import (
 	"go/token"
 	"go/types"
 	"magic_pkg/emacs/lisp"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 	"xtypes"
@@ -154,14 +155,10 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 
 	typ := conv.typeOf(node.X)
 	if typ, ok := typ.Underlying().(*types.Struct); ok {
-		for i := 0; i <= typ.NumFields(); i++ {
-			if typ.Field(i).Name() == node.Sel.Name {
-				return &sexp.StructIndex{
-					Struct: conv.Expr(node.X),
-					Index:  i,
-					Typ:    typ,
-				}
-			}
+		return &sexp.StructIndex{
+			Struct: conv.Expr(node.X),
+			Index:  xtypes.LookupField(node.Sel.Name, typ),
+			Typ:    typ,
 		}
 	}
 
@@ -217,16 +214,7 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 		}
 
 	case *types.Slice:
-		slice := conv.Expr(node.X)
-		index := conv.Expr(node.Index)
-
-		if sexp.Cost(slice) > 4 {
-			return _let(slice, &sexp.SliceIndex{
-				Slice: _it(typ),
-				Index: index,
-			})
-		}
-		return &sexp.SliceIndex{Slice: slice, Index: index}
+		return conv.call(rt.FnSliceGet, node.X, node.Index)
 
 	// #TODO: strings
 	default:
@@ -303,11 +291,7 @@ func (conv *Converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp
 	for _, elt := range node.Elts {
 		kv := elt.(*ast.KeyValueExpr)
 		key := kv.Key.(*ast.Ident)
-		for i := 0; i < typ.NumFields(); i++ {
-			if key.Name == typ.Field(i).Name() {
-				vals[i] = conv.Expr(kv.Value)
-			}
-		}
+		vals[xtypes.LookupField(key.Name, typ)] = conv.Expr(kv.Value)
 	}
 	for i, val := range vals {
 		if val == nil {

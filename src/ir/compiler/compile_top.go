@@ -30,8 +30,6 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileWhile(cl, form)
 	case *sexp.ArrayUpdate:
 		compileArrayUpdate(cl, form)
-	case *sexp.SliceUpdate:
-		compileSliceUpdate(cl, form)
 	case *sexp.StructUpdate:
 		compileStructUpdate(cl, form)
 
@@ -66,8 +64,6 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.ArraySlice:
 		compileArraySlice(cl, form)
 
-	case *sexp.SliceIndex:
-		compileSliceIndex(cl, form)
 	case *sexp.Subslice:
 		compileSubslice(cl, form)
 

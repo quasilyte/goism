@@ -111,18 +111,6 @@ func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 	emit(cl, instr.ArraySet)
 }
 
-func compileSliceUpdate(cl *Compiler, form *sexp.SliceUpdate) {
-	compileExpr(cl, form.Slice) // <slice>
-	emit(cl, instr.Car)         // <data>
-	compileExpr(cl, form.Index) // <data index>
-	compileExpr(cl, form.Slice) // <data index slice>
-	emit(cl, instr.Cdr)         // <data index cdr(slice)>
-	emit(cl, instr.Car)         // <data index offset>
-	emit(cl, instr.NumAdd)      // <data real-index>
-	compileExpr(cl, form.Expr)  // <data real-index val>
-	emit(cl, instr.ArraySet)    // <>
-}
-
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 	switch old_rt.StructReprOf(form.Typ) {
 	case old_rt.StructAtom:

@@ -11,7 +11,7 @@ var emptyTuple = types.NewTuple()
 func convertFuncs(u *unit) {
 	decls := make([]*ast.FuncDecl, 0, 16)
 
-	for _, file := range u.pkg.Files {
+	for _, file := range u.astPkg.Files {
 		for _, decl := range file.Decls {
 			if decl, ok := decl.(*ast.FuncDecl); ok {
 				decls = append(decls, decl)

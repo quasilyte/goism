@@ -61,33 +61,6 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 	}
 }
 
-func compileSliceIndex(cl *Compiler, form *sexp.SliceIndex) {
-	compileExpr(cl, form.Slice) // <slice>
-	emit(cl, instr.Car)         // <data>
-	compileExpr(cl, form.Slice) // <data slice>
-	emit(cl, instr.Cdr)         // <data cdr(slice)>
-	emit(cl, instr.Car)         // <data offset>
-	compileExpr(cl, form.Index) // <data offset index>
-	emit(cl, instr.NumAdd)      // <data real-index>
-	emit(cl, instr.ArrayRef)    // <elem>
-}
-
-/*
-func compileSliceLen(cl *Compiler, form *sexp.UnaryOp) {
-	compileExpr(cl, form.X)
-	emit(cl, instr.Cdr)
-	emit(cl, instr.Cdr)
-	emit(cl, instr.Car)
-}
-
-func compileSliceCap(cl *Compiler, form *sexp.UnaryOp) {
-	compileExpr(cl, form.X)
-	emit(cl, instr.Cdr)
-	emit(cl, instr.Cdr)
-	emit(cl, instr.Cdr)
-}
-*/
-
 func compileSubslice(cl *Compiler, form *sexp.Subslice) {
 	switch form.Kind() {
 	case sexp.SpanLowOnly:
@@ -151,9 +124,7 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index)
-		if form.Typ.NumFields() == form.Index+1 { // Last index.
-			emit(cl, instr.Cdr)
-		} else {
+		if form.Typ.NumFields() != form.Index+1 { // Not last index.
 			emit(cl, instr.Car)
 		}
 

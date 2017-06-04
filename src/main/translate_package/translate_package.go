@@ -41,6 +41,7 @@ func main() {
 
 	defer func() { util.CheckError(exn.Catch(recover())) }()
 
+	util.CheckError(load.Runtime())
 	pkg := loadPackage(util.Argv("pkgPath"), util.Argv("opt") != "false")
 
 	switch util.Argv("output") {
@@ -55,7 +56,7 @@ func loadPackage(pkgPath string, optimize bool) *tu.Package {
 	pkg, err := load.Package(util.Argv("pkgPath"))
 	util.CheckError(err)
 	if optimize {
-		optimizePackage(pkg)
+		opt.OptimizeFuncs(pkg.Funcs)
 	}
 	return pkg
 }
@@ -116,12 +117,4 @@ func dumpFunction(fn *sexp.Func, obj *ir.Object) {
 	)
 	fmt.Printf("\tconstants = %s\n", string(obj.ConstVec.Bytes()))
 	fmt.Printf("  %s\n", strings.Replace(string(obj.Code), "\n", "\n  ", -1))
-}
-
-func optimizePackage(pkg *tu.Package) {
-	for _, fn := range pkg.Funcs {
-		opt.RemoveDeadCode(fn.Body)
-		opt.InlineCalls(fn.Body)
-		opt.ReduceStrength(fn.Body)
-	}
 }

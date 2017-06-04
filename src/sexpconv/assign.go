@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 	"sys_info/old_rt"
@@ -143,16 +144,9 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			}
 
 		case *types.Slice:
-			slice := conv.Expr(lhs.X)
-			index := conv.Expr(lhs.Index)
-			if sexp.Cost(slice) > 4 {
-				return _let(slice, &sexp.SliceUpdate{
-					Slice: _it(typ),
-					Index: index,
-					Expr:  uintElem(expr, typ.Elem()),
-				})
+			return &sexp.ExprStmt{
+				Expr: conv.call(rt.FnSliceSet, lhs.X, lhs.Index, expr),
 			}
-			return &sexp.SliceUpdate{Slice: slice, Index: index, Expr: expr}
 
 		default:
 			panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
@@ -161,15 +155,11 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	case *ast.SelectorExpr:
 		typ := conv.typeOf(lhs.X)
 		if typ, ok := typ.Underlying().(*types.Struct); ok {
-			for i := 0; i <= typ.NumFields(); i++ {
-				if typ.Field(i).Name() == lhs.Sel.Name {
-					return &sexp.StructUpdate{
-						Struct: conv.Expr(lhs.X),
-						Index:  i,
-						Expr:   expr,
-						Typ:    typ,
-					}
-				}
+			return &sexp.StructUpdate{
+				Struct: conv.Expr(lhs.X),
+				Index:  xtypes.LookupField(lhs.Sel.Name, typ),
+				Expr:   expr,
+				Typ:    typ,
 			}
 		}
 		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))

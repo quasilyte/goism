@@ -1,7 +1,6 @@
 package load
 
 import (
-	"bytes"
 	"exn"
 	"fmt"
 	"go/ast"
@@ -9,14 +8,13 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
-	"path/filepath"
 	"reflect"
 	"sexp"
 	"sexpconv"
 	"tu"
 )
 
-func translatePackage(pkgPath string) (pkg *tu.Package, err error) {
+func translatePackage(pkgPath string) (u *unit, err error) {
 	parseRes, err := parsePkg(pkgPath)
 	if err != nil {
 		return nil, err
@@ -25,24 +23,24 @@ func translatePackage(pkgPath string) (pkg *tu.Package, err error) {
 	if err != nil {
 		return nil, err
 	}
-	env := tu.NewEnv(parseRes.pkg.Name)
-	unit := newUnit(parseRes, typecheckRes, env)
+	env := tu.NewEnv(parseRes.astPkg.Name)
+	u = newUnit(parseRes, typecheckRes, env)
 
 	// Handle errors that can be thrown by AST convertion procedure.
 	defer func() { err = exn.Catch(recover()) }()
-	convertInitializers(unit)
-	convertFuncs(unit)
-	comment := packageComment(unit.pkg.Files)
-	return newPackage(unit, comment), nil
+	convertInitializers(u)
+	convertFuncs(u)
+	return u, nil
 }
 
 type parseRes struct {
-	fSet *token.FileSet
-	pkg  *ast.Package
+	fSet   *token.FileSet
+	astPkg *ast.Package
 }
 
 type typecheckRes struct {
 	ti       *types.Info
+	typesPkg *types.Package
 	topScope *types.Scope
 }
 
@@ -73,7 +71,7 @@ func parsePkg(pkgPath string) (*parseRes, error) {
 	}
 	// Get the first package (there are 0 or 1 map entries).
 	for _, pkg := range pkgs {
-		return &parseRes{fSet: fSet, pkg: pkg}, nil
+		return &parseRes{fSet: fSet, astPkg: pkg}, nil
 	}
 	return nil, fmt.Errorf("can not find Go package in %s", pkgPath)
 }
@@ -90,13 +88,17 @@ func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
 	}
 
 	// Convert file map to slice.
-	files := make([]*ast.File, 0, len(ctx.pkg.Files))
-	for _, file := range ctx.pkg.Files {
+	files := make([]*ast.File, 0, len(ctx.astPkg.Files))
+	for _, file := range ctx.astPkg.Files {
 		files = append(files, file)
 	}
 
-	pkg, err := cfg.Check(ctx.pkg.Name, ctx.fSet, files, ti)
-	return &typecheckRes{ti: ti, topScope: pkg.Scope()}, err
+	pkg, err := cfg.Check(ctx.astPkg.Name, ctx.fSet, files, ti)
+	return &typecheckRes{
+		ti:       ti,
+		typesPkg: pkg,
+		topScope: pkg.Scope(),
+	}, err
 }
 
 func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *tu.Env) *unit {
@@ -108,41 +110,4 @@ func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *tu.Env) *unit 
 		conv:         sexpconv.NewConverter(env, ti, fSet),
 		env:          env,
 	}
-}
-
-func newPackage(u *unit, comment string) *tu.Package {
-	return &tu.Package{
-		Name:    u.pkg.Name,
-		Vars:    u.vars,
-		Funcs:   u.funcs,
-		Init:    u.init,
-		Comment: comment,
-	}
-}
-
-func packageComment(files map[string]*ast.File) string {
-	var buf bytes.Buffer
-	buf.WriteString(";; ") // To avoid expensive prepend in the end.
-
-	for name, file := range files {
-		if file.Doc != nil {
-			buf.WriteString("\t<")
-			buf.WriteString(filepath.Base(name))
-			buf.WriteString(">\n")
-			buf.WriteString(file.Doc.Text())
-		}
-	}
-
-	if buf.Len() == len(";; ") {
-		return ""
-	}
-
-	// Remove trailing newline.
-	buf.Truncate(buf.Len() - 1)
-
-	// Properly format comment text.
-	comment := bytes.Replace(buf.Bytes(), []byte(`"`), []byte(`\"`), -1)
-	comment = bytes.Replace(comment, []byte("\n"), []byte("\n;; "), -1)
-
-	return string(comment)
 }
