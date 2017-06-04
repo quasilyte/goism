@@ -16,11 +16,10 @@ func InlineCalls(form sexp.Form) sexp.Form {
 
 func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	body := fn.Body
-	if !inlineable(body) {
+	expr := inlineableForm(body)
+	if expr == nil {
 		return nil
 	}
-
-	expr := body.Forms[0].(*sexp.Return).Results[0].Copy()
 
 	bindings := make([]*sexp.Bind, 0, len(fn.Params))
 	for i, param := range fn.Params {
@@ -47,13 +46,40 @@ func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	}
 }
 
-func inlineable(body *sexp.Block) bool {
-	if len(body.Forms) != 1 {
-		return false
+func inlineableForm(body *sexp.Block) sexp.Form {
+	if len(body.Forms) == 0 {
+		return nil
 	}
-	form, ok := body.Forms[0].(*sexp.Return)
-	if !ok {
-		return false
+
+	worthToInline := func(form sexp.Form) bool {
+		return sexp.Cost(form) <= 15
 	}
-	return len(form.Results) == 1 && sexp.Cost(form) <= 20
+
+	switch form := body.Forms[0].(type) {
+	case *sexp.Return:
+		if len(form.Results) != 1 {
+			return nil
+		}
+		if worthToInline(form.Results[0]) {
+			form.Results[0].Copy()
+		}
+
+	case *sexp.ExprStmt:
+		if !worthToInline(form.Expr) {
+			return nil
+		}
+		// Sole statement is inlineable.
+		if len(body.Forms) == 1 {
+			return form.Expr.Copy()
+		}
+		// Trailing "return" is permitted (auto-inserted for void functions).
+		if len(body.Forms) == 2 {
+			ret, ok := body.Forms[1].(*sexp.Return)
+			if ok && len(ret.Results) == 0 {
+				return form.Expr.Copy()
+			}
+		}
+	}
+
+	return nil
 }
