@@ -11,6 +11,9 @@ type Slice struct {
 	cap    lisp.Int
 }
 
+func SliceLen(slice Slice) lisp.Int { return slice.len }
+func SliceCap(slice Slice) lisp.Int { return slice.cap }
+
 // MakeSlice creates a new slice with cap=len.
 // All values initialized to specified zero value.
 func MakeSlice(length lisp.Int, zv lisp.Object) Slice {
@@ -43,7 +46,7 @@ func ArrayToSlice(data lisp.Object) Slice {
 
 // SliceGet extract slice value using specified index.
 func SliceGet(slice Slice, index lisp.Int) lisp.Object {
-	return arrayGet(slice.data, index+slice.offset)
+	return arrayGet(slice.data, slice.offset+index)
 }
 
 // SliceSet sets slice value at specified index.
