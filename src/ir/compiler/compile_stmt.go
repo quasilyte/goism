@@ -34,11 +34,11 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 
 func compileIf(cl *Compiler, form *sexp.If) {
 	if form.Else == nil {
-		elseLabel := labelCreate(cl, "else")
+		endifLabel := labelCreate(cl, "endif")
 		compileExpr(cl, form.Cond)
-		emitJmpNil(cl, elseLabel)
+		emitJmpNil(cl, endifLabel)
 		compileBlock(cl, form.Then)
-		labelBind(cl, elseLabel)
+		labelBind(cl, endifLabel)
 	} else {
 		elseLabel := labelCreate(cl, "else")
 		endifLabel := labelCreate(cl, "endif")
