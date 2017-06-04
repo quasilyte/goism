@@ -15,9 +15,6 @@ import (
 // Go blank identifier which allows a value to be evaluated, but discarded.
 const blankIdent = "_"
 
-// This form produces no executable code. Used as NO-OP.
-var emptyForm = &sexp.FormList{}
-
 func isBlankIdent(node ast.Expr) bool {
 	if node, ok := node.(*ast.Ident); ok {
 		return node.Name == blankIdent
@@ -179,6 +176,6 @@ func (conv *Converter) ignoredExpr(expr sexp.Form) sexp.Form {
 
 	default:
 		// Ignored completely.
-		return emptyForm
+		return sexp.EmptyStmt
 	}
 }
