@@ -16,8 +16,16 @@ func copyArraySpan(arr lisp.Object, from, to lisp.Int) lisp.Object {
 	return lisp.Call("substring", arr, from, to)
 }
 
+func copyArrayFrom(arr lisp.Object, from lisp.Int) lisp.Object {
+	return lisp.Call("substring", arr, from, lisp.Intern("nil"))
+}
+
 func concat2(a, b lisp.Object) lisp.Str {
 	return lisp.CallStr("concat", a, b)
+}
+
+func arrayConcat(a, b lisp.Object) lisp.Object {
+	return lisp.Call("vconcat", a, b)
 }
 
 func arrayToStr(arr lisp.Object) lisp.Str {

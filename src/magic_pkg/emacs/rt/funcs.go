@@ -9,10 +9,11 @@ import (
 var (
 	FnPanic *sexp.Func
 
-	FnSliceLen *sexp.Func
-	FnSliceCap *sexp.Func
-	FnSliceGet *sexp.Func
-	FnSliceSet *sexp.Func
+	FnSlicePush *sexp.Func
+	FnSliceLen  *sexp.Func
+	FnSliceCap  *sexp.Func
+	FnSliceGet  *sexp.Func
+	FnSliceSet  *sexp.Func
 )
 
 func InitFuncs(env *tu.Env) {

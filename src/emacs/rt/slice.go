@@ -54,6 +54,38 @@ func SliceSet(slice Slice, index lisp.Int, val lisp.Object) {
 	arraySet(slice.data, index+slice.offset, val)
 }
 
+// SlicePush = "append(slice, val)".
+func SlicePush(slice Slice, val lisp.Object) Slice {
+	pos := slice.len
+	if pos == slice.cap {
+		// Need to extend slice storage.
+		// Create a new vector with 1st element set to "val"
+		// then re-set slice data with "oldData+newData".
+		newData := makeVec(memExtendPush, lisp.Intern("nil"))
+		arraySet(newData, 0, val)
+		// For slices with offset a sub-vector should
+		// be taken to avoid memory leaks.
+		if slice.offset == 0 {
+			newData = arrayConcat(slice.data, newData)
+		} else {
+			newData = arrayConcat(
+				copyArrayFrom(slice.data, slice.offset),
+				newData,
+			)
+		}
+		return Slice{
+			data:   newData,
+			len:    pos + 1,
+			cap:    slice.cap + memExtendPush,
+			offset: 0,
+		}
+	}
+	// Insert new value directly.
+	slice.len = pos + 1
+	SliceSet(slice, pos, val)
+	return slice
+}
+
 // BytesToStr converts slice of bytes to string.
 func BytesToStr(slice Slice) lisp.Str {
 	if slice.offset == 0 {
