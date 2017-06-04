@@ -64,8 +64,10 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		// All float types are considered float64
 		case "float32", "float64":
 			return conv.Expr(args[0])
+		case "bool":
+			return conv.Expr(args[0])
 		case "string":
-			return sexp.NewStrCast(conv.Expr(args[0]))
+			return conv.lispCall(function.StrCast, args[0])
 		case "make":
 			return conv.makeBuiltin(args)
 		case "len":

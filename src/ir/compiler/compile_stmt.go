@@ -90,9 +90,13 @@ func compileVarUpdate(cl *Compiler, name string, expr sexp.Form) {
 
 func compileExprStmt(cl *Compiler, form *sexp.ExprStmt) {
 	compileExpr(cl, form.Expr)
-	if _, ok := form.Expr.(*sexp.InstrCall); ok {
-		return // No cleanup is needed
+
+	if form, ok := form.Expr.(*sexp.InstrCall); ok {
+		if form.Instr.Output != instr.AttrPushTmp {
+			return // No cleanup is needed
+		}
 	}
+
 	if sexp.IsThrow(form.Expr) {
 		cl.st.Discard(1)
 	} else {
@@ -146,4 +150,12 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			Expr:  form.Expr,
 		})
 	}
+}
+
+func compileLetStmt(cl *Compiler, form *sexp.Let) {
+	for _, bind := range form.Bindings {
+		compileBind(cl, bind)
+	}
+	compileStmt(cl, form.Stmt)
+	emit(cl, instr.Discard(len(form.Bindings)))
 }

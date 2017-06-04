@@ -89,6 +89,11 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.Let:
 		compileLetExpr(cl, form)
 
+	case *sexp.And:
+		compileAnd(cl, form)
+	case *sexp.Or:
+		compileOr(cl, form)
+
 	default:
 		panic(exn.Logic("unexpected expr: %#v", form))
 	}

@@ -61,14 +61,6 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 	}
 }
 
-func compileLetStmt(cl *Compiler, form *sexp.Let) {
-	for _, bind := range form.Bindings {
-		compileBind(cl, bind)
-	}
-	compileStmt(cl, form.Stmt)
-	emit(cl, instr.Discard(len(form.Bindings)))
-}
-
 func compileSliceIndex(cl *Compiler, form *sexp.SliceIndex) {
 	compileExpr(cl, form.Slice) // <slice>
 	emit(cl, instr.Car)         // <data>
@@ -171,4 +163,20 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 			Index: sexp.Int(form.Index),
 		})
 	}
+}
+
+func compileAnd(cl *Compiler, form *sexp.And) {
+	resLabel := labelCreate(cl, "and")
+	compileExpr(cl, form.X)
+	emitJmpNilElsePop(cl, resLabel)
+	compileExpr(cl, form.Y)
+	labelBind(cl, resLabel)
+}
+
+func compileOr(cl *Compiler, form *sexp.Or) {
+	resLabel := labelCreate(cl, "or")
+	compileExpr(cl, form.X)
+	emitJmpNotNilElsePop(cl, resLabel)
+	compileExpr(cl, form.Y)
+	labelBind(cl, resLabel)
 }

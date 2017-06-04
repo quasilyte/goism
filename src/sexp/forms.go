@@ -266,3 +266,17 @@ type Let struct {
 	Expr Form
 	Stmt Form
 }
+
+type (
+	// And = "X && Y".
+	And struct {
+		X Form
+		Y Form
+	}
+
+	// Or = "X || Y".
+	Or struct {
+		X Form
+		Y Form
+	}
+)

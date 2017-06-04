@@ -200,6 +200,20 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Struct = Rewrite(form.Struct, f)
 		form.Expr = Rewrite(form.Expr, f)
 
+	case *And:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.X = Rewrite(form.X, f)
+		form.Y = Rewrite(form.Y, f)
+
+	case *Or:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.X = Rewrite(form.X, f)
+		form.Y = Rewrite(form.Y, f)
+
 	default:
 		panic(exn.Logic("unexpected form: %#v", form))
 	}

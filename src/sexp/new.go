@@ -38,11 +38,10 @@ func NewSubstr(str, low, high Form) *Substr {
 	}
 }
 
-func NewNot(x Form) *InstrCall    { return newOp1(instr.Not, x) }
-func NewNeg(x Form) *InstrCall    { return newOp1(instr.Neg, x) }
-func NewAdd1(x Form) *InstrCall   { return newOp1(instr.Add1, x) }
-func NewSub1(x Form) *InstrCall   { return newOp1(instr.Sub1, x) }
-func NewStrCast(x Form) *LispCall { return NewLispCall(function.StrCast, x) }
+func NewNot(x Form) *InstrCall  { return newOp1(instr.Not, x) }
+func NewNeg(x Form) *InstrCall  { return newOp1(instr.Neg, x) }
+func NewAdd1(x Form) *InstrCall { return newOp1(instr.Add1, x) }
+func NewSub1(x Form) *InstrCall { return newOp1(instr.Sub1, x) }
 
 func NewShl(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, y) }
 func NewShr(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, NewNeg(y)) }

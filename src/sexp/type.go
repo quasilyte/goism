@@ -65,18 +65,18 @@ func (call *Call) Type() types.Type {
 	}
 	return results
 }
-
 func (call *LispCall) Type() types.Type {
 	return call.Args[0].Type()
 }
-
 func (call *InstrCall) Type() types.Type {
 	return lisp.TypObject
 }
-
 func (form *Let) Type() types.Type {
 	if form.Expr == nil {
 		return typVoid
 	}
 	return form.Expr.Type()
 }
+
+func (form *And) Type() types.Type { return typBool }
+func (form *Or) Type() types.Type  { return typBool }

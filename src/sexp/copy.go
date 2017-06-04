@@ -170,6 +170,13 @@ func (form *Let) Copy() Form {
 	return &Let{Bindings: binds, Stmt: form.Stmt.Copy()}
 }
 
+func (form *And) Copy() Form {
+	return &And{X: form.X.Copy(), Y: form.Y.Copy()}
+}
+func (form *Or) Copy() Form {
+	return &Or{X: form.X.Copy(), Y: form.Y.Copy()}
+}
+
 func copyList(forms []Form) []Form {
 	res := make([]Form, len(forms))
 	for i, form := range forms {

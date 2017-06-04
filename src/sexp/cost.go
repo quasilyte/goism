@@ -80,6 +80,15 @@ func Cost(form Form) int {
 	case *Return:
 		return cost(form.Results) + len(form.Results)
 
+	case *ExprStmt:
+		return Cost(form.Expr) + 1
+
+	case *And:
+		return Cost(form.X) + Cost(form.Y) + 3
+
+	case *Or:
+		return Cost(form.X) + Cost(form.Y) + 3
+
 	default:
 		panic(exn.Logic("can not evaluate cost of %#v", form))
 	}

@@ -91,6 +91,8 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 			return sexp.NewQuo(x, y)
 		case token.EQL:
 			return sexp.NewNumEq(x, y)
+		case token.NEQ:
+			return sexp.NewNumNeq(x, y)
 		case token.LSS:
 			return sexp.NewNumLt(x, y)
 		case token.GTR:
@@ -133,6 +135,13 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 		default:
 			panic(errUnexpectedExpr(conv, node))
 		}
+	}
+
+	if node.Op == token.LAND {
+		return &sexp.And{X: x, Y: y}
+	}
+	if node.Op == token.LOR {
+		return &sexp.Or{X: x, Y: y}
 	}
 
 	panic(errUnexpectedExpr(conv, node))
