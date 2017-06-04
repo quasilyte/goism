@@ -1,91 +1,62 @@
 package rt
 
-/*
-(defmacro Go--slice (data offset len cap)
-  `(cons ,data
-         (cons ,offset
-               (cons ,len ,cap))))
-(defun Go--make-slice (len zero-val)
-  (Go--slice (make-vector len zero-val) 0 len len))
-*/
-
-// Need:
-// 1) inlining
-// 2) structs support
-
 import (
 	"emacs/lisp"
 )
 
-type slice struct {
+type Slice struct {
 	data   lisp.Object
 	offset lisp.Int
 	len    lisp.Int
 	cap    lisp.Int
 }
 
-/*
-(defun Go--make-slice-from-list (&rest vals)
-  (let* ((data (vconcat vals))
-         (len (length data)))
-    (Go--slice data 0 len len)))
-*/
-
-func makeSlice(length lisp.Int, zv lisp.Object) slice {
-	return slice{
+// MakeSlice creates a new slice with cap=len.
+// All values initialized to specified zero value.
+func MakeSlice(length lisp.Int, zv lisp.Object) Slice {
+	return Slice{
 		data: makeVec(length, zv),
 		len:  length,
 		cap:  length,
 	}
 }
 
-func sliceGet(slice slice, index lisp.Int) lisp.Object {
-	return lisp.Call("aref", slice.data, index+slice.offset)
-}
-
-func sliceSet(slice slice, index lisp.Int, val lisp.Object) {
-	lisp.Call("aset", slice.data, index+slice.offset, val)
-}
-
-/*
-(defun Go--slice-to-str (slice)
-  (if (Go--slice-fast? slice)
-      (concat (Go--slice-data slice) "")
-    (concat (substring (Go--slice-data slice)
-                       (Go--slice-offset slice)
-                       (+ (Go--slice-offset slice) (Go--slice-len slice)))
-            "")))
-*/
-func bytesToStr(slice slice) lisp.Str {
-	if slice.offset == 0 {
-		return concat2(slice.data, lisp.Str(""))
+// MakeSliceCap creates a new slice.
+// Each value within length bounds is initialized to specified zero value.
+func MakeSliceCap(length, capacity lisp.Int, zv lisp.Object) Slice {
+	if length == capacity {
+		return MakeSlice(length, zv)
 	}
-	data := copyArraySpan(slice.data, slice.offset, slice.offset+slice.len)
-	return concat2(data, lisp.Str(""))
+	data := makeVec(capacity, lisp.Intern("nil"))
+	for i := lisp.Int(0); i < length; i++ {
+		arraySet(data, i, zv)
+	}
+	return Slice{data: data, len: length, cap: capacity}
 }
 
-/*
-func cons4(a, b, c, d lisp.Object) lisp.Object {
-	return lisp.Call("cons", a, lisp.Call("cons", b, lisp.Call("cons", c, d)))
+// ArrayToSlice constructs a new slice from given data vector.
+// Vector is not copied.
+func ArrayToSlice(data lisp.Object) Slice {
+	length := seqLength(data)
+	return Slice{data: data, len: length, cap: length}
 }
 
-func makeVector(length lisp.Int, init lisp.Object) lisp.Object {
-	return lisp.Call("make-vector", length, init)
+// SliceGet extract slice value using specified index.
+func SliceGet(slice Slice, index lisp.Int) lisp.Object {
+	return arrayGet(slice.data, index+slice.offset)
 }
 
-func makeSlice(length lisp.Int, zv lisp.Object) lisp.Object {
-	return cons4(makeVector(length, zv), lisp.Int(0), length, length)
+// SliceSet sets slice value at specified index.
+func SliceSet(slice Slice, index lisp.Int, val lisp.Object) {
+	arraySet(slice.data, index+slice.offset, val)
 }
 
-func sliceData(slice lisp.Object) lisp.Object {
-	return lisp.Call("car", slice)
+// BytesToStr converts slice of bytes to string.
+func BytesToStr(slice Slice) lisp.Str {
+	if slice.offset == 0 {
+		return arrayToStr(slice.data)
+	}
+	return arrayToStr(
+		copyArraySpan(slice.data, slice.offset, slice.offset+slice.len),
+	)
 }
-
-func sliceOffset(slice lisp.Object) lisp.Int {
-	return lisp.CallInt("car", lisp.Call("cdr", slice))
-}
-
-func sliceGet(slice lisp.Object, index lisp.Int) lisp.Object {
-	return lisp.Call("aref", sliceData(slice), sliceOffset(slice)+index)
-}
-*/
