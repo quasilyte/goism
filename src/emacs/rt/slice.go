@@ -6,19 +6,19 @@ import (
 
 type Slice struct {
 	data   lisp.Object
-	offset lisp.Int
-	len    lisp.Int
-	cap    lisp.Int
+	offset int
+	len    int
+	cap    int
 }
 
-func SliceLen(slice Slice) lisp.Int { return slice.len }
-func SliceCap(slice Slice) lisp.Int { return slice.cap }
+func SliceLen(slice Slice) int { return slice.len }
+func SliceCap(slice Slice) int { return slice.cap }
 
 // MakeSlice creates a new slice with cap=len.
 // All values initialized to specified zero value.
-func MakeSlice(length lisp.Int, zv lisp.Object) Slice {
+func MakeSlice(length int, zv lisp.Object) Slice {
 	return Slice{
-		data: makeVec(length, zv),
+		data: lisp.MakeVector(length, zv),
 		len:  length,
 		cap:  length,
 	}
@@ -26,13 +26,13 @@ func MakeSlice(length lisp.Int, zv lisp.Object) Slice {
 
 // MakeSliceCap creates a new slice.
 // Each value within length bounds is initialized to specified zero value.
-func MakeSliceCap(length, capacity lisp.Int, zv lisp.Object) Slice {
+func MakeSliceCap(length, capacity int, zv lisp.Object) Slice {
 	if length == capacity {
 		return MakeSlice(length, zv)
 	}
-	data := makeVec(capacity, lisp.Intern("nil"))
-	for i := lisp.Int(0); i < length; i++ {
-		arraySet(data, i, zv)
+	data := lisp.MakeVector(capacity, lisp.Intern("nil"))
+	for i := 0; i < length; i++ {
+		lisp.Aset(data, i, zv)
 	}
 	return Slice{data: data, len: length, cap: capacity}
 }
@@ -40,18 +40,18 @@ func MakeSliceCap(length, capacity lisp.Int, zv lisp.Object) Slice {
 // ArrayToSlice constructs a new slice from given data vector.
 // Vector is not copied.
 func ArrayToSlice(data lisp.Object) Slice {
-	length := seqLength(data)
+	length := lisp.Length(data)
 	return Slice{data: data, len: length, cap: length}
 }
 
 // SliceGet extract slice value using specified index.
-func SliceGet(slice Slice, index lisp.Int) lisp.Object {
-	return arrayGet(slice.data, slice.offset+index)
+func SliceGet(slice Slice, index int) lisp.Object {
+	return lisp.Aref(slice.data, slice.offset+index)
 }
 
 // SliceSet sets slice value at specified index.
-func SliceSet(slice Slice, index lisp.Int, val lisp.Object) {
-	arraySet(slice.data, index+slice.offset, val)
+func SliceSet(slice Slice, index int, val lisp.Object) {
+	lisp.Aset(slice.data, index+slice.offset, val)
 }
 
 // SlicePush = "append(slice, val)".
@@ -61,15 +61,15 @@ func SlicePush(slice Slice, val lisp.Object) Slice {
 		// Need to extend slice storage.
 		// Create a new vector with 1st element set to "val"
 		// then re-set slice data with "oldData+newData".
-		newData := makeVec(memExtendPush, lisp.Intern("nil"))
-		arraySet(newData, 0, val)
+		newData := lisp.MakeVector(memExtendPush, lisp.Intern("nil"))
+		lisp.Aset(newData, 0, val)
 		// For slices with offset a sub-vector should
 		// be taken to avoid memory leaks.
 		if slice.offset == 0 {
-			newData = arrayConcat(slice.data, newData)
+			newData = lisp.Vconcat(slice.data, newData)
 		} else {
-			newData = arrayConcat(
-				copyArrayFrom(slice.data, slice.offset),
+			newData = lisp.Vconcat(
+				lisp.Substring(slice.data, slice.offset),
 				newData,
 			)
 		}
@@ -86,24 +86,14 @@ func SlicePush(slice Slice, val lisp.Object) Slice {
 	return slice
 }
 
-// BytesToStr converts slice of bytes to string.
-func BytesToStr(slice Slice) lisp.Str {
-	if slice.offset == 0 {
-		return arrayToStr(slice.data)
-	}
-	return arrayToStr(
-		copyArraySpan(slice.data, slice.offset, slice.offset+slice.len),
-	)
-}
-
-func sliceLenBound(slice Slice, index lisp.Int) {
+func sliceLenBound(slice Slice, index int) {
 	if index < 0 || index > slice.len {
-		Panic(lisp.Str("slice bounds out of range"))
+		lisp.Error("slice bounds out of range")
 	}
 }
 
-func sliceCapBound(slice Slice, index lisp.Int) {
+func sliceCapBound(slice Slice, index int) {
 	if index < 0 || index > slice.cap {
-		Panic(lisp.Str("slice bounds out of range"))
+		lisp.Error("slice bounds out of range")
 	}
 }
