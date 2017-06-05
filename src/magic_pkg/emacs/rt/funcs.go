@@ -14,6 +14,12 @@ var (
 	FnSliceCap  *sexp.Func
 	FnSliceGet  *sexp.Func
 	FnSliceSet  *sexp.Func
+
+	FnCoerceBool   *sexp.Func
+	FnCoerceInt    *sexp.Func
+	FnCoerceFloat  *sexp.Func
+	FnCoerceString *sexp.Func
+	FnCoerceSymbol *sexp.Func
 )
 
 func InitFuncs(env *tu.Env) {
@@ -30,4 +36,10 @@ func InitFuncs(env *tu.Env) {
 	FnSliceCap = mustFindFunc("SliceCap")
 	FnSliceGet = mustFindFunc("SliceGet")
 	FnSliceSet = mustFindFunc("SliceSet")
+
+	FnCoerceBool = mustFindFunc("CoerceBool")
+	FnCoerceInt = mustFindFunc("CoerceInt")
+	FnCoerceFloat = mustFindFunc("CoerceFloat")
+	FnCoerceString = mustFindFunc("CoerceString")
+	FnCoerceSymbol = mustFindFunc("CoerceSymbol")
 }

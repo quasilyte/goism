@@ -3,6 +3,8 @@ package sexpconv
 import (
 	"exn"
 	"go/ast"
+	"go/types"
+	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
@@ -43,6 +45,10 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	case *ast.SelectorExpr: // x.sel()
 		sel := conv.info.Selections[fn]
 		if sel != nil {
+			recv := sel.Recv().(*types.Named)
+			if recv == lisp.TypObject {
+				return conv.lispObjectMethod(fn.Sel.Name, fn.X, args)
+			}
 			panic(exn.NoImpl("method calls"))
 		}
 

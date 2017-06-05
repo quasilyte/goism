@@ -12,7 +12,7 @@ type emacsImporter struct {
 func (ei *emacsImporter) Import(path string) (*types.Package, error) {
 	pkg, err := ei.impl.Import(path)
 	if path == "emacs/lisp" && err == nil && lisp.Package == nil {
-		lisp.InitPackage(pkg)
+		return pkg, lisp.InitPackage(pkg)
 	}
 	return pkg, err
 }

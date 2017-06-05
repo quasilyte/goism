@@ -1,12 +1,32 @@
 package sexpconv
 
 import (
-	"exn"
+	"assert"
 	"go/ast"
 	"go/constant"
+	"magic_pkg/emacs/lisp"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 )
+
+func (conv *Converter) lispObjectMethod(fn string, recv ast.Expr, args []ast.Expr) sexp.Form {
+	switch fn {
+	case "Bool":
+		return conv.call(rt.FnCoerceBool, recv)
+	case "Int":
+		return conv.call(rt.FnCoerceInt, recv)
+	case "Float":
+		return conv.call(rt.FnCoerceFloat, recv)
+	case "String":
+		return conv.call(rt.FnCoerceString, recv)
+	case "Symbol":
+		return conv.call(rt.FnCoerceSymbol, recv)
+	}
+
+	assert.Unreachable()
+	return nil
+}
 
 func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	switch sym {
@@ -34,7 +54,12 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		return conv.intrinIntern(args[0])
 
 	default:
-		panic(exn.User("`%s' is not a valid intrinsic", sym))
+		fn := lisp.FFI[sym]
+		args := conv.exprList(args)
+		if call := conv.instrCall(fn.Sym, args); call != nil {
+			return call
+		}
+		return &sexp.LispCall{Fn: fn, Args: args}
 	}
 }
 

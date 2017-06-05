@@ -4,7 +4,6 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
@@ -185,13 +184,8 @@ func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 }
 
 func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
-	exprTyp := conv.typeOf(node.X)
 	expr := conv.Expr(node.X)
 	assertTyp := conv.typeOf(node.Type)
-
-	if exprTyp.Underlying() == lisp.TypObject {
-		return &sexp.LispTypeAssert{Expr: expr, Typ: assertTyp}
-	}
 	return &sexp.TypeAssert{Expr: expr, Typ: assertTyp}
 }
 

@@ -15,7 +15,7 @@ import (
 // It parses and typechecks specified package,
 // then converts generated objects into our format.
 func Package(pkgPath string) (*tu.Package, error) {
-	u, err := translatePackage(pkgPath)
+	u, err := translateUnit(pkgPath)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func Package(pkgPath string) (*tu.Package, error) {
 // Runtime loads code package that implements goism runtime.
 // Package is searched at "$GOPATH/src/emacs/rt".
 func Runtime() error {
-	u, err := translatePackage(build.Default.GOPATH + "/src/emacs/rt")
+	u, err := translateUnit(build.Default.GOPATH + "/src/emacs/rt")
 	if err != nil {
 		return err
 	}

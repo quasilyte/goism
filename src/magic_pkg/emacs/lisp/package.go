@@ -1,21 +1,23 @@
 package lisp
 
 import (
+	"go/build"
 	"go/types"
+	"io/ioutil"
+	"regexp"
+	"sys_info/function"
 )
 
 var Package *types.Package
 
 var (
-	TypObject *types.Interface
-	TypInt    *types.Named
-	TypFloat  *types.Named
-	TypStr    *types.Named
+	TypObject *types.Named
 	TypSymbol *types.Named
-	TypBool   *types.Named
 )
 
-func InitPackage(pkg *types.Package) {
+var FFI map[string]*function.LispFn
+
+func InitPackage(pkg *types.Package) error {
 	top := pkg.Scope()
 	getNamed := func(name string) *types.Named {
 		return top.Lookup(name).(*types.TypeName).Type().(*types.Named)
@@ -23,10 +25,21 @@ func InitPackage(pkg *types.Package) {
 
 	Package = pkg
 
-	TypInt = getNamed("Int")
-	TypFloat = getNamed("Float")
-	TypStr = getNamed("Str")
+	TypObject = getNamed("Object")
 	TypSymbol = getNamed("Symbol")
-	TypBool = getNamed("Bool")
-	TypObject = top.Lookup("Object").Type().Underlying().(*types.Interface)
+
+	// Fetch all FFI mappings.
+	rx := regexp.MustCompile(`//goism:"([^)]*)"->"([^)]*)"\n`)
+	code, err := ioutil.ReadFile(build.Default.GOPATH + "/src/emacs/lisp/ffi.go")
+	if err != nil {
+		return err
+	}
+	directives := rx.FindAllStringSubmatch(string(code), -1)
+	FFI = make(map[string]*function.LispFn, len(directives))
+	for _, d := range directives {
+		from, to := d[1], d[2]
+		FFI[from] = &function.LispFn{Sym: to}
+	}
+
+	return nil
 }

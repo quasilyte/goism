@@ -14,7 +14,7 @@ import (
 	"tu"
 )
 
-func translatePackage(pkgPath string) (u *unit, err error) {
+func translateUnit(pkgPath string) (u *unit, err error) {
 	parseRes, err := parsePkg(pkgPath)
 	if err != nil {
 		return nil, err
@@ -76,10 +76,12 @@ func parsePkg(pkgPath string) (*parseRes, error) {
 	return nil, fmt.Errorf("can not find Go package in %s", pkgPath)
 }
 
+var typecheckCfg = types.Config{
+	Importer: &emacsImporter{impl: importer.Default()},
+}
+
 func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
-	cfg := types.Config{
-		Importer: &emacsImporter{impl: importer.Default()},
-	}
+
 	ti := &types.Info{
 		Types:      make(map[ast.Expr]types.TypeAndValue),
 		Defs:       make(map[*ast.Ident]types.Object),
@@ -93,7 +95,7 @@ func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
 		files = append(files, file)
 	}
 
-	pkg, err := cfg.Check(ctx.astPkg.Name, ctx.fSet, files, ti)
+	pkg, err := typecheckCfg.Check(ctx.astPkg.Name, ctx.fSet, files, ti)
 	return &typecheckRes{
 		ti:       ti,
 		typesPkg: pkg,
