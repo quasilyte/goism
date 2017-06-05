@@ -4,6 +4,11 @@ import (
 	"sexp"
 )
 
+func isNil(form sexp.Form) bool {
+	sym, ok := form.(sexp.Symbol)
+	return ok && sym.Val == "nil"
+}
+
 func numEq(form sexp.Form, val int64) bool {
 	switch form := form.(type) {
 	case sexp.Int:

@@ -34,6 +34,10 @@ var (
 
 // Unary ops.
 var (
+	IsStr    = unaryOp("str?")
+	IsInt    = unaryOp("int?")
+	IsSymbol = unaryOp("symbol?")
+
 	Add1 = unaryOp("add1")
 	Sub1 = unaryOp("sub1")
 

@@ -20,6 +20,8 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 			return weakenConcat(form)
 		case "list":
 			return weakenList(form)
+		case "substr":
+			return weakenSubstr(form)
 		}
 
 	case *sexp.LispCall:
@@ -169,13 +171,20 @@ func weakenConcat(form *sexp.InstrCall) sexp.Form {
 	case 1:
 		return form.Args[0]
 	default:
-		return form
+		return form // #REFS: 32
 	}
 }
 
 func weakenList(form *sexp.InstrCall) sexp.Form {
 	if len(form.Args) == 0 {
 		return sexp.Symbol{Val: "nil"}
+	}
+	return form
+}
+
+func weakenSubstr(form *sexp.InstrCall) sexp.Form {
+	if isNil(form.Args[1]) && isNil(form.Args[2]) {
+		return form.Args[0]
 	}
 	return form
 }
