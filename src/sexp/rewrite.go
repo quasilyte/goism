@@ -10,10 +10,19 @@ type rewriteFunc func(Form) Form
 func Rewrite(form Form, f rewriteFunc) Form {
 	switch form := form.(type) {
 	case *Block:
+		if form := f(form); form != nil {
+			return form
+		}
 		form.Forms = rewriteList(form.Forms, f)
 	case *FormList:
+		if form := f(form); form != nil {
+			return form
+		}
 		form.Forms = rewriteList(form.Forms, f)
 	case *ExprStmt:
+		if form := f(form); form != nil {
+			return form
+		}
 		form.Expr = Rewrite(form.Expr, f)
 
 	case Bool:
