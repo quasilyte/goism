@@ -33,6 +33,7 @@ func injectValue(sym string, val, form sexp.Form) sexp.Form {
 
 func countUsages(sym string, form sexp.Form) int {
 	usages := 0
+	// #REFS: 33.
 	sexp.Rewrite(form, func(form sexp.Form) sexp.Form {
 		if form, ok := form.(sexp.Var); ok && form.Name == sym {
 			usages++
