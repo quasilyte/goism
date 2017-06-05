@@ -209,13 +209,6 @@ type TypeAssert struct {
 	Typ  types.Type
 }
 
-// LispTypeAssert is a special case of type assert, it
-// operates on unboxed Elisp values.
-type LispTypeAssert struct {
-	Expr Form
-	Typ  types.Type
-}
-
 type LispCall struct {
 	Fn   *function.LispFn
 	Args []Form

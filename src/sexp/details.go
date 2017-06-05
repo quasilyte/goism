@@ -36,8 +36,7 @@ func (form *ArraySlice) form() {}
 func (form *Subslice) form()   {}
 func (form *Substr) form()     {}
 
-func (form *TypeAssert) form()     {}
-func (form *LispTypeAssert) form() {}
+func (form *TypeAssert) form() {}
 
 func (call *Call) form()      {}
 func (call *LispCall) form()  {}

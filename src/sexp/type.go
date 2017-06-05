@@ -55,8 +55,7 @@ func (form *ArraySlice) Type() types.Type { return form.Typ }
 func (form *Subslice) Type() types.Type   { return form.Slice.Type() }
 func (form *Substr) Type() types.Type     { return typString }
 
-func (form *TypeAssert) Type() types.Type     { return form.Typ }
-func (form *LispTypeAssert) Type() types.Type { return form.Typ }
+func (form *TypeAssert) Type() types.Type { return form.Typ }
 
 func (call *Call) Type() types.Type {
 	results := call.Fn.Results

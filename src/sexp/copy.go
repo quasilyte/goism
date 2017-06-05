@@ -146,9 +146,6 @@ func (form *Substr) Copy() Form {
 func (form *TypeAssert) Copy() Form {
 	return &TypeAssert{Expr: form.Expr.Copy(), Typ: form.Typ}
 }
-func (form *LispTypeAssert) Copy() Form {
-	return &LispTypeAssert{Expr: form.Expr, Typ: form.Typ}
-}
 
 func (call *LispCall) Copy() Form {
 	return &LispCall{Fn: call.Fn, Args: copyList(call.Args)}

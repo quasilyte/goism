@@ -62,8 +62,6 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewrite(form, f, &form.Expr)
 	case *TypeAssert:
 		return rewrite(form, f, &form.Expr)
-	case *LispTypeAssert:
-		return rewrite(form, f, &form.Expr)
 
 	case *If:
 		if form := f(form); form != nil {
