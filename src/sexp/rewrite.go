@@ -10,21 +10,11 @@ type rewriteFunc func(Form) Form
 func Rewrite(form Form, f rewriteFunc) Form {
 	switch form := form.(type) {
 	case *Block:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Forms = rewriteList(form.Forms, f)
+		return rewriteList(form, form.Forms, f)
 	case *FormList:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Forms = rewriteList(form.Forms, f)
+		return rewriteList(form, form.Forms, f)
 	case *ExprStmt:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Expr)
 	case Bool:
 		return rewriteAtom(form, f)
 	case Int:
@@ -37,12 +27,8 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewriteAtom(form, f)
 	case Var:
 		return rewriteAtom(form, f)
-
 	case *ArrayLit:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Vals = rewriteList(form.Vals, f)
+		return rewriteList(form, form.Vals, f)
 
 	case *SparseArrayLit:
 		if form := f(form); form != nil {
@@ -53,79 +39,31 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 
 	case *SliceLit:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Vals = rewriteList(form.Vals, f)
-
+		return rewriteList(form, form.Vals, f)
 	case *ArrayIndex:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Array = Rewrite(form.Array, f)
-		form.Index = Rewrite(form.Index, f)
-
+		return rewrite(form, f, &form.Array, &form.Index)
 	case *ArrayUpdate:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Array = Rewrite(form.Array, f)
-		form.Index = Rewrite(form.Index, f)
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Array, &form.Index, &form.Expr)
 	case *ArraySlice:
 		return rewriteSpan(form, &form.Array, &form.Span, f)
-
 	case *SliceIndex:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Slice = Rewrite(form.Slice, f)
-		form.Index = Rewrite(form.Index, f)
-
+		return rewrite(form, f, &form.Slice, &form.Index)
 	case *SliceUpdate:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Slice = Rewrite(form.Slice, f)
-		form.Index = Rewrite(form.Index, f)
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Slice, &form.Index, &form.Expr)
 	case *Subslice:
 		return rewriteSpan(form, &form.Slice, &form.Span, f)
-
 	case *Substr:
 		return rewriteSpan(form, &form.Str, &form.Span, f)
-
 	case *Bind:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Init = Rewrite(form.Init, f)
-
+		return rewrite(form, f, &form.Init)
 	case *Rebind:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Expr)
 	case *VarUpdate:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Expr)
 	case *TypeAssert:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Expr)
 	case *LispTypeAssert:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Expr = Rewrite(form.Expr, f)
+		return rewrite(form, f, &form.Expr)
 
 	case *If:
 		if form := f(form); form != nil {
@@ -138,10 +76,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 
 	case *Return:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Results = rewriteList(form.Results, f)
+		return rewriteList(form, form.Results, f)
 
 	case *Repeat:
 		if form := f(form); form != nil {
@@ -164,20 +99,11 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Body = Rewrite(form.Body, f).(*Block)
 
 	case *LispCall:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Args = rewriteList(form.Args, f)
+		return rewriteList(form, form.Args, f)
 	case *Call:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Args = rewriteList(form.Args, f)
+		return rewriteList(form, form.Args, f)
 	case *InstrCall:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Args = rewriteList(form.Args, f)
+		return rewriteList(form, form.Args, f)
 
 	case *Let:
 		if form := f(form); form != nil {
@@ -193,35 +119,15 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 
 	case *StructLit:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Vals = rewriteList(form.Vals, f)
+		return rewriteList(form, form.Vals, f)
 	case *StructIndex:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Struct = Rewrite(form.Struct, f)
+		return rewrite(form, f, &form.Struct)
 	case *StructUpdate:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.Struct = Rewrite(form.Struct, f)
-		form.Expr = Rewrite(form.Expr, f)
-
+		return rewrite(form, f, &form.Struct, &form.Expr)
 	case *And:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.X = Rewrite(form.X, f)
-		form.Y = Rewrite(form.Y, f)
-
+		return rewrite(form, f, &form.X, &form.Y)
 	case *Or:
-		if form := f(form); form != nil {
-			return form
-		}
-		form.X = Rewrite(form.X, f)
-		form.Y = Rewrite(form.Y, f)
+		return rewrite(form, f, &form.X, &form.Y)
 
 	default:
 		panic(exn.Logic("unexpected form: %#v", form))
@@ -244,27 +150,23 @@ func rewriteSpan(form Form, container *Form, span *Span, f rewriteFunc) Form {
 	return form
 }
 
-func rewriteList(forms []Form, f rewriteFunc) []Form {
+func rewriteList(form Form, forms []Form, f rewriteFunc) Form {
+	if form := f(form); form != nil {
+		return form
+	}
 	for i, form := range forms {
 		forms[i] = Rewrite(form, f)
 	}
-	return forms
-}
-
-func rewriteUnaryOp(form Form, arg *Form, f rewriteFunc) Form {
-	if form := f(form); form != nil {
-		return form
-	}
-	*arg = Rewrite(*arg, f)
 	return form
 }
 
-func rewriteBinOp(form Form, args *[2]Form, f rewriteFunc) Form {
+func rewrite(form Form, f rewriteFunc, xs ...*Form) Form {
 	if form := f(form); form != nil {
 		return form
 	}
-	args[0] = Rewrite(args[0], f)
-	args[1] = Rewrite(args[1], f)
+	for _, x := range xs {
+		*x = Rewrite(*x, f)
+	}
 	return form
 }
 
