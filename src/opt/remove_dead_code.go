@@ -23,22 +23,26 @@ func (cr codeRemover) walkForm(form sexp.Form) sexp.Form {
 		if b, ok := form.Cond.(sexp.Bool); ok && !bool(b) {
 			return sexp.EmptyStmt
 		}
-		cr.rewrite(form.Then)
+		form.Then.Forms = cr.walkBody(form.Then.Forms)
 		if form.Else != nil {
-			cr.rewrite(form.Else)
+			form.Else = cr.rewrite(form.Else)
 		}
+		return form
 
 	case *sexp.Block:
 		form.Forms = cr.walkBody(form.Forms)
+		return form
 
 	case *sexp.FormList:
 		form.Forms = cr.walkBody(form.Forms)
+		return form
 
 	case *sexp.While:
 		if b, ok := form.Cond.(sexp.Bool); ok && !bool(b) {
 			return sexp.EmptyStmt
 		}
-		cr.rewrite(form.Body)
+		form.Body.Forms = cr.walkBody(form.Body.Forms)
+		return form
 	}
 
 	return nil
