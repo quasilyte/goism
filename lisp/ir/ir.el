@@ -185,7 +185,7 @@
             (cons lap-op tag)))
     (`concat (if (and (<= arg 4) (/= 1 arg))
                  (list (aref (Go--ir-info-data op-info) arg))
-               (cons byte-concatN arg)))
+               (cons 'byte-concatN arg)))
     (`list (if (<= arg 4)
                (list (aref (Go--ir-info-data op-info) arg))
              (cons 'byte-listN arg)))
