@@ -48,7 +48,7 @@ so it is not going to be any slower than "native" Emacs Lisp.
 To see what features are going to be implemented in near future,
 check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
 
-[Roadmap 1](https://github.com/Quasilyte/Go.el/projects/1) is
+[Roadmap 1](https://github.com/Quasilyte/Go.el/projects/2) is
 the current stage.
 
 ## Tags
