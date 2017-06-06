@@ -7,7 +7,7 @@ import "sexp"
 func OptimizeFuncs(funcs []*sexp.Func) {
 	for _, fn := range funcs {
 		RemoveDeadCode(fn.Body)
-		InlineCalls(fn.Body)
+		InlineCalls(fn)
 		ReduceStrength(fn.Body)
 	}
 }

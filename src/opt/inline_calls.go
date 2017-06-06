@@ -5,25 +5,42 @@ import (
 )
 
 // InlineCalls inlines suitable functions calls inside form.
-func InlineCalls(form sexp.Form) sexp.Form {
+func InlineCalls(fn *sexp.Func) sexp.Form {
+	inl := inliner{fn: fn}
+	return inl.rewrite(fn.Body)
+}
+
+type inliner struct {
+	fn *sexp.Func // Needed to recognize recursive calls
+}
+
+func (inl *inliner) rewrite(form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, inl.walkForm)
+}
+
+func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, func(form sexp.Form) sexp.Form {
 		if form, ok := form.(*sexp.Call); ok {
-			return inlineCall(form.Fn, form.Args)
+			if form.Fn == inl.fn {
+				// Recursive call. Impossible to inline.
+				return form
+			}
+			return inl.inlineCall(form.Fn, form.Args)
 		}
 		return nil
 	})
 }
 
-func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
+func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	body := fn.Body
-	expr := inlineableForm(body)
+	expr := inl.inlineableForm(body)
 	if expr == nil {
 		return nil
 	}
 
 	bindings := make([]*sexp.Bind, 0, len(fn.Params))
 	for i, param := range fn.Params {
-		arg := InlineCalls(args[i])
+		arg := inl.rewrite(args[i])
 		if sexp.Cost(arg) == 1 {
 			expr = injectValue(param, arg, expr)
 		} else if countUsages(param, expr) == 1 {
@@ -46,7 +63,7 @@ func inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	}
 }
 
-func inlineableForm(body *sexp.Block) sexp.Form {
+func (inl *inliner) inlineableForm(body *sexp.Block) sexp.Form {
 	if len(body.Forms) == 0 {
 		return nil
 	}
