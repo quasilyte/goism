@@ -2,11 +2,12 @@ package sexp
 
 import (
 	"sys_info/old_rt"
+	"xtypes"
 )
 
 // IsStmt returns true for statement form.
 func IsStmt(form Form) bool {
-	return form.Type() == typVoid
+	return form.Type() == xtypes.TypVoid
 }
 
 func IsThrow(form Form) bool {
