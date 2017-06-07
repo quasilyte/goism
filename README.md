@@ -23,8 +23,8 @@ Enjoy the increased type safety and curly braces!
 
 Valid Go package is converted into Emacs Lisp bytecode.
 
-Emacs `Go` (first letter is capital, thats important) package
-implements Go runtime, so translated code behaves as
+Emacs `goism` package implements Go runtime, 
+so translated code behaves as
 close to the [specs](https://golang.org/ref/spec) as possible.
 
 Different optimizations are performed during this translation,
