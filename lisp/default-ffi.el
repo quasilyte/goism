@@ -17,5 +17,10 @@
  (floatp IsFloat (:object object) :bool)
  (stringp IsString (:object object) :bool)
  (symbolp IsSymbol (:object object) :bool)
+ (mapconcat MapConcat
+            (:any function :object sequence :string separator)
+            :object)
+ (princ Princ (:any object) :void)
+ (prin1-to-string Prin1ToString (:any object) :string)
  ;; Other functions:
  )

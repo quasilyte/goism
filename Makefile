@@ -2,7 +2,7 @@ VERSION=0.1.0
 PREFIX=/usr/local
 DESTDIR=
 DST=$(DESTDIR)$(PREFIX)
-EMACS_GOPATH=~/.emacs.d/Go.el
+EMACS_GOPATH=~/.emacs.d/goism
 GOPATH=$(shell pwd)
 
 all: lisp translate_package
@@ -12,8 +12,8 @@ lisp:
 	go build -o build/build_lisp \
 		-ldflags "-X main.Version=${VERSION}" \
 		main/build_lisp
-	build/build_lisp > build/Go.el
-	emacs -Q --batch -f batch-byte-compile build/Go.el
+	build/build_lisp > build/goism.el
+	emacs -Q --batch -f batch-byte-compile build/goism.el
 
 translate_package:
 	go build -o bin/goel_translate_package main/translate_package

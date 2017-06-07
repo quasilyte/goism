@@ -1,24 +1,24 @@
 ;; {{ define "public/customization" }}
 ;; Package related configuration.
 
-(defgroup Go.el nil
+(defgroup goism nil
   "Configure Go->Emacs Lisp translator."
   :group 'development)
 
 (defcustom Go-utils-path ""
   "Specifies path which is used to find required binaries.
 If remain empty, system PATH is used."
-  :group 'Go.el
+  :group 'goism
   :type 'directory)
 
-(defcustom Go-emacs-gopath "~/.emacs.d/Go.el"
+(defcustom Go-emacs-gopath "~/.emacs.d/goism"
   "GOPATH used for Emacs Go packages."
-  :group 'Go.el
+  :group 'goism
   :type 'directory)
 
-(defcustom Go-output-buffer-name "*Go.el compile*"
+(defcustom Go-output-buffer-name "*goisl compile*"
   "Temporary buffer name that is used for output."
-  :group 'Go.el
+  :group 'goism
   :type 'buffer-name)
 
 ;; {{ end }}

@@ -7,7 +7,9 @@ import (
 )
 
 var (
-	FnPanic *sexp.Func
+	FnPanic   *sexp.Func
+	FnPrint   *sexp.Func
+	FnPrintln *sexp.Func
 
 	FnSlicePush *sexp.Func
 	FnSliceLen  *sexp.Func
@@ -31,6 +33,8 @@ func InitFuncs(env *tu.Env) {
 	}
 
 	FnPanic = mustFindFunc("Panic")
+	FnPrint = mustFindFunc("Print")
+	FnPrintln = mustFindFunc("Println")
 
 	FnSliceLen = mustFindFunc("SliceLen")
 	FnSliceCap = mustFindFunc("SliceCap")

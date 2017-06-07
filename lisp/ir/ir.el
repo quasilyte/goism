@@ -1,5 +1,5 @@
 ;; {{ define "ir/ir" }}
-;; Go.el IR compiler.
+;; goism IR compiler.
 
 ;; Output IR package PKG to temp buffer.
 ;; Caller can decide to inspect/eval/save generated contents.

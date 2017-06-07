@@ -1,5 +1,5 @@
 // Package example can be used as installation test
-// for Go.el package.
+// for goism package.
 package example
 
 import (

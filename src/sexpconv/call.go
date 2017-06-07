@@ -4,6 +4,7 @@ import (
 	"exn"
 	"go/ast"
 	"go/types"
+	"ir/instr"
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
@@ -88,9 +89,17 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "panic":
 			return conv.call(rt.FnPanic, args[0])
 		case "print":
-			panic(errUnexpectedExpr(conv, node))
+			lst := &sexp.InstrCall{
+				Instr: instr.List(len(args)),
+				Args:  conv.exprList(args),
+			}
+			return conv.call(rt.FnPrint, lst)
 		case "println":
-			panic(errUnexpectedExpr(conv, node))
+			lst := &sexp.InstrCall{
+				Instr: instr.List(len(args)),
+				Args:  conv.exprList(args),
+			}
+			return conv.call(rt.FnPrintln, lst)
 		case "delete":
 			return conv.lispCall(function.Remhash, args[1], args[0])
 		default:

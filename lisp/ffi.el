@@ -30,8 +30,12 @@
 
 ;; Lookup Go type name for given type keyword.
 (defun goism--decl-type-name (type)
-  (or (alist-get type goism--decl-types)
-      (error "Unsupported type `%s'" type)))
+  (if (vectorp type)
+      (concat "func"
+              (goism--decl-func-signature (aref type 0)
+                                          (aref type 1)))
+    (or (alist-get type goism--decl-types)
+        (error "Unsupported type `%s'" type))))
 
 ;; Validates and then returns back passed identifier name.
 (defun goism--decl-ident (name)

@@ -1,6 +1,6 @@
 ![Logo](misc/logo.png)
 
-# Go.el
+# goism 
 
 Searching for Emacs Lisp alternative? **Try hacking Emacs in Go!**
 
@@ -8,7 +8,7 @@ Searching for Emacs Lisp alternative? **Try hacking Emacs in Go!**
 
 ### Description
 
-`Go.el` is Emacs package that makes it possible to use 
+`goism` is Emacs package that makes it possible to use 
 [Go](https://golang.org/) programming language instead
 of Emacs Lisp inside Emacs. 
 
@@ -43,12 +43,12 @@ so it is not going to be any slower than "native" Emacs Lisp.
 * [Features that are not implemented](docs/unimplemented.md)
 * [Go "emacs" package overview](docs/go_emacs.md)
 * [Emacs "Go" library](docs/emacs_go.md)
-* [Go.el implementation design](docs/design.md)
+* [goism implementation design](docs/design.md)
 
 To see what features are going to be implemented in near future,
-check out [Projects](https://github.com/Quasilyte/Go.el/projects) tab.
+check out [Projects](https://github.com/Quasilyte/goism/projects) tab.
 
-[Roadmap 2](https://github.com/Quasilyte/Go.el/projects/2) is
+[Roadmap 2](https://github.com/Quasilyte/goism/projects/2) is
 the current stage.
 
 ## Tags

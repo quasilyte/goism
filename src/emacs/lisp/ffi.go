@@ -120,3 +120,50 @@ func IsString(object Object) bool
 //
 //goism:"IsSymbol"->"symbolp"
 func IsSymbol(object Object) bool
+
+// MapConcat = Apply FUNCTION to each element of SEQUENCE, and concat the results as strings.
+// In between each pair of results, stick in SEPARATOR.  Thus, " " as
+// SEPARATOR results in spaces between the values returned by FUNCTION.
+// SEQUENCE may be a list, a vector, a bool-vector, or a string.
+//
+//goism:"MapConcat"->"mapconcat"
+func MapConcat(function any, sequence Object, separator string) Object
+
+// Princ = Output the printed representation of OBJECT, any Lisp object.
+// No quoting characters are used; no delimiters are printed around
+// the contents of strings.
+//
+// OBJECT is any of the Lisp data types: a number, a string, a symbol,
+// a list, a buffer, a window, a frame, etc.
+//
+// A printed representation of an object is text which describes that object.
+//
+// Optional argument PRINTCHARFUN is the output stream, which can be one
+// of these:
+//
+//    - a buffer, in which case output is inserted into that buffer at point;
+//    - a marker, in which case output is inserted at marker’s position;
+//    - a function, in which case that function is called once for each
+//      character of OBJECT’s printed representation;
+//    - a symbol, in which case that symbol’s function definition is called; or
+//    - t, in which case the output is displayed in the echo area.
+//
+// If PRINTCHARFUN is omitted, the value of ‘standard-output’ (which see)
+// is used instead.
+//
+//goism:"Princ"->"princ"
+func Princ(object any)
+
+// Prin1ToString = Return a string containing the printed representation of OBJECT.
+// OBJECT can be any Lisp object.  This function outputs quoting characters
+// when necessary to make output that ‘read’ can handle, whenever possible,
+// unless the optional second argument NOESCAPE is non-nil.  For complex objects,
+// the behavior is controlled by ‘print-level’ and ‘print-length’, which see.
+//
+// OBJECT is any of the Lisp data types: a number, a string, a symbol,
+// a list, a buffer, a window, a frame, etc.
+//
+// A printed representation of an object is text which describes that object.
+//
+//goism:"Prin1ToString"->"prin1-to-string"
+func Prin1ToString(object any) string

@@ -1,6 +1,6 @@
 # Quick guide
 
-This guide presents a shortest way to learn `Go.el`.
+This guide presents a shortest way to learn `goism`.
 Details described elsewhere.
 
 ## 1. Preparations
@@ -16,41 +16,41 @@ Details described elsewhere.
 
 ```
 # Download repository.
-git clone https://github.com/Quasilyte/Go.el.git
-cd 'Go.el'
+git clone https://github.com/Quasilyte/goism.git
+cd 'goism'
 # Build everything.
 make all
 # Install bundled emacs packages and compiled binaries.
 sudo make install
 ```
 
-> `<...>` inside paths means "directory which contains cloned Go.el"
+> `<...>` inside paths means "directory which contains cloned goism"
 
 Note that you can avoid `make install`.
 This guide is written for the case when you do install it.
 Check `Makefile` for clues about what you will miss without `install`.
 
-Because `Go.el` is not a proper Emacs package yet,
+Because `goism` is not a proper Emacs package yet,
 you have to `load` it manually. 
 
 Options:
-* `(load "<...>/Go.el/build/Go.elc")`
-* Visit `build/Go.elc` buffer and run `M-x RET eval-buffer`
+* `(load "<...>/goism/build/goism.elc")`
+* Visit `build/goism.elc` buffer and run `M-x RET eval-buffer`
 
-There is `build/Go.el` file if you want to inspect package sources
+There is `build/goism.el` file if you want to inspect package sources
 before loading them.
 
 ### 1.3 Setup environment
 
 You need to choose a directory which will be 
-set as a `GOPATH` for `Go.el` code.
-Choose `~/.emacs.d/Go.el/` if you want more defaults to
+set as a `GOPATH` for `goism` code.
+Choose `~/.emacs.d/goism/` if you want more defaults to
 work out-of-the-box.
 
-Add `export GOPATH=~/.emacs.d/Go.el/` to your `~/.bashrc`.
+Add `export GOPATH=~/.emacs.d/goism/` to your `~/.bashrc`.
 If you choose different location, update `Go-emacs-gopath`
 variable (can be done through `M-x customize`, 
-group `development`->`Go.el`).
+group `development`->`goism`).
 
 It is mandatory to store your code below Go workspace.
 If you already have `GOPATH` set, then switch it temporary
@@ -58,13 +58,13 @@ or use current workspace for the rest of the guide.
 
 ### 1.4 Check installation
 
-At this point you need to have `Go.el` loaded into Emacs (see **1.2**).
+At this point you need to have `goism` loaded into Emacs (see **1.2**).
 
-`<...>/Go.el/src/emacs` contains useful packages that
-are copied into `~/.emacs.d/Go.el/src/emacs` during `make install`.
+`<...>/goism/src/emacs` contains useful packages that
+are copied into `~/.emacs.d/goism/src/emacs` during `make install`.
 
 Run `M-x Go-translate-by-name` and enter `example` package name.
-You should see `*Go.el compile*` temporary buffer which contain
+You should see `*goism compile*` temporary buffer which contain
 compiled Go package. 
 
 Switch to that buffer and do `M-x eval-buffer`.
@@ -229,9 +229,9 @@ Look into `emacs/lisp` package sources to see full API.
 `emacs/lisp` package is very low-level and tedious to use
 for functions that are frequently used.
 
-Package `emacs/emacs`, which is bundled with `Go.el`,
+Package `emacs/emacs`, which is bundled with `goism`,
 provides convenience wrappers around `emacs/lisp`.
-It is written as an ordinary `Go.el` package so
+It is written as an ordinary `goism` package so
 you can write such a package by yourself.
 
 ```go

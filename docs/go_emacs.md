@@ -6,7 +6,7 @@ Emacs package is pretty special, it has stub source files
 with commentaries, but the implementation is external 
 (compiler generates special code for them).
 
-You can use existing Go code in your `Go.el` packages,
+You can use existing Go code in your `goism` packages,
 including most of the Go standard library.
 Limitations will be posted later; support range is going
 to be extended over time.
