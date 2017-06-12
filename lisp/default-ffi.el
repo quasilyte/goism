@@ -22,5 +22,9 @@
             :object)
  (princ Princ (:any object) :void)
  (prin1-to-string Prin1ToString (:any object) :string)
+ (eq Eq (:any obj1 :any obj2) :bool)
+ (equal Equal (:any obj1 :any obj2) :bool)
+ (puthash Puthash (:any key :any value :object table) :object)
+ (gethash Gethash (:any key :any table :any dflt) :object)
  ;; Other functions:
  )

@@ -167,3 +167,32 @@ func Princ(object any)
 //
 //goism:"Prin1ToString"->"prin1-to-string"
 func Prin1ToString(object any) string
+
+// Eq = Return t if the two args are the same Lisp object.
+//
+//goism:"Eq"->"eq"
+func Eq(obj1 any, obj2 any) bool
+
+// Equal = Return t if two Lisp objects have similar structure and contents.
+// They must have the same data type.
+// Conses are compared by comparing the cars and the cdrs.
+// Vectors and strings are compared element by element.
+// Numbers are compared by value, but integers cannot equal floats.
+//  (Use ‘=’ if you want integers and floats to be able to be equal.)
+// Symbols must match exactly.
+//
+//goism:"Equal"->"equal"
+func Equal(obj1 any, obj2 any) bool
+
+// Puthash = Associate KEY with VALUE in hash table TABLE.
+// If KEY is already present in table, replace its current value with
+// VALUE.  In any case, return VALUE.
+//
+//goism:"Puthash"->"puthash"
+func Puthash(key any, value any, table Object) Object
+
+// Gethash = Look up KEY in TABLE and return its associated value.
+// If KEY is not found, return DFLT which defaults to nil.
+//
+//goism:"Gethash"->"gethash"
+func Gethash(key any, table any, dflt any) Object
