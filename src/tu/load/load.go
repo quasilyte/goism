@@ -14,24 +14,36 @@ import (
 //
 // It parses and typechecks specified package,
 // then converts generated objects into our format.
-func Package(pkgPath string) (*tu.Package, error) {
-	u, err := translateUnit(pkgPath)
+func Package(pkgPath string) (pkg *tu.Package, err error) {
+	u, err := pkgToUnit(pkgPath)
 	if err != nil {
 		return nil, err
 	}
-	comment := packageComment(u.astPkg.Files)
+
+	decls := pkgFuncs(u.astPkg)
+	collectFuncs(u, decls)
+	convertInitializers(u)
+	convertFuncs(u, decls)
+
+	comment := pkgComment(u.astPkg.Files)
 	return newPackage(u, comment), nil
 }
 
 // Runtime loads code package that implements goism runtime.
 // Package is searched at "$GOPATH/src/emacs/rt".
-func Runtime() error {
-	u, err := translateUnit(build.Default.GOPATH + "/src/emacs/rt")
+func Runtime() (err error) {
+	u, err := pkgToUnit(build.Default.GOPATH + "/src/emacs/rt")
 	if err != nil {
 		return err
 	}
+
+	decls := pkgFuncs(u.astPkg)
+	collectFuncs(u, decls)
 	rt.InitPackage(u.typesPkg)
 	rt.InitFuncs(u.env)
+	convertInitializers(u)
+	convertFuncs(u, decls)
+
 	opt.OptimizeFuncs(u.funcs)
 	return nil
 }
@@ -46,7 +58,7 @@ func newPackage(u *unit, comment string) *tu.Package {
 	}
 }
 
-func packageComment(files map[string]*ast.File) string {
+func pkgComment(files map[string]*ast.File) string {
 	var buf bytes.Buffer
 	buf.WriteString(";; ") // To avoid expensive prepend in the end.
 

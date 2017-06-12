@@ -59,7 +59,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		}
 
 		// return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), args)
-		panic("!!!")
+		// Should be fixed along with cross-package inlining. REFS: #34.
+		panic(errUnexpectedExpr(conv, node))
 
 	case *ast.Ident: // f()
 		switch fn.Name {
@@ -88,18 +89,16 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.lispCall(function.SliceCopy, args[0], args[1])
 		case "panic":
 			return conv.call(rt.FnPanic, args[0])
-		case "print":
-			lst := &sexp.InstrCall{
+		case "print", "println":
+			// #REFS: 35.
+			argList := &sexp.InstrCall{
 				Instr: instr.List(len(args)),
 				Args:  conv.exprList(args),
 			}
-			return conv.call(rt.FnPrint, lst)
-		case "println":
-			lst := &sexp.InstrCall{
-				Instr: instr.List(len(args)),
-				Args:  conv.exprList(args),
+			if fn.Name == "print" {
+				return conv.call(rt.FnPrint, argList)
 			}
-			return conv.call(rt.FnPrintln, lst)
+			return conv.call(rt.FnPrintln, argList)
 		case "delete":
 			return conv.lispCall(function.Remhash, args[1], args[0])
 		default:

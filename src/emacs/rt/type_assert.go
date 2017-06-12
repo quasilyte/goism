@@ -8,45 +8,35 @@ func CoerceBool(x lisp.Object) lisp.Object {
 	if lisp.IsBool(x) {
 		return x
 	}
-	lisp.Error("interface conversion: lisp.Object is %s, not bool",
-		objectTypeName(x))
-	return nil
+	panic("interface conversion: lisp.Object is " + objectTypeName(x) + ", not bool")
 }
 
 func CoerceInt(x lisp.Object) lisp.Object {
 	if lisp.IsInt(x) {
 		return x
 	}
-	lisp.Error("interface conversion: lisp.Object is %s, not int",
-		objectTypeName(x))
-	return nil
+	panic("interface conversion: lisp.Object is " + objectTypeName(x) + ", not int")
 }
 
 func CoerceFloat(x lisp.Object) lisp.Object {
 	if lisp.IsFloat(x) {
 		return x
 	}
-	lisp.Error("interface conversion: lisp.Object is %s, not float64",
-		objectTypeName(x))
-	return nil
+	panic("interface conversion: lisp.Object is " + objectTypeName(x) + ", not float64")
 }
 
 func CoerceString(x lisp.Object) lisp.Object {
 	if lisp.IsString(x) {
 		return x
 	}
-	lisp.Error("interface conversion: lisp.Object is %s, not string",
-		objectTypeName(x))
-	return nil
+	panic("interface conversion: lisp.Object is " + objectTypeName(x) + ", not string")
 }
 
 func CoerceSymbol(x lisp.Object) lisp.Object {
 	if lisp.IsSymbol(x) {
 		return x
 	}
-	lisp.Error("interface conversion: lisp.Object is %s, not lisp.Symbol",
-		objectTypeName(x))
-	return nil
+	panic("interface conversion: lisp.Object is " + objectTypeName(x) + ", not lisp.Symbol")
 }
 
 func objectTypeName(x lisp.Object) string {
@@ -59,6 +49,5 @@ func objectTypeName(x lisp.Object) string {
 	} else if lisp.IsSymbol(x) {
 		return "lisp.Symbol"
 	}
-	lisp.Error("unexpected type used in lisp.Object type assertion")
-	return ""
+	panic("unexpected type used in lisp.Object type assertion")
 }

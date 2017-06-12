@@ -66,7 +66,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 	}
 
 	if xtypes.IsGlobal(obj) {
-		return sexp.Var{Name: conv.env.InternVar(node.Name), Typ: typ}
+		return sexp.Var{Name: conv.env.InternVar(nil, node.Name), Typ: typ}
 	}
 	return sexp.Var{Name: node.Name, Typ: typ}
 }
@@ -161,7 +161,18 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 		}
 	}
 
-	panic(errUnexpectedExpr(conv, node))
+	id, ok := node.X.(*ast.Ident)
+	if !ok {
+		panic(errUnexpectedExpr(conv, node))
+	}
+	switch obj := conv.info.Uses[id].(type) {
+	case *types.PkgName:
+		return sexp.Symbol{
+			Val: conv.env.InternVar(obj.Imported(), node.Sel.Name),
+		}
+	default:
+		panic(errUnexpectedExpr(conv, node))
+	}
 }
 
 func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {

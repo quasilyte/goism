@@ -73,7 +73,7 @@ var (
 		Typ:  types.NewMap(lisp.TypObject, lisp.TypObject),
 	}
 
-	nilFunc      = sexp.Var{Name: "Go--nil-function"}
-	nilInterface = sexp.Var{Name: "Go--nil-interface"}
-	nilSlice     = sexp.Var{Name: "Go--nil-slice"}
+	nilFunc      = sexp.Symbol{Val: "Go--nil-function"}
+	nilInterface = sexp.Symbol{Val: "Go--nil-interface"}
+	nilSlice     = sexp.Symbol{Val: "Go--nil-slice"}
 )

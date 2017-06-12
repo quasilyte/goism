@@ -118,7 +118,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		if conv.info.Defs[lhs] == nil {
 			if xtypes.IsGlobal(conv.info.Uses[lhs]) {
 				return &sexp.VarUpdate{
-					Name: conv.env.InternVar(lhs.Name),
+					Name: conv.env.InternVar(nil, lhs.Name),
 					Expr: conv.valueCopy(expr),
 				}
 			}

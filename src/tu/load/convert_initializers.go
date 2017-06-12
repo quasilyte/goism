@@ -19,7 +19,7 @@ func convertInitializers(u *unit) {
 			} else {
 				idents[i] = &ast.Ident{Name: v.Name()}
 				u.ti.Uses[idents[i]] = v
-				vars = append(vars, u.env.InternVar(v.Name()))
+				vars = append(vars, u.env.InternVar(nil, v.Name()))
 			}
 		}
 
@@ -38,7 +38,7 @@ func convertInitializers(u *unit) {
 			if u.env.ContainsVar(v.Name()) {
 				continue
 			}
-			sym := u.env.InternVar(v.Name())
+			sym := u.env.InternVar(nil, v.Name())
 			vars = append(vars, sym)
 			body = append(body, u.conv.VarZeroInit(sym, v.Type()))
 		}

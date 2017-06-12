@@ -1,19 +1,17 @@
 package lisp
 
+// Special interface{}-like type which is used to mark
+// Emacs Lisp function arguments that can be literally "anything".
+// Unlike "interface{}" it does not wrap non-interface types,
+// so Emacs Lisp code can inspect values "as is".
+type any interface{}
+
 // Call invokes Emacs Lisp function.
 //
 // Function existance or signature compatibility is
 // not checked during compilation.
 // If something is wrong, Emacs will complain during evaluation.
-func Call(fn string, args ...interface{}) Object
-
-// Special "interface{}" like type which is used to mark
-// Emacs Lisp function arguments that can be literally "anything".
-// Unlike "interface{}" it does not wrap non-interface types,
-// so Emacs Lisp code can inspect values "as is".
-//
-// Technically, ""
-type any interface{}
+func Call(fn string, args ...any) Object
 
 // Object is unboxed Emacs Lisp object.
 // Go-compatible value can be extracted by

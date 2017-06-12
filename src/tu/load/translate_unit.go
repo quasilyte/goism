@@ -1,7 +1,6 @@
 package load
 
 import (
-	"exn"
 	"fmt"
 	"go/ast"
 	"go/importer"
@@ -14,7 +13,7 @@ import (
 	"tu"
 )
 
-func translateUnit(pkgPath string) (u *unit, err error) {
+func pkgToUnit(pkgPath string) (*unit, error) {
 	parseRes, err := parsePkg(pkgPath)
 	if err != nil {
 		return nil, err
@@ -23,14 +22,8 @@ func translateUnit(pkgPath string) (u *unit, err error) {
 	if err != nil {
 		return nil, err
 	}
-	env := tu.NewEnv(parseRes.astPkg.Name)
-	u = newUnit(parseRes, typecheckRes, env)
-
-	// Handle errors that can be thrown by AST convertion procedure.
-	defer func() { err = exn.Catch(recover()) }()
-	convertInitializers(u)
-	convertFuncs(u)
-	return u, nil
+	env := tu.NewEnv(pkgPath)
+	return newUnit(parseRes, typecheckRes, env), nil
 }
 
 type parseRes struct {
