@@ -9,61 +9,47 @@ import (
 // ReduceStrength replaces operations with their less expensive
 // equivalents.
 func ReduceStrength(form sexp.Form) sexp.Form {
+	sr := strengthReducer{}
+	return sr.rewrite(form)
+}
+
+type strengthReducer struct{}
+
+func (sr strengthReducer) rewrite(form sexp.Form) sexp.Form {
+	return sexp.Rewrite(form, sr.walkForm)
+}
+
+func (sr strengthReducer) walkForm(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.InstrCall:
 		switch string(form.Instr.Name) {
 		case "add":
-			return weakenAdd(form)
+			return sr.weakenAdd(form)
 		case "sub":
-			return weakenSub(form)
+			return sr.weakenSub(form)
 		case "concat":
-			return weakenConcat(form)
+			return sr.weakenConcat(form)
 		case "list":
-			return weakenList(form)
+			return sr.weakenList(form)
 		case "substr":
-			return weakenSubstr(form)
+			return sr.weakenSubstr(form)
 		}
-
-	case *sexp.Bind:
-		form.Init = ReduceStrength(form.Init)
-	case *sexp.Rebind:
-		form.Expr = ReduceStrength(form.Expr)
-	case *sexp.Block:
-		form.Forms = reduceStrength(form.Forms)
-	case *sexp.FormList:
-		form.Forms = reduceStrength(form.Forms)
-
-	case *sexp.While:
-		form.Cond = ReduceStrength(form.Cond)
-		ReduceStrength(form.Body)
 
 	case *sexp.ArrayLit:
-		return weakenArrayLit(form)
+		return sr.weakenArrayLit(form)
 	case *sexp.SparseArrayLit:
-		return weakenSparseArrayLit(form)
+		return sr.weakenSparseArrayLit(form)
 
 	case *sexp.Call:
-		form.Args = reduceStrength(form.Args)
 		if form.Fn == rt.FnBytesToStr {
-			return weakenBytesToStr(form)
+			return sr.weakenBytesToStr(form)
 		}
-	case *sexp.ExprStmt:
-		form.Expr = ReduceStrength(form.Expr)
-	case *sexp.Return:
-		form.Results = reduceStrength(form.Results)
 	}
 
-	return form
+	return nil
 }
 
-func reduceStrength(forms []sexp.Form) []sexp.Form {
-	for i, form := range forms {
-		forms[i] = ReduceStrength(form)
-	}
-	return forms
-}
-
-func weakenAdd(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenAdd(form *sexp.InstrCall) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
 			return sexp.NewAdd1(form.Args[b])
@@ -92,7 +78,7 @@ func weakenAdd(form *sexp.InstrCall) sexp.Form {
 	return form
 }
 
-func weakenSub(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenSub(form *sexp.InstrCall) sexp.Form {
 	if numEq(form.Args[1], 1) {
 		return sexp.NewSub1(form.Args[0])
 	}
@@ -109,13 +95,13 @@ func weakenSub(form *sexp.InstrCall) sexp.Form {
 	return form
 }
 
-func weakenArrayLit(form *sexp.ArrayLit) sexp.Form {
+func (sr strengthReducer) weakenArrayLit(form *sexp.ArrayLit) sexp.Form {
 	// #TODO: recognize array where all elements are the same.
 	//        Replace with "make-vector" call.
 	return form
 }
 
-func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
+func (sr strengthReducer) weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	toArrayLit := func(form *sexp.SparseArrayLit) *sexp.ArrayLit {
 		zv := sexpconv.ZeroValue(form.Typ.Elem())
 		vals := make([]sexp.Form, int(form.Typ.Len()))
@@ -146,7 +132,7 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	return form
 }
 
-func weakenBytesToStr(form *sexp.Call) sexp.Form {
+func (sr strengthReducer) weakenBytesToStr(form *sexp.Call) sexp.Form {
 	if arg, ok := form.Args[0].(*sexp.ArraySlice); ok {
 		// It is possible to convert array to string without
 		// creating a slice.
@@ -162,7 +148,7 @@ func weakenBytesToStr(form *sexp.Call) sexp.Form {
 	return form
 }
 
-func weakenConcat(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenConcat(form *sexp.InstrCall) sexp.Form {
 	switch len(form.Args) {
 	case 0:
 		return sexp.Str("")
@@ -173,14 +159,14 @@ func weakenConcat(form *sexp.InstrCall) sexp.Form {
 	}
 }
 
-func weakenList(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenList(form *sexp.InstrCall) sexp.Form {
 	if len(form.Args) == 0 {
 		return sexp.Symbol{Val: "nil"}
 	}
 	return form
 }
 
-func weakenSubstr(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenSubstr(form *sexp.InstrCall) sexp.Form {
 	if form.Args[1] == nil && form.Args[2] == nil {
 		return form.Args[0]
 	}
