@@ -101,7 +101,7 @@ func spanCost(span Span) int {
 // Function invocation cost.
 // Does not account called function complexity.
 func callCost(args []Form) int {
-	return cost(args) + len(args) + baseCallCost
+	return cost(args) + len(args)/2 + baseCallCost
 }
 
 func cost(forms []Form) int {

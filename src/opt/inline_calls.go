@@ -32,8 +32,7 @@ func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
 }
 
 func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
-	body := fn.Body
-	expr := inl.inlineableForm(body)
+	expr := inl.inlineableForm(fn)
 	if expr == nil {
 		return nil
 	}
@@ -63,7 +62,8 @@ func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	}
 }
 
-func (inl *inliner) inlineableForm(body *sexp.Block) sexp.Form {
+func (inl *inliner) inlineableForm(fn *sexp.Func) sexp.Form {
+	body := fn.Body
 	if len(body.Forms) == 0 {
 		return nil
 	}
