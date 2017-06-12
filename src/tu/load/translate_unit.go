@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"sexp"
 	"sexpconv"
-	"tu"
+	"tu/symbols"
 )
 
 func pkgToUnit(pkgPath string) (*unit, error) {
@@ -22,7 +22,7 @@ func pkgToUnit(pkgPath string) (*unit, error) {
 	if err != nil {
 		return nil, err
 	}
-	env := tu.NewEnv(pkgPath)
+	env := symbols.NewEnv(pkgPath)
 	return newUnit(parseRes, typecheckRes, env), nil
 }
 
@@ -42,7 +42,7 @@ type unit struct {
 	*typecheckRes
 	conv *sexpconv.Converter
 
-	env   *tu.Env
+	env   *symbols.Env
 	vars  []string
 	init  *sexp.Func
 	funcs []*sexp.Func
@@ -96,7 +96,7 @@ func typecheckPkg(ctx *parseRes) (*typecheckRes, error) {
 	}, err
 }
 
-func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *tu.Env) *unit {
+func newUnit(parseRes *parseRes, typecheckRes *typecheckRes, env *symbols.Env) *unit {
 	fSet := parseRes.fSet
 	ti := typecheckRes.ti
 	return &unit{

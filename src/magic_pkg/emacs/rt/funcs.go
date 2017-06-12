@@ -3,7 +3,7 @@ package rt
 import (
 	"exn"
 	"sexp"
-	"tu"
+	"tu/symbols"
 )
 
 var (
@@ -24,7 +24,7 @@ var (
 	FnCoerceSymbol *sexp.Func
 )
 
-func InitFuncs(env *tu.Env) {
+func InitFuncs(env *symbols.Env) {
 	mustFindFunc := func(name string) *sexp.Func {
 		if fn := env.Func(name); fn != nil {
 			return fn

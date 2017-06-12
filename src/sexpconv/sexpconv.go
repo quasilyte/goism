@@ -6,14 +6,14 @@ import (
 	"go/token"
 	"go/types"
 	"sexp"
-	"tu"
+	"tu/symbols"
 	"xast"
 )
 
 type Converter struct {
 	info    *types.Info
 	fileSet *token.FileSet
-	env     *tu.Env
+	env     *symbols.Env
 
 	// Context type is used to resolve "untyped" constants.
 	ctxType types.Type
@@ -21,7 +21,7 @@ type Converter struct {
 	retType *types.Tuple
 }
 
-func NewConverter(env *tu.Env, info *types.Info, fSet *token.FileSet) *Converter {
+func NewConverter(env *symbols.Env, info *types.Info, fSet *token.FileSet) *Converter {
 	return &Converter{
 		env:     env,
 		info:    info,

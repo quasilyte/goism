@@ -3,6 +3,7 @@ package compiler
 import (
 	"assert"
 	"ir/instr"
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/old_rt"
 )
@@ -25,7 +26,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
-			sym := old_rt.RetVars[i]
+			sym := rt.RetVars[i]
 			emit(cl, instr.VarSet(cl.cvec.InsertSym(sym)))
 		}
 		emit(cl, instr.Return)
