@@ -20,9 +20,9 @@ func MakeMap() lisp.Object {
 // MakeMapCap creates a new map of specified initial size.
 func MakeMapCap(capacity int) lisp.Object {
 	return lisp.Call("make-hash-table",
-		lisp.Intern(":size"),
 		lisp.Intern(":test"),
 		lisp.Intern("equal"),
+		lisp.Intern(":size"),
 		capacity)
 }
 
