@@ -18,6 +18,7 @@ var nameToInstr = map[string]instr.Instr{
 	"-":        instr.NumSub,
 	"*":        instr.NumMul,
 	"/":        instr.NumQuo,
+	"min":      instr.NumMin,
 	"string=":  instr.StrEq,
 	"string<":  instr.StrLt,
 	"length":   instr.Length,

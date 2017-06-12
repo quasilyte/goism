@@ -196,3 +196,15 @@ func Puthash(key any, value any, table Object) Object
 //
 //goism:"Gethash"->"gethash"
 func Gethash(key any, table any, dflt any) Object
+
+// MinInt = Return smallest of all the arguments (which must be numbers or markers).
+// The value is always a number; markers are converted to numbers.
+//
+//goism:"MinInt"->"min"
+func MinInt(xs ...int) int
+
+// MinFloat = Return smallest of all the arguments (which must be numbers or markers).
+// The value is always a number; markers are converted to numbers.
+//
+//goism:"MinFloat"->"min"
+func MinFloat(xs ...float64) float64

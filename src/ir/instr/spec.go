@@ -24,6 +24,7 @@ var (
 	NumAdd   = binOp("add")
 	NumMul   = binOp("mul")
 	NumQuo   = binOp("quo")
+	NumMin   = binOp("min")
 	StrEq    = binOp("str=")
 	StrLt    = binOp("str<")
 	ArrayRef = binOp("array-ref")

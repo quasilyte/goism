@@ -26,5 +26,7 @@
  (equal Equal (:any obj1 :any obj2) :bool)
  (puthash Puthash (:any key :any value :object table) :object)
  (gethash Gethash (:any key :any table :any dflt) :object)
+ (min MinInt (:int &xs) :int)
+ (min MinFloat (:float &xs) :float)
  ;; Other functions:
  )
