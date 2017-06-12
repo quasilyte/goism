@@ -11,11 +11,13 @@ var (
 	FnPrint   *sexp.Func
 	FnPrintln *sexp.Func
 
-	FnSlicePush *sexp.Func
-	FnSliceLen  *sexp.Func
-	FnSliceCap  *sexp.Func
-	FnSliceGet  *sexp.Func
-	FnSliceSet  *sexp.Func
+	FnMakeSlice    *sexp.Func
+	FnMakeSliceCap *sexp.Func
+	FnSlicePush    *sexp.Func
+	FnSliceLen     *sexp.Func
+	FnSliceCap     *sexp.Func
+	FnSliceGet     *sexp.Func
+	FnSliceSet     *sexp.Func
 
 	FnMakeMap    *sexp.Func
 	FnMakeMapCap *sexp.Func
@@ -40,6 +42,9 @@ func InitFuncs(env *symbols.Env) {
 	FnPrint = mustFindFunc("Print")
 	FnPrintln = mustFindFunc("Println")
 
+	FnMakeSlice = mustFindFunc("MakeSlice")
+	FnMakeSliceCap = mustFindFunc("MakeSliceCap")
+	FnSlicePush = mustFindFunc("SlicePush")
 	FnSliceLen = mustFindFunc("SliceLen")
 	FnSliceCap = mustFindFunc("SliceCap")
 	FnSliceGet = mustFindFunc("SliceGet")

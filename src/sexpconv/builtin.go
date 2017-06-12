@@ -49,9 +49,9 @@ func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
 	case *types.Slice:
 		zv := ZeroValue(typ.Elem())
 		if len(args) == 2 {
-			return conv.lispCall(function.MakeSliceCap, args[1], zv)
+			return conv.call(rt.FnMakeSlice, args[1], zv)
 		}
-		return conv.lispCall(function.MakeSlice, args[1], args[2], zv)
+		return conv.call(rt.FnMakeSliceCap, args[1], args[2], zv)
 
 	default:
 		panic(exn.Conv(conv.fileSet, "can't make", args[0]))
@@ -63,7 +63,6 @@ func (conv *Converter) appendBuiltin(args []ast.Expr) sexp.Form {
 		panic(exn.NoImpl("variadic append"))
 	}
 
-	return conv.lispCall(function.AppendOne, args[0], args[1])
-	// typ := conv.typeOf(args[0]).(*types.Slice)
-	// return conv.callExprList(function.AppendOne(typ), args)
+	x := conv.valueCopy(conv.Expr(args[1]))
+	return conv.call(rt.FnSlicePush, args[0], x)
 }

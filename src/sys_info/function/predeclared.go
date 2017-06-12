@@ -5,19 +5,9 @@ type LispFn struct {
 }
 
 var (
-	Print        = &LispFn{Sym: "Go--print"}
-	Println      = &LispFn{Sym: "Go--println"}
-	Panic        = &LispFn{Sym: "Go--panic"}
-	MapInsert    = &LispFn{Sym: "Go--map-insert"}
 	SliceCopy    = &LispFn{Sym: "Go--slice-copy"}
 	StrCast      = &LispFn{Sym: "Go-rt.bytesToStr"}
 	ArrayToSlice = &LispFn{Sym: "Go-rt.arrayToSlice"}
-
-	AppendOne    = &LispFn{Sym: "Go--slice-push"}
-	MakeMap      = &LispFn{Sym: "Go--make-map"}
-	MakeMapCap   = &LispFn{Sym: "Go--make-map-cap"}
-	MakeSlice    = &LispFn{Sym: "Go--make-slice"}
-	MakeSliceCap = &LispFn{Sym: "Go--make-slice-cap"}
 )
 
 var (
