@@ -12,6 +12,9 @@ var (
 
 // Binary ops.
 var (
+	Eq    = binOp("eq")
+	Equal = binOp("equal")
+
 	NumEq    = binOp("num=")
 	NumGt    = binOp("num>")
 	NumLt    = binOp("num<")

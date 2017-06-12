@@ -27,6 +27,8 @@ var nameToInstr = map[string]instr.Instr{
 	"integerp": instr.IsInt,
 	"stringp":  instr.IsStr,
 	"symbolp":  instr.IsSymbol,
+	"eq":       instr.Eq,
+	"equal":    instr.Equal,
 }
 
 func (conv *Converter) instrCall(name string, args []sexp.Form) sexp.Form {
