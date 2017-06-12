@@ -22,6 +22,10 @@ var (
 	FnSliceSlice2    *sexp.Func
 	FnSliceSliceLow  *sexp.Func
 	FnSliceSliceHigh *sexp.Func
+	FnArrayToSlice   *sexp.Func
+	FnArraySlice2    *sexp.Func
+	FnArraySliceLow  *sexp.Func
+	FnArraySliceHigh *sexp.Func
 
 	FnMakeMap    *sexp.Func
 	FnMakeMapCap *sexp.Func
@@ -57,6 +61,10 @@ func InitFuncs(env *symbols.Env) {
 	FnSliceSlice2 = mustFindFunc("SliceSlice2")
 	FnSliceSliceLow = mustFindFunc("SliceSliceLow")
 	FnSliceSliceHigh = mustFindFunc("SliceSliceHigh")
+	FnArrayToSlice = mustFindFunc("ArrayToSlice")
+	FnArraySlice2 = mustFindFunc("ArraySlice2")
+	FnArraySliceLow = mustFindFunc("ArraySliceLow")
+	FnArraySliceHigh = mustFindFunc("ArraySliceHigh")
 
 	FnMakeMap = mustFindFunc("MakeMap")
 	FnMakeMapCap = mustFindFunc("MakeMapCap")

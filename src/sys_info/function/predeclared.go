@@ -5,8 +5,7 @@ type LispFn struct {
 }
 
 var (
-	StrCast      = &LispFn{Sym: "Go-rt.bytesToStr"}
-	ArrayToSlice = &LispFn{Sym: "Go-rt.arrayToSlice"}
+	StrCast = &LispFn{Sym: "Go-rt.bytesToStr"}
 )
 
 var (

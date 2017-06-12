@@ -155,3 +155,34 @@ func SliceSliceHigh(slice Slice, high int) Slice {
 		cap:    slice.cap,
 	}
 }
+
+// ArraySlice2 slices an array: "arr[low:high]".
+func ArraySlice2(arr lisp.Object, low, high int) Slice {
+	return Slice{
+		data:   arr,
+		offset: low,
+		len:    high - low,
+		cap:    lisp.Length(arr) - low,
+	}
+}
+
+// ArraySliceLow slices an array: "arr[low:]".
+func ArraySliceLow(arr lisp.Object, low int) Slice {
+	length := lisp.Length(arr)
+	return Slice{
+		data:   arr,
+		offset: low,
+		len:    length - low,
+		cap:    length - low,
+	}
+}
+
+// ArraySliceHigh slices an array: "arr[:high]".
+func ArraySliceHigh(arr lisp.Object, high int) Slice {
+	return Slice{
+		data:   arr,
+		offset: 0,
+		len:    high,
+		cap:    lisp.Length(arr),
+	}
+}

@@ -27,15 +27,25 @@ func simplifyList(forms []sexp.Form) []sexp.Form {
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.SliceLit:
-		return &sexp.LispCall{
-			Fn: function.ArrayToSlice,
-			Args: []sexp.Form{
-				sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...),
-			},
-		}
+		return sexp.NewCall(
+			rt.FnArrayToSlice,
+			sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...),
+		)
 
 	case *sexp.ArrayLit:
 		return sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...)
+
+	case *sexp.ArraySlice:
+		switch form.Kind() {
+		case sexp.SpanLowOnly:
+			return sexp.NewCall(rt.FnArraySliceLow, form.Array, form.Low)
+		case sexp.SpanHighOnly:
+			return sexp.NewCall(rt.FnArraySliceHigh, form.Array, form.High)
+		case sexp.SpanBoth:
+			return sexp.NewCall(rt.FnArraySlice2, form.Array, form.Low, form.High)
+		case sexp.SpanWhole:
+			return sexp.NewCall(rt.FnArrayToSlice, form.Array)
+		}
 
 	case *sexp.SliceSlice:
 		switch form.Kind() {

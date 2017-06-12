@@ -61,8 +61,6 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
-	case *sexp.ArraySlice:
-		compileArraySlice(cl, form)
 
 	case *sexp.LispCall:
 		compileCall(cl, form.Fn.Sym, form.Args)

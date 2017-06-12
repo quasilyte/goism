@@ -61,19 +61,6 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 	}
 }
 
-func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
-	switch form.Kind() {
-	case sexp.SpanLowOnly:
-		call(cl, "Go--array-slice-low", form.Array, form.Low)
-	case sexp.SpanHighOnly:
-		call(cl, "Go--array-slice-high", form.Array, form.High)
-	case sexp.SpanBoth:
-		call(cl, "Go--array-slice", form.Array, form.Low, form.High)
-	case sexp.SpanWhole:
-		call(cl, "Go--array-slice-whole", form.Array)
-	}
-}
-
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
 	switch old_rt.StructReprOf(form.Typ) {
 	case old_rt.StructAtom:

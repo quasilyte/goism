@@ -122,6 +122,7 @@ func producePackage(pkg *tu.Package) {
 
 func compileFunc(cl *compiler.Compiler, fn *sexp.Func) *ir.Object {
 	sexpconv.Simplify(fn.Body)
+	opt.InlineCalls(fn) // #REFS: 38
 	return cl.CompileFunc(fn)
 }
 
