@@ -121,3 +121,37 @@ func SliceCopy(dst, src Slice) {
 		SliceSet(dst, i, SliceGet(src, i))
 	}
 }
+
+// Slice2 = "slice[low:high]".
+func Slice2(slice Slice, low, high int) Slice {
+	sliceLenBound(slice, low)
+	sliceCapBound(slice, high)
+	return Slice{
+		data:   slice.data,
+		offset: slice.offset + low,
+		len:    high - low,
+		cap:    slice.cap - low,
+	}
+}
+
+// SliceLow = "slice[low:]".
+func SliceLow(slice Slice, low int) Slice {
+	sliceLenBound(slice, low)
+	return Slice{
+		data:   slice.data,
+		offset: slice.offset + low,
+		len:    slice.len - low,
+		cap:    slice.cap - low,
+	}
+}
+
+// SliceHigh = "slice[:high]".
+func SliceHigh(slice Slice, high int) Slice {
+	sliceCapBound(slice, high)
+	return Slice{
+		data:   slice.data,
+		offset: slice.offset,
+		len:    high,
+		cap:    slice.cap,
+	}
+}

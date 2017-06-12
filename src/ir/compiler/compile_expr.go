@@ -61,34 +61,6 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 	}
 }
 
-func compileSubslice(cl *Compiler, form *sexp.Subslice) {
-	switch form.Kind() {
-	case sexp.SpanLowOnly:
-		call(cl, "Go--subslice-low", form.Slice, form.Low)
-	case sexp.SpanHighOnly:
-		call(cl, "Go--subslice-high", form.Slice, form.High)
-	case sexp.SpanBoth:
-		call(cl, "Go--subslice2", form.Slice, form.Low, form.High)
-	case sexp.SpanWhole:
-		/* Do nothing */
-	}
-}
-
-func compileSubstr(cl *Compiler, form *sexp.Substr) {
-	compileExpr(cl, form.Str)
-	if form.Low == nil {
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
-	} else {
-		compileExpr(cl, form.Low)
-	}
-	if form.High == nil {
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
-	} else {
-		compileExpr(cl, form.High)
-	}
-	emit(cl, instr.Substr)
-}
-
 func compileArraySlice(cl *Compiler, form *sexp.ArraySlice) {
 	switch form.Kind() {
 	case sexp.SpanLowOnly:

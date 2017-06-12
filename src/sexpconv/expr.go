@@ -235,10 +235,15 @@ func (conv *Converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
 	if node.High != nil {
 		high = conv.Expr(node.High)
 	}
-	if xtypes.IsArray(conv.typeOf(node.X)) {
-		return sexp.NewArraySlice(conv.Expr(node.X), low, high)
+	x := conv.Expr(node.X)
+	switch conv.typeOf(node.X).Underlying().(type) {
+	case *types.Array:
+		return sexp.NewArraySlice(x, low, high)
+	case *types.Basic:
+		return sexp.NewSubstr(x, low, high)
+	default:
+		return sexp.NewSubslice(x, low, high)
 	}
-	return sexp.NewSubslice(conv.Expr(node.X), low, high)
 }
 
 func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {

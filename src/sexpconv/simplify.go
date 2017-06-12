@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
 )
@@ -35,6 +36,18 @@ func simplify(form sexp.Form) sexp.Form {
 
 	case *sexp.ArrayLit:
 		return sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...)
+
+	case *sexp.Subslice:
+		switch form.Kind() {
+		case sexp.SpanLowOnly:
+			return sexp.NewCall(rt.FnSliceLow, form.Slice, form.Low)
+		case sexp.SpanHighOnly:
+			return sexp.NewCall(rt.FnSliceHigh, form.Slice, form.High)
+		case sexp.SpanBoth:
+			return sexp.NewCall(rt.FnSlice2, form.Slice, form.Low, form.High)
+		case sexp.SpanWhole:
+			return form.Slice
+		}
 
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{

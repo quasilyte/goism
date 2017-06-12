@@ -64,12 +64,6 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.ArraySlice:
 		compileArraySlice(cl, form)
 
-	case *sexp.Subslice:
-		compileSubslice(cl, form)
-
-	case *sexp.Substr:
-		compileSubstr(cl, form)
-
 	case *sexp.LispCall:
 		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.Call:
@@ -89,6 +83,9 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileAnd(cl, form)
 	case *sexp.Or:
 		compileOr(cl, form)
+
+	case nil:
+		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
 
 	default:
 		panic(exn.Logic("unexpected expr: %#v", form))

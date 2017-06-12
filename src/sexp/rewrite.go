@@ -52,8 +52,6 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewrite(form, f, &form.Slice, &form.Index, &form.Expr)
 	case *Subslice:
 		return rewriteSpan(form, &form.Slice, &form.Span, f)
-	case *Substr:
-		return rewriteSpan(form, &form.Str, &form.Span, f)
 	case *Bind:
 		return rewrite(form, f, &form.Init)
 	case *Rebind:
@@ -126,6 +124,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewrite(form, f, &form.X, &form.Y)
 	case *Or:
 		return rewrite(form, f, &form.X, &form.Y)
+
+	case nil:
+		return form
 
 	default:
 		panic(exn.Logic("unexpected form: %#v", form))

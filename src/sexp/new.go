@@ -31,11 +31,8 @@ func NewArraySlice(array, low, high Form) *ArraySlice {
 	}
 }
 
-func NewSubstr(str, low, high Form) *Substr {
-	return &Substr{
-		Str:  str,
-		Span: Span{Low: low, High: high},
-	}
+func NewSubstr(array, low, high Form) *InstrCall {
+	return &InstrCall{Instr: instr.Substr, Args: []Form{array, low, high}}
 }
 
 func NewNot(x Form) *InstrCall  { return newOp1(instr.Not, x) }

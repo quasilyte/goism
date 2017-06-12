@@ -136,12 +136,6 @@ func (form *Subslice) Copy() Form {
 		Span:  copySpan(form.Span),
 	}
 }
-func (form *Substr) Copy() Form {
-	return &Substr{
-		Str:  form.Str.Copy(),
-		Span: copySpan(form.Span),
-	}
-}
 
 func (form *TypeAssert) Copy() Form {
 	return &TypeAssert{Expr: form.Expr.Copy(), Typ: form.Typ}

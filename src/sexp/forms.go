@@ -195,12 +195,6 @@ type (
 		Slice Form
 		Span
 	}
-
-	// Substr = "Str[Low:High]".
-	Substr struct {
-		Str Form
-		Span
-	}
 )
 
 // TypeAssert coerces expression to specified type; panics on failure.

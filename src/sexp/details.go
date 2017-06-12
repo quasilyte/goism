@@ -34,7 +34,6 @@ func (form *StructIndex) form() {}
 
 func (form *ArraySlice) form() {}
 func (form *Subslice) form()   {}
-func (form *Substr) form()     {}
 
 func (form *TypeAssert) form() {}
 

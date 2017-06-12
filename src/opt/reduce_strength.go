@@ -183,7 +183,7 @@ func weakenList(form *sexp.InstrCall) sexp.Form {
 }
 
 func weakenSubstr(form *sexp.InstrCall) sexp.Form {
-	if isNil(form.Args[1]) && isNil(form.Args[2]) {
+	if form.Args[1] == nil && form.Args[2] == nil {
 		return form.Args[0]
 	}
 	return form

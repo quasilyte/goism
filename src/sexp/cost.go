@@ -44,9 +44,6 @@ func Cost(form Form) int {
 	case *Subslice:
 		return Cost(form.Slice) + spanCost(form.Span) + 6
 
-	case *Substr:
-		return Cost(form.Str) + spanCost(form.Span) + 1
-
 	case *Call:
 		// #FIXME: this is not correct way to calculate
 		// function call cost. We need to know function
