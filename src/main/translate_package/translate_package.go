@@ -8,6 +8,7 @@ import (
 	"ir/export"
 	"main/util"
 	"opt"
+	"regexp"
 	"sexp"
 	"sexpconv"
 	"strings"
@@ -37,6 +38,9 @@ func main() {
 			Help: "Set to false to get unoptimized output",
 			Init: "true",
 		},
+		"filter": {
+			Help: "Regexp to filter 'output=asm' symbols",
+		},
 	})
 
 	defer func() { util.CheckError(exn.Catch(recover())) }()
@@ -64,23 +68,34 @@ func loadPackage(pkgPath string, optimize bool) *tu.Package {
 func produceAsm(pkg *tu.Package) {
 	cl := compiler.New()
 
+	var filter *regexp.Regexp
+	if util.Argv("filter") != "" {
+		filter = regexp.MustCompile(".*" + util.Argv("filter") + ".*")
+	}
+
 	if len(pkg.Vars) > 0 {
 		fmt.Println("variables:")
 		for _, v := range pkg.Vars {
-			fmt.Println(" ", v)
+			if filter == nil || filter.MatchString(v) {
+				fmt.Println(" ", v)
+			}
 		}
 		println()
 	}
 
 	if len(pkg.Init.Body.Forms) != 0 {
-		fmt.Println("init:")
-		dumpFunction(pkg.Init, compileFunc(cl, pkg.Init))
+		if filter == nil || filter.MatchString(pkg.Init.Name) {
+			fmt.Println("init:")
+			dumpFunction(pkg.Init, compileFunc(cl, pkg.Init))
+		}
 	}
 
 	if len(pkg.Funcs) > 0 {
 		fmt.Println("functions:")
 		for _, fn := range pkg.Funcs {
-			dumpFunction(fn, compileFunc(cl, fn))
+			if filter == nil || filter.MatchString(fn.Name) {
+				dumpFunction(fn, compileFunc(cl, fn))
+			}
 		}
 	}
 }
