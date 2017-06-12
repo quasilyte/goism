@@ -70,7 +70,7 @@ func produceAsm(pkg *tu.Package) {
 
 	var filter *regexp.Regexp
 	if util.Argv("filter") != "" {
-		filter = regexp.MustCompile(".*" + util.Argv("filter") + ".*")
+		filter = regexp.MustCompile(`\b` + util.Argv("filter") + `\b`)
 	}
 
 	if len(pkg.Vars) > 0 {
