@@ -1,5 +1,8 @@
 # Quick guide
 
+**NOTE**: this guide is outdated; It will be updated when new FFI 
+will fully replace old mechanism.
+
 This guide presents a shortest way to learn `goism`.
 Details described elsewhere.
 
