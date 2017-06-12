@@ -6,6 +6,8 @@ import (
 
 // Panic triggers run-time panic.
 func Panic(errorData lisp.Object) {
+	{
+	} // Prevent inlining (#REFS: 37)
 	lisp.Call("signal", lisp.Intern("error"), lisp.Call("list", errorData))
 }
 
