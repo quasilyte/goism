@@ -36,6 +36,8 @@ var (
 	FnCoerceFloat  *sexp.Func
 	FnCoerceString *sexp.Func
 	FnCoerceSymbol *sexp.Func
+
+	FnBytesToStr *sexp.Func
 )
 
 func InitFuncs(env *symbols.Env) {
@@ -75,4 +77,6 @@ func InitFuncs(env *symbols.Env) {
 	FnCoerceFloat = mustFindFunc("CoerceFloat")
 	FnCoerceString = mustFindFunc("CoerceString")
 	FnCoerceSymbol = mustFindFunc("CoerceSymbol")
+
+	FnBytesToStr = mustFindFunc("BytesToStr")
 }

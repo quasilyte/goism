@@ -5,10 +5,6 @@ type LispFn struct {
 }
 
 var (
-	StrCast = &LispFn{Sym: "Go-rt.bytesToStr"}
-)
-
-var (
 	CopySequence   = &LispFn{Sym: "copy-sequence"}
 	Intern         = &LispFn{Sym: "intern"}
 	Gethash        = &LispFn{Sym: "gethash"}

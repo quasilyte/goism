@@ -1,9 +1,9 @@
 package opt
 
 import (
+	"magic_pkg/emacs/rt"
 	"sexp"
 	"sexpconv"
-	"sys_info/function"
 )
 
 // ReduceStrength replaces operations with their less expensive
@@ -22,11 +22,6 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 			return weakenList(form)
 		case "substr":
 			return weakenSubstr(form)
-		}
-
-	case *sexp.LispCall:
-		if form.Fn == function.StrCast {
-			return weakenStrCast(form)
 		}
 
 	case *sexp.Bind:
@@ -49,6 +44,9 @@ func ReduceStrength(form sexp.Form) sexp.Form {
 
 	case *sexp.Call:
 		form.Args = reduceStrength(form.Args)
+		if form.Fn == rt.FnBytesToStr {
+			return weakenBytesToStr(form)
+		}
 	case *sexp.ExprStmt:
 		form.Expr = ReduceStrength(form.Expr)
 	case *sexp.Return:
@@ -148,7 +146,7 @@ func weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	return form
 }
 
-func weakenStrCast(form *sexp.LispCall) sexp.Form {
+func weakenBytesToStr(form *sexp.Call) sexp.Form {
 	if arg, ok := form.Args[0].(*sexp.ArraySlice); ok {
 		// It is possible to convert array to string without
 		// creating a slice.

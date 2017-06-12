@@ -76,7 +76,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "bool":
 			return conv.Expr(args[0])
 		case "string":
-			return conv.lispCall(function.StrCast, args[0])
+			return conv.call(rt.FnBytesToStr, args[0])
 		case "make":
 			return conv.makeBuiltin(args)
 		case "len":
