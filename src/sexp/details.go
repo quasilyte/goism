@@ -33,7 +33,7 @@ func (form *SliceIndex) form()  {}
 func (form *StructIndex) form() {}
 
 func (form *ArraySlice) form() {}
-func (form *Subslice) form()   {}
+func (form *SliceSlice) form() {}
 
 func (form *TypeAssert) form() {}
 

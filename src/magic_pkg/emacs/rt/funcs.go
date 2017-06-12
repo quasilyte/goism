@@ -11,17 +11,17 @@ var (
 	FnPrint   *sexp.Func
 	FnPrintln *sexp.Func
 
-	FnMakeSlice    *sexp.Func
-	FnMakeSliceCap *sexp.Func
-	FnSliceCopy    *sexp.Func
-	FnSlicePush    *sexp.Func
-	FnSliceLen     *sexp.Func
-	FnSliceCap     *sexp.Func
-	FnSliceGet     *sexp.Func
-	FnSliceSet     *sexp.Func
-	FnSlice2       *sexp.Func
-	FnSliceLow     *sexp.Func
-	FnSliceHigh    *sexp.Func
+	FnMakeSlice      *sexp.Func
+	FnMakeSliceCap   *sexp.Func
+	FnSliceCopy      *sexp.Func
+	FnSlicePush      *sexp.Func
+	FnSliceLen       *sexp.Func
+	FnSliceCap       *sexp.Func
+	FnSliceGet       *sexp.Func
+	FnSliceSet       *sexp.Func
+	FnSliceSlice2    *sexp.Func
+	FnSliceSliceLow  *sexp.Func
+	FnSliceSliceHigh *sexp.Func
 
 	FnMakeMap    *sexp.Func
 	FnMakeMapCap *sexp.Func
@@ -54,9 +54,9 @@ func InitFuncs(env *symbols.Env) {
 	FnSliceCap = mustFindFunc("SliceCap")
 	FnSliceGet = mustFindFunc("SliceGet")
 	FnSliceSet = mustFindFunc("SliceSet")
-	FnSlice2 = mustFindFunc("Slice2")
-	FnSliceLow = mustFindFunc("SliceLow")
-	FnSliceHigh = mustFindFunc("SliceHigh")
+	FnSliceSlice2 = mustFindFunc("SliceSlice2")
+	FnSliceSliceLow = mustFindFunc("SliceSliceLow")
+	FnSliceSliceHigh = mustFindFunc("SliceSliceHigh")
 
 	FnMakeMap = mustFindFunc("MakeMap")
 	FnMakeMapCap = mustFindFunc("MakeMapCap")

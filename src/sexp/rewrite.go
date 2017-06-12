@@ -50,7 +50,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewrite(form, f, &form.Slice, &form.Index)
 	case *SliceUpdate:
 		return rewrite(form, f, &form.Slice, &form.Index, &form.Expr)
-	case *Subslice:
+	case *SliceSlice:
 		return rewriteSpan(form, &form.Slice, &form.Span, f)
 	case *Bind:
 		return rewrite(form, f, &form.Init)

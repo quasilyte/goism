@@ -41,7 +41,7 @@ func Cost(form Form) int {
 	case *SliceIndex:
 		return Cost(form.Index) + Cost(form.Slice)*2 + 6
 
-	case *Subslice:
+	case *SliceSlice:
 		return Cost(form.Slice) + spanCost(form.Span) + 6
 
 	case *Call:

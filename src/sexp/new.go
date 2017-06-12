@@ -16,8 +16,8 @@ func NewLispCall(fn *function.LispFn, args ...Form) *LispCall {
 	return &LispCall{Fn: fn, Args: args}
 }
 
-func NewSubslice(slice, low, high Form) *Subslice {
-	return &Subslice{
+func NewSubslice(slice, low, high Form) *SliceSlice {
+	return &SliceSlice{
 		Slice: slice,
 		Span:  Span{Low: low, High: high},
 	}

@@ -122,8 +122,8 @@ func SliceCopy(dst, src Slice) {
 	}
 }
 
-// Slice2 = "slice[low:high]".
-func Slice2(slice Slice, low, high int) Slice {
+// SliceSlice2 = "slice[low:high]".
+func SliceSlice2(slice Slice, low, high int) Slice {
 	sliceLenBound(slice, low)
 	sliceCapBound(slice, high)
 	return Slice{
@@ -134,8 +134,8 @@ func Slice2(slice Slice, low, high int) Slice {
 	}
 }
 
-// SliceLow = "slice[low:]".
-func SliceLow(slice Slice, low int) Slice {
+// SliceSliceLow = "slice[low:]".
+func SliceSliceLow(slice Slice, low int) Slice {
 	sliceLenBound(slice, low)
 	return Slice{
 		data:   slice.data,
@@ -145,8 +145,8 @@ func SliceLow(slice Slice, low int) Slice {
 	}
 }
 
-// SliceHigh = "slice[:high]".
-func SliceHigh(slice Slice, high int) Slice {
+// SliceSliceHigh = "slice[:high]".
+func SliceSliceHigh(slice Slice, high int) Slice {
 	sliceCapBound(slice, high)
 	return Slice{
 		data:   slice.data,

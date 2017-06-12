@@ -37,14 +37,14 @@ func simplify(form sexp.Form) sexp.Form {
 	case *sexp.ArrayLit:
 		return sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...)
 
-	case *sexp.Subslice:
+	case *sexp.SliceSlice:
 		switch form.Kind() {
 		case sexp.SpanLowOnly:
-			return sexp.NewCall(rt.FnSliceLow, form.Slice, form.Low)
+			return sexp.NewCall(rt.FnSliceSliceLow, form.Slice, form.Low)
 		case sexp.SpanHighOnly:
-			return sexp.NewCall(rt.FnSliceHigh, form.Slice, form.High)
+			return sexp.NewCall(rt.FnSliceSliceHigh, form.Slice, form.High)
 		case sexp.SpanBoth:
-			return sexp.NewCall(rt.FnSlice2, form.Slice, form.Low, form.High)
+			return sexp.NewCall(rt.FnSliceSlice2, form.Slice, form.Low, form.High)
 		case sexp.SpanWhole:
 			return form.Slice
 		}

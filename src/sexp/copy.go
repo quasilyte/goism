@@ -130,8 +130,8 @@ func (form *ArraySlice) Copy() Form {
 		Span:  copySpan(form.Span),
 	}
 }
-func (form *Subslice) Copy() Form {
-	return &Subslice{
+func (form *SliceSlice) Copy() Form {
+	return &SliceSlice{
 		Slice: form.Slice.Copy(),
 		Span:  copySpan(form.Span),
 	}

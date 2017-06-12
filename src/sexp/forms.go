@@ -190,8 +190,8 @@ type (
 		Span
 	}
 
-	// Subslice = "Slice[Low:High]".
-	Subslice struct {
+	// SliceSlice = "Slice[Low:High]".
+	SliceSlice struct {
 		Slice Form
 		Span
 	}

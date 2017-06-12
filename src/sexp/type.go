@@ -45,7 +45,7 @@ func (form *StructIndex) Type() types.Type {
 }
 
 func (form *ArraySlice) Type() types.Type { return form.Typ }
-func (form *Subslice) Type() types.Type   { return form.Slice.Type() }
+func (form *SliceSlice) Type() types.Type { return form.Slice.Type() }
 
 func (form *TypeAssert) Type() types.Type { return form.Typ }
 
