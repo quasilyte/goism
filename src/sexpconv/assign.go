@@ -7,7 +7,6 @@ import (
 	"go/types"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 	"xtypes"
 )
 
@@ -129,7 +128,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		switch typ := conv.typeOf(lhs.X).(type) {
 		case *types.Map:
 			return &sexp.ExprStmt{
-				Expr: conv.lispCall(function.MapInsert, lhs.Index, expr, lhs.X),
+				Expr: conv.call(rt.FnMapInsert, lhs.Index, expr, lhs.X),
 			}
 
 		case *types.Array:

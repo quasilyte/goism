@@ -17,3 +17,7 @@ var (
 
 // MultiRetLimit specifies max N available in RetN variables.
 const MultiRetLimit = 8
+
+var (
+	NilMap = make(map[lisp.Object]lisp.Object, 1)
+)

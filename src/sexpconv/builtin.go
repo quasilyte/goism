@@ -42,9 +42,9 @@ func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(args[0]).(type) {
 	case *types.Map:
 		if len(args) == 2 {
-			return conv.lispCall(function.MakeMapCap, args[1])
+			return conv.call(rt.FnMakeMapCap, args[1])
 		}
-		return conv.lispCall(function.MakeMap)
+		return conv.call(rt.FnMakeMap)
 
 	case *types.Slice:
 		zv := ZeroValue(typ.Elem())

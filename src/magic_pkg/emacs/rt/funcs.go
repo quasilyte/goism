@@ -17,6 +17,10 @@ var (
 	FnSliceGet  *sexp.Func
 	FnSliceSet  *sexp.Func
 
+	FnMakeMap    *sexp.Func
+	FnMakeMapCap *sexp.Func
+	FnMapInsert  *sexp.Func
+
 	FnCoerceBool   *sexp.Func
 	FnCoerceInt    *sexp.Func
 	FnCoerceFloat  *sexp.Func
@@ -40,6 +44,10 @@ func InitFuncs(env *symbols.Env) {
 	FnSliceCap = mustFindFunc("SliceCap")
 	FnSliceGet = mustFindFunc("SliceGet")
 	FnSliceSet = mustFindFunc("SliceSet")
+
+	FnMakeMap = mustFindFunc("MakeMap")
+	FnMakeMapCap = mustFindFunc("MakeMapCap")
+	FnMapInsert = mustFindFunc("MapInsert")
 
 	FnCoerceBool = mustFindFunc("CoerceBool")
 	FnCoerceInt = mustFindFunc("CoerceInt")
