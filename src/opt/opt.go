@@ -1,6 +1,8 @@
 package opt
 
-import "sexp"
+import (
+	"sexp"
+)
 
 // OptimizeFuncs runs all optimizations available
 // on each function given.

@@ -13,6 +13,7 @@ var (
 
 	FnMakeSlice    *sexp.Func
 	FnMakeSliceCap *sexp.Func
+	FnSliceCopy    *sexp.Func
 	FnSlicePush    *sexp.Func
 	FnSliceLen     *sexp.Func
 	FnSliceCap     *sexp.Func
@@ -44,6 +45,7 @@ func InitFuncs(env *symbols.Env) {
 
 	FnMakeSlice = mustFindFunc("MakeSlice")
 	FnMakeSliceCap = mustFindFunc("MakeSliceCap")
+	FnSliceCopy = mustFindFunc("SliceCopy")
 	FnSlicePush = mustFindFunc("SlicePush")
 	FnSliceLen = mustFindFunc("SliceLen")
 	FnSliceCap = mustFindFunc("SliceCap")

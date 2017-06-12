@@ -86,7 +86,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "append":
 			return conv.appendBuiltin(args)
 		case "copy":
-			return conv.lispCall(function.SliceCopy, args[0], args[1])
+			dst, src := args[0], args[1]
+			return conv.call(rt.FnSliceCopy, dst, src)
 		case "panic":
 			return conv.call(rt.FnPanic, args[0])
 		case "print", "println":
@@ -100,7 +101,8 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			}
 			return conv.call(rt.FnPrintln, argList)
 		case "delete":
-			return conv.lispCall(function.Remhash, args[1], args[0])
+			key, m := args[0], args[1]
+			return conv.lispCall(function.Remhash, m, key)
 		default:
 			return conv.callExprList(conv.env.Func(fn.Name), args)
 		}

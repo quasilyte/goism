@@ -97,3 +97,27 @@ func sliceCapBound(slice Slice, index int) {
 		lisp.Error("slice bounds out of range")
 	}
 }
+
+// SliceCopyFast is SliceCopy specialization that is appliable if both
+// `dst' and `src' have zero offset.
+func SliceCopyFast(dst, src Slice) {
+	dstData := dst.data
+	srcData := src.data
+	count := lisp.MinInt(dst.len, src.len)
+	for i := 0; i < count; i++ {
+		lisp.Aset(dstData, i, lisp.Aref(srcData, i))
+	}
+}
+
+// SliceCopy copies one slice contents to another.
+// Up to "min(len(dst), len(src))" elements are copied.
+func SliceCopy(dst, src Slice) {
+	if dst.offset == 0 && src.offset == 0 {
+		SliceCopyFast(dst, src)
+		return
+	}
+	count := lisp.MinInt(dst.len, src.len)
+	for i := 0; i < count; i++ {
+		SliceSet(dst, i, SliceGet(src, i))
+	}
+}
