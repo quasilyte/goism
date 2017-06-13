@@ -15,3 +15,15 @@ func resultTuple(sig *types.Signature) *types.Tuple {
 	}
 	return emptyTuple
 }
+
+// Collect flat list of param names.
+func declParamNames(decl *ast.FuncDecl) []string {
+	params := decl.Type.Params
+	res := make([]string, 0, params.NumFields())
+	for _, p := range params.List {
+		for _, ident := range p.Names {
+			res = append(res, ident.Name)
+		}
+	}
+	return res
+}

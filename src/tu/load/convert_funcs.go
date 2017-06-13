@@ -33,18 +33,9 @@ func collectFuncs(u *unit, decls []*ast.FuncDecl) {
 
 func convertFuncs(u *unit, decls []*ast.FuncDecl) {
 	for i, decl := range decls {
-		// Collect flat list of param names.
-		params := decl.Type.Params
-		paramNames := make([]string, 0, params.NumFields())
-		for _, param := range params.List {
-			for _, paramIdent := range param.Names {
-				paramNames = append(paramNames, paramIdent.Name)
-			}
-		}
-
 		fn := u.funcs[i]
 		fn.Name = u.env.InternVar(nil, decl.Name.Name)
-		fn.Params = paramNames
+		fn.Params = declParamNames(decl)
 		fn.Body = u.conv.FuncBody(decl.Name, decl.Body)
 		fn.DocString = decl.Doc.Text()
 	}
