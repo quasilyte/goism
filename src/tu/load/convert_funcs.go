@@ -24,14 +24,8 @@ func pkgFuncs(pkg *ast.Package) []*ast.FuncDecl {
 
 func collectFuncs(u *unit, decls []*ast.FuncDecl) {
 	for _, decl := range decls {
-		fn := &sexp.Func{}
-		sig := u.ti.Defs[decl.Name].Type().(*types.Signature)
-		if results := sig.Results(); results != nil {
-			fn.Results = results
-		} else {
-			fn.Results = emptyTuple
-		}
-
+		sig := declSignature(u.ti, decl)
+		fn := &sexp.Func{Results: resultTuple(sig)}
 		u.funcs = append(u.funcs, fn)
 		u.env.AddFunc(decl.Name.Name, fn)
 	}
