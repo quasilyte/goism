@@ -42,7 +42,7 @@ var (
 
 func InitFuncs(env *symbols.Env) {
 	mustFindFunc := func(name string) *sexp.Func {
-		if fn := env.Func(name); fn != nil {
+		if fn := env.LookupFunc(name); fn != nil {
 			return fn
 		}
 		panic(exn.Logic("`emacs/rt' misses `%s' function", name))

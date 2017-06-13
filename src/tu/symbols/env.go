@@ -32,7 +32,7 @@ func (env *Env) AddFunc(name string, fn *sexp.Func) {
 	env.funcs[name] = fn
 }
 
-func (env *Env) Func(name string) *sexp.Func {
+func (env *Env) LookupFunc(name string) *sexp.Func {
 	return env.funcs[name]
 }
 
