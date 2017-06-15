@@ -41,9 +41,9 @@ type initData struct {
 	init *sexp.Func
 }
 
-func newUnit(pkgPath string) *unit {
+func newUnit(masterPkg *types.Package, pkgPath string) *unit {
 	env := symbols.NewEnv(pkgPath)
-	ftab := symbols.NewFuncTable()
+	ftab := symbols.NewFuncTable(masterPkg)
 	return &unit{
 		env:   env,
 		ftab:  ftab,
@@ -59,7 +59,7 @@ func Runtime() error {
 	if err != nil {
 		return err
 	}
-	u := newUnit(pkgPath)
+	u := newUnit(pkg.TypPkg, pkgPath)
 	u.pkgs = []*xast.Package{pkg}
 	collectFuncs(u)
 	rt.InitPackage(pkg.TypPkg)
@@ -74,7 +74,7 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	u := newUnit(pkgPath)
+	u := newUnit(masterPkg.TypPkg, pkgPath)
 	err = collectImports(u, masterPkg)
 	if err != nil {
 		return nil, err

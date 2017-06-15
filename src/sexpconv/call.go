@@ -108,7 +108,10 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			key, m := args[0], args[1]
 			return conv.lispCall(function.Remhash, m, key)
 		default:
-			return conv.callExprList(conv.ftab.LookupFunc(nil, fn.Name), args)
+			return conv.callExprList(
+				conv.ftab.LookupFunc(conv.ftab.MasterPkg(), fn.Name),
+				args,
+			)
 		}
 
 	default:

@@ -19,8 +19,9 @@ type funcKey struct {
 }
 
 // NewFuncTable creates initialized function table.
-func NewFuncTable() *FuncTable {
+func NewFuncTable(masterPkg *types.Package) *FuncTable {
 	return &FuncTable{
+		masterPkg:   masterPkg,
 		funcs:       make(map[string]*sexp.Func, 32),
 		externFuncs: make(map[funcKey]*sexp.Func, 32),
 	}
@@ -28,15 +29,21 @@ func NewFuncTable() *FuncTable {
 
 // InsertFunc inserts a new function into table.
 func (ftab *FuncTable) InsertFunc(p *types.Package, name string, fn *sexp.Func) {
-	if p == nil {
+	if p == ftab.masterPkg {
 		ftab.funcs[name] = fn
+	} else {
+		ftab.externFuncs[funcKey{pkg: p, name: name}] = fn
 	}
-	ftab.externFuncs[funcKey{pkg: p, name: name}] = fn
+}
+
+// MasterPkg returns function table bound package.
+func (ftab *FuncTable) MasterPkg() *types.Package {
+	return ftab.masterPkg
 }
 
 // LookupFunc returns stored function or nil if function is not found.
 func (ftab *FuncTable) LookupFunc(p *types.Package, name string) *sexp.Func {
-	if p == nil {
+	if p == ftab.masterPkg {
 		return ftab.funcs[name]
 	}
 	return ftab.externFuncs[funcKey{pkg: p, name: name}]
