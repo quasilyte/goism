@@ -3,8 +3,6 @@ package load
 import (
 	"go/ast"
 	"go/types"
-	"tu/symbols"
-	"xast"
 	"xtypes"
 )
 
@@ -17,18 +15,6 @@ func resultTuple(sig *types.Signature) *types.Tuple {
 		return results
 	}
 	return xtypes.EmptyTuple
-}
-
-func funcDeclIndex(env *symbols.Env, p *xast.Package) map[string]*ast.FuncDecl {
-	res := make(map[string]*ast.FuncDecl, 32)
-	for _, f := range p.AstPkg.Files {
-		for _, decl := range f.Decls {
-			if decl, ok := decl.(*ast.FuncDecl); ok {
-				res[env.InternVar(p.TypPkg, decl.Name.Name)] = decl
-			}
-		}
-	}
-	return res
 }
 
 func collectParamNames(params []string, decl *ast.FuncDecl) []string {
