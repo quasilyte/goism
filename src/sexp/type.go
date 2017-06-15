@@ -63,8 +63,22 @@ func (call *InstrCall) Type() types.Type {
 	switch opName := string(call.Instr.Name); opName {
 	case "sub", "add", "mul", "quo", "min":
 		return call.Args[0].Type()
+
+	case "concat":
+		return xtypes.TypString
+
+	case "length":
+		return xtypes.TypInt
+
+	case "eq", "equal", "not":
+		return xtypes.TypBool
+	case "num=", "num>", "num<", "num<=", "num>=", "string=", "string<":
+		return xtypes.TypBool
+	case "str?", "int?", "symbol?":
+		return xtypes.TypBool
+
 	default:
-		return nameToType[opName]
+		return lisp.TypObject
 	}
 }
 func (form *Let) Type() types.Type {
@@ -76,27 +90,3 @@ func (form *Let) Type() types.Type {
 
 func (form *And) Type() types.Type { return xtypes.TypBool }
 func (form *Or) Type() types.Type  { return xtypes.TypBool }
-
-var nameToType = map[string]types.Type{
-	"cons":      lisp.TypObject,
-	"car":       lisp.TypObject,
-	"cdr":       lisp.TypObject,
-	"array-ref": lisp.TypObject,
-	"array-set": lisp.TypObject,
-	"num=":      xtypes.TypBool,
-	"num>":      xtypes.TypBool,
-	"num<":      xtypes.TypBool,
-	"num<=":     xtypes.TypBool,
-	"num>=":     xtypes.TypBool,
-	"string=":   xtypes.TypBool,
-	"string<":   xtypes.TypBool,
-	"length":    xtypes.TypInt,
-	"not":       xtypes.TypBool,
-	"memq":      lisp.TypObject,
-	"member":    lisp.TypObject,
-	"str?":      xtypes.TypBool,
-	"inte?":     xtypes.TypBool,
-	"symbol?":   xtypes.TypBool,
-	"eq":        xtypes.TypBool,
-	"equal":     xtypes.TypBool,
-}
