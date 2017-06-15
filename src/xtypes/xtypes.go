@@ -4,6 +4,8 @@ import (
 	"go/types"
 )
 
+var EmptyTuple = types.NewTuple()
+
 var (
 	TypBool   = types.Typ[types.Bool]
 	TypInt    = types.Typ[types.Int64]
