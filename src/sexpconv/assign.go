@@ -167,7 +167,11 @@ func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 				}
 			}
 		}
-		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
+		obj := conv.info.ObjectOf(lhs.Sel)
+		return &sexp.VarUpdate{
+			Name: conv.env.InternVar(obj.Pkg(), lhs.Sel.Name),
+			Expr: conv.valueCopy(expr),
+		}
 
 	// #TODO: struct assign, indirect assign
 	default:
