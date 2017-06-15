@@ -323,7 +323,7 @@ func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp
 	for _, elt := range node.Elts {
 		kv := elt.(*ast.KeyValueExpr)
 		key := kv.Key.(*ast.Ident)
-		vals[xtypes.LookupField(key.Name, typ)] = conv.Expr(kv.Value)
+		vals[xtypes.LookupField(key.Name, typ)] = conv.valueCopy(conv.Expr(kv.Value))
 	}
 	for i, val := range vals {
 		if val == nil {
