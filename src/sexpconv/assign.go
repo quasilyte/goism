@@ -173,7 +173,7 @@ func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			Expr: conv.valueCopy(expr),
 		}
 
-	// #TODO: struct assign, indirect assign
+	// #TODO: indirect assign
 	default:
 		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
 	}
