@@ -10,6 +10,12 @@ func IsArray(typ types.Type) bool {
 	return ok
 }
 
+// IsStruct returns true when given argument underlying type is *types.Struct.
+func IsStruct(typ types.Type) bool {
+	_, ok := typ.Underlying().(*types.Struct)
+	return ok
+}
+
 // IsGlobal checks if given object belongs to a global scope.
 func IsGlobal(obj types.Object) bool {
 	objScope := obj.Parent()
