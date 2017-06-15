@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"go/ast"
 	"go/types"
 	"ir/instr"
@@ -50,7 +51,7 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 				return conv.lispObjectMethod(fn.Sel.Name, fn.X, args)
 			}
 			return conv.callExprList(
-				conv.ftab.LookupMethod(recv, fn.Sel.Name),
+				conv.ftab.LookupMethod(recv.Obj(), fn.Sel.Name),
 				append([]ast.Expr{fn.X}, args...),
 			)
 		}
@@ -60,13 +61,7 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.intrinFuncCall(fn.Sel.Name, args)
 		}
 
-		return conv.callExprList(
-			conv.ftab.LookupFunc(
-				conv.info.ObjectOf(fn.Sel).Pkg(),
-				fn.Sel.Name,
-			),
-			args,
-		)
+		return conv.callOrCoerce(conv.info.ObjectOf(fn.Sel).Pkg(), fn.Sel, args)
 
 	case *ast.Ident: // f()
 		switch fn.Name {
@@ -111,13 +106,23 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.lispCall(function.Remhash, m, key)
 
 		default:
-			return conv.callExprList(
-				conv.ftab.LookupFunc(conv.ftab.MasterPkg(), fn.Name),
-				args,
-			)
+			return conv.callOrCoerce(conv.ftab.MasterPkg(), fn, args)
 		}
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
 	}
+}
+
+func (conv *converter) callOrCoerce(p *types.Package, id *ast.Ident, args []ast.Expr) sexp.Form {
+	fn := conv.ftab.LookupFunc(p, id.Name)
+	if fn != nil {
+		return conv.callExprList(fn, args)
+	}
+	typ := conv.typeOf(id)
+	if _, ok := typ.Underlying().(*types.Basic); ok {
+		return conv.Expr(args[0]) // #REFS: 25
+	}
+	// #REFS: 44.
+	panic(exn.NoImpl("struct conversions"))
 }

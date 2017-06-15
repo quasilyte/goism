@@ -47,7 +47,6 @@ func newUnit(masterPkg *types.Package, pkgPath string) *unit {
 	return &unit{
 		env:   env,
 		ftab:  ftab,
-		funcs: make([]*sexp.Func, 0, 32),
 		decls: make(map[*sexp.Func]funcDeclData, 32),
 		conv:  sexpconv.NewConverter(ftab, env),
 	}
@@ -65,7 +64,7 @@ func Runtime() error {
 	rt.InitPackage(pkg.TypPkg)
 	rt.InitFuncs(u.ftab)
 	convertFuncs(pkg, u)
-	u.ftab.ForEachFunc(opt.OptimizeFunc)
+	u.ftab.ForEach(opt.OptimizeFunc)
 	return nil
 }
 
@@ -83,7 +82,7 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 	collectFuncs(u)
 	convertFuncs(masterPkg, u)
 	if optimize {
-		u.ftab.ForEachFunc(opt.OptimizeFunc)
+		u.ftab.ForEach(opt.OptimizeFunc)
 	}
 
 	initializers := collectInitializers(masterPkg, u.conv)
@@ -97,17 +96,15 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 }
 
 func convertFuncs(masterPkg *xast.Package, u *unit) {
-	u.ftab.ForEach(func(p *types.Package, fn *sexp.Func) {
+	u.ftab.ForEach(func(fn *sexp.Func) {
 		data := u.decls[fn]
 		fn.Body = u.conv.FuncBody(&xast.Func{
 			Pkg:  data.pkg,
 			Ret:  fn.Results,
 			Body: data.decl.Body,
 		})
-		if p == masterPkg.TypPkg {
-			u.funcs = append(u.funcs, fn)
-		}
 	})
+	u.funcs = u.ftab.MasterFuncs()
 }
 
 func collectFuncs(u *unit) {
@@ -140,8 +137,8 @@ func collectFunc(u *unit, p *xast.Package, decl *ast.FuncDecl) {
 		// Method.
 		params := make([]string, 0, decl.Type.Params.NumFields()+1)
 		params = append(params, recv.Name()) // "recv" param
-		typ := recv.Type().(*types.Named)
-		fn.Name = symbols.MangleMethod(p.FullName, typ.Obj().Name(), name)
+		typ := recv.Type().(*types.Named).Obj()
+		fn.Name = symbols.MangleMethod(p.FullName, typ.Name(), name)
 		fn.Params = collectParamNames(params, decl)
 		u.ftab.InsertMethod(typ, name, fn)
 	}

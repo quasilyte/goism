@@ -20,8 +20,9 @@ type funcKey struct {
 }
 
 type methodKey struct {
-	typ  *types.Named
-	name string
+	pkgName  string
+	typeName string
+	name     string
 }
 
 // NewFuncTable creates initialized function table.
@@ -49,8 +50,13 @@ func (ftab *FuncTable) InsertFunc(p *types.Package, name string, fn *sexp.Func) 
 }
 
 // InsertMethod inserts a new method into table.
-func (ftab *FuncTable) InsertMethod(recv *types.Named, name string, fn *sexp.Func) {
-	ftab.methods[methodKey{typ: recv, name: name}] = fn
+func (ftab *FuncTable) InsertMethod(recv *types.TypeName, name string, fn *sexp.Func) {
+	key := methodKey{
+		pkgName:  recv.Pkg().Name(),
+		typeName: recv.Name(),
+		name:     name,
+	}
+	ftab.methods[key] = fn
 }
 
 // LookupFunc returns stored function or nil if no entry is found.
@@ -62,12 +68,17 @@ func (ftab *FuncTable) LookupFunc(p *types.Package, name string) *sexp.Func {
 }
 
 // LookupMethod returns stored method or nil if no entry is found.
-func (ftab *FuncTable) LookupMethod(recv *types.Named, name string) *sexp.Func {
-	return ftab.methods[methodKey{typ: recv, name: name}]
+func (ftab *FuncTable) LookupMethod(recv *types.TypeName, name string) *sexp.Func {
+	key := methodKey{
+		pkgName:  recv.Pkg().Name(),
+		typeName: recv.Name(),
+		name:     name,
+	}
+	return ftab.methods[key]
 }
 
-// ForEachFunc apply "visit" callback to each stored function.
-func (ftab *FuncTable) ForEachFunc(visit func(*sexp.Func)) {
+// ForEach apply "visit" callback to each stored function.
+func (ftab *FuncTable) ForEach(visit func(*sexp.Func)) {
 	for _, fn := range ftab.funcs {
 		visit(fn)
 	}
@@ -79,16 +90,15 @@ func (ftab *FuncTable) ForEachFunc(visit func(*sexp.Func)) {
 	}
 }
 
-// ForEach is like ForEachFunc, but also passes function packages
-// as a callback argument.
-func (ftab *FuncTable) ForEach(visit func(*types.Package, *sexp.Func)) {
+func (ftab *FuncTable) MasterFuncs() []*sexp.Func {
+	funcs := make([]*sexp.Func, 0, len(ftab.funcs))
 	for _, fn := range ftab.funcs {
-		visit(ftab.masterPkg, fn)
-	}
-	for k, fn := range ftab.externFuncs {
-		visit(k.pkg, fn)
+		funcs = append(funcs, fn)
 	}
 	for k, fn := range ftab.methods {
-		visit(k.typ.Obj().Pkg(), fn)
+		if k.pkgName == ftab.masterPkg.Name() {
+			funcs = append(funcs, fn)
+		}
 	}
+	return funcs
 }
