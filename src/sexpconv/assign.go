@@ -157,6 +157,16 @@ func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 				Typ:    typ,
 			}
 		}
+		if typ, ok := typ.(*types.Pointer); ok {
+			if derefTyp, ok := typ.Elem().Underlying().(*types.Struct); ok {
+				return &sexp.StructUpdate{
+					Struct: conv.Expr(lhs.X),
+					Index:  xtypes.LookupField(lhs.Sel.Name, derefTyp),
+					Expr:   expr,
+					Typ:    derefTyp,
+				}
+			}
+		}
 		panic(exn.Conv(conv.fileSet, "can't assign to", lhs))
 
 	// #TODO: struct assign, indirect assign

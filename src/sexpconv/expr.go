@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -147,6 +148,14 @@ func (conv *converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	panic(errUnexpectedExpr(conv, node))
 }
 
+func (conv *converter) structIndex(typ *types.Struct, node *ast.SelectorExpr) *sexp.StructIndex {
+	return &sexp.StructIndex{
+		Struct: conv.Expr(node.X),
+		Index:  xtypes.LookupField(node.Sel.Name, typ),
+		Typ:    typ,
+	}
+}
+
 func (conv *converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
@@ -154,10 +163,13 @@ func (conv *converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 
 	typ := conv.typeOf(node.X)
 	if typ, ok := typ.Underlying().(*types.Struct); ok {
-		return &sexp.StructIndex{
-			Struct: conv.Expr(node.X),
-			Index:  xtypes.LookupField(node.Sel.Name, typ),
-			Typ:    typ,
+		return conv.structIndex(typ, node)
+	}
+	if typ, ok := typ.(*types.Pointer); ok {
+		// Single level of indirection for structs is the same
+		// as not having indirection at all.
+		if derefTyp, ok := typ.Elem().Underlying().(*types.Struct); ok {
+			return conv.structIndex(derefTyp, node)
 		}
 	}
 
@@ -189,9 +201,19 @@ func (conv *converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 		return sexp.NewNeg(x)
 	case token.ADD:
 		return x
+	case token.AND:
+		return conv.takeAddr(x)
 	}
 
 	panic(errUnexpectedExpr(conv, node))
+}
+
+func (conv *converter) takeAddr(form sexp.Form) sexp.Form {
+	if xtypes.IsStruct(form.Type()) {
+		return form // #REFS: 25
+	}
+
+	panic(exn.NoImpl("take address operation"))
 }
 
 func (conv *converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {

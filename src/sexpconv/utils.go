@@ -2,6 +2,7 @@ package sexpconv
 
 import (
 	"go/ast"
+	"go/types"
 	"sexp"
 	"sys_info/function"
 	"xtypes"
@@ -31,13 +32,35 @@ func (conv *converter) valueCopyList(forms []sexp.Form) []sexp.Form {
 }
 
 func (conv *converter) valueCopy(form sexp.Form) sexp.Form {
-	if xtypes.IsArray(form.Type()) && !isArrayLit(form) {
+	typ := form.Type()
+
+	// Copy array.
+	if xtypes.IsArray(typ) && !isArrayLit(form) {
 		return &sexp.LispCall{
 			Fn:   function.CopySequence,
 			Args: []sexp.Form{form},
 		}
 	}
+
+	// Copy struct.
+	if typ, ok := typ.Underlying().(*types.Struct); ok && !isStructLit(form) {
+		vals := make([]sexp.Form, typ.NumFields())
+		for i := 0; i < typ.NumFields(); i++ {
+			vals[i] = conv.valueCopy(&sexp.StructIndex{
+				Struct: form,
+				Index:  i,
+				Typ:    typ,
+			})
+		}
+		return &sexp.StructLit{Vals: vals, Typ: typ}
+	}
+
 	return form
+}
+
+func isStructLit(form sexp.Form) bool {
+	_, ok := form.(*sexp.StructLit)
+	return ok
 }
 
 func isArrayLit(form sexp.Form) bool {

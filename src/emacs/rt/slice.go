@@ -11,13 +11,13 @@ type Slice struct {
 	cap    int
 }
 
-func SliceLen(slice Slice) int { return slice.len }
-func SliceCap(slice Slice) int { return slice.cap }
+func SliceLen(slice *Slice) int { return slice.len }
+func SliceCap(slice *Slice) int { return slice.cap }
 
 // MakeSlice creates a new slice with cap=len.
 // All values initialized to specified zero value.
-func MakeSlice(length int, zv lisp.Object) Slice {
-	return Slice{
+func MakeSlice(length int, zv lisp.Object) *Slice {
+	return &Slice{
 		data: lisp.MakeVector(length, zv),
 		len:  length,
 		cap:  length,
@@ -26,7 +26,7 @@ func MakeSlice(length int, zv lisp.Object) Slice {
 
 // MakeSliceCap creates a new slice.
 // Each value within length bounds is initialized to specified zero value.
-func MakeSliceCap(length, capacity int, zv lisp.Object) Slice {
+func MakeSliceCap(length, capacity int, zv lisp.Object) *Slice {
 	if length == capacity {
 		return MakeSlice(length, zv)
 	}
@@ -34,28 +34,28 @@ func MakeSliceCap(length, capacity int, zv lisp.Object) Slice {
 	for i := 0; i < length; i++ {
 		lisp.Aset(data, i, zv)
 	}
-	return Slice{data: data, len: length, cap: capacity}
+	return &Slice{data: data, len: length, cap: capacity}
 }
 
 // ArrayToSlice constructs a new slice from given data vector.
 // Vector is not copied.
-func ArrayToSlice(data lisp.Object) Slice {
+func ArrayToSlice(data lisp.Object) *Slice {
 	length := lisp.Length(data)
-	return Slice{data: data, len: length, cap: length}
+	return &Slice{data: data, len: length, cap: length}
 }
 
 // SliceGet extract slice value using specified index.
-func SliceGet(slice Slice, index int) lisp.Object {
+func SliceGet(slice *Slice, index int) lisp.Object {
 	return lisp.Aref(slice.data, slice.offset+index)
 }
 
 // SliceSet sets slice value at specified index.
-func SliceSet(slice Slice, index int, val lisp.Object) {
+func SliceSet(slice *Slice, index int, val lisp.Object) {
 	lisp.Aset(slice.data, index+slice.offset, val)
 }
 
 // SlicePush = "append(slice, val)".
-func SlicePush(slice Slice, val lisp.Object) Slice {
+func SlicePush(slice *Slice, val lisp.Object) *Slice {
 	pos := slice.len
 	if pos == slice.cap {
 		// Need to extend slice storage.
@@ -73,7 +73,7 @@ func SlicePush(slice Slice, val lisp.Object) Slice {
 				newData,
 			)
 		}
-		return Slice{
+		return &Slice{
 			data:   newData,
 			len:    pos + 1,
 			cap:    slice.cap + memExtendPush,
@@ -86,13 +86,13 @@ func SlicePush(slice Slice, val lisp.Object) Slice {
 	return slice
 }
 
-func sliceLenBound(slice Slice, index int) {
+func sliceLenBound(slice *Slice, index int) {
 	if index < 0 || index > slice.len {
 		lisp.Error("slice bounds out of range")
 	}
 }
 
-func sliceCapBound(slice Slice, index int) {
+func sliceCapBound(slice *Slice, index int) {
 	if index < 0 || index > slice.cap {
 		lisp.Error("slice bounds out of range")
 	}
@@ -100,7 +100,7 @@ func sliceCapBound(slice Slice, index int) {
 
 // SliceCopyFast is SliceCopy specialization that is appliable if both
 // `dst' and `src' have zero offset.
-func SliceCopyFast(dst, src Slice) {
+func SliceCopyFast(dst, src *Slice) {
 	dstData := dst.data
 	srcData := src.data
 	count := lisp.MinInt(dst.len, src.len)
@@ -111,7 +111,7 @@ func SliceCopyFast(dst, src Slice) {
 
 // SliceCopy copies one slice contents to another.
 // Up to "min(len(dst), len(src))" elements are copied.
-func SliceCopy(dst, src Slice) {
+func SliceCopy(dst, src *Slice) {
 	if dst.offset == 0 && src.offset == 0 {
 		SliceCopyFast(dst, src)
 		return
@@ -123,10 +123,10 @@ func SliceCopy(dst, src Slice) {
 }
 
 // SliceSlice2 = "slice[low:high]".
-func SliceSlice2(slice Slice, low, high int) Slice {
+func SliceSlice2(slice *Slice, low, high int) *Slice {
 	sliceLenBound(slice, low)
 	sliceCapBound(slice, high)
-	return Slice{
+	return &Slice{
 		data:   slice.data,
 		offset: slice.offset + low,
 		len:    high - low,
@@ -135,9 +135,9 @@ func SliceSlice2(slice Slice, low, high int) Slice {
 }
 
 // SliceSliceLow = "slice[low:]".
-func SliceSliceLow(slice Slice, low int) Slice {
+func SliceSliceLow(slice *Slice, low int) *Slice {
 	sliceLenBound(slice, low)
-	return Slice{
+	return &Slice{
 		data:   slice.data,
 		offset: slice.offset + low,
 		len:    slice.len - low,
@@ -146,9 +146,9 @@ func SliceSliceLow(slice Slice, low int) Slice {
 }
 
 // SliceSliceHigh = "slice[:high]".
-func SliceSliceHigh(slice Slice, high int) Slice {
+func SliceSliceHigh(slice *Slice, high int) *Slice {
 	sliceCapBound(slice, high)
-	return Slice{
+	return &Slice{
 		data:   slice.data,
 		offset: slice.offset,
 		len:    high,
@@ -157,8 +157,8 @@ func SliceSliceHigh(slice Slice, high int) Slice {
 }
 
 // ArraySlice2 slices an array: "arr[low:high]".
-func ArraySlice2(arr lisp.Object, low, high int) Slice {
-	return Slice{
+func ArraySlice2(arr lisp.Object, low, high int) *Slice {
+	return &Slice{
 		data:   arr,
 		offset: low,
 		len:    high - low,
@@ -167,9 +167,9 @@ func ArraySlice2(arr lisp.Object, low, high int) Slice {
 }
 
 // ArraySliceLow slices an array: "arr[low:]".
-func ArraySliceLow(arr lisp.Object, low int) Slice {
+func ArraySliceLow(arr lisp.Object, low int) *Slice {
 	length := lisp.Length(arr)
-	return Slice{
+	return &Slice{
 		data:   arr,
 		offset: low,
 		len:    length - low,
@@ -178,8 +178,8 @@ func ArraySliceLow(arr lisp.Object, low int) Slice {
 }
 
 // ArraySliceHigh slices an array: "arr[:high]".
-func ArraySliceHigh(arr lisp.Object, high int) Slice {
-	return Slice{
+func ArraySliceHigh(arr lisp.Object, high int) *Slice {
+	return &Slice{
 		data:   arr,
 		offset: 0,
 		len:    high,
