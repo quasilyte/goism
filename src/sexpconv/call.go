@@ -14,7 +14,7 @@ import (
 func (conv *converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
-		Args: conv.valueCopyList(conv.exprList(args)),
+		Args: conv.copyValuesList(conv.exprList(args)),
 	}
 }
 
@@ -22,9 +22,9 @@ func (conv *converter) uniArgList(args []interface{}) []sexp.Form {
 	forms := make([]sexp.Form, len(args))
 	for i, arg := range args {
 		if node, ok := arg.(ast.Expr); ok {
-			forms[i] = conv.valueCopy(conv.Expr(node))
+			forms[i] = conv.copyValue(conv.Expr(node))
 		} else {
-			forms[i] = conv.valueCopy(arg.(sexp.Form))
+			forms[i] = conv.copyValue(arg.(sexp.Form))
 		}
 	}
 	return forms

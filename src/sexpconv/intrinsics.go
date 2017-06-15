@@ -41,7 +41,7 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	case "Call":
 		// #FIXME: non-constant symbols should also be valid.
 		name := constant.StringVal(conv.valueOf(args[0]))
-		args := conv.valueCopyList(conv.exprList(args[1:]))
+		args := conv.copyValuesList(conv.exprList(args[1:]))
 		if call := conv.instrCall(name, args); call != nil {
 			return call
 		}

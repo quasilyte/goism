@@ -117,12 +117,12 @@ func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 			if xtypes.IsGlobal(conv.info.Uses[lhs]) {
 				return &sexp.VarUpdate{
 					Name: conv.env.InternVar(nil, lhs.Name),
-					Expr: conv.valueCopy(expr),
+					Expr: conv.copyValue(expr),
 				}
 			}
-			return &sexp.Rebind{Name: lhs.Name, Expr: conv.valueCopy(expr)}
+			return &sexp.Rebind{Name: lhs.Name, Expr: conv.copyValue(expr)}
 		}
-		return &sexp.Bind{Name: lhs.Name, Init: conv.valueCopy(expr)}
+		return &sexp.Bind{Name: lhs.Name, Init: conv.copyValue(expr)}
 
 	case *ast.IndexExpr:
 		switch typ := conv.typeOf(lhs.X).(type) {
@@ -170,7 +170,7 @@ func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 		obj := conv.info.ObjectOf(lhs.Sel)
 		return &sexp.VarUpdate{
 			Name: conv.env.InternVar(obj.Pkg(), lhs.Sel.Name),
-			Expr: conv.valueCopy(expr),
+			Expr: conv.copyValue(expr),
 		}
 
 	// #TODO: indirect assign

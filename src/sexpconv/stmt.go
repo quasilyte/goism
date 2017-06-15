@@ -58,7 +58,7 @@ func (conv *converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	}
 
 	return &sexp.Return{
-		Results: conv.valueCopyList(results),
+		Results: conv.copyValuesList(results),
 	}
 }
 

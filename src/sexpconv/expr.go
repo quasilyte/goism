@@ -229,7 +229,7 @@ func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	case *types.Map:
 		return &sexp.LispCall{
 			Fn: function.Gethash,
-			Args: conv.valueCopyList([]sexp.Form{
+			Args: conv.copyValuesList([]sexp.Form{
 				conv.Expr(node.Index),
 				conv.Expr(node.X),
 				ZeroValue(typ.Elem()),
@@ -325,7 +325,7 @@ func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp
 	for _, elt := range node.Elts {
 		kv := elt.(*ast.KeyValueExpr)
 		key := kv.Key.(*ast.Ident)
-		vals[xtypes.LookupField(key.Name, typ)] = conv.valueCopy(conv.Expr(kv.Value))
+		vals[xtypes.LookupField(key.Name, typ)] = conv.copyValue(conv.Expr(kv.Value))
 	}
 	for i, val := range vals {
 		if val == nil {
