@@ -11,14 +11,14 @@ import (
 	"sys_info/function"
 )
 
-func (conv *Converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
+func (conv *converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
 	return &sexp.Call{
 		Fn:   fn,
 		Args: conv.valueCopyList(conv.exprList(args)),
 	}
 }
 
-func (conv *Converter) uniArgList(args []interface{}) []sexp.Form {
+func (conv *converter) uniArgList(args []interface{}) []sexp.Form {
 	forms := make([]sexp.Form, len(args))
 	for i, arg := range args {
 		if node, ok := arg.(ast.Expr); ok {
@@ -32,15 +32,15 @@ func (conv *Converter) uniArgList(args []interface{}) []sexp.Form {
 
 // Convenient function to generate function call node.
 // Recognizes ast.Expr and sexp.Form as arguments.
-func (conv *Converter) call(fn *sexp.Func, args ...interface{}) *sexp.Call {
+func (conv *converter) call(fn *sexp.Func, args ...interface{}) *sexp.Call {
 	return &sexp.Call{Fn: fn, Args: conv.uniArgList(args)}
 }
 
-func (conv *Converter) lispCall(fn *function.LispFn, args ...interface{}) *sexp.LispCall {
+func (conv *converter) lispCall(fn *function.LispFn, args ...interface{}) *sexp.LispCall {
 	return &sexp.LispCall{Fn: fn, Args: conv.uniArgList(args)}
 }
 
-func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
+func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	// #REFS: 2.
 	switch args := node.Args; fn := node.Fun.(type) {
 	case *ast.SelectorExpr: // x.sel()
@@ -58,9 +58,13 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.intrinFuncCall(fn.Sel.Name, args)
 		}
 
-		// return conv.callExprList(conv.makeFunction(fn.Sel, pkg.Name), args)
-		// Should be fixed along with cross-package inlining. REFS: #34.
-		panic(errUnexpectedExpr(conv, node))
+		return conv.callExprList(
+			conv.ftab.LookupFunc(
+				conv.info.ObjectOf(fn.Sel).Pkg(),
+				fn.Sel.Name,
+			),
+			args,
+		)
 
 	case *ast.Ident: // f()
 		switch fn.Name {
@@ -104,7 +108,7 @@ func (conv *Converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			key, m := args[0], args[1]
 			return conv.lispCall(function.Remhash, m, key)
 		default:
-			return conv.callExprList(conv.env.LookupFunc(fn.Name), args)
+			return conv.callExprList(conv.ftab.LookupFunc(nil, fn.Name), args)
 		}
 
 	default:

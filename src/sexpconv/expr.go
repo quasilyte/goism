@@ -10,7 +10,7 @@ import (
 	"xtypes"
 )
 
-func (conv *Converter) Expr(node ast.Expr) sexp.Form {
+func (conv *converter) Expr(node ast.Expr) sexp.Form {
 	switch node := node.(type) {
 	case *ast.ParenExpr:
 		return conv.Expr(node.X)
@@ -40,7 +40,7 @@ func (conv *Converter) Expr(node ast.Expr) sexp.Form {
 	}
 }
 
-func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
+func (conv *converter) Ident(node *ast.Ident) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
 	}
@@ -71,7 +71,7 @@ func (conv *Converter) Ident(node *ast.Ident) sexp.Form {
 	return sexp.Var{Name: node.Name, Typ: typ}
 }
 
-func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
+func (conv *converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
 	}
@@ -147,7 +147,7 @@ func (conv *Converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
 	panic(errUnexpectedExpr(conv, node))
 }
 
-func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
+func (conv *converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
 	}
@@ -175,7 +175,7 @@ func (conv *Converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 	}
 }
 
-func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
+func (conv *converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 	if cv := conv.Constant(node); cv != nil {
 		return cv
 	}
@@ -194,13 +194,13 @@ func (conv *Converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 	panic(errUnexpectedExpr(conv, node))
 }
 
-func (conv *Converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
+func (conv *converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 	expr := conv.Expr(node.X)
 	assertTyp := conv.typeOf(node.Type)
 	return &sexp.TypeAssert{Expr: expr, Typ: assertTyp}
 }
 
-func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
+func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
 		return &sexp.LispCall{
@@ -227,7 +227,7 @@ func (conv *Converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	}
 }
 
-func (conv *Converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
+func (conv *converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
 	var low, high sexp.Form
 	if node.Low != nil {
 		low = conv.Expr(node.Low)
@@ -246,7 +246,7 @@ func (conv *Converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
 	}
 }
 
-func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
+func (conv *converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 	switch typ := conv.typeOf(node).(type) {
 	case *types.Array:
 		return conv.arrayLit(node, typ)
@@ -260,7 +260,7 @@ func (conv *Converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 	}
 }
 
-func (conv *Converter) sliceLit(node *ast.CompositeLit, typ *types.Slice) sexp.Form {
+func (conv *converter) sliceLit(node *ast.CompositeLit, typ *types.Slice) sexp.Form {
 	if len(node.Elts) == 0 {
 		return ZeroValue(typ)
 	}
@@ -268,7 +268,7 @@ func (conv *Converter) sliceLit(node *ast.CompositeLit, typ *types.Slice) sexp.F
 	return &sexp.SliceLit{Vals: conv.exprList(node.Elts), Typ: typ}
 }
 
-func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.Form {
+func (conv *converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.Form {
 	if len(node.Elts) == 0 {
 		return ZeroValue(typ)
 	}
@@ -296,7 +296,7 @@ func (conv *Converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 	return &sexp.ArrayLit{Vals: conv.exprList(node.Elts), Typ: typ}
 }
 
-func (conv *Converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp.Form {
+func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp.Form {
 	vals := make([]sexp.Form, typ.NumFields())
 	for _, elt := range node.Elts {
 		kv := elt.(*ast.KeyValueExpr)

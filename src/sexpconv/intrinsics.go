@@ -10,7 +10,7 @@ import (
 	"sys_info/function"
 )
 
-func (conv *Converter) lispObjectMethod(fn string, recv ast.Expr, args []ast.Expr) sexp.Form {
+func (conv *converter) lispObjectMethod(fn string, recv ast.Expr, args []ast.Expr) sexp.Form {
 	switch fn {
 	case "Bool":
 		return conv.call(rt.FnCoerceBool, recv)
@@ -28,7 +28,7 @@ func (conv *Converter) lispObjectMethod(fn string, recv ast.Expr, args []ast.Exp
 	return nil
 }
 
-func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
+func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	switch sym {
 	case "Int", "Float", "Str", "Symbol", "Bool":
 		// These types can be constructed only from
@@ -63,7 +63,7 @@ func (conv *Converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	}
 }
 
-func (conv *Converter) intrinIntern(arg ast.Expr) sexp.Form {
+func (conv *converter) intrinIntern(arg ast.Expr) sexp.Form {
 	if cv := conv.valueOf(arg); cv != nil {
 		s := constant.StringVal(cv)
 		if s == "" {

@@ -20,7 +20,7 @@ func isBlankIdent(node ast.Expr) bool {
 	return false
 }
 
-func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
+func (conv *converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 	switch node.Tok {
 	case token.ADD_ASSIGN:
 		return conv.addAssign(node.Lhs[0], node.Rhs[0])
@@ -36,14 +36,14 @@ func (conv *Converter) AssignStmt(node *ast.AssignStmt) sexp.Form {
 	}
 }
 
-func (conv *Converter) genAssign(lhs, rhs []ast.Expr) sexp.Form {
+func (conv *converter) genAssign(lhs, rhs []ast.Expr) sexp.Form {
 	if len(lhs) == len(rhs) {
 		return conv.singleValueAssign(lhs, rhs)
 	}
 	return conv.multiValueAssign(lhs, rhs[0])
 }
 
-func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+func (conv *converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	typ := conv.basicTypeOf(rhs)
 	x, y := conv.Expr(lhs), conv.Expr(rhs)
 	if typ.Kind() == types.String {
@@ -52,22 +52,22 @@ func (conv *Converter) addAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	return conv.assign(lhs, sexp.NewAdd(x, y))
 }
 
-func (conv *Converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+func (conv *converter) subAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	x, y := conv.Expr(lhs), conv.Expr(rhs)
 	return conv.assign(lhs, sexp.NewSub(x, y))
 }
 
-func (conv *Converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+func (conv *converter) mulAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	x, y := conv.Expr(lhs), conv.Expr(rhs)
 	return conv.assign(lhs, sexp.NewMul(x, y))
 }
 
-func (conv *Converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
+func (conv *converter) quoAssign(lhs ast.Expr, rhs ast.Expr) sexp.Form {
 	x, y := conv.Expr(lhs), conv.Expr(rhs)
 	return conv.assign(lhs, sexp.NewQuo(x, y))
 }
 
-func (conv *Converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
+func (conv *converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
 	tuple := conv.typeOf(rhs).(*types.Tuple)
 	forms := make([]sexp.Form, tuple.Len())
 
@@ -86,7 +86,7 @@ func (conv *Converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
 	return forms
 }
 
-func (conv *Converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) *sexp.FormList {
+func (conv *converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) *sexp.FormList {
 	forms := make([]sexp.Form, len(lhs))
 
 	for i, rhs := range conv.rhsMultiValues(rhs) {
@@ -96,7 +96,7 @@ func (conv *Converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) *sexp.Form
 	return &sexp.FormList{Forms: forms}
 }
 
-func (conv *Converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
+func (conv *converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for i := range lhs {
@@ -107,7 +107,7 @@ func (conv *Converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
 	return &sexp.FormList{Forms: forms}
 }
 
-func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
+func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	switch lhs := lhs.(type) {
 	case *ast.Ident:
 		if lhs.Name == blankIdent {
@@ -165,7 +165,7 @@ func (conv *Converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
 	}
 }
 
-func (conv *Converter) ignoredExpr(expr sexp.Form) sexp.Form {
+func (conv *converter) ignoredExpr(expr sexp.Form) sexp.Form {
 	switch expr := expr.(type) {
 	case *sexp.Call:
 		// Function call can not be ignored because

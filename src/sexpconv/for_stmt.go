@@ -8,7 +8,7 @@ import (
 	"sexp"
 )
 
-func (conv *Converter) RangeStmt(node *ast.RangeStmt) sexp.Form {
+func (conv *converter) RangeStmt(node *ast.RangeStmt) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Array:
 		return conv.foreachArray(node, typ)
@@ -18,7 +18,7 @@ func (conv *Converter) RangeStmt(node *ast.RangeStmt) sexp.Form {
 	}
 }
 
-func (conv *Converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.Form {
+func (conv *converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.Form {
 	if node.Tok == token.ASSIGN {
 		panic(exn.NoImpl("'=' assign in for initializer"))
 	}
@@ -47,7 +47,7 @@ func (conv *Converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.
 	panic(exn.NoImpl("for loop variant"))
 }
 
-func (conv *Converter) ForStmt(node *ast.ForStmt) sexp.Form {
+func (conv *converter) ForStmt(node *ast.ForStmt) sexp.Form {
 	body := conv.BlockStmt(node.Body)
 	if node.Post != nil {
 		body.Forms = append(body.Forms, conv.Stmt(node.Post))

@@ -3,15 +3,13 @@ package symbols
 import (
 	"go/types"
 	"magic_pkg/emacs/lisp"
-	"sexp"
 	"strings"
 )
 
 type Env struct {
-	pkgPath       string
+	masterPkgName string
 	symbols       map[string]string
 	externSymbols map[*types.Package]map[string]string
-	funcs         map[string]*sexp.Func
 }
 
 func pkgFullName(pkgPath string) string {
@@ -21,19 +19,10 @@ func pkgFullName(pkgPath string) string {
 
 func NewEnv(pkgPath string) *Env {
 	return &Env{
-		pkgPath:       pkgFullName(pkgPath),
+		masterPkgName: pkgFullName(pkgPath),
 		symbols:       make(map[string]string),
 		externSymbols: make(map[*types.Package]map[string]string),
-		funcs:         make(map[string]*sexp.Func),
 	}
-}
-
-func (env *Env) AddFunc(name string, fn *sexp.Func) {
-	env.funcs[name] = fn
-}
-
-func (env *Env) LookupFunc(name string) *sexp.Func {
-	return env.funcs[name]
 }
 
 func (env *Env) ContainsVar(name string) bool {
@@ -53,7 +42,7 @@ func (env *Env) internVar(bucket map[string]string, pkgPath string, name string)
 func (env *Env) InternVar(pkg *types.Package, name string) string {
 	switch {
 	case pkg == nil:
-		return env.internVar(env.symbols, env.pkgPath, name)
+		return env.internVar(env.symbols, env.masterPkgName, name)
 
 	case pkg == lisp.Package:
 		return lisp.FFI[name].Sym
@@ -64,6 +53,6 @@ func (env *Env) InternVar(pkg *types.Package, name string) string {
 			bucket = make(map[string]string)
 			env.externSymbols[pkg] = bucket
 		}
-		return env.internVar(bucket, pkg.Path()[len("emacs/"):], name)
+		return env.internVar(bucket, pkg.Path(), name)
 	}
 }

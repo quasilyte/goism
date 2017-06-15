@@ -9,7 +9,7 @@ import (
 	"sexp"
 )
 
-func (conv *Converter) Constant(node ast.Expr) sexp.Form {
+func (conv *converter) Constant(node ast.Expr) sexp.Form {
 	if cv := conv.valueOf(node); cv != nil {
 		typ := conv.typeOf(node)
 		if types.Identical(typ, lisp.TypSymbol) {

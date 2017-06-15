@@ -32,7 +32,7 @@ var nameToInstr = map[string]instr.Instr{
 	"equal":    instr.Equal,
 }
 
-func (conv *Converter) instrCall(name string, args []sexp.Form) sexp.Form {
+func (conv *converter) instrCall(name string, args []sexp.Form) sexp.Form {
 	if name == "concat" {
 		return &sexp.InstrCall{Instr: instr.Concat(len(args)), Args: args}
 	}

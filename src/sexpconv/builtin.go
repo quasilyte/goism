@@ -9,7 +9,7 @@ import (
 	"sys_info/function"
 )
 
-func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
+func (conv *converter) lenBuiltin(arg ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(arg).(type) {
 	case *types.Map:
 		return conv.lispCall(function.HashTableCount, arg)
@@ -25,7 +25,7 @@ func (conv *Converter) lenBuiltin(arg ast.Expr) sexp.Form {
 	}
 }
 
-func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
+func (conv *converter) capBuiltin(arg ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(arg).(type) {
 	case *types.Array:
 		return sexp.Int(typ.Len())
@@ -38,7 +38,7 @@ func (conv *Converter) capBuiltin(arg ast.Expr) sexp.Form {
 	}
 }
 
-func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
+func (conv *converter) makeBuiltin(args []ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(args[0]).(type) {
 	case *types.Map:
 		if len(args) == 2 {
@@ -58,7 +58,7 @@ func (conv *Converter) makeBuiltin(args []ast.Expr) sexp.Form {
 	}
 }
 
-func (conv *Converter) appendBuiltin(args []ast.Expr) sexp.Form {
+func (conv *converter) appendBuiltin(args []ast.Expr) sexp.Form {
 	if len(args) != 2 {
 		panic(exn.NoImpl("variadic append"))
 	}

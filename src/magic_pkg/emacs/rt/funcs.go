@@ -40,9 +40,9 @@ var (
 	FnBytesToStr *sexp.Func
 )
 
-func InitFuncs(env *symbols.Env) {
+func InitFuncs(ftab *symbols.FuncTable) {
 	mustFindFunc := func(name string) *sexp.Func {
-		if fn := env.LookupFunc(name); fn != nil {
+		if fn := ftab.LookupFunc(Package, name); fn != nil {
 			return fn
 		}
 		panic(exn.Logic("`emacs/rt' misses `%s' function", name))

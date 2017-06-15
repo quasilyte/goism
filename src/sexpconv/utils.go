@@ -7,7 +7,7 @@ import (
 	"xtypes"
 )
 
-func (conv *Converter) exprList(nodes []ast.Expr) []sexp.Form {
+func (conv *converter) exprList(nodes []ast.Expr) []sexp.Form {
 	forms := make([]sexp.Form, len(nodes))
 	for i, node := range nodes {
 		forms[i] = conv.Expr(node)
@@ -15,7 +15,7 @@ func (conv *Converter) exprList(nodes []ast.Expr) []sexp.Form {
 	return forms
 }
 
-func (conv *Converter) stmtList(nodes []ast.Stmt) []sexp.Form {
+func (conv *converter) stmtList(nodes []ast.Stmt) []sexp.Form {
 	forms := make([]sexp.Form, len(nodes))
 	for i, node := range nodes {
 		forms[i] = conv.Stmt(node)
@@ -23,14 +23,14 @@ func (conv *Converter) stmtList(nodes []ast.Stmt) []sexp.Form {
 	return forms
 }
 
-func (conv *Converter) valueCopyList(forms []sexp.Form) []sexp.Form {
+func (conv *converter) valueCopyList(forms []sexp.Form) []sexp.Form {
 	for i := range forms {
 		forms[i] = conv.valueCopy(forms[i])
 	}
 	return forms
 }
 
-func (conv *Converter) valueCopy(form sexp.Form) sexp.Form {
+func (conv *converter) valueCopy(form sexp.Form) sexp.Form {
 	if xtypes.IsArray(form.Type()) && !isArrayLit(form) {
 		return &sexp.LispCall{
 			Fn:   function.CopySequence,

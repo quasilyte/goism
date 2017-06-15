@@ -57,11 +57,8 @@ func main() {
 }
 
 func loadPackage(pkgPath string, optimize bool) *tu.Package {
-	pkg, err := load.Package(util.Argv("pkgPath"))
+	pkg, err := load.Package(util.Argv("pkgPath"), optimize)
 	util.CheckError(err)
-	if optimize {
-		opt.OptimizeFuncs(pkg.Funcs)
-	}
 	return pkg
 }
 

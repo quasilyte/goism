@@ -8,7 +8,7 @@ import (
 	"xast"
 )
 
-func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
+func (conv *converter) Stmt(node ast.Stmt) sexp.Form {
 	switch node := node.(type) {
 	case *ast.IfStmt:
 		return conv.IfStmt(node)
@@ -34,7 +34,7 @@ func (conv *Converter) Stmt(node ast.Stmt) sexp.Form {
 	}
 }
 
-func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
+func (conv *converter) IfStmt(node *ast.IfStmt) *sexp.If {
 	if node.Init != nil {
 		panic(exn.NoImpl("if with initializer"))
 	}
@@ -49,7 +49,7 @@ func (conv *Converter) IfStmt(node *ast.IfStmt) *sexp.If {
 	return form
 }
 
-func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
+func (conv *converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	// #FIXME: will not work for "naked" returns.
 	results := make([]sexp.Form, len(node.Results))
 	for i, node := range node.Results {
@@ -62,11 +62,11 @@ func (conv *Converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	}
 }
 
-func (conv *Converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
+func (conv *converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
 	return &sexp.Block{Forms: conv.stmtList(node.List)}
 }
 
-func (conv *Converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
+func (conv *converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
 	decl := node.Decl.(*ast.GenDecl)
 
 	switch decl.Tok {
@@ -77,7 +77,7 @@ func (conv *Converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
 	panic(errUnexpectedStmt(conv, node))
 }
 
-func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
+func (conv *converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for _, spec := range node.Specs {
@@ -87,7 +87,7 @@ func (conv *Converter) varDecl(node *ast.GenDecl) *sexp.FormList {
 	return &sexp.FormList{Forms: forms}
 }
 
-func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.Form {
+func (conv *converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.Form {
 	if len(spec.Values) == 0 {
 		zv := ZeroValue(conv.typeOf(spec.Type))
 		for _, ident := range spec.Names {
@@ -102,7 +102,7 @@ func (conv *Converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.
 	return forms
 }
 
-func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
+func (conv *converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 	target := node.X.(*ast.Ident) // #FIXME: should be any "addressable".
 	if node.Tok == token.INC {
 		return &sexp.Rebind{
@@ -116,6 +116,6 @@ func (conv *Converter) IncDecStmt(node *ast.IncDecStmt) sexp.Form {
 	}
 }
 
-func (conv *Converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
+func (conv *converter) ExprStmt(node *ast.ExprStmt) sexp.Form {
 	return &sexp.ExprStmt{Expr: conv.Expr(node.X)}
 }
