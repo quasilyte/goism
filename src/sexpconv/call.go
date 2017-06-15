@@ -1,7 +1,6 @@
 package sexpconv
 
 import (
-	"exn"
 	"go/ast"
 	"go/types"
 	"ir/instr"
@@ -50,7 +49,10 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			if recv == lisp.TypObject {
 				return conv.lispObjectMethod(fn.Sel.Name, fn.X, args)
 			}
-			panic(exn.NoImpl("method calls"))
+			return conv.callExprList(
+				conv.ftab.LookupMethod(recv, fn.Sel.Name),
+				append([]ast.Expr{fn.X}, args...),
+			)
 		}
 
 		pkg := fn.X.(*ast.Ident)
@@ -107,6 +109,7 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		case "delete":
 			key, m := args[0], args[1]
 			return conv.lispCall(function.Remhash, m, key)
+
 		default:
 			return conv.callExprList(
 				conv.ftab.LookupFunc(conv.ftab.MasterPkg(), fn.Name),

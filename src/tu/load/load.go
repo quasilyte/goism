@@ -140,10 +140,10 @@ func collectFunc(u *unit, p *xast.Package, decl *ast.FuncDecl) {
 		// Method.
 		params := make([]string, 0, decl.Type.Params.NumFields()+1)
 		params = append(params, recv.Name()) // "recv" param
-		typename := recv.Type().(*types.Named).Obj()
-		fn.Name = symbols.MangleMethod(p.FullName, typename.Name(), name)
+		typ := recv.Type().(*types.Named)
+		fn.Name = symbols.MangleMethod(p.FullName, typ.Obj().Name(), name)
 		fn.Params = collectParamNames(params, decl)
-		u.ftab.InsertMethod(typename, name, fn)
+		u.ftab.InsertMethod(typ, name, fn)
 	}
 	u.decls[fn] = funcDeclData{
 		decl: decl,

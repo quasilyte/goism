@@ -20,7 +20,7 @@ type funcKey struct {
 }
 
 type methodKey struct {
-	typ  *types.TypeName
+	typ  *types.Named
 	name string
 }
 
@@ -49,7 +49,7 @@ func (ftab *FuncTable) InsertFunc(p *types.Package, name string, fn *sexp.Func) 
 }
 
 // InsertMethod inserts a new method into table.
-func (ftab *FuncTable) InsertMethod(recv *types.TypeName, name string, fn *sexp.Func) {
+func (ftab *FuncTable) InsertMethod(recv *types.Named, name string, fn *sexp.Func) {
 	ftab.methods[methodKey{typ: recv, name: name}] = fn
 }
 
@@ -62,7 +62,7 @@ func (ftab *FuncTable) LookupFunc(p *types.Package, name string) *sexp.Func {
 }
 
 // LookupMethod returns stored method or nil if no entry is found.
-func (ftab *FuncTable) LookupMethod(recv *types.TypeName, name string) *sexp.Func {
+func (ftab *FuncTable) LookupMethod(recv *types.Named, name string) *sexp.Func {
 	return ftab.methods[methodKey{typ: recv, name: name}]
 }
 
@@ -89,6 +89,6 @@ func (ftab *FuncTable) ForEach(visit func(*types.Package, *sexp.Func)) {
 		visit(k.pkg, fn)
 	}
 	for k, fn := range ftab.methods {
-		visit(k.typ.Pkg(), fn)
+		visit(k.typ.Obj().Pkg(), fn)
 	}
 }
