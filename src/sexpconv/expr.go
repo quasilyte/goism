@@ -35,6 +35,8 @@ func (conv *converter) Expr(node ast.Expr) sexp.Form {
 		return conv.CompositeLit(node)
 	case *ast.SliceExpr:
 		return conv.SliceExpr(node)
+	case *ast.StarExpr:
+		return conv.StarExpr(node)
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
@@ -331,4 +333,12 @@ func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp
 		}
 	}
 	return &sexp.StructLit{Vals: vals, Typ: typ}
+}
+
+func (conv *converter) StarExpr(node *ast.StarExpr) sexp.Form {
+	typ := conv.typeOf(node.X).(*types.Pointer)
+	if derefTyp, ok := typ.Elem().Underlying().(*types.Struct); ok {
+		return conv.copyStruct(derefTyp, conv.Expr(node.X))
+	}
+	panic(errUnexpectedExpr(conv, node))
 }

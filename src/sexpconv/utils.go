@@ -42,17 +42,8 @@ func (conv *converter) valueCopy(form sexp.Form) sexp.Form {
 		}
 	}
 
-	// Copy struct.
 	if typ, ok := typ.Underlying().(*types.Struct); ok && !isStructLit(form) {
-		vals := make([]sexp.Form, typ.NumFields())
-		for i := 0; i < typ.NumFields(); i++ {
-			vals[i] = conv.valueCopy(&sexp.StructIndex{
-				Struct: form,
-				Index:  i,
-				Typ:    typ,
-			})
-		}
-		return &sexp.StructLit{Vals: vals, Typ: typ}
+		return conv.copyStruct(typ, form)
 	}
 
 	return form
