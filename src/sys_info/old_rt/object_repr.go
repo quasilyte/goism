@@ -9,7 +9,7 @@ type StructRepr int
 
 const (
 	StructEmpty StructRepr = iota
-	StructAtom
+	StructUnit
 	StructCons
 	StructVec
 )
@@ -20,7 +20,7 @@ func StructReprOf(typ *types.Struct) StructRepr {
 		panic(exn.NoImpl("empty structs"))
 		return StructEmpty
 	case 1:
-		return StructAtom
+		return StructUnit
 	case 2, 3, 4:
 		return StructCons
 	default:

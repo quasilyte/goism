@@ -63,8 +63,9 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
 	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructAtom:
+	case old_rt.StructUnit:
 		compileExpr(cl, form.Vals[0])
+		emit(cl, instr.List(1))
 
 	case old_rt.StructCons:
 		compileExprList(cl, form.Vals)
@@ -77,8 +78,9 @@ func compileStructLit(cl *Compiler, form *sexp.StructLit) {
 
 func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructAtom:
+	case old_rt.StructUnit:
 		compileExpr(cl, form.Struct)
+		emit(cl, instr.Car)
 
 	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)

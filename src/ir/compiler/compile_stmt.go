@@ -114,13 +114,10 @@ func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructAtom:
-		s := form.Struct.(sexp.Var)
-		if cl.st.Find(s.Name) != -1 {
-			compileRebind(cl, s.Name, form.Expr)
-		} else {
-			compileVarUpdate(cl, s.Name, form.Expr)
-		}
+	case old_rt.StructUnit:
+		compileExpr(cl, form.Struct)
+		compileExpr(cl, form.Expr)
+		emit(cl, instr.SetCar)
 
 	case old_rt.StructCons:
 		compileExpr(cl, form.Struct)

@@ -111,7 +111,7 @@ func cost(forms []Form) int {
 
 func structIndexCost(form *StructIndex) int {
 	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructAtom:
+	case old_rt.StructUnit:
 		return 1 + Cost(form.Struct)
 	case old_rt.StructCons:
 		return 1 + form.Index + Cost(form.Struct)
