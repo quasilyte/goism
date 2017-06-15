@@ -18,3 +18,7 @@ func Mangle(pkgPath string, name string) string {
 
 	return string(buf)
 }
+
+func MangleMethod(pkgPath string, recv string, name string) string {
+	return Mangle(pkgPath+"."+recv, name)
+}

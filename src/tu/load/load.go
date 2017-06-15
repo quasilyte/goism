@@ -124,14 +124,27 @@ func collectFuncs(u *unit) {
 
 func collectFunc(u *unit, p *xast.Package, decl *ast.FuncDecl) {
 	sig := declSignature(p.Info, decl)
+	name := decl.Name.Name
 	fn := &sexp.Func{
-		Name:      symbols.Mangle(p.FullName, decl.Name.Name),
-		Params:    declParamNames(decl),
 		DocString: decl.Doc.Text(),
 		Variadic:  sig.Variadic(),
 		Results:   resultTuple(sig),
 	}
-	u.ftab.InsertFunc(p.TypPkg, decl.Name.Name, fn)
+	if recv := sig.Recv(); recv == nil {
+		// Function.
+		params := make([]string, 0, decl.Type.Params.NumFields())
+		fn.Name = symbols.Mangle(p.FullName, name)
+		fn.Params = collectParamNames(params, decl)
+		u.ftab.InsertFunc(p.TypPkg, name, fn)
+	} else {
+		// Method.
+		params := make([]string, 0, decl.Type.Params.NumFields()+1)
+		params = append(params, recv.Name()) // "recv" param
+		typename := recv.Type().(*types.Named).Obj()
+		fn.Name = symbols.MangleMethod(p.FullName, typename.Name(), name)
+		fn.Params = collectParamNames(params, decl)
+		u.ftab.InsertMethod(typename, name, fn)
+	}
 	u.decls[fn] = funcDeclData{
 		decl: decl,
 		pkg:  p,

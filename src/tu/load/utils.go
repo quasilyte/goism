@@ -31,14 +31,11 @@ func funcDeclIndex(env *symbols.Env, p *xast.Package) map[string]*ast.FuncDecl {
 	return res
 }
 
-// Collect flat list of param names.
-func declParamNames(decl *ast.FuncDecl) []string {
-	params := decl.Type.Params
-	res := make([]string, 0, params.NumFields())
-	for _, p := range params.List {
+func collectParamNames(params []string, decl *ast.FuncDecl) []string {
+	for _, p := range decl.Type.Params.List {
 		for _, ident := range p.Names {
-			res = append(res, ident.Name)
+			params = append(params, ident.Name)
 		}
 	}
-	return res
+	return params
 }
