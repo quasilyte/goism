@@ -53,6 +53,7 @@ func (env *Env) InternVar(pkg *types.Package, name string) string {
 			bucket = make(map[string]string)
 			env.externSymbols[pkg] = bucket
 		}
-		return env.internVar(bucket, pkg.Path(), name)
+
+		return env.internVar(bucket, pkg.Path()[len("emacs/"):], name)
 	}
 }
