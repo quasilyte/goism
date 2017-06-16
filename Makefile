@@ -22,7 +22,6 @@ clean:
 	rm -rf build/* bin/*
 
 install:
-	mkdir -p $(EMACS_GOPATH)/src/emacs
 	cp bin/goism_translate_package $(DST)/bin/
 	chmod 755 $(DST)/bin/goism_translate_package
 
