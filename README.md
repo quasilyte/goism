@@ -41,8 +41,6 @@ so it is not going to be any slower than "native" Emacs Lisp.
 * [Quick guide (getting started)](docs/quick_guide.md)
 * [Translation specification](docs/translation_spec.md)
 * [Features that are not implemented](docs/unimplemented.md)
-* [Go "emacs" package overview](docs/go_emacs.md)
-* [Emacs "Go" library](docs/emacs_go.md)
 * [goism implementation design](docs/design.md)
 
 To see what features are going to be implemented in near future,
