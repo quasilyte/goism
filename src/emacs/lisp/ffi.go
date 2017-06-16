@@ -208,3 +208,25 @@ func MinInt(xs ...int) int
 //
 //goism:"MinFloat"->"min"
 func MinFloat(xs ...float64) float64
+
+// Message = Display a message at the bottom of the screen.
+// The message also goes into the ‘*Messages*’ buffer, if ‘message-log-max’
+// is non-nil.  (In keyboard macros, that’s all it does.)
+// Return the message.
+//
+// In batch mode, the message is printed to the standard error stream,
+// followed by a newline.
+//
+// The first argument is a format control string, and the rest are data
+// to be formatted under control of the string.  See ‘format-message’ for
+// details.
+//
+// Note: (message "%s" VALUE) displays the string VALUE without
+// interpreting format characters like ‘%’, ‘`’, and ‘'’.
+//
+// If the first argument is nil or the empty string, the function clears
+// any existing message; this lets the minibuffer contents show.  See
+// also ‘current-message’.
+//
+//goism:"Message"->"message"
+func Message(format string, args ...any) string
