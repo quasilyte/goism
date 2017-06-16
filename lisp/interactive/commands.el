@@ -25,12 +25,10 @@ Example: `(goism-translate \"emacs/example\")'"
   "Calls `goism-translate', evaluates output buffer and then closes it.
 Not recommended for untrusted packages."
   (interactive "sGo package: ")
-  (goism-translate-by-name pkg-path)
+  (goism-translate pkg-path)
   (with-current-buffer goism-output-buffer-name
     (eval-buffer)
     (kill-buffer-and-window)))
-
-
 
 (defun goism-disassemble (pkg-path &optional disable-opt)
   "Read Go package PKG-PATH and print its IR.
