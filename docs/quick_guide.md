@@ -1,10 +1,15 @@
 # Quick guide
 
-**NOTE**: this guide is outdated; It will be updated when new FFI 
-will fully replace old mechanism.
-
 This guide presents a shortest way to learn `goism`.
 Details described elsewhere.
+
+**Note**: this guide is written for Linux systems.
+
+## 0. Script install
+
+If you wish to skip most of the text, use 
+[quick install script](../script/quick_install)
+to prepare you environment with default settings.
 
 ## 1. Preparations
 
@@ -13,12 +18,14 @@ Details described elsewhere.
 * `go` 1.6 or above
 * `emacs` 24.1 or above (lexical scoping)
 * Fundamental tools like `make` and `git`
-* `GOPATH` is set (see **1.3**)
+* `GOPATH` is properly set (see **1.3**)
 
 ### 1.2 Install
 
 ```
-# Download repository.
+mkdir -p ~/.emacs.d/
+cd ~/.emacs.d/
+# Download the repository.
 git clone https://github.com/Quasilyte/goism.git
 cd 'goism'
 # Build everything.
@@ -28,6 +35,7 @@ sudo make install
 ```
 
 > `<...>` inside paths means "directory which contains cloned goism"
+> (should be the same as `GOPATH` is you follow default installation scheme)
 
 Note that you can avoid `make install`.
 This guide is written for the case when you do install it.
@@ -37,6 +45,7 @@ Because `goism` is not a proper Emacs package yet,
 you have to `load` it manually. 
 
 Options:
+* Use `script/quick_run` (requires `GOPATH` to be set, see **1.3**)
 * `(load "<...>/goism/build/goism.elc")`
 * Visit `build/goism.elc` buffer and run `M-x RET eval-buffer`
 
@@ -51,38 +60,46 @@ Choose `~/.emacs.d/goism/` if you want more defaults to
 work out-of-the-box.
 
 Add `export GOPATH=~/.emacs.d/goism/` to your `~/.bashrc`.
-If you choose different location, update `Go-emacs-gopath`
+If you choose different location, update `goism-emacs-gopath`
 variable (can be done through `M-x customize`, 
 group `development`->`goism`).
 
-It is mandatory to store your code below Go workspace.
+It is mandatory to store your code under the  
+[Go workspace](https://golang.org/doc/code.html#Workspaces).
 If you already have `GOPATH` set, then switch it temporary
 or use current workspace for the rest of the guide.
 
 ### 1.4 Check installation
 
 At this point you need to have `goism` loaded into Emacs (see **1.2**).
+If it is not, run emacs via `script/quick_run`.
 
-`<...>/goism/src/emacs` contains useful packages that
+`<...>/goism/src/emacs` contains special packages that
 are copied into `~/.emacs.d/goism/src/emacs` during `make install`.
+`emacs/rt` and `emacs/lisp` packages are mandatory.
 
-Run `M-x Go-translate-by-name` and enter `example` package name.
+Run `M-x goism-translate` and enter `rt` package name.
 You should see `*goism compile*` temporary buffer which contain
 compiled Go package. 
 
 Switch to that buffer and do `M-x eval-buffer`.
 
-> As an alternative, you may use `Go-load-by-name`.
-> Use `C-h f Go-load-by-name` for more information.
+> As an alternative, you may use `goism-load`.
+> Use `C-h f gosim-load` for more information.
 
 ```clojure
 ;; You can paste this code in *Scratch* buffer and evaluate it.
-(Go-example.PrintFiveLetters [?a ?b ?c ?d ?e])
-(Go-example.PrintMessage "Hello, Emacs!") 
+(goism-rt.arrayToStr [?a ?b]) ;; => "ab"
+(goism-rt.Println '("hello" "world")) ;; Check *Messages* buffer
 ```
 
-Check the `*Messages*` buffer. It must contain output
-that is done by invocations of `Go-example.Print*`.
+You have just loaded `goism` runtime (rt) package.
+In order to execute code that uses slices, maps and other 
+fancy stuff, runtime must be loaded into Emacs.
+
+It is convenient to save `*goism compile*` contents and
+load it inside your `.emacs`. This way runtime will always
+be available.
 
 ## 2. Basic usage
 
@@ -91,14 +108,12 @@ that is done by invocations of `Go-example.Print*`.
 Each package that is intended to be executed inside Emacs
 should have `emacs` path prefix.
 This means that the package `guide` we are about to create
-will have `emacs/guide` path.
+will have `emacs/guide` path (the absolute path is, therefore,
+`$GOPATH/src/emacs/guide`).
 
-```shell
-mkdir -p $GOPATH/src/emacs/guide
-emacs $GOPATH/src/emacs/guide/guide.go
-```
-
-Fill opened file with code from snippet below:
+1. Create new package directory: `mkdir -p $GOPATH/src/emacs/guide`
+2. Open new with `M-x find-file $GOPATH/src/emacs/guide/guide.go`
+3. Fill opened file with snipped presented below
 
 ```go
 // Package guide is a part of quick guide document.
@@ -120,49 +135,53 @@ func Factorial(x int) int {
 We have **package comment** and a function with **documentation comment**.
 Generated code will preserves documentation.
 
-Run `M-x Go-load-by-name RET guide`.
+Run `M-x goism-load RET guide`.
 
 ```clojure
-(Go-guide.Factorial 4)
-;; => 120
-Go-guide.fact3
-;; => 6
-Go-guide.fact4
-;; => 24
-```
+;; Test functions:
+(goism-guide.Factorial 4) ;; => 120
 
-If you want to save generated package, run `Go-translate-by-name`
-and save buffer contents to a file.
+;; Test variables:
+goism-guide.fact3 ;; => 6
+goism-guide.fact4 ;; => 24
+```
 
 Your package may consist of multiple files.
 Multiple package comments are permitted, they are joined together.
 
 > You can bind compilation to a hotkey for convenience:
-> `(global-set-key (kbd "C-x g") 'Go-translate-by-name)`
+> `(global-set-key (kbd "C-x g") 'goism-translate)`
 
 ### 2.2 Import existing Go package
 
 ```shell
 # Create another package.
 
-mkdir -p $GOPATH/src/emacs/mylib
+mkdir -p $GOPATH/src/emacs/guide/mylib
 
-cat << EOF > $GOPATH/src/emacs/mylib/mylib.go
+cat << EOF > $GOPATH/src/emacs/guide/mylib/mylib.go
 package mylib
 
 const FavNumber = 256
 
 func GreetMsg(name string) string {
-    return "Hello, " + name
+	if name == "" {
+		name = "Emacs user"
+	}
+    return "Hello, " + name + "!"
 }
 EOF
 ```
 
-Modify `guide.go` file by adding `import "emacs/mylib"`
-and a new function that uses it.
+Visit a new file `M-x find-file $GOPATH/src/emacs/guide/foo.go`
+Import `mylib` package:
 
 ```go
-import "emacs/mylib"
+package guide 
+
+import (
+	"emacs/guide/mylib"
+)
 
 func Foo() {
     println("FavNumber=", mylib.FavNumber)
@@ -170,30 +189,38 @@ func Foo() {
 }
 ```
 
-Now try to evaluate `(Go-guide.Foo)`.
+Now try to evaluate `(goism-guide.Foo)`.
+
 You should get this:
 ```
-Debugger entered--Lisp error: (void-function Go-mylib\.GreetMsg)
-  Go-mylib\.GreetMsg("Lisp hacker")
-  Go-guide\.Foo()
+Debugger entered--Lisp error: (void-function goism-guide/mylib.GreetMsg)
+  goism-guide/mylib.GreetMsg("Lisp hacker")
+  goism-guide.Foo()
 ```
 
-`Go-mylib.GreetMsg` is undefined.
+`goism-guide/mylib.GreetMsg` is undefined.
 
 That is correct, you have not loaded `mylib` yet.
-Execute `M-x Go-load-by-name RET mylib` and run `Foo` again.
+Execute `M-x goism-load RET guide/mylib` and run `Foo` again.
+
+Expected output is:
+```
+"FavNumber=" 256
+"Hello, Lisp hacker!"
+```
 
 ### 2.3 Type mapping overview
 
 * Integers, floats and strings map in intuitive way
-* Some fundamental Elisp types are available via `emacs/lisp` package
+* Some special Elisp types are available via `emacs/lisp` package
 * Go maps are Elisp hash tables
 * Go arrays implemented via Elisp vectors
 * Go slices are emulated by vectors with {offset, len, cap}.
-* Go structures use untagged vectors
+* Go structures represented as lists and vectors (depending on the field count)
 * Go interfaces use `(type-info . data)` pairs
 
-Pointers are in TODO list, but their representation is not yet decided.
+Right now only single level of indirection is possible; and only
+for struct types. 
 Unsigned integers of different fixed sizes are emulated, 
 but in a tricky way; to get more details, 
 see [translation spec](translation_spec.md).
@@ -201,10 +228,16 @@ see [translation spec](translation_spec.md).
 ### 2.4 emacs/lisp package
 
 You can call any Emacs Lisp function with `lisp.Call`:
-`lisp.Call("insert", lisp.Str("Text to be inserted"))`.
+`lisp.Call("insert", "Text to be inserted")`.
 
 `lisp.Call` returns `lisp.Object` which is an interface type.
-Underlying object may be `lisp.Int`, `lisp.Symbol`, ...
+It can be queried for specific type value in type-assert style:
+`x := lisp.Call("+", 1, 2).Int()`.
+
+Functions that have `FFI` wrapper can be called in more
+convenient and type safe way:
+`lisp.Insert("Text to be inserted")` 
+More on `FFI` in **2.5**.
 
 ```go
 package example
@@ -212,35 +245,51 @@ package example
 import "emacs/lisp"
 
 func usingLispPackage(a, b int) int {
-	x := lisp.Call("+", lisp.Int(a), lisp.Int(b))
-	// `x' is `lisp.Object'.  But we know it is int,
-	// because `+' for two ints should return int.
-	var xLispInt := x.(lisp.Int) 
-	var xInt := int(xLispInt)
-	// When we know the exact return type of lisp
-	// function, special Call form can be used.
-	y := lisp.CallInt("+", lisp.Int(a), lisp.Int(b))
-	// `y' is `lisp.Int'.
-	return int(y)
+	// Create Lisp cons pair.
+	pair := lisp.Call("cons", 1, 2)
+	// Access cons pair members.
+	a := lisp.Call("car", pair)
+	b := lisp.Call("cdr", pair)
+	// Coerce lisp.Object to ints.
+	return a.Int() + b.Int()
 }
 ```
 
 Look into `emacs/lisp` package sources to see full API.
+If you want *real examples*, `emacs/rt` package is what you
+are looking for.
 
-### 2.5 emacs/emacs utility package
+### 2.5 emacs/lisp FFI
 
-`emacs/lisp` package is very low-level and tedious to use
-for functions that are frequently used.
+`src/emacs/lisp/ffi.go` contains automatically generated 
+FFI signatures. 
 
-Package `emacs/emacs`, which is bundled with `goism`,
-provides convenience wrappers around `emacs/lisp`.
-It is written as an ordinary `goism` package so
-you can write such a package by yourself.
+You can edit that file, for example, remove some functions
+from it, but if you wish to add new entries, using **FFI generator**
+is strongly advised.
 
-```go
-// Compare:
-lisp.Call("insert", lisp.Str("123"))
-emacs.Insert("123")
+Suppose you want to add `identity` Lisp function that takes
+any argument and returns it:
+
+1. First, load `lisp/ffi/ffi.el`.
+2. Now open `lisp/ffi/default-ffi.el`
+3. Look for the "Other functions" comment
+4. Insert `(identity Identity (:any x) :object)` below that comment
+5. Evaluate whole form (goism-declare)
+6. Copy `*ffi.go*` buffer contents to `$GOPATH/src/emacs/lisp/ffi.go`
+
+Now it is possible to call `identity` as `lisp.Identity` inside 
+you Go code.
+
+```
+;; FFI entry format.
+(identity Identity (:any x) :object)
+ ^        ^        ^        ^
+ |        |        |        |
+ |        |        |        Output type (can not be :any)
+ |        |        List of input params. {type, name} pairs
+ |        Symbol that is visible inside Go. Should be a valid Go identifier
+ lisp symbol; function to be called via FFI
 ```
 
 ## 3. Conventions, best practices and advices
@@ -248,26 +297,23 @@ emacs.Insert("123")
 ### 3.1 Public API design
 
 Two kinds of packages should be distinguished.
-The first kind is libraries that are intended tobe used
+The first kind is libraries that are intended to be used
 from Go code (written for Emacs).
 Nothing special about them.
+`emacs/guide/mylib` is such package.
 
 The second kind is a packages that expose functions
 to be called from Emacs Lisp directly. 
+
 Important points:
-* Take and return `emacs/lisp` package types
+* Do not return types that are specific to Go runtime (e.g. slices)
 * Do not use multiple return values
 
 ```go
 // BAD
-func f1(x int) int { return x }
-// GOOD
-func f1(x lisp.Int) lisp.Int { return x }
-
-// BAD
 func f2() (int, int) { return 1, 2 }
 // GOOD
 func f2() lisp.Object { 
-	return lisp.Call("cons", lisp.Int(1), lisp.Int(2)) 
+	return lisp.Call("cons", 1, 2) 
 }
 ```
