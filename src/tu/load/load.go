@@ -20,6 +20,8 @@ import (
 	"tu"
 	"tu/symbols"
 	"xast"
+
+	"github.com/pkg/errors"
 )
 
 type unit struct {
@@ -53,7 +55,7 @@ func newUnit(masterPkg *types.Package, pkgPath string) *unit {
 }
 
 func Runtime() error {
-	pkgPath := build.Default.GOPATH + "/src/emacs/rt"
+	pkgPath := "emacs/rt"
 	pkg, err := translatePkg(pkgPath)
 	if err != nil {
 		return err
@@ -69,6 +71,9 @@ func Runtime() error {
 }
 
 func Package(pkgPath string, optimize bool) (*tu.Package, error) {
+	if err := checkPkgPath(pkgPath); err != nil {
+		return nil, errors.Wrapf(err, "translate `%s'", pkgPath)
+	}
 	masterPkg, err := translatePkg(pkgPath)
 	if err != nil {
 		return nil, err
@@ -211,8 +216,7 @@ func collectImportsIter(pkgs *[]*xast.Package, p *xast.Package) error {
 			continue // "emacs/lisp" is a special package (lisp "unsafe")
 		}
 
-		pkgPath := build.Default.GOPATH + "/src/" + imp.Path()
-		pkg, err := translatePkg(pkgPath)
+		pkg, err := translatePkg(imp.Path())
 		if err != nil {
 			return err
 		}
@@ -232,6 +236,7 @@ func collectImports(u *unit, p *xast.Package) error {
 }
 
 func translatePkg(pkgPath string) (*xast.Package, error) {
+	pkgPath = build.Default.GOPATH + "/src/" + pkgPath
 	fset := token.NewFileSet()
 	astPkg, err := parseDir(fset, pkgPath, parser.ParseComments)
 	if err != nil {
