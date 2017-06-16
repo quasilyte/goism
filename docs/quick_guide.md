@@ -168,7 +168,7 @@ func GreetMsg(name string) string {
 	if name == "" {
 		name = "Emacs user"
 	}
-    return "Hello, " + name + "!"
+	return "Hello, " + name + "!"
 }
 EOF
 ```
