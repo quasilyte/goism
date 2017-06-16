@@ -20,7 +20,7 @@ func init() {
 	program := &util.ProgramInfo
 	program.Description =
 		"Translate single Go package into IR format."
-	program.Name = "goel_translate_package"
+	program.Name = "goism_translate_package"
 }
 
 func main() {
