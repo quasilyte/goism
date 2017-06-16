@@ -9,4 +9,5 @@ mkdir -p ~/.emacs.d/ &&
     git clone https://github.com/Quasilyte/goism.git && # Download the repo
     cd 'goism' &&
     make all && # Build everything
+    echo 'Now need sudo to install binaries to /usr/local/bin:' &&
     sudo make install # Install bundled emacs packages and compiled binaries

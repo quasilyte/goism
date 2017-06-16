@@ -23,13 +23,16 @@ clean:
 
 install:
 	mkdir -p $(EMACS_GOPATH)/src/emacs
+	cp bin/goism_translate_package $(DST)/bin/
+	chmod 755 $(DST)/bin/goism_translate_package
+
+# Needed only if GOPATH not point to goism source dir.
+install_lisp:
 	cp -R src/emacs/lisp $(EMACS_GOPATH)/src/emacs/
 	cp -R src/emacs/rt $(EMACS_GOPATH)/src/emacs/
 	cp -R src/emacs/example $(EMACS_GOPATH)/src/emacs/
-	cp bin/goism_translate_package $(DST)/bin/
-	chmod 755 $(DST)/bin/goism_translate_package
 
 uninstall:
 	rm $(DST)/bin/goism_translate_package
 
-.PHONY: all lisp translate_package clean install uninstall
+.PHONY: all lisp translate_package clean install install_lisp uninstall
