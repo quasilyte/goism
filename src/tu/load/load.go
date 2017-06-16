@@ -176,9 +176,6 @@ func collectInitializers(p *xast.Package, conv *sexpconv.Converter) initData {
 			Lhs: idents,
 			Rhs: init.Rhs,
 		}))
-		if len(body) != 0 {
-			body = append(body, &sexp.Return{})
-		}
 
 		// Clear information that was added to type info above.
 		for _, ident := range idents {
@@ -198,6 +195,10 @@ func collectInitializers(p *xast.Package, conv *sexpconv.Converter) initData {
 			vars = append(vars, sym)
 			body = append(body, conv.VarZeroInit(sym, v.Type()))
 		}
+	}
+
+	if len(body) != 0 {
+		body = append(body, &sexp.Return{})
 	}
 
 	return initData{
