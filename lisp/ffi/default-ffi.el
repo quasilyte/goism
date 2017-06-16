@@ -28,5 +28,6 @@
  (gethash Gethash (:any key :any table :any dflt) :object)
  (min MinInt (:int &xs) :int)
  (min MinFloat (:float &xs) :float)
+ (message Message (:string format :any &args) :string)
  ;; Other functions:
  )
