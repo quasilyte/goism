@@ -275,7 +275,7 @@ any argument and returns it:
 2. Now open `lisp/ffi/default-ffi.el`
 3. Look for the "Other functions" comment
 4. Insert `(identity Identity (:any x) :object)` below that comment
-5. Evaluate whole form (goism-declare)
+5. Evaluate the whole form `(goism-declare ... (identity ...))`
 6. Copy `*ffi.go*` buffer contents to `$GOPATH/src/emacs/lisp/ffi.go`
 
 Now it is possible to call `identity` as `lisp.Identity` inside 
