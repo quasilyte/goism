@@ -225,7 +225,44 @@ Unsigned integers of different fixed sizes are emulated,
 but in a tricky way; to get more details, 
 see [translation spec](translation_spec.md).
 
-### 2.4 emacs/lisp package
+### 2.4 User defined types
+
+Like any gopher you may want to define your own types.
+
+This section describes some details about how your Go types are
+mapped into Emacs Lisp.
+
+For simple `type T1 T2` types you get overhead-free, unboxed values.
+This means that `Foo` from `type Foo int` is expressed as an 
+ordinary integer. No allocations are performed during such objects
+instantiation (unless the `T2` is composite object itself).
+
+Struct types yield either (improper) lists or vestors.
+When field count is less than 5, list is used,
+othervise vector is chosen.
+```
+struct {x1 int}                     | (cons x1 nil)
+struct {x1, x2 int}                 | (cons x1 x2)
+struct {x1, x2, x3 int}             | (cons x1 (cons x2 x3))
+struct {x1, x2, x3, x4 int}         | (cons x1 (cons x2 (cons x3 x4)))
+struct {x1, x2, x3, x4, x5 int}     | (vector x1 x2 x3 x4 x5)
+struct {x1, x2, x3, x4, x5, x6 int} | (vector x1 x2 x3 x4 x5 x6)
+```
+
+This has several consequences:
+* Taking address `&S` is free
+* Dereferencing `*S` is free
+* Passing `S` by value creates a copy, but passes a refential type
+* Objects are untagged (no type ID member)
+
+Using `*S` is more efficient than `S` in **all** cases.
+Pass `S` only when you really need an object copy.
+
+The `N=4` threshold may be changed in future.
+The main point is that you should not rely on the Go struct objects
+data layout. Do not pass them to your Elisp code.
+
+### 2.5 emacs/lisp package
 
 You can call any Emacs Lisp function with `lisp.Call`:
 `lisp.Call("insert", "Text to be inserted")`.
@@ -237,7 +274,7 @@ It can be queried for specific type value in type-assert style:
 Functions that have `FFI` wrapper can be called in more
 convenient and type safe way:
 `lisp.Insert("Text to be inserted")` 
-More on `FFI` in **2.5**.
+More on `FFI` in **2.6**.
 
 ```go
 package example
@@ -259,7 +296,7 @@ Look into `emacs/lisp` package sources to see full API.
 If you want *real examples*, `emacs/rt` package is what you
 are looking for.
 
-### 2.5 emacs/lisp FFI
+### 2.6 emacs/lisp FFI
 
 `src/emacs/lisp/ffi.go` contains automatically generated 
 FFI signatures. 
@@ -317,3 +354,16 @@ func f2() lisp.Object {
 	return lisp.Call("cons", 1, 2) 
 }
 ```
+
+### 3.2 Monitoring implementation status
+
+Features that are not implemented and are not planned to
+be implemented in near future can be found in 
+[unimplemented.md](unimplemented.md).
+
+Github [Projects tab](https://github.com/Quasilyte/goism/projects)
+contains project roadmaps.
+
+[Issues](https://github.com/Quasilyte/goism/issues) are a good 
+source of known bugs and limitations. 
+By the way, you are welcome to open new issues.
