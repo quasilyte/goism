@@ -29,5 +29,6 @@
  (min MinInt (:int &xs) :int)
  (min MinFloat (:float &xs) :float)
  (message Message (:string format :any &args) :string)
+ (insert Insert (:any &args) :void)
  ;; Other functions:
  )

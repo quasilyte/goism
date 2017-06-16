@@ -25,8 +25,9 @@ func argsDescriptor(fn *sexp.Func) int {
 
 // Return extended function documentation string.
 func docString(fn *sexp.Func) string {
+	docString := strings.Replace(fn.DocString, `"`, `\"`, -1)
 	if len(fn.Params) == 0 {
-		return fn.DocString
+		return docString
 	}
 
 	// Add signature information for eldoc.
@@ -36,9 +37,8 @@ func docString(fn *sexp.Func) string {
 	}
 	eldocSig := "\n(fn " + strings.Join(params, " ") + ")"
 
-	if fn.DocString != "" {
-		comment := strings.Replace(fn.DocString, `"`, `\"`, -1)
-		return comment + eldocSig
+	if docString != "" {
+		return docString + eldocSig
 	}
 	return "\n" + eldocSig
 }

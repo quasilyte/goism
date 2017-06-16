@@ -8,5 +8,5 @@ import (
 
 // HelloEmacs prints "Hello, world!" using `message' Lisp function.
 func HelloEmacs() {
-	lisp.Message("Hello, world!")
+	lisp.Insert("Hello, world!")
 }

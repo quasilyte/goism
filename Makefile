@@ -22,8 +22,9 @@ clean:
 	rm -rf build/* bin/*
 
 install:
-	cp bin/goism_translate_package $(DST)/bin/
-	chmod 755 $(DST)/bin/goism_translate_package
+	go install emacs/lisp
+	sudo cp bin/goism_translate_package $(DST)/bin/
+	sudo chmod 755 $(DST)/bin/goism_translate_package
 
 # Needed only if GOPATH not point to goism source dir.
 install_lisp:
