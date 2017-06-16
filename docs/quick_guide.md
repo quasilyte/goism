@@ -262,6 +262,16 @@ The `N=4` threshold may be changed in future.
 The main point is that you should not rely on the Go struct objects
 data layout. Do not pass them to your Elisp code.
 
+Methods converted to Elisp functions where first argument is
+methods receiver. 
+```
+type MyInt int
+
+// Both definitions produce same executable code.
+func (v MyInt) Sqr() int { return int(v * v) }
+func Sqr(v MyInt) int { return int(v * v) }
+```
+
 ### 2.5 emacs/lisp package
 
 You can call any Emacs Lisp function with `lisp.Call`:
