@@ -71,6 +71,9 @@ func Cost(form Form) int {
 		}
 		return Cost(form.Expr) + bindCost
 
+	case *TypeCast:
+		return Cost(form.Form)
+
 	case *And:
 		return Cost(form.X) + Cost(form.Y) + 3
 

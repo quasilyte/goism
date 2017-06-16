@@ -41,6 +41,7 @@ func (call *Call) form()      {}
 func (call *LispCall) form()  {}
 func (call *InstrCall) form() {}
 func (form *Let) form()       {}
+func (form *TypeCast) form()  {}
 
 func (form *And) form() {}
 func (form *Or) form()  {}

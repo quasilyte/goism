@@ -117,11 +117,18 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 func (conv *converter) callOrCoerce(p *types.Package, id *ast.Ident, args []ast.Expr) sexp.Form {
 	fn := conv.ftab.LookupFunc(p, id.Name)
 	if fn != nil {
+		// Call.
 		return conv.callExprList(fn, args)
 	}
+	// Coerce.
+	arg := conv.Expr(args[0])
+	dstTyp := arg.Type()
 	typ := conv.typeOf(id)
 	if _, ok := typ.Underlying().(*types.Basic); ok {
-		return conv.Expr(args[0]) // #REFS: 25
+		return arg // #REFS: 25
+	}
+	if types.Identical(typ.Underlying(), dstTyp) {
+		return arg // #REFS: 25
 	}
 	// #REFS: 44.
 	panic(exn.NoImpl("struct conversions"))

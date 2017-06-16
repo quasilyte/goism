@@ -160,6 +160,9 @@ func (form *Let) Copy() Form {
 	}
 	return &Let{Bindings: binds, Stmt: form.Stmt.Copy()}
 }
+func (form *TypeCast) Copy() Form {
+	return &TypeCast{Form: form.Form.Copy(), Typ: form.Typ}
+}
 
 func (form *And) Copy() Form {
 	return &And{X: form.X.Copy(), Y: form.Y.Copy()}

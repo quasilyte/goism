@@ -211,8 +211,11 @@ func (conv *converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 }
 
 func (conv *converter) takeAddr(form sexp.Form) sexp.Form {
-	if xtypes.IsStruct(form.Type()) {
-		return form // #REFS: 25
+	if typ := form.Type(); xtypes.IsStruct(typ) {
+		return &sexp.TypeCast{
+			Form: form, 
+			Typ: types.NewPointer(typ),
+		}
 	}
 
 	panic(exn.NoImpl("take address operation"))

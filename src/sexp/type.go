@@ -87,6 +87,9 @@ func (form *Let) Type() types.Type {
 	}
 	return form.Expr.Type()
 }
+func (form *TypeCast) Type() types.Type {
+	return form.Typ
+}
 
 func (form *And) Type() types.Type { return xtypes.TypBool }
 func (form *Or) Type() types.Type  { return xtypes.TypBool }

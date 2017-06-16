@@ -114,6 +114,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			form.Expr = Rewrite(form.Expr, f)
 		}
 
+	case *TypeCast:
+		return rewrite(form, f, &form.Form)
+
 	case *StructLit:
 		return rewriteList(form, form.Vals, f)
 	case *StructIndex:

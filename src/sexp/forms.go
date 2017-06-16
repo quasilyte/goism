@@ -233,6 +233,12 @@ type Let struct {
 	Stmt Form
 }
 
+// TypeCast overrides wrapped form type.
+type TypeCast struct {
+	Form Form
+	Typ  types.Type
+}
+
 type (
 	// And = "X && Y".
 	And struct {
