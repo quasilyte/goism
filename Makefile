@@ -30,7 +30,6 @@ install:
 install_lisp:
 	cp -R src/emacs/lisp $(EMACS_GOPATH)/src/emacs/
 	cp -R src/emacs/rt $(EMACS_GOPATH)/src/emacs/
-	cp -R src/emacs/example $(EMACS_GOPATH)/src/emacs/
 
 uninstall:
 	rm $(DST)/bin/goism_translate_package
