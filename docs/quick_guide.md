@@ -264,7 +264,7 @@ data layout. Do not pass them to your Elisp code.
 
 Methods converted to Elisp functions where first argument is
 methods receiver. 
-```
+```go
 type MyInt int
 
 // Both definitions produce same executable code.
