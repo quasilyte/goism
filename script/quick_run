@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Run emacs with goism.elc loaded after init.
+emacs --eval '(load "$GOPATH/build/goism.elc")'

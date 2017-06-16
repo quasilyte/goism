@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Notes:
+# - requires sudo ;
+# - installs `goism_translate_package' binary ;
+
+mkdir -p ~/.emacs.d/ &&
+    cd ~/.emacs.d/ &&
+    git clone https://github.com/Quasilyte/goism.git && # Download the repo
+    cd 'goism' &&
+    make all && # Build everything
+    sudo make install # Install bundled emacs packages and compiled binaries

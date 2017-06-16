@@ -16,7 +16,7 @@ lisp:
 	emacs -Q --batch -f batch-byte-compile build/goism.el
 
 translate_package:
-	go build -o bin/goel_translate_package main/translate_package
+	go build -o bin/goism_translate_package main/translate_package
 
 clean:
 	rm -rf build/* bin/*
@@ -24,12 +24,12 @@ clean:
 install:
 	mkdir -p $(EMACS_GOPATH)/src/emacs
 	cp -R src/emacs/lisp $(EMACS_GOPATH)/src/emacs/
+	cp -R src/emacs/rt $(EMACS_GOPATH)/src/emacs/
 	cp -R src/emacs/example $(EMACS_GOPATH)/src/emacs/
-	cp -R src/emacs/emacs $(EMACS_GOPATH)/src/emacs/
-	cp bin/goel_translate_package $(DST)/bin/
-	chmod 755 $(DST)/bin/goel_translate_package
+	cp bin/goism_translate_package $(DST)/bin/
+	chmod 755 $(DST)/bin/goism_translate_package
 
 uninstall:
-	rm $(DST)/bin/goel_translate_package
+	rm $(DST)/bin/goism_translate_package
 
 .PHONY: all lisp translate_package clean install uninstall
