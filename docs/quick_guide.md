@@ -277,8 +277,8 @@ func Sqr(v MyInt) int { return int(v * v) }
 You can call any Emacs Lisp function with `lisp.Call`:
 `lisp.Call("insert", "Text to be inserted")`.
 
-`lisp.Call` returns `lisp.Object` which is an interface type.
-It can be queried for specific type value in type-assert style:
+`lisp.Call` returns `lisp.Object` which is an interface type.  
+`lisp.Object` can be queried for specific type value in type-assert style:
 `x := lisp.Call("+", 1, 2).Int()`.
 
 Functions that have `FFI` wrapper can be called in more
