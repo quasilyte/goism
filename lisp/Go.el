@@ -28,12 +28,6 @@
 {{- template "public/commands" -}}
 ;; <IR compilation>
 {{- template "ir/ir" -}}
-;; <Runtime implementation>
-{{- template "rt/magic-vars" -}}
-{{- template "rt/builtin" -}}
-{{- template "rt/type-assert" -}}
-{{- template "rt/map" -}}
-{{- template "rt/slice" -}}
 
 (provide 'goism)
 
