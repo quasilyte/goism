@@ -282,8 +282,8 @@ You can call any Emacs Lisp function with `lisp.Call`:
 `x := lisp.Call("+", 1, 2).Int()`.
 
 Functions that have `FFI` wrapper can be called in more
-convenient and type safe way:
-`lisp.Insert("Text to be inserted")` 
+convenient and type safe way:  
+`lisp.Insert("Text to be inserted")`   
 More on `FFI` in **2.6**.
 
 ```go
