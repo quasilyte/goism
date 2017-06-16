@@ -25,7 +25,6 @@ func main() {
 		`lisp/*.el`,
 		`lisp/interactive/*el`,
 		`lisp/ir/*el`,
-		`lisp/runtime/*.el`,
 	}
 	tmpl := template.New("main")
 	for _, src := range tmplSources {
