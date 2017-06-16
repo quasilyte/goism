@@ -9,14 +9,14 @@
 
 (defun goism-translate (pkg-path)
   "Read Go package PKG-PATH and translate it into Emacs Lisp package.
-PKG-PATH should be prefixed with `emacs/'.
 Generated code is shown in temporary buffer.
 Note that this method depends on GOPATH environment variables.
 Requires `goism_translate_package' to be available.
 
 Example: `(goism-translate \"emacs/example\")'"
   (interactive "sGo package: ")
-  (let* ((res (goism--exec
+  (let* ((pkg-path (concat "emacs/" pkg-path))
+         (res (goism--exec
                "goism_translate_package"
                (format "-pkgPath=%s" pkg-path))))
     (Go--ir-pkg-compile (read (goism--cmd-output res)))))
@@ -35,7 +35,8 @@ Not recommended for untrusted packages."
 Output is shown in temporary buffer.
 Requires `goism_translate_package' to be available."
   (interactive "DGo package path: ")
-  (let* ((opt-arg (if disable-opt "false" "true"))
+  (let* ((pkg-path (concat "emacs/" pkg-path))
+         (opt-arg (if disable-opt "false" "true"))
          (res (goism--exec
                "goism_translate_package"
                "-output=asm"

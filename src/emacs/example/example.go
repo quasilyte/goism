@@ -6,7 +6,7 @@ import (
 	"emacs/lisp"
 )
 
-// HelloEmacs prints "Hello, world!" using `message' Lisp function.
+// HelloEmacs inserts "Hello, world!" using `insert' Lisp function.
 func HelloEmacs() {
 	lisp.Insert("Hello, world!")
 }
