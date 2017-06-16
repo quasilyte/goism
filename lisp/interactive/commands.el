@@ -17,7 +17,7 @@ Requires `goism_translate_package' to be available.
 Example: `(goism-translate \"emacs/example\")'"
   (interactive "sGo package: ")
   (let* ((res (goism--exec
-               "goel_translate_package"
+               "goism_translate_package"
                (format "-pkgPath=%s" pkg-path))))
     (Go--ir-pkg-compile (read (goism--cmd-output res)))))
 
@@ -37,7 +37,7 @@ Requires `goism_translate_package' to be available."
   (interactive "DGo package path: ")
   (let* ((opt-arg (if disable-opt "false" "true"))
          (res (goism--exec
-               "goel_translate_package"
+               "goism_translate_package"
                "-output=asm"
                (format "-pkgPath=%s" pkg-path)
                (format "-opt=%s" opt-arg))))

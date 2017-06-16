@@ -16,7 +16,7 @@ If remain empty, system PATH is used."
   :group 'goism
   :type 'directory)
 
-(defcustom goism-output-buffer-name "*goisl compile*"
+(defcustom goism-output-buffer-name "*goism compile*"
   "Temporary buffer name that is used for output."
   :group 'goism
   :type 'buffer-name)
