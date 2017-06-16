@@ -10,4 +10,4 @@ mkdir -p ~/.emacs.d/ &&
     cd 'goism' &&
     make all && # Build everything
     echo 'Now need sudo to install binaries to /usr/local/bin:' &&
-    sudo make install # Install bundled emacs packages and compiled binaries
+    make install # Install bundled emacs packages and compiled binaries
