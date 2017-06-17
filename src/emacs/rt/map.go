@@ -2,13 +2,6 @@ package rt
 
 import "emacs/lisp"
 
-/*
-(defun Go--make-map ()
-  (make-hash-table :test #'equal))
-(defun Go--make-map-cap (cap)
-  (make-hash-table :size cap :test #'equal))
-*/
-
 // MakeMap creates a new map.
 // Default size value is used (which is 65).
 func MakeMap() lisp.Object {
