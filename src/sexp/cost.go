@@ -2,6 +2,7 @@ package sexp
 
 import (
 	"exn"
+	"lang"
 	"sys_info/old_rt"
 )
 
@@ -113,12 +114,12 @@ func cost(forms []Form) int {
 }
 
 func structIndexCost(form *StructIndex) int {
-	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructUnit:
+	switch lang.StructReprOf(form.Typ) {
+	case lang.StructUnit:
 		return 1 + Cost(form.Struct)
-	case old_rt.StructCons:
+	case lang.StructCons:
 		return 1 + form.Index + Cost(form.Struct)
-	case old_rt.StructVec:
+	case lang.StructVec:
 		return 3 + Cost(form.Struct)
 	default:
 		return 0

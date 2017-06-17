@@ -3,9 +3,9 @@ package compiler
 import (
 	"assert"
 	"ir/instr"
+	"lang"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/old_rt"
 )
 
 func compileBlock(cl *Compiler, form *sexp.Block) {
@@ -113,13 +113,13 @@ func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 }
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
-	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructUnit:
+	switch lang.StructReprOf(form.Typ) {
+	case lang.StructUnit:
 		compileExpr(cl, form.Struct)
 		compileExpr(cl, form.Expr)
 		emit(cl, instr.SetCar)
 
-	case old_rt.StructCons:
+	case lang.StructCons:
 		compileExpr(cl, form.Struct)
 		if form.Index == 0 {
 			// First member.
@@ -136,7 +136,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			emit(cl, instr.SetCar)
 		}
 
-	case old_rt.StructVec:
+	case lang.StructVec:
 		compileArrayUpdate(cl, &sexp.ArrayUpdate{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

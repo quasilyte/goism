@@ -2,8 +2,8 @@ package compiler
 
 import (
 	"ir/instr"
+	"lang"
 	"sexp"
-	"sys_info/old_rt"
 )
 
 func compileBool(cl *Compiler, form sexp.Bool) {
@@ -62,34 +62,34 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 }
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
-	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructUnit:
+	switch lang.StructReprOf(form.Typ) {
+	case lang.StructUnit:
 		compileExpr(cl, form.Vals[0])
 		emit(cl, instr.List(1))
 
-	case old_rt.StructCons:
+	case lang.StructCons:
 		compileExprList(cl, form.Vals)
 		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
 
-	case old_rt.StructVec:
+	case lang.StructVec:
 		call(cl, "vector", form.Vals...)
 	}
 }
 
 func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
-	switch old_rt.StructReprOf(form.Typ) {
-	case old_rt.StructUnit:
+	switch lang.StructReprOf(form.Typ) {
+	case lang.StructUnit:
 		compileExpr(cl, form.Struct)
 		emit(cl, instr.Car)
 
-	case old_rt.StructCons:
+	case lang.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index)
 		if form.Typ.NumFields() != form.Index+1 { // Not last index.
 			emit(cl, instr.Car)
 		}
 
-	case old_rt.StructVec:
+	case lang.StructVec:
 		compileArrayIndex(cl, &sexp.ArrayIndex{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),
