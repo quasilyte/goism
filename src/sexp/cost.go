@@ -3,7 +3,6 @@ package sexp
 import (
 	"exn"
 	"lang"
-	"sys_info/old_rt"
 )
 
 // Cost returns a value that approximates computational
@@ -128,7 +127,7 @@ func structIndexCost(form *StructIndex) int {
 
 func lispCallCost(form *LispCall) int {
 	cost := callCost(form.Args)
-	if old_rt.ThrowingFuncs[form.Fn.Sym] {
+	if lang.FuncIsThrowing(form.Fn.Sym) {
 		cost += 3
 	}
 	return cost

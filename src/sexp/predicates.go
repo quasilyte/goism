@@ -1,7 +1,7 @@
 package sexp
 
 import (
-	"sys_info/old_rt"
+	"lang"
 	"xtypes"
 )
 
@@ -13,9 +13,9 @@ func IsStmt(form Form) bool {
 func IsThrow(form Form) bool {
 	switch form := form.(type) {
 	case *Call:
-		return old_rt.ThrowingFuncs[form.Fn.Name]
+		return lang.FuncIsThrowing(form.Fn.Name)
 	case *LispCall:
-		return old_rt.ThrowingFuncs[form.Fn.Sym]
+		return lang.FuncIsThrowing(form.Fn.Sym)
 
 	default:
 		return false
@@ -44,9 +44,9 @@ func IsReturning(form Form) bool {
 		return IsReturning(form.Expr)
 
 	case *Call:
-		return old_rt.ThrowingFuncs[form.Fn.Name]
+		return lang.FuncIsThrowing(form.Fn.Name)
 	case *LispCall:
-		return old_rt.ThrowingFuncs[form.Fn.Sym]
+		return lang.FuncIsThrowing(form.Fn.Sym)
 	}
 
 	return false
