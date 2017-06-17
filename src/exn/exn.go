@@ -64,6 +64,7 @@ func Conv(fileSet *token.FileSet, label string, node ast.Node) Error {
 	)
 }
 
+// Catch handles "recover()" return value.
 func Catch(x interface{}) error {
 	switch panicArg := x.(type) {
 	case nil:
