@@ -56,4 +56,12 @@ func TestConstPoolBytes(t *testing.T) {
 	if !bytes.Equal(result, expected) {
 		t.Errorf("%s != %s", string(result), string(expected))
 	}
+
+	cvec.Clear()
+
+	result = cvec.Bytes()
+	expected = []byte(`[]`)
+	if !bytes.Equal(result, expected) {
+		t.Errorf("%s != %s", string(result), string(expected))
+	}
 }
