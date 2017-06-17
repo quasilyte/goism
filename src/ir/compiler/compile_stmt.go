@@ -78,7 +78,7 @@ func compileBind(cl *Compiler, form *sexp.Bind) {
 
 func compileRebind(cl *Compiler, name string, expr sexp.Form) {
 	compileExpr(cl, expr)
-	stIndex := cl.st.Find(name)
+	stIndex := cl.st.Lookup(name)
 	emit(cl, instr.StackSet(stIndex))
 	// "-1" because we have just popped stask element.
 	cl.st.Rebind(stIndex-1, name)

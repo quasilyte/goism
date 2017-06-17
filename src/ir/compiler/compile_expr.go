@@ -15,7 +15,7 @@ func compileBool(cl *Compiler, form sexp.Bool) {
 }
 
 func compileVar(cl *Compiler, form sexp.Var) {
-	if stIndex := cl.st.Find(form.Name); stIndex != -1 {
+	if stIndex := cl.st.Lookup(form.Name); stIndex != -1 {
 		emit(cl, instr.StackRef(stIndex))
 	} else {
 		emit(cl, instr.VarRef(cl.cvec.InsertSym(form.Name)))

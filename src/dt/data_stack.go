@@ -71,8 +71,8 @@ func (st *DataStack) Replace(index uint16) {
 	st.Rebind(int(index-1), name)
 }
 
-// Find lookups binding and returns its ref index (not normal index).
-func (st *DataStack) Find(name string) int {
+// Lookup finds binding and returns its ref index (not normal index).
+func (st *DataStack) Lookup(name string) int {
 	maxIndex := len(st.names) - 1
 	for i := maxIndex; i >= 0; i-- {
 		if st.names[i] == name {
