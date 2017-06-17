@@ -1,4 +1,4 @@
-package dt
+package dt_test
 
 import (
 	"bytes"
