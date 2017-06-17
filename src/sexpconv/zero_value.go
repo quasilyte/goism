@@ -69,11 +69,11 @@ func ZeroValue(typ types.Type) sexp.Form {
 // Nil values
 var (
 	nilMap = sexp.Var{
-		Name: "Go--nil-map",
+		Name: "goism--nil-map",
 		Typ:  types.NewMap(lisp.TypObject, lisp.TypObject),
 	}
 
-	nilFunc      = sexp.Symbol{Val: "Go--nil-function"}
-	nilInterface = sexp.Symbol{Val: "Go--nil-interface"}
-	nilSlice     = sexp.Symbol{Val: "Go--nil-slice"}
+	nilFunc      = sexp.Symbol{Val: "goism--nil-function"}
+	nilInterface = sexp.Symbol{Val: "goism--nil-interface"}
+	nilSlice     = sexp.Symbol{Val: "goism--nil-slice"}
 )

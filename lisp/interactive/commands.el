@@ -13,13 +13,13 @@ Generated code is shown in temporary buffer.
 Note that this method depends on GOPATH environment variables.
 Requires `goism_translate_package' to be available.
 
-Example: `(goism-translate \"emacs/example\")'"
+Example: `(goism-translate \"example\")'"
   (interactive "sGo package: ")
   (let* ((pkg-path (concat "emacs/" pkg-path))
          (res (goism--exec
                "goism_translate_package"
                (format "-pkgPath=%s" pkg-path))))
-    (Go--ir-pkg-compile (read (goism--cmd-output res)))))
+    (goism--ir-pkg-compile (read (goism--cmd-output res)))))
 
 (defun goism-load (pkg-path)
   "Calls `goism-translate', evaluates output buffer and then closes it.

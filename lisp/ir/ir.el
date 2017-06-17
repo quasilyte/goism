@@ -4,81 +4,81 @@
 ;; Output IR package PKG to temp buffer.
 ;; Caller can decide to inspect/eval/save generated contents.
 ;; PKG is consumed.
-(defun Go--ir-pkg-compile (pkg)
+(defun goism--ir-pkg-compile (pkg)
   (with-output-to-temp-buffer goism-output-buffer-name
     (let ((pkg-name (pop! pkg))
           (pkg-comment (pop! pkg)))
-      (Go--ir-pkg-write-header pkg-name)
+      (goism--ir-pkg-write-header pkg-name)
       (when (not (string= "" pkg-comment))
-        (Go--ir-pkg-write-comment pkg-comment))
-      (Go--ir-pkg-write-body pkg)
-      (Go--ir-pkg-write-footer pkg-name))
+        (goism--ir-pkg-write-comment pkg-comment))
+      (goism--ir-pkg-write-body pkg)
+      (goism--ir-pkg-write-footer pkg-name))
     (with-current-buffer standard-output
       (emacs-lisp-mode)
       (setq buffer-read-only t))))
 
-(defun Go--ir-pkg-write-header (pkg-name)
+(defun goism--ir-pkg-write-header (pkg-name)
   (princ ";;; -*- lexical-binding: t -*-\n")
   (princ (format ";;; %s --- translated Go package\n" pkg-name))
   (princ ";; THIS CODE IS GENERATED, AVOID MANUAL EDITING!\n"))
 
-(defun Go--ir-pkg-write-comment (pkg-comment)
+(defun goism--ir-pkg-write-comment (pkg-comment)
   (princ "\n;;; Commentary:\n")
   (princ pkg-comment)
   (princ "\n\n;;; Code:\n"))
 
-(defun Go--ir-pkg-write-footer (pkg-name)
+(defun goism--ir-pkg-write-footer (pkg-name)
   (princ (format "\n;;; %s ends here" pkg-name)))
 
-(defun Go--ir-pkg-write-body (pkg)
+(defun goism--ir-pkg-write-body (pkg)
   (let (token)
     (while (setq token (pop! pkg))
       (pcase token
-        (`fn (Go--ir-pkg-write-fn pkg))
-        (`vars (Go--ir-pkg-write-vars pkg))
-        (`expr (Go--ir-pkg-write-expr pkg))
+        (`fn (goism--ir-pkg-write-fn pkg))
+        (`vars (goism--ir-pkg-write-vars pkg))
+        (`expr (goism--ir-pkg-write-expr pkg))
         (_ (error "Unexpected token `%s'" token))))))
 
-(defun Go--ir-pkg-write-fn (pkg)
+(defun goism--ir-pkg-write-fn (pkg)
   (let* ((name (pop! pkg))
-         (body (Go--ir-fn-body pkg)))
+         (body (goism--ir-fn-body pkg)))
     (prin1 `(defalias ',name ,body))
     (terpri)))
 
-(defun Go--ir-pkg-write-vars (pkg)
+(defun goism--ir-pkg-write-vars (pkg)
   (let (name)
     (while (not-eq 'end (setq name (pop! pkg)))
       (prin1 `(defvar ,name nil ""))
       (terpri))))
 
-(defun Go--ir-pkg-write-expr (pkg)
+(defun goism--ir-pkg-write-expr (pkg)
   (let* ((cvec (pop! pkg))
          (stack-cap (pop! pkg))
-         (bytecode (Go--ir-to-bytecode pkg)))
+         (bytecode (goism--ir-to-bytecode pkg)))
     (prin1 `(byte-code ,bytecode ,cvec ,stack-cap))
     (terpri)))
 
-(defun Go--ir-to-bytecode (pkg)
+(defun goism--ir-to-bytecode (pkg)
   (byte-compile-lapcode
    (byte-optimize-lapcode
-    (Go--ir-to-lapcode pkg))))
+    (goism--ir-to-lapcode pkg))))
 
-(defun Go--ir-fn-body (pkg)
+(defun goism--ir-fn-body (pkg)
   (let* ((args-desc (pop! pkg))
          (cvec (pop! pkg))
          (stack-cap (pop! pkg))
          (doc-string (pop! pkg)))
     (make-byte-code args-desc
-                    (Go--ir-to-bytecode pkg)
+                    (goism--ir-to-bytecode pkg)
                     cvec
                     stack-cap
                     doc-string)))
 
-(defsubst Go--ir-make-info (kind data) (cons kind data))
-(defsubst Go--ir-info-kind (info) (car info))
-(defsubst Go--ir-info-data (info) (cdr info))
+(defsubst goism--ir-make-info (kind data) (cons kind data))
+(defsubst goism--ir-info-kind (info) (car info))
+(defsubst goism--ir-info-data (info) (cdr info))
 
-(defconst Go--ir-table
+(defconst goism--ir-table
   (let ((table (make-hash-table :test #'eq)))
     (dolist (x '(;; - Special instructions -
                  (label label ir-label)
@@ -150,28 +150,28 @@
              (kind (nth 1 x))
              (data (or (nth 2 x)
                        (intern (format "byte-%s" instr)))))
-        (puthash instr (Go--ir-make-info kind data) table)))
+        (puthash instr (goism--ir-make-info kind data) table)))
     table))
 
-(defun Go--ir-to-lapcode (pkg)
+(defun goism--ir-to-lapcode (pkg)
   (let ((tags (make-hash-table :test #'eq))
         op
         op-info
         arg
         output)
     (while (not-eq 'end (setq op (pop! pkg)))
-      (setq op-info (gethash op Go--ir-table)
-            arg (if (eq 'op0 (Go--ir-info-kind op-info))
+      (setq op-info (gethash op goism--ir-table)
+            arg (if (eq 'op0 (goism--ir-info-kind op-info))
                     nil
                   (pop! pkg)))
-      (push (Go--ir-lap-instr tags op-info op arg) output))
+      (push (goism--ir-lap-instr tags op-info op arg) output))
     (nreverse output)))
 
-(defun Go--ir-lap-instr (tags op-info op arg)
+(defun goism--ir-lap-instr (tags op-info op arg)
   ;; Patterns in `pcase' are sorted by frequency order.
-  (pcase (Go--ir-info-kind op-info)
-    (`op0 (list (Go--ir-info-data op-info)))
-    (`op1 (let ((lap-op (Go--ir-info-data op-info)))
+  (pcase (goism--ir-info-kind op-info)
+    (`op0 (list (goism--ir-info-data op-info)))
+    (`op1 (let ((lap-op (goism--ir-info-data op-info)))
             (cons lap-op arg)))
     (`stack-ref (if (= arg 0)
                     (list 'byte-dup)
@@ -179,20 +179,20 @@
     (`discard (if (= arg 1)
                   (list 'byte-discard)
                 (cons 'byte-discardN arg)))
-    (`label (Go--ir-tag-ref tags arg))
-    (`jmp (let* ((lap-op (Go--ir-info-data op-info))
-                 (tag (Go--ir-tag-ref tags arg)))
+    (`label (goism--ir-tag-ref tags arg))
+    (`jmp (let* ((lap-op (goism--ir-info-data op-info))
+                 (tag (goism--ir-tag-ref tags arg)))
             (cons lap-op tag)))
     (`concat (if (and (<= arg 4) (/= 1 arg))
-                 (list (aref (Go--ir-info-data op-info) arg))
+                 (list (aref (goism--ir-info-data op-info) arg))
                (cons 'byte-concatN arg)))
     (`list (if (<= arg 4)
-               (list (aref (Go--ir-info-data op-info) arg))
+               (list (aref (goism--ir-info-data op-info) arg))
              (cons 'byte-listN arg)))
     (_
      (error "Unexpected op kind for `%s'" op))))
 
-(defun Go--ir-tag-ref (tags id)
+(defun goism--ir-tag-ref (tags id)
   (or (gethash id tags)
       (puthash id (list 'TAG (hash-table-count tags)) tags)))
 
