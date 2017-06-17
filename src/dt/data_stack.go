@@ -5,74 +5,74 @@ import (
 	"fmt"
 )
 
-// ExecutionStack emulates Elisp execution stack.
+// DataStack emulates Elisp data (parameter) stack.
 // Used to generate stack-ref instructions.
-type ExecutionStack struct {
+type DataStack struct {
 	names  []string
 	maxLen int
 }
 
-// NewExecutionStack creates new stack that is
+// NewDataStack creates new stack that is
 // populated by provided bindings.
-func NewExecutionStack(bindings []string) *ExecutionStack {
+func NewDataStack(bindings []string) *DataStack {
 	names := make([]string, 0, len(bindings)+8)
-	return &ExecutionStack{
+	return &DataStack{
 		names:  append(names, bindings...),
 		maxLen: len(bindings),
 	}
 }
 
 // Len returns current stack size.
-func (st *ExecutionStack) Len() int {
+func (st *DataStack) Len() int {
 	return len(st.names)
 }
 
 // MaxLen returns max stack length recorded.
-func (st *ExecutionStack) MaxLen() int {
+func (st *DataStack) MaxLen() int {
 	return st.maxLen
 }
 
 // Bind assigns name for last pushed value.
-func (st *ExecutionStack) Bind(name string) {
+func (st *DataStack) Bind(name string) {
 	st.names[len(st.names)-1] = name
 }
 
 // Rebind re-assigns name for specified stack element.
-func (st *ExecutionStack) Rebind(ref int, name string) {
+func (st *DataStack) Rebind(ref int, name string) {
 	maxIndex := len(st.names) - 1
 	st.names[maxIndex-ref] = name
 }
 
 // Push adds new unnamed value to stack.
-func (st *ExecutionStack) Push() {
+func (st *DataStack) Push() {
 	st.push("")
 }
 
 // Dup pushes specified stack element (copies it).
-func (st *ExecutionStack) Dup(ref uint16) {
+func (st *DataStack) Dup(ref uint16) {
 	maxIndex := len(st.names) - 1
 	st.push(st.names[maxIndex-int(ref)])
 }
 
 // PushConst is like Push, but used for constant refs.
-func (st *ExecutionStack) PushConst(index uint16) {
+func (st *DataStack) PushConst(index uint16) {
 	st.push(fmt.Sprintf("<%d>", index))
 }
 
 // Discard drops last N stack elements.
-func (st *ExecutionStack) Discard(n uint16) {
+func (st *DataStack) Discard(n uint16) {
 	st.names = st.names[:len(st.names)-int(n)]
 }
 
 // Replace = stack.rebind(index-1, stack.pop()).
-func (st *ExecutionStack) Replace(index uint16) {
+func (st *DataStack) Replace(index uint16) {
 	name := st.names[len(st.names)-1]
 	st.Discard(1)
 	st.Rebind(int(index-1), name)
 }
 
 // Find lookups binding and returns its ref index (not normal index).
-func (st *ExecutionStack) Find(name string) int {
+func (st *DataStack) Find(name string) int {
 	maxIndex := len(st.names) - 1
 	for i := maxIndex; i >= 0; i-- {
 		if st.names[i] == name {
@@ -84,7 +84,7 @@ func (st *ExecutionStack) Find(name string) int {
 
 // String returns human-readable stack representation.
 // Useful for debug.
-func (st *ExecutionStack) String() string {
+func (st *DataStack) String() string {
 	buf := bytes.Buffer{}
 	buf.WriteByte('[')
 	for _, name := range st.names {
@@ -99,7 +99,7 @@ func (st *ExecutionStack) String() string {
 	return buf.String()
 }
 
-func (st *ExecutionStack) push(val string) {
+func (st *DataStack) push(val string) {
 	st.names = append(st.names, val)
 	if len(st.names) > st.maxLen {
 		st.maxLen = len(st.names)

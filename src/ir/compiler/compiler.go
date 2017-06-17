@@ -10,7 +10,7 @@ import (
 type Compiler struct {
 	buf         bytes.Buffer
 	cvec        *dt.ConstPool
-	st          *dt.ExecutionStack
+	st          *dt.DataStack
 	lastLabelID uint16
 }
 
@@ -36,6 +36,6 @@ func (cl *Compiler) CompileFunc(f *sexp.Func) *ir.Object {
 func (cl *Compiler) reset(bindings []string) {
 	cl.buf.Truncate(0)
 	cl.cvec.Clear()
-	cl.st = dt.NewExecutionStack(bindings)
+	cl.st = dt.NewDataStack(bindings)
 	cl.lastLabelID = 0
 }
