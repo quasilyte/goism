@@ -25,30 +25,23 @@ func IsThrow(form Form) bool {
 // IsReturning returns true for forms that unconditionally
 // return from function.
 func IsReturning(form Form) bool {
-	// #REFS: 49.
-	switch form := form.(type) {
-	case *Return:
-		return true
+	found := false
+	Walk(form, func(form Form) bool {
+		switch form := form.(type) {
+		case *Return:
+			found = true
+			return false
 
-	case *Block:
-		for _, form := range form.Forms {
-			if IsReturning(form) {
-				return true
-			}
+		case *Call:
+			found = lang.FuncIsThrowing(form.Fn.Name)
+			return !found
+		case *LispCall:
+			found = lang.FuncIsThrowing(form.Fn.Sym)
+			return !found
+
+		default:
+			return true
 		}
-
-	case *If:
-		// If both branches return, whole statement returns.
-		return IsReturning(form.Then) && IsReturning(form.Else)
-
-	case *ExprStmt:
-		return IsReturning(form.Expr)
-
-	case *Call:
-		return lang.FuncIsThrowing(form.Fn.Name)
-	case *LispCall:
-		return lang.FuncIsThrowing(form.Fn.Sym)
-	}
-
-	return false
+	})
+	return found
 }
