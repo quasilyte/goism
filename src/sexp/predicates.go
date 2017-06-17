@@ -25,6 +25,7 @@ func IsThrow(form Form) bool {
 // IsReturning returns true for forms that unconditionally
 // return from function.
 func IsReturning(form Form) bool {
+	// #REFS: 49.
 	switch form := form.(type) {
 	case *Return:
 		return true
