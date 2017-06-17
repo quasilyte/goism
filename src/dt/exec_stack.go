@@ -82,13 +82,8 @@ func (st *ExecutionStack) Find(name string) int {
 	return -1
 }
 
-func (st *ExecutionStack) push(val string) {
-	st.names = append(st.names, val)
-	if len(st.names) > st.maxLen {
-		st.maxLen = len(st.names)
-	}
-}
-
+// String returns human-readable stack representation.
+// Useful for debug.
 func (st *ExecutionStack) String() string {
 	buf := bytes.Buffer{}
 	buf.WriteByte('[')
@@ -102,4 +97,11 @@ func (st *ExecutionStack) String() string {
 	}
 	buf.WriteByte(']')
 	return buf.String()
+}
+
+func (st *ExecutionStack) push(val string) {
+	st.names = append(st.names, val)
+	if len(st.names) > st.maxLen {
+		st.maxLen = len(st.names)
+	}
 }
