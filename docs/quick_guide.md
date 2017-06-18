@@ -237,7 +237,7 @@ This means that `Foo` from `type Foo int` is expressed as an
 ordinary integer. No allocations are performed during such objects
 instantiation (unless the `T2` is composite object itself).
 
-Struct types yield either (improper) lists or vestors.
+Struct types yield either (improper) lists or vectors.
 When field count is less than 5, list is used,
 othervise vector is chosen.
 ```
