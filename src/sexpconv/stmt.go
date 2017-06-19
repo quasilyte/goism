@@ -1,7 +1,6 @@
 package sexpconv
 
 import (
-	"exn"
 	"go/ast"
 	"go/token"
 	"sexp"
@@ -34,19 +33,46 @@ func (conv *converter) Stmt(node ast.Stmt) sexp.Form {
 	}
 }
 
-func (conv *converter) IfStmt(node *ast.IfStmt) *sexp.If {
-	if node.Init != nil {
-		panic(exn.NoImpl("if with initializer"))
-	}
-
+func (conv *converter) IfStmt(node *ast.IfStmt) sexp.Form {
 	test := conv.Expr(node.Cond)
 	then := conv.BlockStmt(node.Body)
 	form := &sexp.If{Cond: test, Then: then}
 	if node.Else != nil {
 		form.Else = conv.Stmt(node.Else)
 	}
+	return conv.withInitStmt(node.Init, form)
+}
 
-	return form
+// Used to complement statement with init SimpleStmt
+// (switch and if statements).
+func (conv *converter) withInitStmt(init ast.Stmt, form sexp.Form) sexp.Form {
+	switch init := init.(type) {
+	case nil:
+		return form
+
+	case *ast.AssignStmt:
+		assigns := toFormList(conv.AssignStmt(init)).Forms
+		// Separate Bind and Rebind/VarUpdate.
+		binds := []*sexp.Bind{}
+		for i, assign := range assigns {
+			if bind, ok := assign.(*sexp.Bind); ok {
+				binds = append(binds, bind)
+				assigns[i] = sexp.EmptyStmt
+			}
+		}
+		if len(binds) == 0 {
+			return &sexp.FormList{Forms: append(assigns, form)}
+		}
+		return &sexp.Let{
+			Bindings: binds,
+			Stmt:     &sexp.FormList{Forms: append(assigns, form)},
+		}
+
+	default:
+		return &sexp.FormList{
+			Forms: []sexp.Form{conv.Stmt(init), form},
+		}
+	}
 }
 
 func (conv *converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
