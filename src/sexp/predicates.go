@@ -28,6 +28,10 @@ func IsReturning(form Form) bool {
 	found := false
 	Walk(form, func(form Form) bool {
 		switch form := form.(type) {
+		case *If, *DoTimes, *While, *Repeat:
+			found = false
+			return false
+
 		case *Return:
 			found = true
 			return false
