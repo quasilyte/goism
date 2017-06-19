@@ -12,6 +12,9 @@ func Walk(form Form, f walkFunc) {
 	// Set up unwind guard.
 	defer func() {
 		panicArg := recover()
+		if panicArg == nil {
+			return
+		}
 		if _, ok := panicArg.(walkUnwind); !ok {
 			panic(panicArg)
 		}
