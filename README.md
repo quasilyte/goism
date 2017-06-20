@@ -1,5 +1,7 @@
 ![Logo](misc/logo.png)
 
+[![License](http://img.shields.io/:license-MIT-blue.svg?style=flat)](LICENSE)
+
 # goism 
 
 Searching for Emacs Lisp alternative? **Try hacking Emacs in Go!**
