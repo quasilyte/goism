@@ -1,3 +1,6 @@
 package sexp
 
-var EmptyStmt = &FormList{}
+var (
+	EmptyStmt  = &FormList{}
+	EmptyBlock = &Block{}
+)

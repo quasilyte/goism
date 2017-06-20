@@ -74,6 +74,15 @@ func (form *If) Copy() Form {
 		Else: form.Else.Copy(),
 	}
 }
+func (form *Switch) Copy() Form {
+	return &Switch{
+		Expr:       form.Expr.Copy(),
+		SwitchBody: copySwitchBody(form.SwitchBody),
+	}
+}
+func (form *SwitchTrue) Copy() Form {
+	return &SwitchTrue{SwitchBody: copySwitchBody(form.SwitchBody)}
+}
 func (form *Return) Copy() Form {
 	return &Return{Results: copyList(form.Results)}
 }
@@ -172,6 +181,9 @@ func (form *Or) Copy() Form {
 }
 
 func copyList(forms []Form) []Form {
+	if forms == nil {
+		return nil
+	}
 	res := make([]Form, len(forms))
 	for i, form := range forms {
 		res[i] = form.Copy()
@@ -184,4 +196,35 @@ func copySpan(span Span) Span {
 		Low:  span.Low.Copy(),
 		High: span.High.Copy(),
 	}
+}
+
+func copySwitchBody(b SwitchBody) SwitchBody {
+	var clauses []CaseClause
+	if b.Clauses != nil {
+		clauses = make([]CaseClause, len(b.Clauses))
+		for i, cc := range b.Clauses {
+			clauses[i] = CaseClause{
+				Expr: cc.Expr.Copy(),
+				Body: cc.Body.Copy().(*Block),
+			}
+		}
+	}
+	return SwitchBody{
+		Clauses:     clauses,
+		DefaultBody: b.DefaultBody.Copy().(*Block),
+	}
+}
+
+func copyCaseClauseList(clauses []CaseClause) []CaseClause {
+	if clauses == nil {
+		return nil
+	}
+	res := make([]CaseClause, len(clauses))
+	for i, cc := range clauses {
+		res[i] = CaseClause{
+			Expr: cc.Expr.Copy(),
+			Body: cc.Body.Copy().(*Block),
+		}
+	}
+	return res
 }

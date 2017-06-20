@@ -122,6 +122,15 @@ type (
 		Else Form
 	}
 
+	// Switch is "expression switch statement" defined by Go spec.
+	Switch struct {
+		Expr Form
+		SwitchBody
+	}
+
+	// SwitchTrue is like Switch, but Expr is fixed to "true".
+	SwitchTrue struct{ SwitchBody }
+
 	// Return statement exits the function and returns
 	// one or more values to the caller.
 	Return struct{ Results []Form }

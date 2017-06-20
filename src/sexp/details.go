@@ -21,6 +21,8 @@ func (form *VarUpdate) form()    {}
 func (form *FormList) form()     {}
 func (form *Block) form()        {}
 func (form *If) form()           {}
+func (form *Switch) form()       {}
+func (form *SwitchTrue) form()   {}
 func (form *Return) form()       {}
 func (form *ExprStmt) form()     {}
 

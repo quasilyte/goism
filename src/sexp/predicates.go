@@ -28,6 +28,12 @@ func IsReturning(form Form) bool {
 	found := false
 	Walk(form, func(form Form) bool {
 		switch form := form.(type) {
+		case *Switch:
+			if form.DefaultBody == EmptyBlock {
+				return false
+			}
+			return IsReturning(form.DefaultBody)
+
 		case *If, *DoTimes, *While, *Repeat:
 			found = false
 			return false

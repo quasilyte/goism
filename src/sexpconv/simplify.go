@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"exn"
 	"magic_pkg/emacs/rt"
 	"sexp"
 	"sys_info/function"
@@ -26,6 +27,25 @@ func simplifyList(forms []sexp.Form) []sexp.Form {
 
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
+	case *sexp.SwitchTrue:
+		return simplifySwitch(
+			form.SwitchBody,
+			func(x sexp.Form) sexp.Form { return x },
+			0,
+		)
+
+	case *sexp.Switch:
+		typ := form.Expr.Type()
+		tag := _it(typ)
+		mkCond := func(rhs sexp.Form) sexp.Form {
+			cmp := comparatorEq(tag, rhs)
+			if cmp == nil {
+				panic(exn.NoImpl("can not switch over `%s'", typ))
+			}
+			return cmp
+		}
+		return _let(form.Expr, simplifySwitch(form.SwitchBody, mkCond, 0))
+
 	case *sexp.SliceLit:
 		return sexp.NewCall(
 			rt.FnArrayToSlice,
@@ -81,4 +101,16 @@ func simplify(form sexp.Form) sexp.Form {
 	}
 
 	return nil
+}
+
+func simplifySwitch(b sexp.SwitchBody, mkCond func(sexp.Form) sexp.Form, i int) sexp.Form {
+	if i == len(b.Clauses) {
+		return b.DefaultBody
+	}
+	cc := b.Clauses[i]
+	return &sexp.If{
+		Cond: mkCond(Simplify(cc.Expr)),
+		Then: cc.Body,
+		Else: simplifySwitch(b, mkCond, i+1),
+	}
 }

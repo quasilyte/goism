@@ -71,6 +71,19 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			form.Else = Rewrite(form.Else, f)
 		}
 
+	case *Switch:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Expr = Rewrite(form.Expr, f)
+		form.SwitchBody = rewriteSwitchBody(form.SwitchBody, f)
+
+	case *SwitchTrue:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.SwitchBody = rewriteSwitchBody(form.SwitchBody, f)
+
 	case *Return:
 		return rewriteList(form, form.Results, f)
 
@@ -136,6 +149,17 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	}
 
 	return form
+}
+
+func rewriteSwitchBody(b SwitchBody, f rewriteFunc) SwitchBody {
+	for i, cc := range b.Clauses {
+		b.Clauses[i] = CaseClause{
+			Expr: Rewrite(cc.Expr, f),
+			Body: Rewrite(cc.Body, f).(*Block),
+		}
+	}
+	b.DefaultBody = Rewrite(b.DefaultBody, f).(*Block)
+	return b
 }
 
 func rewriteSpan(form Form, container *Form, span *Span, f rewriteFunc) Form {

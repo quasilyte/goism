@@ -27,6 +27,8 @@ func (form *VarUpdate) Type() types.Type    { return xtypes.TypVoid }
 func (form *FormList) Type() types.Type     { return xtypes.TypVoid }
 func (form *Block) Type() types.Type        { return xtypes.TypVoid }
 func (form *If) Type() types.Type           { return xtypes.TypVoid }
+func (form *Switch) Type() types.Type       { return xtypes.TypVoid }
+func (form *SwitchTrue) Type() types.Type   { return xtypes.TypVoid }
 func (form *Return) Type() types.Type       { return xtypes.TypVoid }
 func (form *ExprStmt) Type() types.Type     { return xtypes.TypVoid }
 

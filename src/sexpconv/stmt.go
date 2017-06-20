@@ -27,6 +27,8 @@ func (conv *converter) Stmt(node ast.Stmt) sexp.Form {
 		return conv.ForStmt(node)
 	case *ast.RangeStmt:
 		return conv.RangeStmt(node)
+	case *ast.SwitchStmt:
+		return conv.SwitchStmt(node)
 
 	default:
 		panic(errUnexpectedStmt(conv, node))
