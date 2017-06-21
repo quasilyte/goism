@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Stop emacs conformance tests daemon.
+emacsclient -s 'goism-tst' --eval '(kill-emacs)'

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Start emacs daemon for conformance tests.
+read -r -d '' code <<- EOF
+  (progn 
+   (setq server-name "goism-tst") 
+   (load "$GOPATH/build/goism.elc"))
+EOF
+emacs --daemon --eval "${code}"

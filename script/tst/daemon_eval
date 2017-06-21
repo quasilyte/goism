@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Evaluate script argument inside daemonized Emacs and print 
+# results to stdout.
+emacsclient -s goism-tst -eval "(princ ${1})"
