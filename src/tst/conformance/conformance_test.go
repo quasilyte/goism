@@ -26,7 +26,7 @@ func init() {
 	eval(`(goism-load "conformance")`)
 }
 
-func TestBinOps(t *testing.T) {
+func TestOps(t *testing.T) {
 	table := []struct {
 		call           string
 		outputExpected string
