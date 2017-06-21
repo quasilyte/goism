@@ -54,14 +54,14 @@
 (defun goism--ir-pkg-write-expr (pkg)
   (let* ((cvec (pop! pkg))
          (stack-cap (pop! pkg))
-         (bytecode (goism--ir-to-bytecode pkg)))
+         (bytecode (goism--ir-to-bytecode pkg cvec)))
     (prin1 `(byte-code ,bytecode ,cvec ,stack-cap))
     (terpri)))
 
-(defun goism--ir-to-bytecode (pkg)
+(defun goism--ir-to-bytecode (pkg cvec)
   (byte-compile-lapcode
    (byte-optimize-lapcode
-    (goism--ir-to-lapcode pkg))))
+    (goism--ir-to-lapcode pkg cvec))))
 
 (defun goism--ir-fn-body (pkg)
   (let* ((args-desc (pop! pkg))
@@ -69,7 +69,7 @@
          (stack-cap (pop! pkg))
          (doc-string (pop! pkg)))
     (make-byte-code args-desc
-                    (goism--ir-to-bytecode pkg)
+                    (goism--ir-to-bytecode pkg cvec)
                     cvec
                     stack-cap
                     doc-string)))
@@ -78,10 +78,38 @@
 (defsubst goism--ir-info-kind (info) (car info))
 (defsubst goism--ir-info-data (info) (cdr info))
 
+(defsubst goism--ir-make-env (cvec)
+  (vector (make-hash-table :test #'eq)
+          (make-hash-table :test #'eq)
+          (let ((refs (make-vector (length cvec) nil)))
+            (dotimes (i (length cvec))
+              (aset refs i (cons (aref cvec i) i)))
+            refs)
+          cvec))
+(defsubst goism--ir-env-tags (env) (aref env 0))
+(defsubst goism--ir-env-vars (env) (aref env 1))
+(defsubst goism--ir-env-consts (env) (aref env 2))
+(defsubst goism--ir-env-cvec (env) (aref env 3))
+(defun goism--ir-env-tag-ref (env id)
+  (let ((tags (goism--ir-env-tags env)))
+    (or (gethash id tags)
+        (puthash id (list 'TAG (hash-table-count tags)) tags))))
+(defun goism--ir-env-var-ref (env id)
+  (let ((vars (goism--ir-env-vars env)))
+    (or (gethash id vars)
+        (puthash id
+                 (cons (aref (goism--ir-env-cvec env) id) id)
+                 vars))))
+(defsubst goism--ir-env-const-ref (env id)
+  (aref (goism--ir-env-consts env) id))
+
 (defconst goism--ir-table
   (let ((table (make-hash-table :test #'eq)))
     (dolist (x '(;; - Special instructions -
                  (label label ir-label)
+                 (var-ref var-ref byte-varref)
+                 (var-set var-set byte-varset)
+                 (constant constant byte-constant)
                  ;; - Combined instructions -
                  (stack-ref stack-ref)
                  (discard discard)
@@ -102,11 +130,8 @@
                  (goto-if-nil-else-pop jmp)
                  (goto-if-not-nil-else-pop jmp)
                  ;; - Instructions with argument -
-                 (constant op1)
                  (call op1)
                  (stack-set op1)
-                 (var-ref op1 byte-varref)
-                 (var-set op1 byte-varset)
                  ;; - Instructions without argument -
                  (setcar op0)
                  (setcdr op0)
@@ -153,8 +178,8 @@
         (puthash instr (goism--ir-make-info kind data) table)))
     table))
 
-(defun goism--ir-to-lapcode (pkg)
-  (let ((tags (make-hash-table :test #'eq))
+(defun goism--ir-to-lapcode (pkg cvec)
+  (let ((env (goism--ir-make-env cvec))
         op
         op-info
         arg
@@ -164,25 +189,30 @@
             arg (if (eq 'op0 (goism--ir-info-kind op-info))
                     nil
                   (pop! pkg)))
-      (push (goism--ir-lap-instr tags op-info op arg) output))
+      (push (goism--ir-lap-instr env op-info op arg) output))
     (nreverse output)))
 
-(defun goism--ir-lap-instr (tags op-info op arg)
+(defun goism--ir-lap-instr (env op-info op arg)
   ;; Patterns in `pcase' are sorted by frequency order.
   (pcase (goism--ir-info-kind op-info)
     (`op0 (list (goism--ir-info-data op-info)))
     (`op1 (let ((lap-op (goism--ir-info-data op-info)))
             (cons lap-op arg)))
+    (`constant (cons 'byte-constant (goism--ir-env-const-ref env arg)))
     (`stack-ref (if (= arg 0)
                     (list 'byte-dup)
                   (cons 'byte-stack-ref arg)))
     (`discard (if (= arg 1)
                   (list 'byte-discard)
                 (cons 'byte-discardN arg)))
-    (`label (goism--ir-tag-ref tags arg))
+    (`label (goism--ir-env-tag-ref env arg))
     (`jmp (let* ((lap-op (goism--ir-info-data op-info))
-                 (tag (goism--ir-tag-ref tags arg)))
+                 (tag (goism--ir-env-tag-ref env arg)))
             (cons lap-op tag)))
+    (`var-ref (let ((var (goism--ir-env-var-ref env arg)))
+                (cons 'byte-varref var)))
+    (`var-set (let ((var (goism--ir-env-var-ref env arg)))
+                (cons 'byte-varset var)))
     (`concat (if (and (<= arg 4) (/= 1 arg))
                  (list (aref (goism--ir-info-data op-info) arg))
                (cons 'byte-concatN arg)))
@@ -191,9 +221,5 @@
              (cons 'byte-listN arg)))
     (_
      (error "Unexpected op kind for `%s'" op))))
-
-(defun goism--ir-tag-ref (tags id)
-  (or (gethash id tags)
-      (puthash id (list 'TAG (hash-table-count tags)) tags)))
 
 ;; {{ end }}
