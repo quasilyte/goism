@@ -13,6 +13,10 @@ func evalCall(call string) string {
 	return eval("(goism-conformance." + call + ")")
 }
 
+func evalVar(name string) string {
+	return eval("goism-conformance." + name)
+}
+
 func eval(expr string) string {
 	out, err := exec.Command(home+"/script/tst/daemon_eval", expr).Output()
 	if err != nil {
@@ -24,6 +28,27 @@ func eval(expr string) string {
 func init() {
 	// Loads "emacs/conformance" package into Emacs daemon.
 	eval(`(goism-load "conformance")`)
+}
+
+func TestGlobalVars(t *testing.T) {
+	table := []struct {
+		name          string
+		valueExpected string
+	}{
+		{"var1", "1"},
+		{"var2", "2"},
+		{"var3", "3"},
+		{"var4", "4"},
+		{"var5", "5"},
+		{"var6", "6"},
+	}
+
+	for _, row := range table {
+		res := evalVar(row.name)
+		if res != row.valueExpected {
+			t.Errorf("%s=>%s (want %s)", row.name, res, row.valueExpected)
+		}
+	}
 }
 
 func TestOps(t *testing.T) {
