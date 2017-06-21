@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Run conformance check tests.
+
+./script/tst/daemon_start &&
+    go test tst/conformance &&
+    echo '[OK] done'
+
+./script/tst/daemon_stop
