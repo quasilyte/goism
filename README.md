@@ -1,5 +1,6 @@
 ![Logo](misc/logo.png)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/Quasilyte/goism)](https://goreportcard.com/report/github.com/Quasilyte/goism)
 [![License](http://img.shields.io/:license-MIT-blue.svg?style=flat)](LICENSE)
 
 # goism 
