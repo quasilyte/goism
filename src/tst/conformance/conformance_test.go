@@ -186,3 +186,19 @@ func Test6Slices(t *testing.T) {
 		{"sliceCap $sliceOf4_5", "5"},
 	})
 }
+
+func Test8For(t *testing.T) {
+	testCalls(t, []callTest{
+		{"count5", "5"},
+		{"countLt10 10", "0"},
+		{"countLt10 9", "1"},
+		{"countLt10 1", "9"},
+		{"countLt10 0", "10"},
+	})
+}
+
+func Test9Range(t *testing.T) {
+	testCalls(t, []callTest{
+		{"sumArray1", "6"},
+	})
+}
