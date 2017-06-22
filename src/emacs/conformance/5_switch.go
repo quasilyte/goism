@@ -15,7 +15,7 @@ func stringifyInt3(x int) string {
 func stringifyInt4(x int) string {
 	// Uses initializer SimpleStatement;
 	// Also uses "default" clause.
-	switch x {
+	switch v := x; v {
 	case 0:
 		return "0"
 	case 1:
