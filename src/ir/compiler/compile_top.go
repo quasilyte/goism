@@ -82,7 +82,7 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.Or:
 		compileOr(cl, form)
 
-	case nil:
+	case nil: // #REFS: 65
 		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
 
 	default:
