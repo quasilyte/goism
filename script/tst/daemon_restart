@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Restarts emacs daemon.
+./script/tst/daemon_stop
+./script/tst/daemon_start
