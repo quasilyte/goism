@@ -137,6 +137,12 @@ type (
 
 	// ExprStmt is a Call which discards returned results.
 	ExprStmt struct{ Expr Form }
+
+	// Goto = "goto LabelName".
+	Goto struct{ LabelName string }
+
+	// Label = "Name:".
+	Label struct{ Name string }
 )
 
 // Loop forms.
@@ -163,12 +169,14 @@ type (
 
 	// Loop = "while true".
 	Loop struct {
+		Post Form // Can be EmptyStmt
 		Body *Block
 	}
 
 	// While is a generic (low level) looping construct.
 	While struct {
 		Cond Form // [!] Can be nil
+		Post Form // Can be EmptyStmt
 		Body *Block
 	}
 )

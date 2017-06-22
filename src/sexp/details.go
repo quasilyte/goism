@@ -25,6 +25,8 @@ func (form *Switch) form()       {}
 func (form *SwitchTrue) form()   {}
 func (form *Return) form()       {}
 func (form *ExprStmt) form()     {}
+func (form *Goto) form()         {}
+func (form *Label) form()        {}
 
 func (form *Repeat) form()  {}
 func (form *DoTimes) form() {}

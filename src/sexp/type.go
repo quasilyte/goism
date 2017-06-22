@@ -31,6 +31,8 @@ func (form *Switch) Type() types.Type       { return xtypes.TypVoid }
 func (form *SwitchTrue) Type() types.Type   { return xtypes.TypVoid }
 func (form *Return) Type() types.Type       { return xtypes.TypVoid }
 func (form *ExprStmt) Type() types.Type     { return xtypes.TypVoid }
+func (form *Goto) Type() types.Type         { return xtypes.TypVoid }
+func (form *Label) Type() types.Type        { return xtypes.TypVoid }
 
 func (form *Repeat) Type() types.Type  { return xtypes.TypVoid }
 func (form *DoTimes) Type() types.Type { return xtypes.TypVoid }

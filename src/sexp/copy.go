@@ -89,6 +89,8 @@ func (form *Return) Copy() Form {
 func (form *ExprStmt) Copy() Form {
 	return &ExprStmt{Expr: form.Copy()}
 }
+func (form *Goto) Copy() Form  { return &Goto{LabelName: form.LabelName} }
+func (form *Label) Copy() Form { return &Label{Name: form.Name} }
 
 func (form *Repeat) Copy() Form {
 	return &Repeat{
@@ -111,6 +113,7 @@ func (form *Loop) Copy() Form {
 func (form *While) Copy() Form {
 	return &While{
 		Cond: form.Cond.Copy(),
+		Post: form.Post.Copy(),
 		Body: &Block{Forms: copyList(form.Body.Forms)},
 	}
 }

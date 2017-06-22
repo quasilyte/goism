@@ -8,10 +8,14 @@ import (
 )
 
 type Compiler struct {
-	buf         bytes.Buffer
-	cvec        *dt.ConstPool
-	st          *dt.DataStack
+	buf  bytes.Buffer
+	cvec *dt.ConstPool
+	st   *dt.DataStack
+
 	lastLabelID uint16
+
+	innerBreak    label // Innermost "break" target label
+	innerContinue label // Innermost "continue" target label
 }
 
 func New() *Compiler {

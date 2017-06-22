@@ -20,7 +20,7 @@ func Simplify(form sexp.Form) sexp.Form {
 
 func simplifyList(forms []sexp.Form) []sexp.Form {
 	for i, form := range forms {
-		forms[i] = sexp.Rewrite(form, simplify)
+		forms[i] = Simplify(form)
 	}
 	return forms
 }
@@ -83,19 +83,23 @@ func simplify(form sexp.Form) sexp.Form {
 		return form.Form
 
 	case *sexp.Loop:
-		return &sexp.While{Body: form.Body}
+		return &sexp.While{
+			Post: Simplify(form.Post),
+			Body: Simplify(form.Body).(*sexp.Block),
+		}
 
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,
 			Init: ZeroValue(form.Iter.Typ),
 		}
-		form.Body.Forms = append(form.Body.Forms, &sexp.Rebind{
+		post := &sexp.Rebind{
 			Name: form.Iter.Name,
 			Expr: sexp.NewAdd1(form.Iter),
-		})
+		}
 		loop := &sexp.While{
 			Cond: sexp.NewNumLt(form.Iter, form.N),
+			Post: post,
 			Body: form.Body,
 		}
 		return &sexp.Block{

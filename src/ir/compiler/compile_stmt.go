@@ -61,11 +61,21 @@ func compileRepeat(cl *Compiler, form *sexp.Repeat) {
 }
 
 func compileWhile(cl *Compiler, form *sexp.While) {
-	condLabel := labelCreate(cl, "loop-cond")
-	bodyLabel := labelCreate(cl, "loop-body")
+	condLabel := labelCreate(cl, "while-cond")
+	bodyLabel := labelCreate(cl, "while-body")
+	breakLabel := labelCreate(cl, "while-break")
+	continueLabel := labelCreate(cl, "while-continue")
+
+	prevBreak := cl.innerBreak
+	prevContinue := cl.innerContinue
+	cl.innerBreak = breakLabel
+	cl.innerContinue = continueLabel
+
 	emitJmp(cl, condLabel)
 	labelBind(cl, bodyLabel)
 	compileBlock(cl, form.Body)
+	labelBind(cl, continueLabel)
+	compileStmt(cl, form.Post)
 	labelBind(cl, condLabel)
 	if form.Cond == nil {
 		emitJmp(cl, bodyLabel)
@@ -73,6 +83,10 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 		compileExpr(cl, form.Cond)
 		emitJmpNotNil(cl, bodyLabel)
 	}
+	labelBind(cl, breakLabel)
+
+	cl.innerBreak = prevBreak
+	cl.innerContinue = prevContinue
 }
 
 func compileBind(cl *Compiler, form *sexp.Bind) {
@@ -155,4 +169,19 @@ func compileLetStmt(cl *Compiler, form *sexp.Let) {
 	}
 	compileStmt(cl, form.Stmt)
 	emit(cl, instr.Discard(len(form.Bindings)))
+}
+
+func compileGoto(cl *Compiler, form *sexp.Goto) {
+	switch name := form.LabelName; name {
+	case "continue":
+		emitJmp(cl, cl.innerContinue)
+	case "break":
+		emitJmp(cl, cl.innerBreak)
+	default:
+		emitJmp(cl, label("&"+form.LabelName))
+	}
+}
+
+func compileLabel(cl *Compiler, form *sexp.Label) {
+	labelBind(cl, label("&"+form.Name))
 }

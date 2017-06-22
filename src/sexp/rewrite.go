@@ -30,6 +30,11 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case *ArrayLit:
 		return rewriteList(form, form.Vals, f)
 
+	case *Goto:
+		return rewriteAtom(form, f)
+	case *Label:
+		return rewriteAtom(form, f)
+
 	case *SparseArrayLit:
 		if form := f(form); form != nil {
 			return form
@@ -111,6 +116,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 			return form
 		}
 		form.Cond = Rewrite(form.Cond, f)
+		form.Post = Rewrite(form.Post, f)
 		form.Body = Rewrite(form.Body, f).(*Block)
 
 	case *LispCall:

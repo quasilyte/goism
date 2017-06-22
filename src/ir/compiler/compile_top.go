@@ -32,6 +32,10 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileArrayUpdate(cl, form)
 	case *sexp.StructUpdate:
 		compileStructUpdate(cl, form)
+	case *sexp.Goto:
+		compileGoto(cl, form)
+	case *sexp.Label:
+		compileLabel(cl, form)
 
 	case *sexp.Let:
 		compileLetStmt(cl, form)
