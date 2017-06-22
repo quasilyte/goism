@@ -1,27 +1,27 @@
 package conformance
 
-func alwaysZero() int {
+func testIfTrue(n int) int {
 	if true {
-		return 0
+		return n
 	}
-	return 1
+	return -1
 }
 
-func neverZero() int {
+func testIfFalse(n int) int {
 	if false {
-		return 0
+		return -1
 	}
-	return 1
+	return n
 }
 
-func isZero(x int) bool {
+func testIfZero(x int) bool {
 	if x == 0 {
 		return true
 	}
 	return false
 }
 
-func stringifyInt1(x int) string {
+func testIfElse1(x int) string {
 	if x == 0 {
 		return "0"
 	} else if x == 1 {
@@ -32,7 +32,7 @@ func stringifyInt1(x int) string {
 	return "x"
 }
 
-func stringifyInt2(x int) string {
+func testIfElse2(x int) string {
 	// Uses initializer SimpleStatement;
 	// Also includes explicit "else" branch.
 	if v := x; v == 0 {
@@ -46,10 +46,10 @@ func stringifyInt2(x int) string {
 	}
 }
 
-func and(a, b, c bool) bool {
+func testAnd(a, b, c bool) bool {
 	return a && b && c
 }
 
-func or(a, b, c bool) bool {
+func testOr(a, b, c bool) bool {
 	return a || b || c
 }
