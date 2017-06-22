@@ -5,18 +5,25 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"testing"
 )
 
-var home = os.Getenv("GOISM_DIR")
+var (
+	home         = os.Getenv("GOISM_DIR")
+	varReplaceRx = regexp.MustCompile(`\$(\w+)`)
+)
 
 func init() {
 	// Loads "emacs/conformance" package into Emacs daemon.
 	eval(`(goism-load "conformance")`)
 }
 
+// Run call expression inside Emacs daemon and return the result.
+// For convenience, $var arguments are permitted (auto symbol mangling).
 func evalCall(call string) string {
+	call = varReplaceRx.ReplaceAllString(call, "goism-conformance.$1")
 	return eval("(goism-conformance." + call + ")")
 }
 
@@ -160,5 +167,18 @@ func Test5Switch(t *testing.T) {
 		{"stringifyInt4 1", `"1"`},
 		{"stringifyInt4 2", `"2"`},
 		{"stringifyInt4 3", `"x"`},
+	})
+}
+
+func Test6Arrays(t *testing.T) {
+
+}
+
+func Test6Slices(t *testing.T) {
+	testCalls(t, []callTest{
+		{"sliceLen $sliceOf3", "3"},
+		{"sliceLen $sliceOf4_5", "4"},
+		{"sliceCap $sliceOf3", "3"},
+		{"sliceCap $sliceOf4_5", "5"},
 	})
 }
