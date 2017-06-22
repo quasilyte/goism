@@ -144,7 +144,17 @@ func Test3MultiResult(t *testing.T) {
 	}
 }
 
-func Test4If(t *testing.T) {
+func Test5Goto(t *testing.T) {
+	testCalls(t, []callTest{
+		{"testGoto 10", "10"},
+		{"testGotoOutBlock 10", "10"},
+		{"testGotoTwice 10", "10"},
+		{"testGotoChain 10", "10"},
+		{"testGotoBack 10", "10"},
+	})
+}
+
+func Test5If(t *testing.T) {
 	testCalls(t, []callTest{
 		{"alwaysZero", "0"},
 		{"neverZero", "1"},
@@ -167,7 +177,7 @@ func Test4If(t *testing.T) {
 	})
 }
 
-func Test5Switch(t *testing.T) {
+func Test6Switch(t *testing.T) {
 	testCalls(t, []callTest{
 		{"stringifyInt3 0", `"0"`},
 		{"stringifyInt3 1", `"1"`},
@@ -180,11 +190,11 @@ func Test5Switch(t *testing.T) {
 	})
 }
 
-func Test6Arrays(t *testing.T) {
+func Test7Arrays(t *testing.T) {
 
 }
 
-func Test6Slices(t *testing.T) {
+func Test8Slices(t *testing.T) {
 	testCalls(t, []callTest{
 		{"sliceLen $sliceOf3", "3"},
 		{"sliceLen $sliceOf4_5", "4"},
@@ -193,7 +203,7 @@ func Test6Slices(t *testing.T) {
 	})
 }
 
-func Test8For(t *testing.T) {
+func Test9For(t *testing.T) {
 	testCalls(t, []callTest{
 		{`runForTest "for" 10`, "10"},
 		{`runForTest "for" 1`, "1"},
@@ -212,7 +222,7 @@ func Test8For(t *testing.T) {
 	})
 }
 
-func Test9Range(t *testing.T) {
+func Test10Range(t *testing.T) {
 	testCalls(t, []callTest{
 		{"sumArray1", "6"},
 	})
