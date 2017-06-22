@@ -8,6 +8,8 @@ func mulInt(x, y, z int) int { return x * y * z }
 func quoInt(x, y, z int) int { return x / y / z }
 func gtInt(x, y int) bool    { return x > y }
 func ltInt(x, y int) bool    { return x < y }
+func incInt(x int) int       { x++; return x }
+func decInt(x int) int       { x--; return x }
 
 func add1Float(x float64) float64      { return x + 1 }
 func addFloat(x, y, z float64) float64 { return x + y + z }
@@ -17,6 +19,8 @@ func mulFloat(x, y, z float64) float64 { return x * y * z }
 func quoFloat(x, y, z float64) float64 { return x / y / z }
 func gtFloat(x, y float64) bool        { return x > y }
 func ltFloat(x, y float64) bool        { return x < y }
+func incFloat(x float64) float64       { x++; return x }
+func decFloat(x float64) float64       { x--; return x }
 
 func concatStr(x, y, z string) string { return x + y + z }
 func ltStr(x, y string) bool          { return x < y }

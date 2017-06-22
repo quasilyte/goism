@@ -81,6 +81,8 @@ func Test1Ops(t *testing.T) {
 		{"quoInt 20 2 2", "5"},
 		{"gtInt 2 1", "t"},
 		{"ltInt 2 1", "nil"},
+		{"incInt 2", "3"},
+		{"decInt 2", "1"},
 		// Float ops.
 		{"add1Float 1.0", "2.0"},
 		{"addFloat 1.1 2.2 3.3", "6.6"},
@@ -90,6 +92,8 @@ func Test1Ops(t *testing.T) {
 		{"quoFloat 20.0 2.0 2.0", "5.0"},
 		{"gtFloat 2.0 1.0", "t"},
 		{"ltFloat 2.0 1.0", "nil"},
+		{"incFloat 2.0", "3.0"},
+		{"decFloat 2.0", "1.0"},
 		// String ops.
 		{`concatStr "a" "b" "c"`, `"abc"`},
 		{`ltStr "abc" "foo"`, "t"},
