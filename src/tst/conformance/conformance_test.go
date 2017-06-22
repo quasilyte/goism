@@ -200,6 +200,14 @@ func Test8For(t *testing.T) {
 		{"countLt10 9", "1"},
 		{"countLt10 1", "9"},
 		{"countLt10 0", "10"},
+		{"count1", "1"},
+		{"count2", "2"},
+		{"count20", "20"},
+		{"countN 10", "10"},
+		{"countN 20", "20"},
+		{"countMN 5 5", "25"},
+		{"countMN 1 5", "5"},
+		{"countMN 5 1", "5"},
 	})
 }
 
