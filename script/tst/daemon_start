@@ -4,6 +4,7 @@
 read -r -d '' code <<- EOF
   (progn 
    (setq server-name "goism-tst") 
-   (load "$GOPATH/build/goism.elc"))
+   (load "$GOPATH/build/goism.elc")
+   (goism-load "rt"))
 EOF
 emacs --daemon --eval "${code}"
