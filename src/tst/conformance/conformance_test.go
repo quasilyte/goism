@@ -195,19 +195,20 @@ func Test6Slices(t *testing.T) {
 
 func Test8For(t *testing.T) {
 	testCalls(t, []callTest{
-		{"count5", "5"},
-		{"countLt10 10", "0"},
-		{"countLt10 9", "1"},
-		{"countLt10 1", "9"},
-		{"countLt10 0", "10"},
-		{"count1", "1"},
-		{"count2", "2"},
-		{"count20", "20"},
-		{"countN 10", "10"},
-		{"countN 20", "20"},
-		{"countMN 5 5", "25"},
-		{"countMN 1 5", "5"},
-		{"countMN 5 1", "5"},
+		{`runForTest "for" 10`, "10"},
+		{`runForTest "for" 1`, "1"},
+		{`runForTest "while" 10`, "10"},
+		{`runForTest "while" 1`, "1"},
+		{`runForTest "break" 10`, "10"},
+		{`runForTest "break" 1`, "1"},
+		{`runForTest "continue" 10`, "10"},
+		{`runForTest "continue" 1`, "1"},
+		{`runForTest "nestedFor" 10`, "10"},
+		{`runForTest "nestedFor" 1`, "1"},
+		{`runForTest "nestedBreak" 10`, "10"},
+		{`runForTest "nestedBreak" 1`, "1"},
+		{`runForTest "nestedContinue" 10`, "10"},
+		{`runForTest "nestedContinue" 1`, "1"},
 	})
 }
 

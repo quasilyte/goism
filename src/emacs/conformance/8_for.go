@@ -1,38 +1,54 @@
 package conformance
 
-// Test traditional "for" loop.
-func count5() int {
+func runForTest(name string, n int) int {
+	switch name {
+	case "for":
+		return testFor(n)
+	case "while":
+		return testWhile(n)
+	case "break":
+		return testForBreak(n)
+	case "continue":
+		return testForContinue(n)
+	case "nestedFor":
+		return testNestedFor(n)
+	case "nestedBreak":
+		return testNestedForBreak(n)
+	case "nestedContinue":
+		return testNestedForContinue(n)
+	}
+	return -1
+}
+
+func testFor(n int) int {
 	x := 0
-	for i := 0; i < 5; i++ {
+	for i := 0; i < n; i++ {
 		x++
 	}
 	return x
 }
 
-// Test while-like loop.
-func countLt10(i int) int {
-	x := 0
-	for i < 10 {
+func testWhile(n int) int {
+	x, i := 0, 0
+	for i < n {
 		x, i = x+1, i+1
 	}
 	return x
 }
 
-// Test break.
-func count1() int {
+func testForBreak(n int) int {
 	x := 0
 	for {
-		x++
+		x += n
 		break
 	}
 	return x
 }
 
-// Test continue.
-func count2() int {
+func testForContinue(n int) int {
 	x := 0
-	for i := 0; i < 10; i += 2 {
-		if !(i == 0 || i == 2) {
+	for i := 0; i < n*2; i++ {
+		if x == n {
 			continue
 		}
 		x++
@@ -40,19 +56,18 @@ func count2() int {
 	return x
 }
 
-// Test nested loops.
-func count20() int {
+func testNestedFor(n int) int {
 	x := 0
-	for i := 0; i < 5; i++ {
+	for i := 0; i < n; i++ {
 		for i := 0; i < 4; i++ {
 			x++
 		}
+		x -= 3
 	}
 	return x
 }
 
-// Test break in nested loops.
-func countN(n int) int {
+func testNestedForBreak(n int) int {
 	x := 0
 	for i := 0; i < n; i++ {
 		for {
@@ -64,15 +79,15 @@ func countN(n int) int {
 	return x
 }
 
-// Test continue in nested loops.
-func countMN(m, n int) int {
+func testNestedForContinue(n int) int {
 	x := 0
-	for i := 0; i < m*n; i++ {
-		x++
-		if x < 99999 {
-			continue
+	for i := 0; i < n*2; i++ {
+		for j := 0; j < 5; j++ {
+			if x == n {
+				continue
+			}
+			x++
 		}
-		x++
 	}
 	return x
 }
