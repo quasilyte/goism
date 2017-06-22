@@ -46,6 +46,34 @@ func testIfElse2(x int) string {
 	}
 }
 
+func testNestedIfZero(x int) bool {
+	if x > -1 {
+		if x < 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func testIfInitDef(n int) int {
+	if x, y := 1, 2; x == y {
+		return x - y
+	} else if x, y := n, 2*n; x < y {
+		return y - x
+	}
+	return -1
+}
+
+func testIfInitAssign(n int) int {
+	x, y := -1, -1
+	if x, y = 1, 2; x == y {
+		return -1
+	} else if x, y = n, 2*n; x < y {
+		return y - x
+	}
+	return -1
+}
+
 func testAnd(a, b, c bool) bool {
 	return a && b && c
 }
