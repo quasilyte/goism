@@ -158,6 +158,12 @@ func Test4If(t *testing.T) {
 		{"stringifyInt2 1", `"1"`},
 		{"stringifyInt2 2", `"2"`},
 		{"stringifyInt2 3", `"x"`},
+		{"and t t t", "t"},
+		{"and t t nil", "nil"},
+		{"and nil nil nil", "nil"},
+		{"or t t t", "t"},
+		{"or t t nil", "t"},
+		{"or nil nil nil", "nil"},
 	})
 }
 

@@ -45,3 +45,11 @@ func stringifyInt2(x int) string {
 		return "x"
 	}
 }
+
+func and(a, b, c bool) bool {
+	return a && b && c
+}
+
+func or(a, b, c bool) bool {
+	return a || b || c
+}
