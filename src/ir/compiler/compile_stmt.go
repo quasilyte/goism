@@ -67,8 +67,12 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 	labelBind(cl, bodyLabel)
 	compileBlock(cl, form.Body)
 	labelBind(cl, condLabel)
-	compileExpr(cl, form.Cond)
-	emitJmpNotNil(cl, bodyLabel)
+	if form.Cond == nil {
+		emitJmp(cl, bodyLabel)
+	} else {
+		compileExpr(cl, form.Cond)
+		emitJmpNotNil(cl, bodyLabel)
+	}
 }
 
 func compileBind(cl *Compiler, form *sexp.Bind) {

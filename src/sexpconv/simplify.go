@@ -82,6 +82,9 @@ func simplify(form sexp.Form) sexp.Form {
 	case *sexp.TypeCast:
 		return form.Form
 
+	case *sexp.Loop:
+		return &sexp.While{Body: form.Body}
+
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,

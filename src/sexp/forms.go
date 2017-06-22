@@ -119,7 +119,7 @@ type (
 	If struct {
 		Cond Form
 		Then *Block
-		Else Form
+		Else Form // [!] Can be nil
 	}
 
 	// Switch is "expression switch statement" defined by Go spec.
@@ -161,9 +161,14 @@ type (
 		Scope *types.Scope
 	}
 
-	// While is a general looping construct.
+	// Loop = "while true".
+	Loop struct {
+		Body *Block
+	}
+
+	// While is a generic (low level) looping construct.
 	While struct {
-		Cond Form
+		Cond Form // [!] Can be nil
 		Body *Block
 	}
 )

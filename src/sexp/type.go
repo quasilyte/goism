@@ -34,6 +34,7 @@ func (form *ExprStmt) Type() types.Type     { return xtypes.TypVoid }
 
 func (form *Repeat) Type() types.Type  { return xtypes.TypVoid }
 func (form *DoTimes) Type() types.Type { return xtypes.TypVoid }
+func (form *Loop) Type() types.Type    { return xtypes.TypVoid }
 func (form *While) Type() types.Type   { return xtypes.TypVoid }
 
 func (form *ArrayIndex) Type() types.Type {

@@ -100,6 +100,12 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		form.Step = Rewrite(form.Step, f)
 		form.Body = Rewrite(form.Body, f).(*Block)
 
+	case *Loop:
+		if form := f(form); form != nil {
+			return form
+		}
+		form.Body = Rewrite(form.Body, f).(*Block)
+
 	case *While:
 		if form := f(form); form != nil {
 			return form

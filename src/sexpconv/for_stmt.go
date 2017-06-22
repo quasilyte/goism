@@ -53,9 +53,15 @@ func (conv *converter) ForStmt(node *ast.ForStmt) sexp.Form {
 		body.Forms = append(body.Forms, conv.Stmt(node.Post))
 	}
 
-	var loop sexp.Form = &sexp.While{
-		Cond: conv.Expr(node.Cond),
-		Body: body,
+	var loop sexp.Form
+
+	if node.Cond == nil {
+		loop = &sexp.Loop{Body: body}
+	} else {
+		loop = &sexp.While{
+			Cond: conv.Expr(node.Cond),
+			Body: body,
+		}
 	}
 
 	if node.Init != nil {

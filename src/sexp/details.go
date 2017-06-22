@@ -28,6 +28,7 @@ func (form *ExprStmt) form()     {}
 
 func (form *Repeat) form()  {}
 func (form *DoTimes) form() {}
+func (form *Loop) form()    {}
 func (form *While) form()   {}
 
 func (form *ArrayIndex) form()  {}

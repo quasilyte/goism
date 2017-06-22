@@ -105,6 +105,9 @@ func (form *DoTimes) Copy() Form {
 		Scope: form.Scope,
 	}
 }
+func (form *Loop) Copy() Form {
+	return &Loop{Body: &Block{Forms: copyList(form.Body.Forms)}}
+}
 func (form *While) Copy() Form {
 	return &While{
 		Cond: form.Cond.Copy(),
