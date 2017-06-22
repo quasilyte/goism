@@ -60,20 +60,8 @@ func (conv *converter) withInitStmt(init ast.Stmt, form sexp.Form) sexp.Form {
 
 	case *ast.AssignStmt:
 		assigns := toFormList(conv.AssignStmt(init)).Forms
-		// Separate Bind and Rebind/VarUpdate.
-		binds := []*sexp.Bind{}
-		for i, assign := range assigns {
-			if bind, ok := assign.(*sexp.Bind); ok {
-				binds = append(binds, bind)
-				assigns[i] = sexp.EmptyStmt
-			}
-		}
-		if len(binds) == 0 {
-			return &sexp.FormList{Forms: append(assigns, form)}
-		}
-		return &sexp.Let{
-			Bindings: binds,
-			Stmt:     &sexp.FormList{Forms: append(assigns, form)},
+		return &sexp.Block{
+			Forms: append(assigns, form),
 		}
 
 	default:
