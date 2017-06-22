@@ -1,25 +1,5 @@
 package conformance
 
-func runForTest(name string, n int) int {
-	switch name {
-	case "for":
-		return testFor(n)
-	case "while":
-		return testWhile(n)
-	case "break":
-		return testForBreak(n)
-	case "continue":
-		return testForContinue(n)
-	case "nestedFor":
-		return testNestedFor(n)
-	case "nestedBreak":
-		return testNestedForBreak(n)
-	case "nestedContinue":
-		return testNestedForContinue(n)
-	}
-	return -1
-}
-
 func testFor(n int) int {
 	x := 0
 	for i := 0; i < n; i++ {

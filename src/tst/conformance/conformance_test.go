@@ -205,20 +205,20 @@ func Test8Slices(t *testing.T) {
 
 func Test9For(t *testing.T) {
 	testCalls(t, []callTest{
-		{`runForTest "for" 10`, "10"},
-		{`runForTest "for" 1`, "1"},
-		{`runForTest "while" 10`, "10"},
-		{`runForTest "while" 1`, "1"},
-		{`runForTest "break" 10`, "10"},
-		{`runForTest "break" 1`, "1"},
-		{`runForTest "continue" 10`, "10"},
-		{`runForTest "continue" 1`, "1"},
-		{`runForTest "nestedFor" 10`, "10"},
-		{`runForTest "nestedFor" 1`, "1"},
-		{`runForTest "nestedBreak" 10`, "10"},
-		{`runForTest "nestedBreak" 1`, "1"},
-		{`runForTest "nestedContinue" 10`, "10"},
-		{`runForTest "nestedContinue" 1`, "1"},
+		{`testFor 10`, "10"},
+		{`testFor 1`, "1"},
+		{`testWhile 10`, "10"},
+		{`testWhile 1`, "1"},
+		{`testForBreak 10`, "10"},
+		{`testForBreak 1`, "1"},
+		{`testForContinue 10`, "10"},
+		{`testForContinue 1`, "1"},
+		{`testNestedFor 10`, "10"},
+		{`testNestedFor 1`, "1"},
+		{`testNestedForBreak 10`, "10"},
+		{`testNestedForBreak 1`, "1"},
+		{`testNestedForContinue 10`, "10"},
+		{`testNestedForContinue 1`, "1"},
 	})
 }
 
