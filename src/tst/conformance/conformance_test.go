@@ -49,11 +49,22 @@ func q(xs ...string) []string {
 	return xs
 }
 
+type callTest struct {
+	call           string
+	outputExpected string
+}
+
+func testCalls(t *testing.T, table []callTest) {
+	for _, row := range table {
+		res := evalCall(row.call)
+		if res != row.outputExpected {
+			t.Errorf("(%s)=>%s (want %s)", row.call, res, row.outputExpected)
+		}
+	}
+}
+
 func Test1Ops(t *testing.T) {
-	table := []struct {
-		call           string
-		outputExpected string
-	}{
+	testCalls(t, []callTest{
 		// Int ops.
 		{"add1Int 1", "2"},
 		{"addInt 1 2 3", "6"},
@@ -76,14 +87,7 @@ func Test1Ops(t *testing.T) {
 		{`concatStr "a" "b" "c"`, `"abc"`},
 		{`ltStr "abc" "foo"`, "t"},
 		{`ltStr "foo" "abc"`, "nil"},
-	}
-
-	for _, row := range table {
-		res := evalCall(row.call)
-		if res != row.outputExpected {
-			t.Errorf("(%s)=>%s (want %s)", row.call, res, row.outputExpected)
-		}
-	}
+	})
 }
 
 func Test2GlobalVars(t *testing.T) {
@@ -127,4 +131,34 @@ func Test3MultiResult(t *testing.T) {
 			}
 		}
 	}
+}
+
+func Test4If(t *testing.T) {
+	testCalls(t, []callTest{
+		{"alwaysZero", "0"},
+		{"neverZero", "1"},
+		{"isZero 0", "t"},
+		{"isZero 1", "nil"},
+		{"stringifyInt1 0", `"0"`},
+		{"stringifyInt1 1", `"1"`},
+		{"stringifyInt1 2", `"2"`},
+		{"stringifyInt1 3", `"x"`},
+		{"stringifyInt2 0", `"0"`},
+		{"stringifyInt2 1", `"1"`},
+		{"stringifyInt2 2", `"2"`},
+		{"stringifyInt2 3", `"x"`},
+	})
+}
+
+func Test5Switch(t *testing.T) {
+	testCalls(t, []callTest{
+		{"stringifyInt3 0", `"0"`},
+		{"stringifyInt3 1", `"1"`},
+		{"stringifyInt3 2", `"2"`},
+		{"stringifyInt3 3", `"x"`},
+		{"stringifyInt4 0", `"0"`},
+		{"stringifyInt4 1", `"1"`},
+		{"stringifyInt4 2", `"2"`},
+		{"stringifyInt4 3", `"x"`},
+	})
 }
