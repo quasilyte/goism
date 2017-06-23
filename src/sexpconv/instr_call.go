@@ -1,7 +1,9 @@
 package sexpconv
 
-import "ir/instr"
-import "sexp"
+import (
+	"elapc/instr"
+	"sexp"
+)
 
 var nameToInstr = map[string]instr.Instr{
 	"cons":     instr.Cons,

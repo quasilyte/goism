@@ -4,7 +4,7 @@ import (
 	"exn"
 	"go/ast"
 	"go/types"
-	"ir/instr"
+	"elapc/instr"
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"

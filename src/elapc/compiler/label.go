@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"fmt"
-	"ir/instr"
+	"elapc/instr"
 )
 
 type label string

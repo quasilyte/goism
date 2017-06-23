@@ -5,6 +5,15 @@ import (
 	"lang"
 )
 
+// Coster provides a method to measure Form evaluation complexity.
+// Different targets may have different costs for similar operations.
+//
+// Cost returns a value that approximates computational
+// complexity of passed argument.
+type Coster interface {
+	Cost(Form) int
+}
+
 // Cost returns a value that approximates computational
 // complexity of passed argument.
 // Works only for expressions.

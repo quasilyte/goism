@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"assert"
-	"ir/instr"
+	"elapc/instr"
 	"lang"
 	"magic_pkg/emacs/rt"
 	"sexp"

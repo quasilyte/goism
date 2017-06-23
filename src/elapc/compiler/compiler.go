@@ -3,7 +3,7 @@ package compiler
 import (
 	"bytes"
 	"dt"
-	"ir"
+	"elapc"
 	"sexp"
 )
 
@@ -24,12 +24,12 @@ func New() *Compiler {
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *sexp.Func) *ir.Object {
+func (cl *Compiler) CompileFunc(f *sexp.Func) *elapc.Object {
 	cl.reset(f.Params)
 
 	compileStmtList(cl, f.Body.Forms)
 
-	return &ir.Object{
+	return &elapc.Object{
 		StackUsage: cl.st.MaxLen(),
 		Code:       cl.buf.Bytes(),
 		ConstVec:   cl.cvec,

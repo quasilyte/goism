@@ -3,7 +3,7 @@ package sexpconv
 import (
 	"go/ast"
 	"go/types"
-	"ir/instr"
+	"elapc/instr"
 	"sexp"
 )
 

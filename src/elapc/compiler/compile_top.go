@@ -1,8 +1,8 @@
 package compiler
 
 import (
+	"elapc/instr"
 	"exn"
-	"ir/instr"
 	"sexp"
 )
 

@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"bytes"
-	"ir/instr"
+	"elapc/instr"
 	"strconv"
 )
 

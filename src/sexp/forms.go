@@ -4,7 +4,7 @@ package sexp
 
 import (
 	"go/types"
-	"ir/instr"
+	"elapc/instr"
 	"sys_info/function"
 )
 
