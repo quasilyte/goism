@@ -183,6 +183,16 @@ func Test5If(t *testing.T) {
 
 func Test6Switch(t *testing.T) {
 	testCalls(t, []callTest{
+		{"testArrayLit 10", "10"},
+		// {"testKeyedArrayLit 10", "10"}, #REFS: 73
+		{"testArrayZeroVal 10", "10"},
+		{"testArrayUpdate 10", "10"},
+		{"testArrayCopyOnAssign 10", "10"},
+	})
+}
+
+func Test7Arrays(t *testing.T) {
+	testCalls(t, []callTest{
 		{"stringifyInt3 0", `"0"`},
 		{"stringifyInt3 1", `"1"`},
 		{"stringifyInt3 2", `"2"`},
@@ -192,10 +202,6 @@ func Test6Switch(t *testing.T) {
 		{"stringifyInt4 2", `"2"`},
 		{"stringifyInt4 3", `"x"`},
 	})
-}
-
-func Test7Arrays(t *testing.T) {
-
 }
 
 func Test8Slices(t *testing.T) {
@@ -229,5 +235,13 @@ func Test9For(t *testing.T) {
 func Test10Range(t *testing.T) {
 	testCalls(t, []callTest{
 		{"sumArray1", "6"},
+	})
+}
+
+func Test11Maps(t *testing.T) {
+	testCalls(t, []callTest{
+		{"testMapMake 10", "10"},
+		{"testMapNilLookup 10", "10"},
+		{"testMapUpdate 10", "10"},
 	})
 }
