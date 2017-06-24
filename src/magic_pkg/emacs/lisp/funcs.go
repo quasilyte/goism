@@ -1,10 +1,25 @@
 package lisp
 
 import (
-	"fmt"
 	"go/build"
 	"io/ioutil"
 	"regexp"
+)
+
+// Func is an arbitrary Emacs Lisp function.
+type Func struct {
+	Sym string
+}
+
+var (
+	// Funcs contains all known Emacs Lisp functions.
+	// Each function is unique (pointer comparison can be used).
+	Funcs map[string]*Func
+
+	// FFI stores {go sym}->{lisp func} mapping.
+	// If   "FFI[x].Sym == Funcs[y].Sym",
+	// then "FFI[x] == Funcs[y]" is also valid.
+	FFI map[string]*Func
 )
 
 var (
@@ -22,6 +37,33 @@ var (
 	FnVector         *Func
 )
 
+// Operators-like functions.
+var (
+	FnNumEq  = &Func{Sym: "="}
+	FnNumGt  = &Func{Sym: ">"}
+	FnNumLt  = &Func{Sym: "<"}
+	FnNumLte = &Func{Sym: "<="}
+	FnNumGte = &Func{Sym: ">="}
+	FnNumAdd = &Func{Sym: "+"}
+	FnNumSub = &Func{Sym: "-"}
+	FnNumMul = &Func{Sym: "*"}
+	FnNumQuo = &Func{Sym: "/"}
+	FnStrEq  = &Func{Sym: "string="}
+	FnStrLt  = &Func{Sym: "string<"}
+	FnNot    = &Func{Sym: "!"}
+)
+
+// InternFunc creates lisp function with lispSym name.
+// Two calls for same symbol return identical object.
+func InternFunc(lispSym string) *Func {
+	if fn := Funcs[lispSym]; fn != nil {
+		return fn
+	}
+	fn := &Func{Sym: lispSym}
+	Funcs[lispSym] = fn
+	return fn
+}
+
 func initFuncs() error {
 	// Fetch all FFI mappings.
 	rx := regexp.MustCompile(`//goism:"([^)]*)"->"([^)]*)"\n`)
@@ -30,35 +72,34 @@ func initFuncs() error {
 		return err
 	}
 	directives := rx.FindAllStringSubmatch(string(code), -1)
-	FFI = make(map[string]*Func, len(directives))
-	mandatoryFuncs := map[string]**Func{
-		"copy-sequence":    &FnCopySequence,
-		"intern":           &FnIntern,
-		"gethash":          &FnGethash,
-		"make-vector":      &FnMakeVector,
-		"remhash":          &FnRemhash,
-		"hash-table-count": &FnHashTableCount,
-		"lsh":              &FnLsh,
-		"logand":           &FnLogand,
-		"logior":           &FnLogior,
-		"logxor":           &FnLogxor,
-		"string>":          &FnStrGt,
-		"vector":           &FnVector,
-	}
-	for _, d := range directives {
-		from, to := d[1], d[2]
-		fn := &Func{Sym: to}
-		FFI[from] = fn
-		if fnRef, ok := mandatoryFuncs[to]; ok {
-			*fnRef = fn
+
+	// Fill predeclared funcs.
+	Funcs = make(map[string]*Func, 64)
+	{
+		funcs := []*Func{
+			FnNumEq,
+			FnNumGt,
+			FnNumLt,
+			FnNumLte,
+			FnNumGte,
+			FnNumAdd,
+			FnNumSub,
+			FnNumMul,
+			FnNumQuo,
+			FnStrEq,
+			FnStrLt,
+			FnNot,
+		}
+		for _, fn := range funcs {
+			Funcs[fn.Sym] = fn
 		}
 	}
 
-	// Detect missing funcs.
-	for sym, fnRef := range mandatoryFuncs {
-		if *fnRef == nil {
-			return fmt.Errorf("emacs/lisp/ffi.go misses `%s' mapping", sym)
-		}
+	// Initialie FFI mappings.
+	FFI = make(map[string]*Func, len(directives))
+	for _, d := range directives {
+		goSym, lispSym := d[1], d[2]
+		FFI[goSym] = InternFunc(lispSym)
 	}
 
 	return nil

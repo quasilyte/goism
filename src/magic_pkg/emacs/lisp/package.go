@@ -11,8 +11,6 @@ var (
 	TypSymbol *types.Named
 )
 
-var FFI map[string]*Func
-
 func InitPackage(pkg *types.Package) error {
 	top := pkg.Scope()
 	getNamed := func(name string) *types.Named {
