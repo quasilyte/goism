@@ -9,9 +9,9 @@
  (remhash Remhash (:any key :object table) :void)
  (hash-table-count HashTableCount (:object table) :int)
  (lsh Lsh (:int value :int count) :int)
- (logand Logand (:int &intsOrMarkers) :int)
- (logior Logior (:int &intsOrMarkers) :int)
- (logxor Logxor (:int &intsOrMarkers) :int)
+ (logand Logand (:int &args) :int)
+ (logior Logior (:int &args) :int)
+ (logxor Logxor (:int &args) :int)
  (string> StrGr (:string string1 :string string2) :bool)
  (vector Vector (:any &objects) :object)
  ;; Functions that are required by emacs/rt:
