@@ -5,7 +5,6 @@ import (
 	"go/types"
 	"magic_pkg/emacs/lisp"
 	"sexp"
-	"sys_info/function"
 )
 
 func basicTypeZeroValue(typ *types.Basic) sexp.Form {
@@ -41,7 +40,7 @@ func ZeroValue(typ types.Type) sexp.Form {
 	case *types.Array:
 		zv := ZeroValue(typ.Elem())
 		return &sexp.SparseArrayLit{
-			Ctor: sexp.NewLispCall(function.MakeVector, sexp.Int(typ.Len()), zv),
+			Ctor: sexp.NewLispCall(lisp.FnMakeVector, sexp.Int(typ.Len()), zv),
 			Typ:  typ,
 		}
 

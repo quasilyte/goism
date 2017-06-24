@@ -7,7 +7,6 @@ import (
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 )
 
 func (conv *converter) lispObjectMethod(fn string, recv ast.Expr, args []ast.Expr) sexp.Form {
@@ -46,7 +45,7 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 			return call
 		}
 		return &sexp.LispCall{
-			Fn:   &function.LispFn{Sym: name},
+			Fn:   &lisp.Func{Sym: name},
 			Args: args,
 		}
 
@@ -72,5 +71,5 @@ func (conv *converter) intrinIntern(arg ast.Expr) sexp.Form {
 		return sexp.Symbol{Val: s}
 	}
 
-	return conv.lispCall(function.Intern, arg)
+	return conv.lispCall(lisp.FnIntern, arg)
 }

@@ -5,7 +5,6 @@ import (
 	"go/types"
 	"io/ioutil"
 	"regexp"
-	"sys_info/function"
 )
 
 var Package *types.Package
@@ -15,7 +14,7 @@ var (
 	TypSymbol *types.Named
 )
 
-var FFI map[string]*function.LispFn
+var FFI map[string]*Func
 
 func InitPackage(pkg *types.Package) error {
 	top := pkg.Scope()
@@ -35,10 +34,10 @@ func InitPackage(pkg *types.Package) error {
 		return err
 	}
 	directives := rx.FindAllStringSubmatch(string(code), -1)
-	FFI = make(map[string]*function.LispFn, len(directives))
+	FFI = make(map[string]*Func, len(directives))
 	for _, d := range directives {
 		from, to := d[1], d[2]
-		FFI[from] = &function.LispFn{Sym: to}
+		FFI[from] = &Func{Sym: to}
 	}
 
 	return nil

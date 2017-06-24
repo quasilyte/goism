@@ -2,8 +2,8 @@ package sexpconv
 
 import (
 	"go/types"
+	"magic_pkg/emacs/lisp"
 	"sexp"
-	"sys_info/function"
 	"xtypes"
 )
 
@@ -32,7 +32,7 @@ func (conv *converter) copyValue(form sexp.Form) sexp.Form {
 	// Copy array.
 	if xtypes.IsArray(typ) && !isArrayLit(form) {
 		return &sexp.LispCall{
-			Fn:   function.CopySequence,
+			Fn:   lisp.FnCopySequence,
 			Args: []sexp.Form{form},
 		}
 	}

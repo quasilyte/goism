@@ -3,9 +3,9 @@
 package sexp
 
 import (
-	"go/types"
 	"elapc/instr"
-	"sys_info/function"
+	"go/types"
+	"magic_pkg/emacs/lisp"
 )
 
 // Form = universal S-expression node (akin to Go ast.Node).
@@ -226,7 +226,7 @@ type TypeAssert struct {
 }
 
 type LispCall struct {
-	Fn   *function.LispFn
+	Fn   *lisp.Func
 	Args []Form
 }
 

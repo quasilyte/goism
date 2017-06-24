@@ -5,9 +5,9 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 	"xtypes"
 )
 
@@ -213,8 +213,8 @@ func (conv *converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
 func (conv *converter) takeAddr(form sexp.Form) sexp.Form {
 	if typ := form.Type(); xtypes.IsStruct(typ) {
 		return &sexp.TypeCast{
-			Form: form, 
-			Typ: types.NewPointer(typ),
+			Form: form,
+			Typ:  types.NewPointer(typ),
 		}
 	}
 
@@ -231,7 +231,7 @@ func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
 		return &sexp.LispCall{
-			Fn: function.Gethash,
+			Fn: lisp.FnGethash,
 			Args: conv.copyValuesList([]sexp.Form{
 				conv.Expr(node.Index),
 				conv.Expr(node.X),
@@ -306,7 +306,7 @@ func (conv *converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 			vals[i] = conv.Expr(elt)
 		}
 		ctor := &sexp.LispCall{
-			Fn: function.MakeVector,
+			Fn: lisp.FnMakeVector,
 			Args: []sexp.Form{
 				sexp.Int(typ.Len()),
 				ZeroValue(typ.Elem()),

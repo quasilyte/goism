@@ -1,14 +1,13 @@
 package sexpconv
 
 import (
+	"elapc/instr"
 	"exn"
 	"go/ast"
 	"go/types"
-	"elapc/instr"
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 )
 
 func (conv *converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
@@ -36,7 +35,7 @@ func (conv *converter) call(fn *sexp.Func, args ...interface{}) *sexp.Call {
 	return &sexp.Call{Fn: fn, Args: conv.uniArgList(args)}
 }
 
-func (conv *converter) lispCall(fn *function.LispFn, args ...interface{}) *sexp.LispCall {
+func (conv *converter) lispCall(fn *lisp.Func, args ...interface{}) *sexp.LispCall {
 	return &sexp.LispCall{Fn: fn, Args: conv.uniArgList(args)}
 }
 
@@ -103,7 +102,7 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.call(rt.FnPrintln, argList)
 		case "delete":
 			key, m := args[0], args[1]
-			return conv.lispCall(function.Remhash, m, key)
+			return conv.lispCall(lisp.FnRemhash, m, key)
 
 		default:
 			return conv.callOrCoerce(conv.ftab.MasterPkg(), fn, args)

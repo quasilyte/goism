@@ -2,9 +2,9 @@ package sexpconv
 
 import (
 	"exn"
+	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 )
 
 // Simplify translates semantic-rich forms into
@@ -49,11 +49,11 @@ func simplify(form sexp.Form) sexp.Form {
 	case *sexp.SliceLit:
 		return sexp.NewCall(
 			rt.FnArrayToSlice,
-			sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...),
+			sexp.NewLispCall(lisp.FnVector, simplifyList(form.Vals)...),
 		)
 
 	case *sexp.ArrayLit:
-		return sexp.NewLispCall(function.Vector, simplifyList(form.Vals)...)
+		return sexp.NewLispCall(lisp.FnVector, simplifyList(form.Vals)...)
 
 	case *sexp.ArraySlice:
 		switch form.Kind() {

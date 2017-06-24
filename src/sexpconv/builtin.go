@@ -4,15 +4,15 @@ import (
 	"exn"
 	"go/ast"
 	"go/types"
+	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
-	"sys_info/function"
 )
 
 func (conv *converter) lenBuiltin(arg ast.Expr) sexp.Form {
 	switch typ := conv.typeOf(arg).(type) {
 	case *types.Map:
-		return conv.lispCall(function.HashTableCount, arg)
+		return conv.lispCall(lisp.FnHashTableCount, arg)
 
 	case *types.Array:
 		return sexp.Int(typ.Len())

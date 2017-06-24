@@ -1,9 +1,9 @@
 package sexp
 
 import (
-	"go/types"
 	"elapc/instr"
-	"sys_info/function"
+	"go/types"
+	"magic_pkg/emacs/lisp"
 )
 
 // Constructors for simple forms.
@@ -12,7 +12,7 @@ func NewCall(fn *Func, args ...Form) *Call {
 	return &Call{Fn: fn, Args: args}
 }
 
-func NewLispCall(fn *function.LispFn, args ...Form) *LispCall {
+func NewLispCall(fn *lisp.Func, args ...Form) *LispCall {
 	return &LispCall{Fn: fn, Args: args}
 }
 
@@ -40,11 +40,11 @@ func NewNeg(x Form) *InstrCall  { return newOp1(instr.Neg, x) }
 func NewAdd1(x Form) *InstrCall { return newOp1(instr.Add1, x) }
 func NewSub1(x Form) *InstrCall { return newOp1(instr.Sub1, x) }
 
-func NewShl(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, y) }
-func NewShr(x, y Form) *LispCall     { return NewLispCall(function.Lsh, x, NewNeg(y)) }
-func NewBitOr(x, y Form) *LispCall   { return NewLispCall(function.Logior, x, y) }
-func NewBitAnd(x, y Form) *LispCall  { return NewLispCall(function.Logand, x, y) }
-func NewBitXor(x, y Form) *LispCall  { return NewLispCall(function.Logxor, x, y) }
+func NewShl(x, y Form) *LispCall     { return NewLispCall(lisp.FnLsh, x, y) }
+func NewShr(x, y Form) *LispCall     { return NewLispCall(lisp.FnLsh, x, NewNeg(y)) }
+func NewBitOr(x, y Form) *LispCall   { return NewLispCall(lisp.FnLogior, x, y) }
+func NewBitAnd(x, y Form) *LispCall  { return NewLispCall(lisp.FnLogand, x, y) }
+func NewBitXor(x, y Form) *LispCall  { return NewLispCall(lisp.FnLogxor, x, y) }
 func NewAdd(x, y Form) *InstrCall    { return newOp2(instr.NumAdd, x, y) }
 func NewSub(x, y Form) *InstrCall    { return newOp2(instr.NumSub, x, y) }
 func NewMul(x, y Form) *InstrCall    { return newOp2(instr.NumMul, x, y) }
@@ -58,7 +58,7 @@ func NewNumGte(x, y Form) *InstrCall { return newOp2(instr.NumGte, x, y) }
 func NewStrEq(x, y Form) *InstrCall  { return newOp2(instr.StrEq, x, y) }
 func NewStrNeq(x, y Form) *InstrCall { return NewNot(NewStrEq(x, y)) }
 func NewStrLt(x, y Form) *InstrCall  { return newOp2(instr.StrLt, x, y) }
-func NewStrGt(x, y Form) *LispCall   { return NewLispCall(function.StrGt, x, y) }
+func NewStrGt(x, y Form) *LispCall   { return NewLispCall(lisp.FnStrGt, x, y) }
 func NewConcat(x, y Form) *InstrCall { return newOp2(instr.Concat2, x, y) }
 
 func newOp1(ins instr.Instr, x Form) *InstrCall {
