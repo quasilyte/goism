@@ -237,3 +237,11 @@ func Test10Range(t *testing.T) {
 		{"sumArray1", "6"},
 	})
 }
+
+func Test11Maps(t *testing.T) {
+	testCalls(t, []callTest{
+		{"testMapMake 10", "10"},
+		{"testMapNilLookup 10", "10"},
+		{"testMapUpdate 10", "10"},
+	})
+}
