@@ -66,14 +66,14 @@ func ParseArgv(schema ArgvSchema) {
 			Blame("Argument `%s' is required\n", name)
 		}
 		if info.Enum && !checkEnum(*p, info.Help) {
-			Blame("Unexpected `%s' value (see usage)\n", name)
+			Blame("Invalid `%s=%s' value (see usage)\n", name, *p)
 		}
 
 		argv[name] = *p
 	}
 }
 
-var enumRx = regexp.MustCompile(`\{[\w\|]*\}`)
+var enumRx = regexp.MustCompile(`\{[\w:\|]*\}`)
 
 func checkEnum(val string, help string) bool {
 	enum := enumRx.FindString(help)
