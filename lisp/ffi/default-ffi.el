@@ -1,9 +1,21 @@
 ;;; -*- lexical-binding: t -*-
 
 (goism-declare
+ ;; Functions that are required by the compiler:
+ (copy-sequence CopySequence (:object arg) :object)
+ (intern Intern (:string name) :symbol)
+ (gethash Gethash (:any key :any table :any dflt) :object)
+ (make-vector MakeVector (:int length :any init) :object)
+ (remhash Remhash (:any key :object table) :void)
+ (hash-table-count HashTableCount (:object table) :int)
+ (lsh Lsh (:int value :int count) :int)
+ (logand Logand (:int &intsOrMarkers) :int)
+ (logior Logior (:int &intsOrMarkers) :int)
+ (logxor Logxor (:int &intsOrMarkers) :int)
+ (string> StrGr (:string string1 :string string2) :bool)
+ (vector Vector (:any &objects) :object)
  ;; Functions that are required by emacs/rt:
  (not Not (:any object) :bool)
- (make-vector MakeVector (:int length :any init) :object)
  (substring Substring (:object s :int &fromAndTo) :object)
  (vconcat Vconcat (:object &sequences) :object)
  (concat Concat (:any &sequences) :string)
@@ -20,12 +32,11 @@
  (mapconcat MapConcat
             (:any function :object sequence :string separator)
             :object)
+ (puthash Puthash (:any key :any value :object table) :object)
  (princ Princ (:any object) :void)
  (prin1-to-string Prin1ToString (:any object) :string)
  (eq Eq (:any obj1 :any obj2) :bool)
  (equal Equal (:any obj1 :any obj2) :bool)
- (puthash Puthash (:any key :any value :object table) :object)
- (gethash Gethash (:any key :any table :any dflt) :object)
  (min MinInt (:int &xs) :int)
  (min MinFloat (:float &xs) :float)
  (message Message (:string format :any &args) :string)

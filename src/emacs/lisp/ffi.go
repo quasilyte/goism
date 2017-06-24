@@ -3,16 +3,85 @@ package lisp
 // This package is special.
 // It may not be a good idea to edit it by manually.
 
-// Not = Return t if OBJECT is nil, and return nil otherwise.
+// CopySequence = Return a copy of a list, vector, string or char-table.
+// The elements of a list or vector are not copied; they are shared
+// with the original.
 //
-//goism:"Not"->"not"
-func Not(object any) bool
+//goism:"CopySequence"->"copy-sequence"
+func CopySequence(arg Object) Object
+
+// Intern = Return the canonical symbol whose name is STRING.
+// If there is none, one is created by this function and returned.
+// A second optional argument specifies the obarray to use;
+// it defaults to the value of ‘obarray’.
+//
+//goism:"Intern"->"intern"
+func Intern(name string) Symbol
+
+// Gethash = Look up KEY in TABLE and return its associated value.
+// If KEY is not found, return DFLT which defaults to nil.
+//
+//goism:"Gethash"->"gethash"
+func Gethash(key any, table any, dflt any) Object
 
 // MakeVector = Return a newly created vector of length LENGTH, with each element being INIT.
 // See also the function ‘vector’.
 //
 //goism:"MakeVector"->"make-vector"
 func MakeVector(length int, init any) Object
+
+// Remhash = Remove KEY from TABLE.
+//
+//goism:"Remhash"->"remhash"
+func Remhash(key any, table Object)
+
+// HashTableCount = Return the number of elements in TABLE.
+//
+//goism:"HashTableCount"->"hash-table-count"
+func HashTableCount(table Object) int
+
+// Lsh = Return VALUE with its bits shifted left by COUNT.
+// If COUNT is negative, shifting is actually to the right.
+// In this case, zeros are shifted in on the left.
+//
+//goism:"Lsh"->"lsh"
+func Lsh(value int, count int) int
+
+// Logand = Return bitwise-and of all the arguments.
+// Arguments may be integers, or markers converted to integers.
+//
+//goism:"Logand"->"logand"
+func Logand(intsOrMarkers ...int) int
+
+// Logior = Return bitwise-or of all the arguments.
+// Arguments may be integers, or markers converted to integers.
+//
+//goism:"Logior"->"logior"
+func Logior(intsOrMarkers ...int) int
+
+// Logxor = Return bitwise-exclusive-or of all the arguments.
+// Arguments may be integers, or markers converted to integers.
+//
+//goism:"Logxor"->"logxor"
+func Logxor(intsOrMarkers ...int) int
+
+// StrGr = Return non-nil if STRING1 is greater than STRING2 in lexicographic order.
+// Case is significant.
+// Symbols are also allowed; their print names are used instead.
+//
+//goism:"StrGr"->"string>"
+func StrGr(string1 string, string2 string) bool
+
+// Vector = Return a newly created vector with specified arguments as elements.
+// Any number of arguments, even zero arguments, are allowed.
+//
+//goism:"Vector"->"vector"
+func Vector(objects ...any) Object
+
+// Not = Return t if OBJECT is nil, and return nil otherwise.
+//
+//goism:"Not"->"not"
+func Not(object any) bool
 
 // Substring = Return a new string whose contents are a substring of STRING.
 // The returned string consists of the characters between index FROM
@@ -129,6 +198,13 @@ func IsSymbol(object Object) bool
 //goism:"MapConcat"->"mapconcat"
 func MapConcat(function any, sequence Object, separator string) Object
 
+// Puthash = Associate KEY with VALUE in hash table TABLE.
+// If KEY is already present in table, replace its current value with
+// VALUE.  In any case, return VALUE.
+//
+//goism:"Puthash"->"puthash"
+func Puthash(key any, value any, table Object) Object
+
 // Princ = Output the printed representation of OBJECT, any Lisp object.
 // No quoting characters are used; no delimiters are printed around
 // the contents of strings.
@@ -183,19 +259,6 @@ func Eq(obj1 any, obj2 any) bool
 //
 //goism:"Equal"->"equal"
 func Equal(obj1 any, obj2 any) bool
-
-// Puthash = Associate KEY with VALUE in hash table TABLE.
-// If KEY is already present in table, replace its current value with
-// VALUE.  In any case, return VALUE.
-//
-//goism:"Puthash"->"puthash"
-func Puthash(key any, value any, table Object) Object
-
-// Gethash = Look up KEY in TABLE and return its associated value.
-// If KEY is not found, return DFLT which defaults to nil.
-//
-//goism:"Gethash"->"gethash"
-func Gethash(key any, table any, dflt any) Object
 
 // MinInt = Return smallest of all the arguments (which must be numbers or markers).
 // The value is always a number; markers are converted to numbers.
