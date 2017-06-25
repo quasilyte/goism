@@ -62,30 +62,30 @@ func (call *Call) Type() types.Type {
 	return results
 }
 func (call *LispCall) Type() types.Type {
-	return call.Args[0].Type()
-}
-func (call *InstrCall) Type() types.Type {
-	switch opName := string(call.Instr.Name); opName {
-	case "sub", "add", "mul", "quo", "min":
+	switch call.Fn {
+	case lisp.FnSub, lisp.FnAdd, lisp.FnMul, lisp.FnQuo, lisp.FnMin:
 		return call.Args[0].Type()
 
-	case "concat":
+	case lisp.FnConcat:
 		return xtypes.TypString
 
-	case "length":
+	case lisp.FnLen:
 		return xtypes.TypInt
 
-	case "eq", "equal", "not":
+	case lisp.FnEq, lisp.FnEqual, lisp.FnNot:
 		return xtypes.TypBool
-	case "num=", "num>", "num<", "num<=", "num>=", "string=", "string<":
+	case lisp.FnNumEq, lisp.FnNumLt, lisp.FnNumGt, lisp.FnNumLte, lisp.FnNumGte:
 		return xtypes.TypBool
-	case "str?", "int?", "symbol?":
+	case lisp.FnStrEq, lisp.FnStrLt, lisp.FnStrGt:
+		return xtypes.TypBool
+	case lisp.FnIsInt, lisp.FnIsStr, lisp.FnIsSymbol:
 		return xtypes.TypBool
 
 	default:
 		return lisp.TypObject
 	}
 }
+
 func (form *Let) Type() types.Type {
 	if form.Expr == nil {
 		return xtypes.TypVoid

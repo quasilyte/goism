@@ -1,9 +1,5 @@
 package sexp
 
-import (
-	"exn"
-)
-
 type rewriteFunc func(Form) Form
 
 // Rewrite provides convenient way to update AST.
@@ -72,9 +68,7 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		}
 		form.Cond = Rewrite(form.Cond, f)
 		form.Then = Rewrite(form.Then, f).(*Block)
-		if form.Else != nil {
-			form.Else = Rewrite(form.Else, f)
-		}
+		form.Else = Rewrite(form.Else, f)
 
 	case *Switch:
 		if form := f(form); form != nil {
@@ -123,8 +117,6 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return rewriteList(form, form.Args, f)
 	case *Call:
 		return rewriteList(form, form.Args, f)
-	case *InstrCall:
-		return rewriteList(form, form.Args, f)
 
 	case *Let:
 		if form := f(form); form != nil {
@@ -157,7 +149,8 @@ func Rewrite(form Form, f rewriteFunc) Form {
 		return form
 
 	default:
-		panic(exn.Logic("unexpected form: %#v", form))
+		// Can be backend-specific form.
+		return rewriteAtom(form, f)
 	}
 
 	return form

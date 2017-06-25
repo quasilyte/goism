@@ -10,7 +10,7 @@ func (atom Var) Copy() Form {
 }
 
 func (lit *ArrayLit) Copy() Form {
-	return &ArrayLit{Vals: copyList(lit.Vals), Typ: lit.Typ}
+	return &ArrayLit{Vals: CopyList(lit.Vals), Typ: lit.Typ}
 }
 func (lit *SparseArrayLit) Copy() Form {
 	vals := make(map[int]Form, len(lit.Vals))
@@ -24,10 +24,10 @@ func (lit *SparseArrayLit) Copy() Form {
 	}
 }
 func (lit *SliceLit) Copy() Form {
-	return &SliceLit{Vals: copyList(lit.Vals), Typ: lit.Typ}
+	return &SliceLit{Vals: CopyList(lit.Vals), Typ: lit.Typ}
 }
 func (lit *StructLit) Copy() Form {
-	return &StructLit{Vals: copyList(lit.Vals), Typ: lit.Typ}
+	return &StructLit{Vals: CopyList(lit.Vals), Typ: lit.Typ}
 }
 
 func (form *ArrayUpdate) Copy() Form {
@@ -62,15 +62,15 @@ func (form *VarUpdate) Copy() Form {
 	return &VarUpdate{Expr: form.Expr.Copy()}
 }
 func (form *FormList) Copy() Form {
-	return &FormList{Forms: copyList(form.Forms)}
+	return &FormList{Forms: CopyList(form.Forms)}
 }
 func (form *Block) Copy() Form {
-	return &Block{Forms: copyList(form.Forms)}
+	return &Block{Forms: CopyList(form.Forms)}
 }
 func (form *If) Copy() Form {
 	return &If{
 		Cond: form.Cond.Copy(),
-		Then: &Block{Forms: copyList(form.Then.Forms)},
+		Then: &Block{Forms: CopyList(form.Then.Forms)},
 		Else: form.Else.Copy(),
 	}
 }
@@ -84,7 +84,7 @@ func (form *SwitchTrue) Copy() Form {
 	return &SwitchTrue{SwitchBody: copySwitchBody(form.SwitchBody)}
 }
 func (form *Return) Copy() Form {
-	return &Return{Results: copyList(form.Results)}
+	return &Return{Results: CopyList(form.Results)}
 }
 func (form *ExprStmt) Copy() Form {
 	return &ExprStmt{Expr: form.Copy()}
@@ -95,7 +95,7 @@ func (form *Label) Copy() Form { return &Label{Name: form.Name} }
 func (form *Repeat) Copy() Form {
 	return &Repeat{
 		N:    form.N,
-		Body: &Block{Forms: copyList(form.Body.Forms)},
+		Body: &Block{Forms: CopyList(form.Body.Forms)},
 	}
 }
 func (form *DoTimes) Copy() Form {
@@ -103,18 +103,18 @@ func (form *DoTimes) Copy() Form {
 		N:     form.N.Copy(),
 		Iter:  form.Iter,
 		Step:  form.Step.Copy(),
-		Body:  &Block{Forms: copyList(form.Body.Forms)},
+		Body:  &Block{Forms: CopyList(form.Body.Forms)},
 		Scope: form.Scope,
 	}
 }
 func (form *Loop) Copy() Form {
-	return &Loop{Body: &Block{Forms: copyList(form.Body.Forms)}}
+	return &Loop{Body: &Block{Forms: CopyList(form.Body.Forms)}}
 }
 func (form *While) Copy() Form {
 	return &While{
 		Cond: form.Cond.Copy(),
 		Post: form.Post.Copy(),
-		Body: &Block{Forms: copyList(form.Body.Forms)},
+		Body: &Block{Forms: CopyList(form.Body.Forms)},
 	}
 }
 
@@ -157,13 +157,10 @@ func (form *TypeAssert) Copy() Form {
 }
 
 func (call *LispCall) Copy() Form {
-	return &LispCall{Fn: call.Fn, Args: copyList(call.Args)}
+	return &LispCall{Fn: call.Fn, Args: CopyList(call.Args)}
 }
 func (call *Call) Copy() Form {
-	return &Call{Fn: call.Fn, Args: copyList(call.Args)}
-}
-func (call *InstrCall) Copy() Form {
-	return &InstrCall{Instr: call.Instr, Args: copyList(call.Args)}
+	return &Call{Fn: call.Fn, Args: CopyList(call.Args)}
 }
 func (form *Let) Copy() Form {
 	binds := make([]*Bind, len(form.Bindings))
@@ -186,7 +183,7 @@ func (form *Or) Copy() Form {
 	return &Or{X: form.X.Copy(), Y: form.Y.Copy()}
 }
 
-func copyList(forms []Form) []Form {
+func CopyList(forms []Form) []Form {
 	if forms == nil {
 		return nil
 	}

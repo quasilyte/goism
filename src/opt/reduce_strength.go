@@ -1,6 +1,7 @@
 package opt
 
 import (
+	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
 	"sexpconv"
@@ -21,17 +22,17 @@ func (sr strengthReducer) rewrite(form sexp.Form) sexp.Form {
 
 func (sr strengthReducer) walkForm(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
-	case *sexp.InstrCall:
-		switch string(form.Instr.Name) {
-		case "add":
+	case *sexp.LispCall:
+		switch form.Fn {
+		case lisp.FnAdd:
 			return sr.weakenAdd(form)
-		case "sub":
+		case lisp.FnSub:
 			return sr.weakenSub(form)
-		case "concat":
+		case lisp.FnConcat:
 			return sr.weakenConcat(form)
-		case "list":
+		case lisp.FnList:
 			return sr.weakenList(form)
-		case "substr":
+		case lisp.FnSubstr:
 			return sr.weakenSubstr(form)
 		}
 
@@ -49,7 +50,7 @@ func (sr strengthReducer) walkForm(form sexp.Form) sexp.Form {
 	return nil
 }
 
-func (sr strengthReducer) weakenAdd(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenAdd(form *sexp.LispCall) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
 			return sexp.NewAdd1(form.Args[b])
@@ -78,7 +79,7 @@ func (sr strengthReducer) weakenAdd(form *sexp.InstrCall) sexp.Form {
 	return form
 }
 
-func (sr strengthReducer) weakenSub(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenSub(form *sexp.LispCall) sexp.Form {
 	if numEq(form.Args[1], 1) {
 		return sexp.NewSub1(form.Args[0])
 	}
@@ -148,7 +149,7 @@ func (sr strengthReducer) weakenBytesToStr(form *sexp.Call) sexp.Form {
 	return form
 }
 
-func (sr strengthReducer) weakenConcat(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenConcat(form *sexp.LispCall) sexp.Form {
 	switch len(form.Args) {
 	case 0:
 		return sexp.Str("")
@@ -159,14 +160,14 @@ func (sr strengthReducer) weakenConcat(form *sexp.InstrCall) sexp.Form {
 	}
 }
 
-func (sr strengthReducer) weakenList(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenList(form *sexp.LispCall) sexp.Form {
 	if len(form.Args) == 0 {
 		return sexp.Symbol{Val: "nil"}
 	}
 	return form
 }
 
-func (sr strengthReducer) weakenSubstr(form *sexp.InstrCall) sexp.Form {
+func (sr strengthReducer) weakenSubstr(form *sexp.LispCall) sexp.Form {
 	if form.Args[1] == nil && form.Args[2] == nil {
 		return form.Args[0]
 	}

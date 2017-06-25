@@ -23,33 +23,55 @@ var (
 )
 
 var (
-	FnCopySequence   *Func
-	FnIntern         *Func
-	FnGethash        *Func
-	FnMakeVector     *Func
-	FnRemhash        *Func
-	FnHashTableCount *Func
-	FnLsh            *Func
-	FnLogand         *Func
-	FnLogior         *Func
-	FnLogxor         *Func
-	FnStrGt          *Func
-	FnVector         *Func
+	FnCopySequence   = &Func{Sym: "copy-sequence"}
+	FnIntern         = &Func{Sym: "intern"}
+	FnGethash        = &Func{Sym: "gethash"}
+	FnMakeVector     = &Func{Sym: "make-vector"}
+	FnRemhash        = &Func{Sym: "remhash"}
+	FnHashTableCount = &Func{Sym: "hash-table-count"}
+	FnVector         = &Func{Sym: "vector"}
+
+	FnSubstr   = &Func{Sym: "substring"}
+	FnConcat   = &Func{Sym: "concat"}
+	FnNeg      = &Func{Sym: "-"}
+	FnAdd1     = &Func{Sym: "1+"}
+	FnSub1     = &Func{Sym: "1-"}
+	FnMin      = &Func{Sym: "min"}
+	FnLen      = &Func{Sym: "length"}
+	FnIsStr    = &Func{Sym: "stringp"}
+	FnIsInt    = &Func{Sym: "integerp"}
+	FnIsSymbol = &Func{Sym: "symbolp"}
+	FnList     = &Func{Sym: "list"}
+
+	FnCons   = &Func{Sym: "cons"}
+	FnCar    = &Func{Sym: "car"}
+	FnCdr    = &Func{Sym: "cdr"}
+	FnAref   = &Func{Sym: "aref"}
+	FnAset   = &Func{Sym: "aset"}
+	FnMemq   = &Func{Sym: "memq"}
+	FnMember = &Func{Sym: "member"}
+	FnLsh    = &Func{Sym: "lsh"}
+	FnLogand = &Func{Sym: "logand"}
+	FnLogior = &Func{Sym: "logior"}
+	FnLogxor = &Func{Sym: "logxor"}
 )
 
 // Operators-like functions.
 var (
+	FnEq     = &Func{Sym: "eq"}
+	FnEqual  = &Func{Sym: "equal"}
 	FnNumEq  = &Func{Sym: "="}
-	FnNumGt  = &Func{Sym: ">"}
 	FnNumLt  = &Func{Sym: "<"}
+	FnNumGt  = &Func{Sym: ">"}
 	FnNumLte = &Func{Sym: "<="}
 	FnNumGte = &Func{Sym: ">="}
-	FnNumAdd = &Func{Sym: "+"}
-	FnNumSub = &Func{Sym: "-"}
-	FnNumMul = &Func{Sym: "*"}
-	FnNumQuo = &Func{Sym: "/"}
+	FnAdd    = &Func{Sym: "+"}
+	FnSub    = &Func{Sym: "-"}
+	FnMul    = &Func{Sym: "*"}
+	FnQuo    = &Func{Sym: "/"}
 	FnStrEq  = &Func{Sym: "string="}
 	FnStrLt  = &Func{Sym: "string<"}
+	FnStrGt  = &Func{Sym: "string>"}
 	FnNot    = &Func{Sym: "!"}
 )
 
@@ -77,17 +99,48 @@ func initFuncs() error {
 	Funcs = make(map[string]*Func, 64)
 	{
 		funcs := []*Func{
+			FnSubstr,
+			FnConcat,
+			FnNeg,
+			FnAdd1,
+			FnSub1,
+			FnMin,
+			FnLen,
+
+			FnCons,
+			FnCar,
+			FnCdr,
+			FnAref,
+			FnAset,
+			FnMemq,
+			FnMember,
+			FnLsh,
+			FnLogand,
+			FnLogior,
+			FnLogxor,
+
+			FnCopySequence,
+			FnIntern,
+			FnGethash,
+			FnMakeVector,
+			FnRemhash,
+			FnHashTableCount,
+			FnVector,
+
+			FnEq,
+			FnEqual,
 			FnNumEq,
-			FnNumGt,
 			FnNumLt,
+			FnNumGt,
 			FnNumLte,
 			FnNumGte,
-			FnNumAdd,
-			FnNumSub,
-			FnNumMul,
-			FnNumQuo,
+			FnAdd,
+			FnSub,
+			FnMul,
+			FnQuo,
 			FnStrEq,
 			FnStrLt,
+			FnStrGt,
 			FnNot,
 		}
 		for _, fn := range funcs {

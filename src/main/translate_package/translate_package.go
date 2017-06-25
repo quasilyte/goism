@@ -1,16 +1,15 @@
 package main
 
 import (
-	"elapc"
-	"elapc/compiler"
-	"elapc/export"
+	"backends/lapc"
+	"backends/lapc/compiler"
+	"backends/lapc/export"
 	"exn"
 	"fmt"
 	"main/util"
 	"opt"
 	"regexp"
 	"sexp"
-	"sexpconv"
 	"strings"
 	"tu"
 	"tu/load"
@@ -117,13 +116,13 @@ func producePackage(pkg *tu.Package) {
 	fmt.Print(string(output.Build()))
 }
 
-func compileFunc(cl *compiler.Compiler, fn *sexp.Func) *elapc.Object {
-	sexpconv.Simplify(fn.Body)
+func compileFunc(cl *compiler.Compiler, fn *sexp.Func) *lapc.Object {
+	lapc.Simplify(fn.Body)
 	opt.InlineCalls(fn) // #REFS: 38
 	return cl.CompileFunc(fn)
 }
 
-func dumpFunction(fn *sexp.Func, obj *elapc.Object) {
+func dumpFunction(fn *sexp.Func, obj *lapc.Object) {
 	fmt.Printf(
 		"  fn %s {args=%s max-stack=%d}\n",
 		fn.Name, fn.Params, obj.StackUsage,

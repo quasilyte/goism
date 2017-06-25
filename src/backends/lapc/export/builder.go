@@ -1,7 +1,7 @@
 package export
 
 import (
-	"elapc"
+	"backends/lapc"
 	"sexp"
 	"tu"
 )
@@ -35,7 +35,7 @@ func (b *Builder) Build() []byte {
 }
 
 // AddFunc pushes function definition into package.
-func (b *Builder) AddFunc(fn *sexp.Func, obj *elapc.Object) {
+func (b *Builder) AddFunc(fn *sexp.Func, obj *lapc.Object) {
 	w := &b.w
 
 	w.WriteSymbol("fn")
@@ -49,7 +49,7 @@ func (b *Builder) AddFunc(fn *sexp.Func, obj *elapc.Object) {
 	w.WriteSymbol("end")
 }
 
-func (b *Builder) AddExpr(obj *elapc.Object) {
+func (b *Builder) AddExpr(obj *lapc.Object) {
 	w := &b.w
 
 	w.WriteSymbol("expr")

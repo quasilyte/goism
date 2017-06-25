@@ -1,5 +1,6 @@
 package sexpconv
 
+/*
 import (
 	"elapc/instr"
 	"sexp"
@@ -57,3 +58,4 @@ func (conv *converter) instrCall(name string, args []sexp.Form) sexp.Form {
 	}
 	return &sexp.InstrCall{Instr: ins, Args: args}
 }
+*/

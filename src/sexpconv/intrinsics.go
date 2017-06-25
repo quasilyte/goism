@@ -41,11 +41,8 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		// #FIXME: non-constant symbols should also be valid.
 		name := constant.StringVal(conv.valueOf(args[0]))
 		args := conv.copyValuesList(conv.exprList(args[1:]))
-		if call := conv.instrCall(name, args); call != nil {
-			return call
-		}
 		return &sexp.LispCall{
-			Fn:   &lisp.Func{Sym: name},
+			Fn:   lisp.InternFunc(name),
 			Args: args,
 		}
 
@@ -55,9 +52,6 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	default:
 		fn := lisp.FFI[sym]
 		args := conv.exprList(args)
-		if call := conv.instrCall(fn.Sym, args); call != nil {
-			return call
-		}
 		return &sexp.LispCall{Fn: fn, Args: args}
 	}
 }

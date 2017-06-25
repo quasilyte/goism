@@ -2,6 +2,7 @@ package load
 
 import (
 	"bytes"
+	"cfg"
 	"fmt"
 	"go/ast"
 	"go/build"
@@ -65,7 +66,7 @@ func Runtime() error {
 	collectFuncs(u)
 	rt.InitPackage(pkg.TypPkg)
 	rt.InitFuncs(u.ftab)
-	convertFuncs(pkg, u)
+	convertFuncs(pkg, u, true)
 	u.ftab.ForEach(opt.OptimizeFunc)
 	return nil
 }
@@ -85,7 +86,7 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 	}
 
 	collectFuncs(u)
-	convertFuncs(masterPkg, u)
+	convertFuncs(masterPkg, u, optimize)
 	if optimize {
 		u.ftab.ForEach(opt.OptimizeFunc)
 	}
@@ -100,7 +101,7 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 	}, nil
 }
 
-func convertFuncs(masterPkg *xast.Package, u *unit) {
+func convertFuncs(masterPkg *xast.Package, u *unit, optimize bool) {
 	u.ftab.ForEach(func(fn *sexp.Func) {
 		data := u.decls[fn]
 		fn.Body = u.conv.FuncBody(&xast.Func{
@@ -108,6 +109,9 @@ func convertFuncs(masterPkg *xast.Package, u *unit) {
 			Ret:  fn.Results,
 			Body: data.decl.Body,
 		})
+		if optimize && isInlineable(fn) {
+			fn.MarkInlineable()
+		}
 	})
 	u.funcs = u.ftab.MasterFuncs()
 }
@@ -321,4 +325,22 @@ func pkgComment(files map[string]*ast.File) string {
 	comment = bytes.Replace(comment, []byte("\n"), []byte("\n;; "), -1)
 
 	return string(comment)
+}
+
+func isInlineable(fn *sexp.Func) bool {
+	totalCost := 0
+	for _, form := range fn.Body.Forms {
+		cost := form.Cost()
+		if cost == -1 {
+			// Most probably has loops.
+			return false
+		}
+		totalCost += cost
+		if totalCost > cfg.CostInlineFilter {
+			// Give it up due to complexity.
+			return false
+		}
+	}
+
+	return true
 }

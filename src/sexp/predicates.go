@@ -1,7 +1,7 @@
 package sexp
 
 import (
-	"lang"
+	"vmm"
 	"xtypes"
 )
 
@@ -13,9 +13,9 @@ func IsStmt(form Form) bool {
 func IsThrow(form Form) bool {
 	switch form := form.(type) {
 	case *Call:
-		return lang.FuncIsThrowing(form.Fn.Name)
+		return vmm.FuncIsThrowing(form.Fn.Name)
 	case *LispCall:
-		return lang.FuncIsThrowing(form.Fn.Sym)
+		return vmm.FuncIsThrowing(form.Fn.Sym)
 
 	default:
 		return false
@@ -43,10 +43,10 @@ func IsReturning(form Form) bool {
 			return false
 
 		case *Call:
-			found = lang.FuncIsThrowing(form.Fn.Name)
+			found = vmm.FuncIsThrowing(form.Fn.Name)
 			return !found
 		case *LispCall:
-			found = lang.FuncIsThrowing(form.Fn.Sym)
+			found = vmm.FuncIsThrowing(form.Fn.Sym)
 			return !found
 
 		default:

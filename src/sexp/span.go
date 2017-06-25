@@ -10,8 +10,8 @@ const (
 )
 
 type Span struct {
-	Low  Form
-	High Form
+	Low  Form // [!] Can be nil
+	High Form // [!] Can be nil
 }
 
 func (span *Span) Kind() SpanKind {

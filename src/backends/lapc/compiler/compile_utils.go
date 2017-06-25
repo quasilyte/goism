@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"elapc/instr"
+	"backends/lapc/instr"
 	"sexp"
 )
 

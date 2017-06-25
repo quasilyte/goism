@@ -1,7 +1,6 @@
 package sexpconv
 
 import (
-	"elapc/instr"
 	"exn"
 	"go/ast"
 	"go/types"
@@ -92,9 +91,9 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.call(rt.FnPanic, args[0])
 		case "print", "println":
 			// #REFS: 35.
-			argList := &sexp.InstrCall{
-				Instr: instr.List(len(args)),
-				Args:  conv.exprList(args),
+			argList := &sexp.LispCall{
+				Fn:   lisp.FnList,
+				Args: conv.exprList(args),
 			}
 			if fn.Name == "print" {
 				return conv.call(rt.FnPrint, argList)

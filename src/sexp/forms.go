@@ -3,16 +3,24 @@
 package sexp
 
 import (
-	"elapc/instr"
 	"go/types"
 	"magic_pkg/emacs/lisp"
 )
 
 // Form = universal S-expression node (akin to Go ast.Node).
 type Form interface {
+	// Type evaluates Form result type.
+	// Statement-like forms return "types.Typ[types.Invalid]".
 	Type() types.Type
+
+	// Copy creates a deep copy of Form object.
 	Copy() Form
-	form()
+
+	// Cost returns a value that approximates computational complexity.
+	//
+	// If it is impossible to predict complexity, -1 is returned.
+	// Examples of failing forms are loops with dynamic conditions.
+	Cost() int
 }
 
 // Atoms.
@@ -119,7 +127,7 @@ type (
 	If struct {
 		Cond Form
 		Then *Block
-		Else Form // [!] Can be nil
+		Else Form // Can be EmptyStmt
 	}
 
 	// Switch is "expression switch statement" defined by Go spec.
@@ -234,13 +242,6 @@ type LispCall struct {
 type Call struct {
 	Fn   *Func
 	Args []Form
-}
-
-// InstrCall is optimized version of Call/Op.
-// Used when there is dedicated opcode available.
-type InstrCall struct {
-	Instr instr.Instr
-	Args  []Form
 }
 
 // Let introduces bindings that are visible to a

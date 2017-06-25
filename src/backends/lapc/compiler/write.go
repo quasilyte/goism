@@ -1,8 +1,8 @@
 package compiler
 
 import (
+	"backends/lapc/instr"
 	"bytes"
-	"elapc/instr"
 	"strconv"
 )
 

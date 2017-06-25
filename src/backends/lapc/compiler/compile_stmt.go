@@ -2,8 +2,9 @@ package compiler
 
 import (
 	"assert"
-	"elapc/instr"
-	"lang"
+	"backends/lapc"
+	"backends/lapc/instr"
+	"vmm"
 	"magic_pkg/emacs/rt"
 	"sexp"
 )
@@ -34,7 +35,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 }
 
 func compileIf(cl *Compiler, form *sexp.If) {
-	if form.Else == nil {
+	if form.Else == sexp.EmptyStmt {
 		endifLabel := labelCreate(cl, "endif")
 		compileExpr(cl, form.Cond)
 		emitJmpNil(cl, endifLabel)
@@ -110,7 +111,7 @@ func compileVarUpdate(cl *Compiler, name string, expr sexp.Form) {
 func compileExprStmt(cl *Compiler, form *sexp.ExprStmt) {
 	compileExpr(cl, form.Expr)
 
-	if form, ok := form.Expr.(*sexp.InstrCall); ok {
+	if form, ok := form.Expr.(*lapc.InstrCall); ok {
 		if form.Instr.Output != instr.AttrPushTmp {
 			return // No cleanup is needed
 		}
@@ -131,13 +132,13 @@ func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 }
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
-	switch lang.StructReprOf(form.Typ) {
-	case lang.StructUnit:
+	switch vmm.StructReprOf(form.Typ) {
+	case vmm.StructUnit:
 		compileExpr(cl, form.Struct)
 		compileExpr(cl, form.Expr)
 		emit(cl, instr.SetCar)
 
-	case lang.StructCons:
+	case vmm.StructCons:
 		compileExpr(cl, form.Struct)
 		if form.Index == 0 {
 			// First member.
@@ -154,7 +155,7 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 			emit(cl, instr.SetCar)
 		}
 
-	case lang.StructVec:
+	case vmm.StructVec:
 		compileArrayUpdate(cl, &sexp.ArrayUpdate{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

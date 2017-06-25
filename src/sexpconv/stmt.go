@@ -45,7 +45,9 @@ func (conv *converter) IfStmt(node *ast.IfStmt) sexp.Form {
 	test := conv.Expr(node.Cond)
 	then := conv.BlockStmt(node.Body)
 	form := &sexp.If{Cond: test, Then: then}
-	if node.Else != nil {
+	if node.Else == nil {
+		form.Else = sexp.EmptyStmt
+	} else {
 		form.Else = conv.Stmt(node.Else)
 	}
 	return conv.withInitStmt(node.Init, form)

@@ -8,6 +8,7 @@ import (
 	"sexp"
 	"tu/symbols"
 	"xast"
+	"xtypes"
 )
 
 type Converter struct {
@@ -57,10 +58,13 @@ func (conv *Converter) FuncBody(fn *xast.Func) *sexp.Block {
 	c := conv.newConverter(fn.Pkg)
 	c.retType = fn.Ret
 	body := c.BlockStmt(fn.Body)
+
 	// Adding return statement.
 	// It is needed in void functions without explicit "return".
-	// In all other cases, optimizations will wipe it out.
-	body.Forms = append(body.Forms, &sexp.Return{})
+	if fn.Ret == xtypes.EmptyTuple {
+		body.Forms = append(body.Forms, &sexp.Return{})
+	}
+
 	return body
 }
 

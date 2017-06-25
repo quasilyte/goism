@@ -1,12 +1,47 @@
-package sexpconv
+package lapc
 
-/*
 import (
+	"backends/lapc/instr"
 	"exn"
+	"go/types"
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
+	"sexpconv"
 )
+
+var funcToInstr map[*lisp.Func]instr.Instr
+
+func init() {
+	funcToInstr = map[*lisp.Func]instr.Instr{
+		lisp.FnCons:     instr.Cons,
+		lisp.FnCar:      instr.Car,
+		lisp.FnCdr:      instr.Cdr,
+		lisp.FnAref:     instr.ArrayRef,
+		lisp.FnAset:     instr.ArraySet,
+		lisp.FnNumEq:    instr.NumEq,
+		lisp.FnNumLt:    instr.NumLt,
+		lisp.FnNumGt:    instr.NumGt,
+		lisp.FnNumLte:   instr.NumLte,
+		lisp.FnNumGte:   instr.NumGte,
+		lisp.FnAdd:      instr.NumAdd,
+		lisp.FnSub:      instr.NumSub,
+		lisp.FnMul:      instr.NumMul,
+		lisp.FnQuo:      instr.NumQuo,
+		lisp.FnMin:      instr.NumMin,
+		lisp.FnStrEq:    instr.StrEq,
+		lisp.FnStrLt:    instr.StrLt,
+		lisp.FnLen:      instr.Length,
+		lisp.FnNot:      instr.Not,
+		lisp.FnMemq:     instr.Memq,
+		lisp.FnMember:   instr.Member,
+		lisp.FnIsInt:    instr.IsInt,
+		lisp.FnIsStr:    instr.IsStr,
+		lisp.FnIsSymbol: instr.IsSymbol,
+		lisp.FnEq:       instr.Eq,
+		lisp.FnEqual:    instr.Equal,
+	}
+}
 
 // Simplify translates semantic-rich forms into
 // more generic and fundamental forms.
@@ -28,6 +63,28 @@ func simplifyList(forms []sexp.Form) []sexp.Form {
 
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
+	case *sexp.LispCall:
+		args := form.Args
+		switch form.Fn.Sym {
+		case "concat":
+			return &InstrCall{Instr: instr.Concat(len(args)), Args: args}
+		case "list":
+			return &InstrCall{Instr: instr.List(len(args)), Args: args}
+		case "substring":
+			for len(args) < 3 {
+				args = append(args, sexp.Symbol{Val: "nil"})
+			}
+			return &InstrCall{Instr: instr.Substr, Args: args}
+		}
+		if instr, ok := funcToInstr[form.Fn]; ok {
+			return &InstrCall{
+				Instr: instr,
+				Args:  simplifyList(args),
+			}
+		}
+		form.Args = simplifyList(args)
+		return form
+
 	case *sexp.SwitchTrue:
 		return simplifySwitch(
 			form.SwitchBody,
@@ -37,7 +94,7 @@ func simplify(form sexp.Form) sexp.Form {
 
 	case *sexp.Switch:
 		typ := form.Expr.Type()
-		tag := _it(typ)
+		tag := sexp.Var{Name: "_it", Typ: typ}
 		mkCond := func(rhs sexp.Form) sexp.Form {
 			cmp := comparatorEq(tag, rhs)
 			if cmp == nil {
@@ -45,7 +102,10 @@ func simplify(form sexp.Form) sexp.Form {
 			}
 			return cmp
 		}
-		return _let(form.Expr, simplifySwitch(form.SwitchBody, mkCond, 0))
+		return &sexp.Let{
+			Bindings: []*sexp.Bind{&sexp.Bind{Name: "_it", Init: form.Expr}},
+			Stmt:     simplifySwitch(form.SwitchBody, mkCond, 0),
+		}
 
 	case *sexp.SliceLit:
 		return sexp.NewCall(
@@ -92,7 +152,7 @@ func simplify(form sexp.Form) sexp.Form {
 	case *sexp.DoTimes:
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,
-			Init: ZeroValue(form.Iter.Typ),
+			Init: sexpconv.ZeroValue(form.Iter.Typ),
 		}
 		post := &sexp.Rebind{
 			Name: form.Iter.Name,
@@ -122,4 +182,26 @@ func simplifySwitch(b sexp.SwitchBody, mkCond func(sexp.Form) sexp.Form, i int) 
 		Else: simplifySwitch(b, mkCond, i+1),
 	}
 }
-*/
+
+// Returns a form which is a equallity comparator for two given forms.
+// Returns nil when comparison over {"a", "b"} is undefined (or unimplemented).
+func comparatorEq(a, b sexp.Form) sexp.Form {
+	switch typ := a.Type(); typ := typ.(type) {
+	case *types.Basic:
+		if typ.Info()&types.IsNumeric != 0 {
+			return sexp.NewNumEq(a, b)
+		} else if typ.Kind() == types.String {
+			return sexp.NewStrEq(a, b)
+		}
+		return nil
+
+	case *types.Named:
+		// #REFS: 60.
+		return nil
+
+	default:
+		// Fallback to "eq" comparison.
+		// Should work for pointer comparisons.
+		return sexp.NewLispCall(lisp.FnEq, a, b)
+	}
+}

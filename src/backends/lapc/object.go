@@ -1,4 +1,4 @@
-package elapc
+package lapc
 
 import (
 	"dt"

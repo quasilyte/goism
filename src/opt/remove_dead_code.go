@@ -24,9 +24,7 @@ func (cr codeRemover) walkForm(form sexp.Form) sexp.Form {
 			return sexp.EmptyStmt
 		}
 		form.Then.Forms = cr.walkBody(form.Then.Forms)
-		if form.Else != nil {
-			form.Else = cr.rewrite(form.Else)
-		}
+		form.Else = cr.rewrite(form.Else)
 		return form
 
 	case *sexp.Block:

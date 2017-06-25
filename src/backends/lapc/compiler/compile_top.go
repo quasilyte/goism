@@ -1,7 +1,8 @@
 package compiler
 
 import (
-	"elapc/instr"
+	"backends/lapc"
+	"backends/lapc/instr"
 	"exn"
 	"sexp"
 )
@@ -70,7 +71,7 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.Call:
 		compileCall(cl, form.Fn.Name, form.Args)
-	case *sexp.InstrCall:
+	case *lapc.InstrCall:
 		compileInstrCall(cl, form)
 
 	case *sexp.StructLit:

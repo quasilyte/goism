@@ -1,8 +1,9 @@
 package compiler
 
 import (
-	"elapc/instr"
-	"lang"
+	"backends/lapc"
+	"backends/lapc/instr"
+	"vmm"
 	"sexp"
 )
 
@@ -39,7 +40,7 @@ func compileCall(cl *Compiler, name string, args []sexp.Form) {
 	emit(cl, instr.Call(len(args)))
 }
 
-func compileInstrCall(cl *Compiler, form *sexp.InstrCall) {
+func compileInstrCall(cl *Compiler, form *lapc.InstrCall) {
 	compileExprList(cl, form.Args)
 	emit(cl, form.Instr)
 }
@@ -62,34 +63,34 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 }
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
-	switch lang.StructReprOf(form.Typ) {
-	case lang.StructUnit:
+	switch vmm.StructReprOf(form.Typ) {
+	case vmm.StructUnit:
 		compileExpr(cl, form.Vals[0])
 		emit(cl, instr.List(1))
 
-	case lang.StructCons:
+	case vmm.StructCons:
 		compileExprList(cl, form.Vals)
 		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
 
-	case lang.StructVec:
+	case vmm.StructVec:
 		call(cl, "vector", form.Vals...)
 	}
 }
 
 func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
-	switch lang.StructReprOf(form.Typ) {
-	case lang.StructUnit:
+	switch vmm.StructReprOf(form.Typ) {
+	case vmm.StructUnit:
 		compileExpr(cl, form.Struct)
 		emit(cl, instr.Car)
 
-	case lang.StructCons:
+	case vmm.StructCons:
 		compileExpr(cl, form.Struct)
 		emitN(cl, instr.Cdr, form.Index)
 		if form.Typ.NumFields() != form.Index+1 { // Not last index.
 			emit(cl, instr.Car)
 		}
 
-	case lang.StructVec:
+	case vmm.StructVec:
 		compileArrayIndex(cl, &sexp.ArrayIndex{
 			Array: form.Struct,
 			Index: sexp.Int(form.Index),

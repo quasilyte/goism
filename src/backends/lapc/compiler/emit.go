@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"elapc/instr"
+	"backends/lapc/instr"
 )
 
 func emit(cl *Compiler, ins instr.Instr) {

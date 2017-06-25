@@ -1,9 +1,9 @@
 package compiler
 
 import (
+	"backends/lapc"
 	"bytes"
 	"dt"
-	"elapc"
 	"sexp"
 )
 
@@ -24,12 +24,12 @@ func New() *Compiler {
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *sexp.Func) *elapc.Object {
+func (cl *Compiler) CompileFunc(f *sexp.Func) *lapc.Object {
 	cl.reset(f.Params)
 
 	compileStmtList(cl, f.Body.Forms)
 
-	return &elapc.Object{
+	return &lapc.Object{
 		StackUsage: cl.st.MaxLen(),
 		Code:       cl.buf.Bytes(),
 		ConstVec:   cl.cvec,

@@ -8,6 +8,5 @@ import (
 func NewBackend() *gen.Backend {
 	return gen.NewBackend(gen.BackendCfg{
 		Name:   "lapc",
-		Coster: coster{},
 	})
 }

@@ -1,8 +1,8 @@
 package compiler
 
 import (
+	"backends/lapc/instr"
 	"fmt"
-	"elapc/instr"
 )
 
 type label string

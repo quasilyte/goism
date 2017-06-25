@@ -1,6 +1,7 @@
 package opt
 
 import (
+	"cfg"
 	"sexp"
 )
 
@@ -25,7 +26,9 @@ func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
 				// Recursive call. Impossible to inline.
 				return form
 			}
-			return inl.inlineCall(form.Fn, form.Args)
+			if form.Fn.IsInlineable() {
+				return inl.inlineCall(form.Fn, form.Args)
+			}
 		}
 		return nil
 	})
@@ -40,7 +43,7 @@ func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	bindings := make([]*sexp.Bind, 0, len(fn.Params))
 	for i, param := range fn.Params {
 		arg := inl.rewrite(args[i])
-		if sexp.Cost(arg) == 1 {
+		if arg.Cost() == 1 {
 			expr = injectValue(param, arg, expr)
 		} else if countUsages(param, expr) == 1 {
 			expr = injectValue(param, arg, expr)
@@ -69,7 +72,7 @@ func (inl *inliner) inlineableForm(fn *sexp.Func) sexp.Form {
 	}
 
 	worthToInline := func(form sexp.Form) bool {
-		return sexp.Cost(form) <= 10
+		return form.Cost() <= cfg.CostInlineThreshold
 	}
 
 	switch form := body.Forms[0].(type) {
