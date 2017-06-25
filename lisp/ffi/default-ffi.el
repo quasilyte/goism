@@ -3,7 +3,6 @@
 (goism-declare
  ;; Functions that are required by the compiler:
  (copy-sequence CopySequence (:object arg) :object)
- (intern Intern (:string name) :symbol)
  (gethash Gethash (:any key :any table :any dflt) :object)
  (make-vector MakeVector (:int length :any init) :object)
  (remhash Remhash (:any key :object table) :void)

@@ -10,14 +10,6 @@ package lisp
 //goism:"CopySequence"->"copy-sequence"
 func CopySequence(arg Object) Object
 
-// Intern = Return the canonical symbol whose name is STRING.
-// If there is none, one is created by this function and returned.
-// A second optional argument specifies the obarray to use;
-// it defaults to the value of ‘obarray’.
-//
-//goism:"Intern"->"intern"
-func Intern(name string) Symbol
-
 // Gethash = Look up KEY in TABLE and return its associated value.
 // If KEY is not found, return DFLT which defaults to nil.
 //
@@ -51,19 +43,19 @@ func Lsh(value int, count int) int
 // Arguments may be integers, or markers converted to integers.
 //
 //goism:"Logand"->"logand"
-func Logand(intsOrMarkers ...int) int
+func Logand(args ...int) int
 
 // Logior = Return bitwise-or of all the arguments.
 // Arguments may be integers, or markers converted to integers.
 //
 //goism:"Logior"->"logior"
-func Logior(intsOrMarkers ...int) int
+func Logior(args ...int) int
 
 // Logxor = Return bitwise-exclusive-or of all the arguments.
 // Arguments may be integers, or markers converted to integers.
 //
 //goism:"Logxor"->"logxor"
-func Logxor(intsOrMarkers ...int) int
+func Logxor(args ...int) int
 
 // StrGr = Return non-nil if STRING1 is greater than STRING2 in lexicographic order.
 // Case is significant.
