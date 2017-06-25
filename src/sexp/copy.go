@@ -87,7 +87,7 @@ func (form *Return) Copy() Form {
 	return &Return{Results: CopyList(form.Results)}
 }
 func (form *ExprStmt) Copy() Form {
-	return &ExprStmt{Expr: form.Copy()}
+	return &ExprStmt{Expr: form.Expr.Copy()}
 }
 func (form *Goto) Copy() Form  { return &Goto{LabelName: form.LabelName} }
 func (form *Label) Copy() Form { return &Label{Name: form.Name} }
