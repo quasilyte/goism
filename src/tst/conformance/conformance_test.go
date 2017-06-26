@@ -151,6 +151,9 @@ func Test5Goto(t *testing.T) {
 		{"testGotoTwice 10", "10"},
 		{"testGotoChain 10", "10"},
 		{"testGotoBack 10", "10"},
+		{"testGotoScopes1 10", "10"},
+		{"testGotoScopes2 10", "10"},
+		{"testGotoScopes3 10", "10"},
 	})
 }
 
@@ -229,6 +232,8 @@ func Test9For(t *testing.T) {
 		{`testNestedForBreak 1`, "1"},
 		{`testNestedForContinue 10`, "10"},
 		{`testNestedForContinue 1`, "1"},
+		{`testForScopes1 10`, "10"},
+		{`testForScopes2 10`, "10"},
 	})
 }
 

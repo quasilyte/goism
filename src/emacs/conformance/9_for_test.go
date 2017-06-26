@@ -71,3 +71,25 @@ func testNestedForContinue(n int) int {
 	}
 	return x
 }
+
+func testForScopes1(n int) int {
+	x := n + 1
+	for {
+		y := 1
+		n -= y
+		break
+	}
+	return x
+}
+
+func testForScopes2(n int) int {
+	x := n + 1
+	for {
+		{
+			y := 1
+			n -= y
+			break
+		}
+	}
+	return x
+}
