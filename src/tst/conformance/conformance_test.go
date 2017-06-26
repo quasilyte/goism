@@ -151,6 +151,9 @@ func Test5Goto(t *testing.T) {
 		{"testGotoTwice 10", "10"},
 		{"testGotoChain 10", "10"},
 		{"testGotoBack 10", "10"},
+		{"testGotoScopes1 10", "10"},
+		{"testGotoScopes2 10", "10"},
+		{"testGotoScopes3 10", "10"},
 	})
 }
 
