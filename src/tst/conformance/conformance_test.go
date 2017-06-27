@@ -234,6 +234,8 @@ func Test9For(t *testing.T) {
 		{`testNestedForContinue 1`, "1"},
 		{`testForScopes1 10`, "10"},
 		{`testForScopes2 10`, "10"},
+		{`testNestedForScopes1 10`, "10"},
+		{`testNestedForScopes2 10`, "10"},
 	})
 }
 
