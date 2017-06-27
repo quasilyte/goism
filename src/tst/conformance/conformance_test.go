@@ -154,6 +154,7 @@ func Test5Goto(t *testing.T) {
 		{"testGotoScopes1 10", "10"},
 		{"testGotoScopes2 10", "10"},
 		{"testGotoScopes3 10", "10"},
+		{"testGotoBackAndScopes 10", "10"},
 	})
 }
 
