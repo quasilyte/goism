@@ -156,6 +156,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case nil:
 		return form
 
+	case *emptyForm:
+		return form
+
 	default:
 		panic(exn.Logic("unexpected form: %#v", form))
 	}

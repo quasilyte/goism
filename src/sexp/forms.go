@@ -274,3 +274,9 @@ type (
 		Y Form
 	}
 )
+
+// emptyForm is universal "dead" sexp node.
+// It is both a valid expression and statement.
+//
+// Private to force usage of shared object (EmptyForm).
+type emptyForm struct{}

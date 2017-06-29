@@ -50,3 +50,5 @@ func (form *TypeCast) form()  {}
 
 func (form *And) form() {}
 func (form *Or) form()  {}
+
+func (form *emptyForm) form() {}

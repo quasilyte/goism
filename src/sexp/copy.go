@@ -186,6 +186,8 @@ func (form *Or) Copy() Form {
 	return &Or{X: form.X.Copy(), Y: form.Y.Copy()}
 }
 
+func (form *emptyForm) Copy() Form { return form }
+
 func copyList(forms []Form) []Form {
 	if forms == nil {
 		return nil
