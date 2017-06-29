@@ -93,3 +93,33 @@ func testForScopes2(n int) int {
 	}
 	return x
 }
+
+func testNestedForScopes1(n int) int {
+	x := n + 1
+	for i := 0; i < 1; i++ {
+		for {
+			y := 1
+			n -= y
+			break
+			z := 2 // Unreachable
+			panic(z)
+		}
+	}
+	return x
+}
+
+func testNestedForScopes2(n int) int {
+	x := n + 1
+	for i := 0; i < 1; i++ {
+		for {
+			{
+				y := 1
+				n -= y
+				break
+				z := 2 // Unreachable
+				panic(z)
+			}
+		}
+	}
+	return x
+}

@@ -106,3 +106,24 @@ exit:
 	}
 	return -1
 }
+
+func testGotoBackAndScopes(n int) int {
+	x := n
+	goto label1
+label2:
+	goto label3
+	{ // Unreachable
+		y := 1
+		panic(y)
+	}
+label1:
+	goto label2
+label3:
+	{
+		y := 0
+		goto label4
+		panic(y) // Unreachable
+	}
+label4:
+	return x
+}

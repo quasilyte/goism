@@ -148,6 +148,9 @@ func Rewrite(form Form, f rewriteFunc) Form {
 	case nil:
 		return form
 
+	case *emptyForm:
+		return form
+
 	default:
 		// Can be backend-specific form.
 		return rewriteAtom(form, f)

@@ -98,3 +98,5 @@ func (form *TypeCast) Type() types.Type {
 
 func (form *And) Type() types.Type { return xtypes.TypBool }
 func (form *Or) Type() types.Type  { return xtypes.TypBool }
+
+func (form *emptyForm) Type() types.Type { return xtypes.TypVoid }

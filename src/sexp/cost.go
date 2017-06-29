@@ -195,3 +195,5 @@ func (form *And) Cost() int {
 func (form *Or) Cost() int {
 	return CostOf(form.X, form.Y) + 3
 }
+
+func (form *emptyForm) Cost() int { return 0 }

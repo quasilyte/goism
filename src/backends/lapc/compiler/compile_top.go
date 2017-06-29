@@ -8,6 +8,10 @@ import (
 )
 
 func compileStmt(cl *Compiler, form sexp.Form) {
+	if sexp.IsEmptyForm(form) {
+		return
+	}
+
 	switch form := form.(type) {
 	case *sexp.Return:
 		compileReturn(cl, form)
@@ -47,6 +51,10 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 }
 
 func compileExpr(cl *Compiler, form sexp.Form) {
+	if sexp.IsEmptyForm(form) {
+		return
+	}
+
 	switch form := form.(type) {
 	case sexp.Int:
 		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(form))))
