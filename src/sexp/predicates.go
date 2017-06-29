@@ -26,37 +26,3 @@ func IsThrow(form Form) bool {
 		return false
 	}
 }
-
-// IsReturning returns true for forms that unconditionally
-// return from function.
-func IsReturning(form Form) bool {
-	found := false
-	Walk(form, func(form Form) bool {
-		switch form := form.(type) {
-		case *Switch:
-			if form.DefaultBody == EmptyBlock {
-				return false
-			}
-			return IsReturning(form.DefaultBody)
-
-		case *If, *DoTimes, *While, *Repeat:
-			found = false
-			return false
-
-		case *Return:
-			found = true
-			return false
-
-		case *Call:
-			found = lang.FuncIsThrowing(form.Fn.Name)
-			return !found
-		case *LispCall:
-			found = lang.FuncIsThrowing(form.Fn.Sym)
-			return !found
-
-		default:
-			return true
-		}
-	})
-	return found
-}
