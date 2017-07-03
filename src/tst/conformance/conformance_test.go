@@ -144,7 +144,7 @@ func Test3MultiResult(t *testing.T) {
 	}
 }
 
-func Test5Goto(t *testing.T) {
+func Test4Goto(t *testing.T) {
 	testCalls(t, []callTest{
 		{"testGoto 10", "10"},
 		{"testGotoOutBlock 10", "10"},
@@ -185,7 +185,7 @@ func Test5If(t *testing.T) {
 	})
 }
 
-func Test6Switch(t *testing.T) {
+func Test6Arrays(t *testing.T) {
 	testCalls(t, []callTest{
 		{"testArrayLit 10", "10"},
 		// {"testKeyedArrayLit 10", "10"}, #REFS: 73
@@ -195,7 +195,7 @@ func Test6Switch(t *testing.T) {
 	})
 }
 
-func Test7Arrays(t *testing.T) {
+func Test7Switch(t *testing.T) {
 	testCalls(t, []callTest{
 		{"stringifyInt3 0", `"0"`},
 		{"stringifyInt3 1", `"1"`},
