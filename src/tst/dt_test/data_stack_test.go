@@ -3,6 +3,7 @@ package dt_test
 import (
 	"dt"
 	"testing"
+	"tst"
 )
 
 func pushN(st *dt.DataStack, n int) {
@@ -24,9 +25,7 @@ func TestDataStackLen(t *testing.T) {
 	st := dt.DataStack{}
 	n := 4
 	pushN(&st, n)
-	if st.Len() != n {
-		t.Errorf("st.Len()=>%d (want %d)", st.Len(), n)
-	}
+	tst.CheckError(t, "Len", st.Len(), n)
 }
 
 func TestDataStackDiscard(t *testing.T) {
@@ -45,9 +44,7 @@ func TestDataStackDiscard(t *testing.T) {
 		st := dt.DataStack{}
 		pushN(&st, n)
 		st.Discard(uint16(row.discardN))
-		if st.Len() != row.lenExpected {
-			t.Errorf("st.Len()=>%d (want %d)", st.Len(), row.lenExpected)
-		}
+		tst.CheckError(t, "Len", st.Len(), row.lenExpected)
 	}
 }
 
@@ -72,7 +69,7 @@ func TestDataStackMaxLen(t *testing.T) {
 		pushN(&st, row.pushN)
 		st.Discard(uint16(row.discardN))
 		if st.MaxLen() != row.maxLenExpected {
-			t.Errorf("st.MaxLen()=>%d (want %d)", st.MaxLen(), row.maxLenExpected)
+			tst.Errorf(t, "MaxLen", st.MaxLen(), row.maxLenExpected)
 		}
 	}
 }
@@ -92,9 +89,7 @@ func TestDataStackDup(t *testing.T) {
 	st.Dup(0) // [x x]
 	st.Push() // [x x ?]
 	st.Dup(1) // [x x ? x]
-	if st.Len() != 4 {
-		t.Fatalf("st.Len()=>%d (want %d)", st.Len(), 4)
-	}
+	tst.CheckError(t, "Len", st.Len(), 4)
 	if st.Lookup("x") != 0 {
 		t.Error("Lookup of duplicated element failed")
 	}
@@ -115,9 +110,7 @@ func TestDataStackBind(t *testing.T) {
 	for _, row := range table {
 		pushVar(st, row.varName)
 		for i, key := range row.lookup {
-			if st.Lookup(key) != row.indexes[i] {
-				t.Fatalf("st.Lookup(%s)=>%d (want %d)", key, st.Lookup(key), row.indexes[i])
-			}
+			tst.CheckError(t, "Lookup", st.Lookup(key), row.indexes[i])
 		}
 	}
 }
