@@ -3,7 +3,7 @@ package sexp
 type walkFunc func(Form) bool
 
 // Walk provides convenient way to traverse AST.
-func Walk(form Form, f walkFunc) {
+func Walk(form Form, fn walkFunc) {
 	// Note that it is inefficient to implement walk in terms of "Rewrite",
 	// but unless we really have to speed it up, it should stay unchanged.
 
@@ -21,7 +21,7 @@ func Walk(form Form, f walkFunc) {
 	}()
 
 	Rewrite(form, func(form Form) Form {
-		if f(form) {
+		if fn(form) {
 			return nil // Traverse rest nodes
 		}
 		panic(walkUnwind{}) // Stop
