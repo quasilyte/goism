@@ -189,6 +189,6 @@ func (conv *converter) ignoredExpr(expr sexp.Form) sexp.Form {
 
 	default:
 		// Ignored completely.
-		return sexp.EmptyStmt
+		return sexp.EmptyForm
 	}
 }
