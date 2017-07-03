@@ -62,12 +62,21 @@ func costOfSpan(span Span) int {
 	return cost
 }
 
+func costOfBindList(binds []*Bind) int {
+	cost := 0
+	for _, bind := range binds {
+		cost += bind.Init.Cost()
+	}
+	return cost
+}
+
 func (atom Bool) Cost() int   { return 1 }
 func (atom Int) Cost() int    { return 1 }
 func (atom Float) Cost() int  { return 1 }
 func (atom Str) Cost() int    { return 1 }
 func (atom Symbol) Cost() int { return 1 }
 func (atom Var) Cost() int    { return 1 }
+func (atom Local) Cost() int  { return 1 }
 
 func (lit *ArrayLit) Cost() int {
 	return CostOfList(lit.Vals) + 2
@@ -173,19 +182,19 @@ func (call *Call) Cost() int {
 }
 func (call *LispCall) Cost() int {
 	if cost := vmm.InstrCallCost(call.Fn.Sym); cost != 0 {
-		return cost
+		return cost + CostOfList(call.Args)
 	}
 	if vmm.FuncIsThrowing(call.Fn.Sym) {
 		return costOfCall(call.Args) + cfg.CostThrowFuncPenalty
 	}
 	return costOfCall(call.Args)
 }
+func (call *LambdaCall) Cost() int {
+	return call.Body.Cost() + costOfBindList(call.Args) + 1
+}
+
 func (form *Let) Cost() int {
-	bindCost := len(form.Bindings) * 2
-	for _, bind := range form.Bindings {
-		bindCost += bind.Init.Cost()
-	}
-	return form.Expr.Cost() + bindCost
+	return form.Expr.Cost() + costOfBindList(form.Bindings)
 }
 func (form *TypeCast) Cost() int { return 0 }
 

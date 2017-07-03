@@ -35,8 +35,15 @@ type (
 	Str string
 	// Symbol = lisp.Symbol literal.
 	Symbol struct{ Val string }
-	// Var - reference to a global or local variable.
+	// Var - reference to a global variable.
 	Var struct {
+		Name string
+		Typ  types.Type
+	}
+	// Local - reference to a local variable.
+	// Shadowing is possible with lexical variables, so
+	// Name alone is not enough to distinguish identity.
+	Local struct {
 		Name string
 		Typ  types.Type
 	}
@@ -168,11 +175,10 @@ type (
 	// - N is not necessary a constant.
 	// - Has inductive variable inside loop body (Iter).
 	DoTimes struct {
-		N     Form
-		Iter  Var
-		Step  Form
-		Body  *Block
-		Scope *types.Scope
+		N    Form
+		Iter Local
+		Step Form
+		Body *Block
 	}
 
 	// Loop = "while true".
@@ -183,7 +189,7 @@ type (
 
 	// While is a generic (low level) looping construct.
 	While struct {
-		Cond Form // [!] Can be nil
+		Cond Form
 		Post Form // Can be EmptyStmt
 		Body *Block
 	}
@@ -233,15 +239,21 @@ type TypeAssert struct {
 	Typ  types.Type
 }
 
+// Call expression is normal (direct) function invocation.
+type Call struct {
+	Fn   *Func
+	Args []Form
+}
+
 type LispCall struct {
 	Fn   *lisp.Func
 	Args []Form
 }
 
-// Call expression is normal (direct) function invocation.
-type Call struct {
-	Fn   *Func
-	Args []Form
+type LambdaCall struct {
+	Args []*Bind
+	Body *Block
+	Typ  *types.Tuple
 }
 
 // Let introduces bindings that are visible to a

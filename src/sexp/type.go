@@ -12,6 +12,7 @@ func (atom Float) Type() types.Type  { return xtypes.TypFloat }
 func (atom Str) Type() types.Type    { return xtypes.TypString }
 func (atom Symbol) Type() types.Type { return lisp.TypSymbol }
 func (atom Var) Type() types.Type    { return atom.Typ }
+func (atom Local) Type() types.Type  { return atom.Typ }
 
 func (lit *ArrayLit) Type() types.Type       { return lit.Typ }
 func (lit *SparseArrayLit) Type() types.Type { return lit.Typ }
@@ -85,6 +86,7 @@ func (call *LispCall) Type() types.Type {
 		return lisp.TypObject
 	}
 }
+func (call *LambdaCall) Type() types.Type { return call.Typ }
 
 func (form *Let) Type() types.Type {
 	if form.Expr == nil {

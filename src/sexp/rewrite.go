@@ -23,6 +23,8 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 		return rewriteAtom(form, fn)
 	case Var:
 		return rewriteAtom(form, fn)
+	case Local:
+		return rewriteAtom(form, fn)
 	case *ArrayLit:
 		return rewriteList(form, form.Vals, fn)
 
@@ -113,10 +115,18 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 		form.Post = Rewrite(form.Post, fn)
 		form.Body = Rewrite(form.Body, fn).(*Block)
 
-	case *LispCall:
-		return rewriteList(form, form.Args, fn)
 	case *Call:
 		return rewriteList(form, form.Args, fn)
+	case *LispCall:
+		return rewriteList(form, form.Args, fn)
+	case *LambdaCall:
+		if form := fn(form); form != nil {
+			return form
+		}
+		for i, bind := range form.Args {
+			form.Args[i] = Rewrite(bind, fn).(*Bind)
+		}
+		form.Body = Rewrite(form.Body, fn).(*Block)
 
 	case *Let:
 		if form := fn(form); form != nil {

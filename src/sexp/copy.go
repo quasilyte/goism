@@ -8,6 +8,9 @@ func (atom Symbol) Copy() Form { return Symbol(atom) }
 func (atom Var) Copy() Form {
 	return Var{Name: atom.Name, Typ: atom.Typ}
 }
+func (atom Local) Copy() Form {
+	return Local{Name: atom.Name, Typ: atom.Typ}
+}
 
 func (lit *ArrayLit) Copy() Form {
 	return &ArrayLit{Vals: CopyList(lit.Vals), Typ: lit.Typ}
@@ -53,10 +56,10 @@ func (form *StructUpdate) Copy() Form {
 	}
 }
 func (form *Bind) Copy() Form {
-	return &Bind{Init: form.Init.Copy()}
+	return &Bind{Name: form.Name, Init: form.Init.Copy()}
 }
 func (form *Rebind) Copy() Form {
-	return &Rebind{Expr: form.Expr.Copy()}
+	return &Rebind{Name: form.Name, Expr: form.Expr.Copy()}
 }
 func (form *VarUpdate) Copy() Form {
 	return &VarUpdate{Expr: form.Expr.Copy()}
@@ -100,11 +103,10 @@ func (form *Repeat) Copy() Form {
 }
 func (form *DoTimes) Copy() Form {
 	return &DoTimes{
-		N:     form.N.Copy(),
-		Iter:  form.Iter,
-		Step:  form.Step.Copy(),
-		Body:  &Block{Forms: CopyList(form.Body.Forms)},
-		Scope: form.Scope,
+		N:    form.N.Copy(),
+		Iter: form.Iter,
+		Step: form.Step.Copy(),
+		Body: &Block{Forms: CopyList(form.Body.Forms)},
 	}
 }
 func (form *Loop) Copy() Form {
@@ -156,17 +158,22 @@ func (form *TypeAssert) Copy() Form {
 	return &TypeAssert{Expr: form.Expr.Copy(), Typ: form.Typ}
 }
 
-func (call *LispCall) Copy() Form {
-	return &LispCall{Fn: call.Fn, Args: CopyList(call.Args)}
-}
 func (call *Call) Copy() Form {
 	return &Call{Fn: call.Fn, Args: CopyList(call.Args)}
 }
-func (form *Let) Copy() Form {
-	binds := make([]*Bind, len(form.Bindings))
-	for i, bind := range form.Bindings {
-		binds[i] = &Bind{Init: bind.Init.Copy()}
+func (call *LispCall) Copy() Form {
+	return &LispCall{Fn: call.Fn, Args: CopyList(call.Args)}
+}
+func (call *LambdaCall) Copy() Form {
+	return &LambdaCall{
+		Args: copyBindList(call.Args),
+		Body: call.Body.Copy().(*Block),
+		Typ:  call.Typ,
 	}
+}
+
+func (form *Let) Copy() Form {
+	binds := copyBindList(form.Bindings)
 	if form.Expr != nil {
 		return &Let{Bindings: binds, Expr: form.Expr.Copy()}
 	}
@@ -229,6 +236,17 @@ func copyCaseClauseList(clauses []CaseClause) []CaseClause {
 		res[i] = CaseClause{
 			Expr: cc.Expr.Copy(),
 			Body: cc.Body.Copy().(*Block),
+		}
+	}
+	return res
+}
+
+func copyBindList(binds []*Bind) []*Bind {
+	res := make([]*Bind, len(binds))
+	for i, bind := range binds {
+		res[i] = &Bind{
+			Name: bind.Name,
+			Init: bind.Init.Copy(),
 		}
 	}
 	return res
