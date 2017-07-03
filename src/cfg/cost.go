@@ -13,7 +13,7 @@ const (
 	// CostInlineThreshold - upper cost limit for inlining candidates.
 	// Only functions with body cost less or equal than that threshold
 	// are considered "inlineable".
-	CostInlineThreshold = 10
+	CostInlineThreshold = 11
 
 	// CostThrowFuncPenalty increases call cost of throwing
 	// function by specified amount of points.
