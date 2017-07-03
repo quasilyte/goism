@@ -27,6 +27,13 @@ func Run(b *testing.B, bench func(*int)) {
 	gScore = score
 }
 
+// RandIntSlice generates slice of 50 random int elements.
+func RandIntSlice() []int {
+	res, ok := quick.Value(reflect.TypeOf([]int{}), random)
+	assert.True(ok)
+	return res.Interface().([]int)
+}
+
 // RandInt64Slice generates slice of 50 random int64 elements.
 func RandInt64Slice() []int64 {
 	res, ok := quick.Value(reflect.TypeOf([]int64{}), random)
