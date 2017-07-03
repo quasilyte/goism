@@ -7,7 +7,6 @@ import (
 	"exn"
 	"fmt"
 	"main/util"
-	"opt"
 	"regexp"
 	"sexp"
 	"strings"
@@ -118,7 +117,6 @@ func producePackage(pkg *tu.Package) {
 
 func compileFunc(cl *compiler.Compiler, fn *sexp.Func) *lapc.Object {
 	lapc.Simplify(fn.Body)
-	opt.InlineCalls(fn) // #REFS: 38
 	return cl.CompileFunc(fn)
 }
 
