@@ -62,9 +62,7 @@ func (conv *converter) withInitStmt(init ast.Stmt, form sexp.Form) sexp.Form {
 
 	case *ast.AssignStmt:
 		assigns := toFormList(conv.AssignStmt(init)).Forms
-		return &sexp.Block{
-			Forms: append(assigns, form),
-		}
+		return sexp.Block(append(assigns, form))
 
 	default:
 		return &sexp.FormList{
@@ -86,8 +84,8 @@ func (conv *converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	}
 }
 
-func (conv *converter) BlockStmt(node *ast.BlockStmt) *sexp.Block {
-	return &sexp.Block{Forms: conv.stmtList(node.List)}
+func (conv *converter) BlockStmt(node *ast.BlockStmt) sexp.Block {
+	return sexp.Block(conv.stmtList(node.List))
 }
 
 func (conv *converter) DeclStmt(node *ast.DeclStmt) sexp.Form {

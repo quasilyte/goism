@@ -16,7 +16,7 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileReturn(cl, form)
 	case *sexp.If:
 		compileIf(cl, form)
-	case *sexp.Block:
+	case sexp.Block:
 		compileBlock(cl, form)
 	case *sexp.FormList:
 		compileStmtList(cl, form.Forms)

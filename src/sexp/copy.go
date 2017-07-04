@@ -67,13 +67,13 @@ func (form *VarUpdate) Copy() Form {
 func (form *FormList) Copy() Form {
 	return &FormList{Forms: CopyList(form.Forms)}
 }
-func (form *Block) Copy() Form {
-	return &Block{Forms: CopyList(form.Forms)}
+func (form Block) Copy() Form {
+	return Block(CopyList(form))
 }
 func (form *If) Copy() Form {
 	return &If{
 		Cond: form.Cond.Copy(),
-		Then: &Block{Forms: CopyList(form.Then.Forms)},
+		Then: form.Then.Copy().(Block),
 		Else: form.Else.Copy(),
 	}
 }
@@ -98,7 +98,7 @@ func (form *Label) Copy() Form { return &Label{Name: form.Name} }
 func (form *Repeat) Copy() Form {
 	return &Repeat{
 		N:    form.N,
-		Body: &Block{Forms: CopyList(form.Body.Forms)},
+		Body: form.Body.Copy().(Block),
 	}
 }
 func (form *DoTimes) Copy() Form {
@@ -106,14 +106,14 @@ func (form *DoTimes) Copy() Form {
 		N:    form.N.Copy(),
 		Iter: form.Iter,
 		Step: form.Step.Copy(),
-		Body: &Block{Forms: CopyList(form.Body.Forms)},
+		Body: form.Body.Copy().(Block),
 	}
 }
 func (form *Loop) Copy() Form {
 	return &Loop{
 		Init: form.Init.Copy(),
 		Post: form.Post.Copy(),
-		Body: &Block{Forms: CopyList(form.Body.Forms)},
+		Body: form.Body.Copy().(Block),
 	}
 }
 func (form *While) Copy() Form {
@@ -121,7 +121,7 @@ func (form *While) Copy() Form {
 		Init: form.Init.Copy(),
 		Cond: form.Cond.Copy(),
 		Post: form.Post.Copy(),
-		Body: &Block{Forms: CopyList(form.Body.Forms)},
+		Body: form.Body.Copy().(Block),
 	}
 }
 
@@ -172,7 +172,7 @@ func (call *LispCall) Copy() Form {
 func (call *LambdaCall) Copy() Form {
 	return &LambdaCall{
 		Args: copyBindList(call.Args),
-		Body: call.Body.Copy().(*Block),
+		Body: call.Body.Copy().(Block),
 		Typ:  call.Typ,
 	}
 }
@@ -222,13 +222,13 @@ func copySwitchBody(b SwitchBody) SwitchBody {
 		for i, cc := range b.Clauses {
 			clauses[i] = CaseClause{
 				Expr: cc.Expr.Copy(),
-				Body: cc.Body.Copy().(*Block),
+				Body: cc.Body.Copy().(Block),
 			}
 		}
 	}
 	return SwitchBody{
 		Clauses:     clauses,
-		DefaultBody: b.DefaultBody.Copy().(*Block),
+		DefaultBody: b.DefaultBody.Copy().(Block),
 	}
 }
 
@@ -240,7 +240,7 @@ func copyCaseClauseList(clauses []CaseClause) []CaseClause {
 	for i, cc := range clauses {
 		res[i] = CaseClause{
 			Expr: cc.Expr.Copy(),
-			Body: cc.Body.Copy().(*Block),
+			Body: cc.Body.Copy().(Block),
 		}
 	}
 	return res

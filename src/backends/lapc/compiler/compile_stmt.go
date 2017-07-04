@@ -10,9 +10,9 @@ import (
 	"vmm"
 )
 
-func compileBlock(cl *Compiler, form *sexp.Block) {
+func compileBlock(cl *Compiler, form sexp.Block) {
 	cl.push().ScopeEnter()
-	compileStmtList(cl, form.Forms)
+	compileStmtList(cl, form)
 	cl.push().ScopeLeave()
 }
 

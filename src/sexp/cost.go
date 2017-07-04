@@ -118,8 +118,8 @@ func (form *VarUpdate) Cost() int {
 func (form *FormList) Cost() int {
 	return CostOfList(form.Forms)
 }
-func (form *Block) Cost() int {
-	return CostOfList(form.Forms) + 1
+func (form Block) Cost() int {
+	return CostOfList(form) + 1
 }
 func (form *If) Cost() int {
 	maxBranchCost := max2(form.Then.Cost(), form.Else.Cost())

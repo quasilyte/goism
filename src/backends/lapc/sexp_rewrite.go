@@ -163,7 +163,7 @@ func simplify(form sexp.Form) sexp.Form {
 		return form.Form
 
 	case *sexp.DoTimes:
-		form.Body.Forms = simplifyList(form.Body.Forms)
+		form.Body = simplifyList(form.Body)
 		form.N = Simplify(form.N)
 
 		init := &sexp.Bind{
@@ -193,11 +193,11 @@ func simplifiedCall(fn *sexp.Func, args ...sexp.Form) sexp.Form {
 
 func simplifySwitch(b sexp.SwitchBody, mkCond func(sexp.Form) sexp.Form, i int) sexp.Form {
 	if i == len(b.Clauses) {
-		b.DefaultBody.Forms = simplifyList(b.DefaultBody.Forms)
+		b.DefaultBody = simplifyList(b.DefaultBody)
 		return b.DefaultBody
 	}
 	cc := b.Clauses[i]
-	cc.Body.Forms = simplifyList(cc.Body.Forms)
+	cc.Body = simplifyList(cc.Body)
 	return &sexp.If{
 		Cond: mkCond(Simplify(cc.Expr)),
 		Then: cc.Body,

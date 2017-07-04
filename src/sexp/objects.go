@@ -17,7 +17,7 @@ func (fn *Func) MarkInlineable() { fn.info |= funcInlineable }
 
 type Func struct {
 	Name     string
-	Body     *Block
+	Body     Block
 	Params   []string
 	Variadic bool
 

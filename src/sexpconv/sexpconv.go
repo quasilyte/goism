@@ -54,7 +54,7 @@ func (conv *Converter) VarInit(assign *xast.Assign) sexp.Form {
 	return c.VarInit(assign.Lhs, assign.Rhs)
 }
 
-func (conv *Converter) FuncBody(fn *xast.Func) *sexp.Block {
+func (conv *Converter) FuncBody(fn *xast.Func) sexp.Block {
 	c := conv.newConverter(fn.Pkg)
 	c.retType = fn.Ret
 	body := c.BlockStmt(fn.Body)
@@ -62,7 +62,7 @@ func (conv *Converter) FuncBody(fn *xast.Func) *sexp.Block {
 	// Adding return statement.
 	// It is needed in void functions without explicit "return".
 	if fn.Ret == xtypes.EmptyTuple {
-		body.Forms = append(body.Forms, &sexp.Return{})
+		body = append(body, &sexp.Return{})
 	}
 
 	return body
@@ -72,13 +72,13 @@ func (conv *Converter) VarZeroInit(sym string, typ types.Type) sexp.Form {
 	return &sexp.VarUpdate{Name: sym, Expr: ZeroValue(typ)}
 }
 
-func (conv *converter) FuncBody(name *ast.Ident, block *ast.BlockStmt) *sexp.Block {
+func (conv *converter) FuncBody(name *ast.Ident, block *ast.BlockStmt) sexp.Block {
 	conv.retType = conv.typeOf(name).(*types.Signature).Results()
 	body := conv.BlockStmt(block)
 	// Adding return statement.
 	// It is needed in void functions without explicit "return".
 	// In all other cases, optimizations will wipe it out.
-	body.Forms = append(body.Forms, &sexp.Return{})
+	body = append(body, &sexp.Return{})
 	return body
 }
 

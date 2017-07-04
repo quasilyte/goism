@@ -63,7 +63,7 @@ func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 
 func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 	body := fn.Body
-	if len(body.Forms) == 0 {
+	if len(body) == 0 {
 		return nil
 	}
 
@@ -71,7 +71,7 @@ func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 		return form.Cost() <= cfg.CostInlineThreshold
 	}
 
-	switch form := body.Forms[0].(type) {
+	switch form := body[0].(type) {
 	case *sexp.Return:
 		if len(form.Results) != 1 {
 			return nil
@@ -85,12 +85,12 @@ func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 			return nil
 		}
 		// Sole statement is inlineable.
-		if len(body.Forms) == 1 {
+		if len(body) == 1 {
 			return form.Expr.Copy()
 		}
 		// Trailing "return" is permitted (auto-inserted for void functions).
-		if len(body.Forms) == 2 {
-			ret, ok := body.Forms[1].(*sexp.Return)
+		if len(body) == 2 {
+			ret, ok := body[1].(*sexp.Return)
 			if ok && len(ret.Results) == 0 {
 				return form.Expr.Copy()
 			}
@@ -129,7 +129,7 @@ func (inl *inliner) inlineAsLambdaCall(fn *sexp.Func, args []sexp.Form) sexp.For
 
 	call := &sexp.LambdaCall{
 		Args: ctx.bindings,
-		Body: ctx.body.(*sexp.Block),
+		Body: ctx.body.(sexp.Block),
 		Typ:  fn.Results,
 	}
 	return call

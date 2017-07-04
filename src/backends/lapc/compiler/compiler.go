@@ -31,7 +31,7 @@ func New() *Compiler {
 func (cl *Compiler) CompileFunc(fn *sexp.Func) *lapc.Object {
 	cl.reset()
 
-	compileStmtList(cl, fn.Body.Forms)
+	compileStmtList(cl, fn.Body)
 	cl.push().Empty() // Add sentinel ir.Empty instruction
 
 	asmObject := cl.as.Assemble(fn.Params, cl.unit)

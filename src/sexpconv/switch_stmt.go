@@ -15,7 +15,7 @@ func (conv *converter) switchStmt(node *ast.SwitchStmt) sexp.Form {
 
 	for _, cc := range node.Body.List {
 		cc := cc.(*ast.CaseClause)
-		body := &sexp.Block{Forms: conv.stmtList(cc.Body)}
+		body := sexp.Block(conv.stmtList(cc.Body))
 		if cc.List == nil {
 			defaultBody = body
 		} else {

@@ -126,14 +126,14 @@ type (
 
 	// Block is a list of statements.
 	// Unlike FormList, it creates a new lexical scope.
-	Block struct{ Forms []Form }
+	Block []Form
 
 	// If statement evaluates test expression and,
 	// depending on the result, one of the branches gets
 	// executed. Else branch is optional.
 	If struct {
 		Cond Form
-		Then *Block
+		Then Block
 		Else Form // Can be EmptyStmt
 	}
 
@@ -168,7 +168,7 @@ type (
 	// optimal, optimizer should replace it with While.
 	Repeat struct {
 		N    int64
-		Body *Block
+		Body Block
 	}
 
 	// DoTimes is like Repeat, but:
@@ -178,14 +178,14 @@ type (
 		N    Form
 		Iter Local
 		Step Form
-		Body *Block
+		Body Block
 	}
 
 	// Loop = "while true".
 	Loop struct {
 		Init Form // Can be EmptyStmt
 		Post Form // Can be EmptyStmt
-		Body *Block
+		Body Block
 	}
 
 	// While is a generic (low level) looping construct.
@@ -193,7 +193,7 @@ type (
 		Init Form // Can be EmptyStmt
 		Cond Form
 		Post Form // Can be EmptyStmt
-		Body *Block
+		Body Block
 	}
 )
 
@@ -254,7 +254,7 @@ type LispCall struct {
 
 type LambdaCall struct {
 	Args []*Bind
-	Body *Block
+	Body Block
 	Typ  *types.Tuple
 }
 

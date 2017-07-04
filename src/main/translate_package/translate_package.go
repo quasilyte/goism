@@ -78,7 +78,7 @@ func produceAsm(pkg *tu.Package) {
 		println()
 	}
 
-	if len(pkg.Init.Body.Forms) != 0 {
+	if len(pkg.Init.Body) != 0 {
 		if filter == nil || filter.MatchString(pkg.Init.Name) {
 			fmt.Println("init:")
 			dumpFunction(pkg.Init, compileFunc(cl, pkg.Init))
@@ -108,7 +108,7 @@ func producePackage(pkg *tu.Package) {
 		output.AddFunc(fn, compileFunc(cl, fn))
 	}
 
-	if len(pkg.Init.Body.Forms) != 0 {
+	if len(pkg.Init.Body) != 0 {
 		output.AddExpr(compileFunc(cl, pkg.Init))
 	}
 

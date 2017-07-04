@@ -5,8 +5,8 @@ type rewriteFunc func(Form) Form
 // Rewrite provides convenient way to update AST.
 func Rewrite(form Form, fn rewriteFunc) Form {
 	switch form := form.(type) {
-	case *Block:
-		return rewriteList(form, form.Forms, fn)
+	case Block:
+		return rewriteList(form, form, fn)
 	case *FormList:
 		return rewriteList(form, form.Forms, fn)
 	case *ExprStmt:
@@ -69,7 +69,7 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 			return form
 		}
 		form.Cond = Rewrite(form.Cond, fn)
-		form.Then = Rewrite(form.Then, fn).(*Block)
+		form.Then = Rewrite(form.Then, fn).(Block)
 		form.Else = Rewrite(form.Else, fn)
 
 	case *Switch:
@@ -92,20 +92,20 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 		if form := fn(form); form != nil {
 			return form
 		}
-		form.Body = Rewrite(form.Body, fn).(*Block)
+		form.Body = Rewrite(form.Body, fn).(Block)
 
 	case *DoTimes:
 		if form := fn(form); form != nil {
 			return form
 		}
 		form.Step = Rewrite(form.Step, fn)
-		form.Body = Rewrite(form.Body, fn).(*Block)
+		form.Body = Rewrite(form.Body, fn).(Block)
 
 	case *Loop:
 		if form := fn(form); form != nil {
 			return form
 		}
-		form.Body = Rewrite(form.Body, fn).(*Block)
+		form.Body = Rewrite(form.Body, fn).(Block)
 
 	case *While:
 		if form := fn(form); form != nil {
@@ -113,7 +113,7 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 		}
 		form.Cond = Rewrite(form.Cond, fn)
 		form.Post = Rewrite(form.Post, fn)
-		form.Body = Rewrite(form.Body, fn).(*Block)
+		form.Body = Rewrite(form.Body, fn).(Block)
 
 	case *Call:
 		return rewriteList(form, form.Args, fn)
@@ -126,7 +126,7 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 		for i, bind := range form.Args {
 			form.Args[i] = Rewrite(bind, fn).(*Bind)
 		}
-		form.Body = Rewrite(form.Body, fn).(*Block)
+		form.Body = Rewrite(form.Body, fn).(Block)
 
 	case *Let:
 		if form := fn(form); form != nil {
@@ -173,10 +173,10 @@ func rewriteSwitchBody(b SwitchBody, fn rewriteFunc) SwitchBody {
 	for i, cc := range b.Clauses {
 		b.Clauses[i] = CaseClause{
 			Expr: Rewrite(cc.Expr, fn),
-			Body: Rewrite(cc.Body, fn).(*Block),
+			Body: Rewrite(cc.Body, fn).(Block),
 		}
 	}
-	b.DefaultBody = Rewrite(b.DefaultBody, fn).(*Block)
+	b.DefaultBody = Rewrite(b.DefaultBody, fn).(Block)
 	return b
 }
 

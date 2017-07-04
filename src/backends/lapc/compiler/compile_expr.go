@@ -50,7 +50,7 @@ func compileLambdaCall(cl *Compiler, form *sexp.LambdaCall) {
 	for _, arg := range form.Args {
 		compileBind(cl, arg)
 	}
-	compileStmtList(cl, form.Body.Forms)
+	compileStmtList(cl, form.Body)
 	cl.push().Label(retLabel)
 
 	cl.innerInlineRet = prevRetLabel

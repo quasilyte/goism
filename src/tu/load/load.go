@@ -208,7 +208,7 @@ func collectInitializers(p *xast.Package, conv *sexpconv.Converter) initData {
 	return initData{
 		init: &sexp.Func{
 			Name: "init",
-			Body: &sexp.Block{Forms: body},
+			Body: sexp.Block(body),
 		},
 		vars: vars,
 	}
@@ -329,7 +329,7 @@ func pkgComment(files map[string]*ast.File) string {
 
 func isInlineable(fn *sexp.Func) bool {
 	totalCost := 0
-	for _, form := range fn.Body.Forms {
+	for _, form := range fn.Body {
 		cost := form.Cost()
 		if cost == -1 {
 			// Most probably has loops.
