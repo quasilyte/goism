@@ -253,3 +253,26 @@ func Test11Maps(t *testing.T) {
 		{"testMapUpdate 10", "10"},
 	})
 }
+
+func TestCombined(t *testing.T) {
+	testCalls(t, []callTest{
+		{"factorial 0", "1"},
+		{"factorial 2", "2"},
+		{"factorial 3", "6"},
+
+		{"isAlpha ?a", "t"},
+		{"isAlpha ?g", "t"},
+		{"isAlpha ?z", "t"},
+		{"isAlpha ?A", "t"},
+		{"isAlpha ?G", "t"},
+		{"isAlpha ?Z", "t"},
+		{"isAlpha ?@", "nil"},
+		{"isAlpha ?1", "nil"},
+		{"isAlpha 0", "nil"},
+
+		{"max4 0 0 0 0", "0"},
+		{"max4 1.1 1.2 1.3 1.4", "1.4"},
+		{"max4 -1 1 2 -2", "2"},
+		{"max4 0.1 0.01 0.001 0.0001", "0.1"},
+	})
+}
