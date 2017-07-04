@@ -76,7 +76,7 @@ func testForScopes1(n int) int {
 	x := n + 1
 	for {
 		y := 1
-		n -= y
+		x -= y
 		break
 	}
 	return x
@@ -87,7 +87,7 @@ func testForScopes2(n int) int {
 	for {
 		{
 			y := 1
-			n -= y
+			x -= y
 			break
 		}
 	}
@@ -99,7 +99,7 @@ func testNestedForScopes1(n int) int {
 	for i := 0; i < 1; i++ {
 		for {
 			y := 1
-			n -= y
+			x -= y
 			break
 			z := 2 // Unreachable
 			panic(z)
@@ -114,7 +114,7 @@ func testNestedForScopes2(n int) int {
 		for {
 			{
 				y := 1
-				n -= y
+				x -= y
 				break
 				z := 2 // Unreachable
 				panic(z)
