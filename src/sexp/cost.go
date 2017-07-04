@@ -115,8 +115,8 @@ func (form *Rebind) Cost() int {
 func (form *VarUpdate) Cost() int {
 	return CostOf(form.Expr) + 1
 }
-func (form *FormList) Cost() int {
-	return CostOfList(form.Forms)
+func (form FormList) Cost() int {
+	return CostOfList(form)
 }
 func (form Block) Cost() int {
 	return CostOfList(form) + 1

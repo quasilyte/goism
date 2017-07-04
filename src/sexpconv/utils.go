@@ -35,9 +35,9 @@ func isArrayLit(form sexp.Form) bool {
 	return ok
 }
 
-func toFormList(form sexp.Form) *sexp.FormList {
-	if form, ok := form.(*sexp.FormList); ok {
+func toFormList(form sexp.Form) sexp.FormList {
+	if form, ok := form.(sexp.FormList); ok {
 		return form
 	}
-	return &sexp.FormList{Forms: []sexp.Form{form}}
+	return sexp.FormList([]sexp.Form{form})
 }

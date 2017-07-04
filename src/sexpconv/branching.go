@@ -29,10 +29,8 @@ func (conv *converter) BranchStmt(node *ast.BranchStmt) sexp.Form {
 }
 
 func (conv *converter) LabeledStmt(node *ast.LabeledStmt) sexp.Form {
-	return &sexp.FormList{
-		Forms: []sexp.Form{
-			&sexp.Label{Name: node.Label.Name},
-			conv.Stmt(node.Stmt),
-		},
-	}
+	return sexp.FormList([]sexp.Form{
+		&sexp.Label{Name: node.Label.Name},
+		conv.Stmt(node.Stmt),
+	})
 }

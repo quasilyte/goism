@@ -86,17 +86,17 @@ func (conv *converter) rhsMultiValues(rhs ast.Expr) []sexp.Form {
 	return forms
 }
 
-func (conv *converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) *sexp.FormList {
+func (conv *converter) multiValueAssign(lhs []ast.Expr, rhs ast.Expr) sexp.FormList {
 	forms := make([]sexp.Form, len(lhs))
 
 	for i, rhs := range conv.rhsMultiValues(rhs) {
 		forms[i] = conv.assign(lhs[i], rhs)
 	}
 
-	return &sexp.FormList{Forms: forms}
+	return sexp.FormList(forms)
 }
 
-func (conv *converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
+func (conv *converter) singleValueAssign(lhs, rhs []ast.Expr) sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for i := range lhs {
@@ -104,7 +104,7 @@ func (conv *converter) singleValueAssign(lhs, rhs []ast.Expr) *sexp.FormList {
 		forms = append(forms, conv.assign(lhs[i], conv.Expr(rhs[i])))
 	}
 
-	return &sexp.FormList{Forms: forms}
+	return sexp.FormList(forms)
 }
 
 func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {

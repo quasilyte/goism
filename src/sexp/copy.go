@@ -64,8 +64,8 @@ func (form *Rebind) Copy() Form {
 func (form *VarUpdate) Copy() Form {
 	return &VarUpdate{Expr: form.Expr.Copy()}
 }
-func (form *FormList) Copy() Form {
-	return &FormList{Forms: CopyList(form.Forms)}
+func (form FormList) Copy() Form {
+	return FormList(CopyList(form))
 }
 func (form Block) Copy() Form {
 	return Block(CopyList(form))

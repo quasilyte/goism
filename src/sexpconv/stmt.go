@@ -61,13 +61,11 @@ func (conv *converter) withInitStmt(init ast.Stmt, form sexp.Form) sexp.Form {
 		return form
 
 	case *ast.AssignStmt:
-		assigns := toFormList(conv.AssignStmt(init)).Forms
+		assigns := toFormList(conv.AssignStmt(init))
 		return sexp.Block(append(assigns, form))
 
 	default:
-		return &sexp.FormList{
-			Forms: []sexp.Form{conv.Stmt(init), form},
-		}
+		return sexp.FormList([]sexp.Form{conv.Stmt(init), form})
 	}
 }
 
@@ -99,14 +97,14 @@ func (conv *converter) DeclStmt(node *ast.DeclStmt) sexp.Form {
 	panic(errUnexpectedStmt(conv, node))
 }
 
-func (conv *converter) varDecl(node *ast.GenDecl) *sexp.FormList {
+func (conv *converter) varDecl(node *ast.GenDecl) sexp.FormList {
 	forms := make([]sexp.Form, 0, 1)
 
 	for _, spec := range node.Specs {
 		forms = conv.valueSpec(forms, spec.(*ast.ValueSpec))
 	}
 
-	return &sexp.FormList{Forms: forms}
+	return sexp.FormList(forms)
 }
 
 func (conv *converter) valueSpec(forms []sexp.Form, spec *ast.ValueSpec) []sexp.Form {

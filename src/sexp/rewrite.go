@@ -7,8 +7,8 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 	switch form := form.(type) {
 	case Block:
 		return rewriteList(form, form, fn)
-	case *FormList:
-		return rewriteList(form, form.Forms, fn)
+	case FormList:
+		return rewriteList(form, form, fn)
 	case *ExprStmt:
 		return rewrite(form, fn, &form.Expr)
 	case Bool:

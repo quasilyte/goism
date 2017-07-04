@@ -122,7 +122,7 @@ type (
 	}
 
 	// FormList packs multiple forms together (like "progn").
-	FormList struct{ Forms []Form }
+	FormList []Form
 
 	// Block is a list of statements.
 	// Unlike FormList, it creates a new lexical scope.

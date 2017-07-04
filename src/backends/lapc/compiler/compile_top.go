@@ -18,8 +18,8 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 		compileIf(cl, form)
 	case sexp.Block:
 		compileBlock(cl, form)
-	case *sexp.FormList:
-		compileStmtList(cl, form.Forms)
+	case sexp.FormList:
+		compileStmtList(cl, form)
 	case *sexp.Bind:
 		compileBind(cl, form)
 	case *sexp.Rebind:
