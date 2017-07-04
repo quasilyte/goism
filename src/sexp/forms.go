@@ -183,12 +183,14 @@ type (
 
 	// Loop = "while true".
 	Loop struct {
+		Init Form // Can be EmptyStmt
 		Post Form // Can be EmptyStmt
 		Body *Block
 	}
 
 	// While is a generic (low level) looping construct.
 	While struct {
+		Init Form // Can be EmptyStmt
 		Cond Form
 		Post Form // Can be EmptyStmt
 		Body *Block

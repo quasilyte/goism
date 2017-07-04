@@ -48,34 +48,34 @@ func (conv *converter) foreachArray(node *ast.RangeStmt, typ *types.Array) sexp.
 
 func (conv *converter) ForStmt(node *ast.ForStmt) sexp.Form {
 	var (
-		loop sexp.Form
 		post sexp.Form
+		init sexp.Form
 	)
 
 	if node.Post == nil {
-		post = sexp.EmptyStmt
+		post = sexp.EmptyForm
 	} else {
 		post = conv.Stmt(node.Post)
+	}
+	if node.Init == nil {
+		init = sexp.EmptyForm
+	} else {
+		init = conv.Stmt(node.Init)
 	}
 
 	body := conv.BlockStmt(node.Body)
 
 	if node.Cond == nil {
-		loop = &sexp.Loop{Post: post, Body: body}
-	} else {
-		loop = &sexp.While{
-			Cond: conv.Expr(node.Cond),
+		return &sexp.Loop{
+			Init: init,
 			Post: post,
 			Body: body,
 		}
 	}
-
-	if node.Init != nil {
-		init := conv.Stmt(node.Init)
-		loop = &sexp.Block{
-			Forms: []sexp.Form{init, loop},
-		}
+	return &sexp.While{
+		Init: init,
+		Cond: conv.Expr(node.Cond),
+		Post: post,
+		Body: body,
 	}
-
-	return loop
 }

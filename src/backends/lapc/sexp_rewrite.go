@@ -166,7 +166,7 @@ func simplify(form sexp.Form) sexp.Form {
 		form.Body.Forms = simplifyList(form.Body.Forms)
 		form.N = Simplify(form.N)
 
-		bindKey := &sexp.Bind{
+		init := &sexp.Bind{
 			Name: form.Iter.Name,
 			Init: sexpconv.ZeroValue(form.Iter.Typ),
 		}
@@ -174,13 +174,11 @@ func simplify(form sexp.Form) sexp.Form {
 			Name: form.Iter.Name,
 			Expr: sexp.NewAdd1(form.Iter),
 		}
-		loop := &sexp.While{
+		return &sexp.While{
+			Init: init,
 			Cond: sexp.NewNumLt(form.Iter, form.N),
 			Post: post,
 			Body: form.Body,
-		}
-		return &sexp.Block{
-			Forms: []sexp.Form{bindKey, loop},
 		}
 	}
 

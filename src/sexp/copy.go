@@ -110,10 +110,15 @@ func (form *DoTimes) Copy() Form {
 	}
 }
 func (form *Loop) Copy() Form {
-	return &Loop{Body: &Block{Forms: CopyList(form.Body.Forms)}}
+	return &Loop{
+		Init: form.Init.Copy(),
+		Post: form.Post.Copy(),
+		Body: &Block{Forms: CopyList(form.Body.Forms)},
+	}
 }
 func (form *While) Copy() Form {
 	return &While{
+		Init: form.Init.Copy(),
 		Cond: form.Cond.Copy(),
 		Post: form.Post.Copy(),
 		Body: &Block{Forms: CopyList(form.Body.Forms)},
