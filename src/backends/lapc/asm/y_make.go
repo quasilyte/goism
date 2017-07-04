@@ -6,141 +6,139 @@ import (
 	"dt"
 )
 
-type yUnit []ir.Instr
+type yUnit *ir.Instr
 
 type converterY struct {
-	instrs []ir.Instr
-	st     *dt.DataStack
+	st *dt.DataStack
 
 	inlineRets []branchInfo
 	gotos      []branchInfo
-	labels     []labelInfo
+	labels     map[int32]labelInfo
 	scopes     *dt.ScopeStack
 	iifeDepths *dt.ScopeStack
 }
 
 type branchInfo struct {
-	pos     int
-	depth   int
-	labelID int32
+	ins   *ir.Instr
+	depth int
 }
 
 type labelInfo struct {
 	depth int
 }
 
-func makeY(params []string, instrs xUnit) (yUnit, int) {
+func makeY(params []string, u xUnit) (yUnit, int) {
 	conv := converterY{
-		instrs:     instrs,
 		st:         dt.NewDataStack(params),
 		scopes:     &dt.ScopeStack{},
 		iifeDepths: &dt.ScopeStack{},
+		labels:     make(map[int32]labelInfo),
 	}
-	return conv.Convert()
+	return conv.Convert(u)
 }
 
-func (cy *converterY) Convert() (yUnit, int) {
-	cy.convert()
+func (cy *converterY) Convert(u xUnit) (yUnit, int) {
+	cy.convert(u)
 	cy.fixBranches()
-	return cy.instrs, cy.st.MaxLen()
+	return yUnit(u), cy.st.MaxLen()
 }
 
-func (cy *converterY) convert() {
-	for i, ins := range cy.instrs {
-		switch ins.Kind {
-		case ir.ScopeEnter:
-			cy.scopes.PushScope()
-			cy.scopes.SetScopeDepth(cy.st.Len())
-			cy.instrs[i] = ir.Instr{Kind: ir.Empty}
-
-		case ir.ScopeLeave:
-			depth := cy.scopes.PopScope()
-			scopeSize := cy.st.Len() - depth
-			cy.instrs[i] = ir.Instr{Kind: ir.Discard, Data: int32(scopeSize)}
-			cy.st.Discard(uint16(scopeSize))
-
-		case ir.XinlineEnter:
-			cy.iifeDepths.PushScope()
-			cy.iifeDepths.SetScopeDepth(cy.st.Len())
-			cy.instrs[i] = ir.Instr{Kind: ir.Empty}
-
-		case ir.XinlineRetLabel:
-			depth := cy.iifeDepths.PopScope()
-			cy.labels = append(cy.labels, labelInfo{
-				depth: depth,
-			})
-			cy.instrs[i].Kind = ir.Label
-			cy.st.Discard(uint16(cy.st.Len() - depth - 1))
-
-		case ir.XinlineRet:
-			info := branchInfo{pos: i, depth: cy.st.Len(), labelID: ins.Data}
-			cy.inlineRets = append(cy.inlineRets, info)
-			cy.instrs[i].Kind = ir.Jmp
-
-		case ir.Xgoto:
-			info := branchInfo{pos: i, depth: cy.st.Len(), labelID: ins.Data}
-			cy.gotos = append(cy.gotos, info)
-			cy.instrs[i].Kind = ir.Jmp
-
-		case ir.XlocalRef:
-			stIndex := cy.st.Lookup(ins.Meta)
-			cy.instrs[i] = ir.Instr{Kind: ir.StackRef, Data: int32(stIndex)}
-			cy.st.Push()
-			cy.st.Bind(ins.Meta)
-
-		case ir.XlocalSet:
-			stIndex := cy.st.Lookup(ins.Meta)
-			cy.instrs[i] = ir.Instr{Kind: ir.StackSet, Data: int32(stIndex)}
-			cy.st.Discard(1)
-
-		case ir.XvarRef:
-			cy.st.Push()
-			cy.st.Bind(ins.Meta)
-
-		case ir.XvarSet:
-			cy.st.Discard(1)
-
-		case ir.Xbind:
-			cy.st.Bind(ins.Meta)
-			cy.instrs[i] = ir.Instr{Kind: ir.Empty}
-
-		case ir.Label:
-			cy.labels = append(cy.labels, labelInfo{
-				depth: cy.st.Len(),
-			})
-		}
-
+func (cy *converterY) convert(u xUnit) {
+	for ins := u; ins != nil; ins = ins.Next {
+		cy.convertInstr(ins)
 		cy.simulateInstr(ins)
+	}
+}
+
+func (cy *converterY) convertInstr(ins *ir.Instr) {
+	switch ins.Kind {
+	case ir.ScopeEnter:
+		cy.scopes.PushScope()
+		cy.scopes.SetScopeDepth(cy.st.Len())
+		ins.Remove()
+
+	case ir.ScopeLeave:
+		depth := cy.scopes.PopScope()
+		scopeSize := cy.st.Len() - depth
+		ins.Kind, ins.Data = ir.Discard, int32(scopeSize)
+
+	case ir.XinlineEnter:
+		cy.iifeDepths.PushScope()
+		cy.iifeDepths.SetScopeDepth(cy.st.Len())
+		ins.Remove()
+
+	case ir.XinlineRetLabel:
+		depth := cy.iifeDepths.PopScope()
+		cy.labels[ins.Data] = labelInfo{depth: depth}
+		ins.Kind = ir.Label
+		cy.st.Discard(uint16(cy.st.Len() - depth - 1))
+
+	case ir.XinlineRet:
+		info := branchInfo{ins: ins, depth: cy.st.Len()}
+		cy.inlineRets = append(cy.inlineRets, info)
+		ins.Kind = ir.Jmp
+
+	case ir.Xgoto:
+		info := branchInfo{ins: ins, depth: cy.st.Len()}
+		cy.gotos = append(cy.gotos, info)
+		ins.Kind = ir.Jmp
+
+	case ir.XlocalRef:
+		stIndex := cy.st.Lookup(ins.Meta)
+		ins.Kind, ins.Data = ir.StackRef, int32(stIndex)
+
+	case ir.XlocalSet:
+		stIndex := cy.st.Lookup(ins.Meta)
+		ins.Kind, ins.Data = ir.StackSet, int32(stIndex)
+
+	case ir.XvarRef:
+		cy.st.Push()
+		cy.st.Bind(ins.Meta)
+
+	case ir.XvarSet:
+		cy.st.Discard(1)
+
+	case ir.Xbind:
+		cy.st.Bind(ins.Meta)
+		ins.Remove()
+
+	case ir.Label:
+		cy.labels[ins.Data] = labelInfo{depth: cy.st.Len()}
 	}
 }
 
 func (cy *converterY) fixBranches() {
 	for _, br := range cy.gotos {
-		label := cy.labels[br.labelID]
+		label := cy.labels[br.ins.Data]
 		assert.True(br.depth >= label.depth)
 		if br.depth == label.depth {
 			continue
 		}
-		cy.instrs[br.pos-1] = ir.Instr{
+		br.ins.InsertPrev(&ir.Instr{
 			Kind: ir.Discard,
 			Data: int32(br.depth - label.depth),
-		}
+		})
 	}
 
 	for _, br := range cy.inlineRets {
-		label := cy.labels[br.labelID]
+		label := cy.labels[br.ins.Data]
 		diff := int32(br.depth - label.depth)
-		if diff == 1 {
-			continue
-		}
-		cy.instrs[br.pos-2] = ir.Instr{Kind: ir.StackSet, Data: diff - 1}
-		if diff > 2 {
-			cy.instrs[br.pos-1] = ir.Instr{Kind: ir.Discard, Data: diff - 2}
+		assert.True(diff > 0)
+		switch diff {
+		case 1:
+			// Do nothing
+		case 2:
+			br.ins.InsertPrev(&ir.Instr{Kind: ir.StackSet, Data: diff - 1})
+		default:
+			br.ins.InsertLeft([]*ir.Instr{
+				&ir.Instr{Kind: ir.StackSet, Data: diff - 1},
+				&ir.Instr{Kind: ir.Discard, Data: diff - 2},
+			})
 		}
 	}
 }
 
-func (cy *converterY) simulateInstr(ins ir.Instr) {
+func (cy *converterY) simulateInstr(ins *ir.Instr) {
 	st := cy.st
 	enc := ir.EncodingOf(ins.Kind)
 
@@ -172,6 +170,6 @@ func (cy *converterY) simulateInstr(ins ir.Instr) {
 		st.PushConst(uint16(ins.Data))
 	case ir.AttrPushAndDiscard:
 		st.Push()
-		cy.simulateInstr(ir.Instr{Kind: ir.Discard, Data: 1})
+		ins.InsertNext(&ir.Instr{Kind: ir.Discard, Data: 1})
 	}
 }

@@ -28,12 +28,13 @@ func New() *Compiler {
 	}
 }
 
-func (cl *Compiler) CompileFunc(f *sexp.Func) *lapc.Object {
+func (cl *Compiler) CompileFunc(fn *sexp.Func) *lapc.Object {
 	cl.reset()
 
-	compileStmtList(cl, f.Body.Forms)
+	compileStmtList(cl, fn.Body.Forms)
+	cl.push().Empty() // Add sentinel ir.Empty instruction
 
-	asmObject := cl.as.Assemble(f.Params, cl.unit)
+	asmObject := cl.as.Assemble(fn.Params, cl.unit)
 
 	return &lapc.Object{
 		StackUsage: asmObject.StackUsage,
@@ -45,7 +46,7 @@ func (cl *Compiler) CompileFunc(f *sexp.Func) *lapc.Object {
 // Prepare compiler for re-use.
 func (cl *Compiler) reset() {
 	cl.cvec.Clear()
-	cl.unit.Reset()
+	cl.unit.Init()
 }
 
 func (cl *Compiler) push() *ir.InstrPusher {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func writeLabel(dst *bytes.Buffer, ins ir.Instr) {
+func writeLabel(dst *bytes.Buffer, ins *ir.Instr) {
 	dst.Write(ir.EncodingOf(ins.Kind).Name)
 	dst.WriteByte(' ')
 	dst.WriteString(ins.Meta)

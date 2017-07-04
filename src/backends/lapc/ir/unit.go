@@ -1,7 +1,8 @@
 package ir
 
 type Unit struct {
-	Instrs []Instr
+	first *Instr
+	cur   *Instr
 
 	lastLabelID int32
 	userLabels  map[string]Instr
@@ -13,17 +14,20 @@ type (
 
 func NewUnit() *Unit {
 	return &Unit{
-		Instrs:      make([]Instr, 0, 128),
 		lastLabelID: -1,
 		userLabels:  make(map[string]Instr),
 	}
 }
 
-func (u *Unit) Reset() {
-	u.Instrs = u.Instrs[:0]
+func (u *Unit) Init() {
+	// Sentinel ir.Empty instruction at list head.
+	u.first = &Instr{Kind: Empty}
+	u.cur = u.first
 	u.lastLabelID = -1
 	u.userLabels = make(map[string]Instr)
 }
+
+func (u *Unit) Result() *Instr { return u.first }
 
 func (u *Unit) InstrPusher() *InstrPusher {
 	return (*InstrPusher)(u)
@@ -31,7 +35,7 @@ func (u *Unit) InstrPusher() *InstrPusher {
 
 func (u *Unit) NewInlineRetLabel() Instr {
 	u.lastLabelID++
-	return Instr{Kind: XinlineRetLabel, Data: u.lastLabelID, Meta: "iife-ret"}
+	return Instr{Kind: XinlineRetLabel, Data: u.lastLabelID, Meta: "inline-ret"}
 }
 
 func (u *Unit) NewLabel(name string) Instr {
@@ -49,7 +53,10 @@ func (u *Unit) NewUserLabel(name string) Instr {
 }
 
 func (p *InstrPusher) PushInstr(ins Instr) {
-	p.Instrs = append(p.Instrs, ins)
+	next := &ins
+	p.cur.Next = next
+	ins.Prev = p.cur
+	p.cur = next
 }
 
 func (p *InstrPusher) push(kind InstrKind) {
@@ -68,7 +75,7 @@ func (p *InstrPusher) pushLabel(kind InstrKind, label Instr) {
 	p.PushInstr(Instr{Kind: kind, Data: label.Data, Meta: label.Meta})
 }
 
-func (p *InstrPusher) Empty(comment string)   { p.pushMeta(Empty, comment) }
+func (p *InstrPusher) Empty()                 { p.push(Empty) }
 func (p *InstrPusher) XvarRef(name string)    { p.pushMeta(XvarRef, name) }
 func (p *InstrPusher) XvarSet(name string)    { p.pushMeta(XvarSet, name) }
 func (p *InstrPusher) XlocalRef(name string)  { p.pushMeta(XlocalRef, name) }

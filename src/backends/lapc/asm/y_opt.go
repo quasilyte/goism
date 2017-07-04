@@ -5,55 +5,36 @@ import (
 	"vmm"
 )
 
-func optimizeY(instrs yUnit) {
-	opt := optimizerY{
-		instrs: instrs,
-	}
-	opt.Optimize()
+func optimizeY(u yUnit) {
+	opt := optimizerY{}
+	opt.Optimize(u)
 }
 
-type optimizerY struct {
-	instrs yUnit
-}
+type optimizerY struct{}
 
-func (opt *optimizerY) Optimize() {
-	for i, ins := range opt.instrs {
+func (opt *optimizerY) Optimize(u yUnit) {
+	for ins := u; ins != nil; ins = ins.Next {
 		switch ins.Kind {
 		case ir.Call:
-			opt.optimizeCall(i, ins)
+			opt.optimizeCall(ins)
 		case ir.Discard:
-			opt.optimizeDiscard(i, ins)
+			opt.optimizeDiscard(ins)
 		}
 	}
 }
 
-func (opt *optimizerY) optimizeCall(pos int, ins ir.Instr) {
-	// If function is "throw", remove next instruction if it is Discard.
+func (opt *optimizerY) optimizeCall(ins *ir.Instr) {
+	// If function is "throw", remove next instruction if it is Discard(1).
 	if vmm.FuncIsThrowing(ins.Meta) {
-		next := opt.instrAt(pos + 1)
-		if next.Kind == ir.Discard && next.Data == 1 {
-			opt.remove(pos + 1)
+		if ins.Next.Kind == ir.Discard && ins.Next.Data == 1 {
+			ins.Next.Remove()
 		}
 	}
 }
 
-func (opt *optimizerY) optimizeDiscard(pos int, ins ir.Instr) {
+func (opt *optimizerY) optimizeDiscard(ins *ir.Instr) {
 	// Remove Discard(0).
 	if ins.Data == 0 {
-		opt.remove(pos)
+		ins.Remove()
 	}
-}
-
-func (opt *optimizerY) remove(pos int) {
-	opt.instrs[pos] = ir.Instr{Kind: ir.Empty}
-}
-
-func (opt *optimizerY) instrAt(pos int) ir.Instr {
-	if pos >= len(opt.instrs) {
-		return ir.Instr{Kind: ir.Empty}
-	}
-	if pos < 0 {
-		return ir.Instr{Kind: ir.Empty}
-	}
-	return opt.instrs[pos]
 }

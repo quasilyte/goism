@@ -83,4 +83,50 @@ type Instr struct {
 	Kind InstrKind // Determines the instruction kind
 	Data int32     // Instruction direct argument (optional)
 	Meta string    // Additional instruction data (optional)
+	Prev *Instr    // Previous instruction
+	Next *Instr    // Next instruction
+}
+
+// Remove destroys instruction object by removing it from instruction list.
+func (ins *Instr) Remove() {
+	ins.Prev.Next = ins.Next
+	ins.Next.Prev = ins.Prev
+}
+
+// InsertNext adds instruction after current position.
+func (ins *Instr) InsertNext(newNext *Instr) {
+	newNext.Prev = ins
+	newNext.Next = ins.Next
+	ins.Next.Prev = newNext
+	ins.Next = newNext
+}
+
+// InsertPrev adds instruction before current position.
+func (ins *Instr) InsertPrev(newPrev *Instr) {
+	newPrev.Prev = ins.Prev
+	newPrev.Next = ins
+	ins.Prev.Next = newPrev
+	ins.Prev = newPrev
+}
+
+// InsertLeft calls InsertPrev consequentially for each passed instruction.
+// E.g.:
+// [prev ins next].InsertLeft([a b]) => [prev a b ins next].
+func (ins *Instr) InsertLeft(span []*Instr) {
+	cur := ins.Prev
+	for i := range span {
+		cur.InsertNext(span[i])
+		cur = span[i]
+	}
+}
+
+// InsertRight calls InsertNext consequentially for each passed instruction.
+// E.g.:
+// [prev ins next].InsertRight([a b]) => [prev ins a b next].
+func (ins *Instr) InsertRight(span []*Instr) {
+	cur := ins
+	for i := range span {
+		cur.InsertNext(span[i])
+		cur = cur.Next
+	}
 }

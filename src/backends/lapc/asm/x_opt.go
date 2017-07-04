@@ -4,8 +4,8 @@ import (
 	"backends/lapc/ir"
 )
 
-type xUnit []ir.Instr
+type xUnit *ir.Instr
 
-func optimizeX(instrs xUnit) {
+func optimizeX(ins xUnit) {
 	// #TODO.
 }

@@ -26,10 +26,10 @@ func NewAssembler(cvec *dt.ConstPool) *Assembler {
 func (as *Assembler) Assemble(params []string, u *ir.Unit) Object {
 	as.reset(params, u)
 
-	xUnit := xUnit(u.Instrs)
+	xUnit := xUnit(u.Result())
 	optimizeX(xUnit)
 
-	yUnit, maxStackLen := makeY(params, u.Instrs)
+	yUnit, maxStackLen := makeY(params, xUnit)
 	optimizeY(yUnit)
 
 	assembleList(as, yUnit)

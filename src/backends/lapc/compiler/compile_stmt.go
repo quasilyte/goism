@@ -23,8 +23,6 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 			compileExpr(cl, form.Results[i])
 			cl.push().XvarSet(rt.RetVars[i])
 		}
-		cl.push().Empty("inline-ref stack-set slot")
-		cl.push().Empty("inline-ret discard slot")
 		cl.push().XinlineRet(cl.innerInlineRet)
 		return
 	}
@@ -79,12 +77,17 @@ func compileLoop(cl *Compiler, form *sexp.Loop) {
 	cl.innerBreak = breakLabel
 	cl.innerContinue = continueLabel
 
-	cl.push().Label(bodyLabel)
-	compileBlock(cl, form.Body)
-	cl.push().Label(continueLabel)
-	compileStmt(cl, form.Post)
-	cl.push().Jmp(bodyLabel)
-	cl.push().Label(breakLabel)
+	cl.push().ScopeEnter()
+	{
+		compileStmt(cl, form.Init)
+		cl.push().Label(bodyLabel)
+		compileBlock(cl, form.Body)
+		cl.push().Label(continueLabel)
+		compileStmt(cl, form.Post)
+		cl.push().Jmp(bodyLabel)
+		cl.push().Label(breakLabel)
+	}
+	cl.push().ScopeLeave()
 
 	cl.innerBreak = prevBreak
 	cl.innerContinue = prevContinue
@@ -94,19 +97,16 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 	bodyLabel := cl.unit.NewLabel("while-body")
 	breakLabel := cl.unit.NewLabel("while-break")
 	continueLabel := cl.unit.NewLabel("while-continue")
+	condLabel := cl.unit.NewLabel("while-cond")
 
 	prevBreak := cl.innerBreak
 	prevContinue := cl.innerContinue
 	cl.innerBreak = breakLabel
 	cl.innerContinue = continueLabel
 
-	if form.Cond == nil {
-		cl.push().Label(bodyLabel)
-		compileBlock(cl, form.Body)
-		cl.push().Label(continueLabel)
-		compileStmt(cl, form.Post)
-	} else {
-		condLabel := cl.unit.NewLabel("while-cond")
+	cl.push().ScopeEnter()
+	{
+		compileStmt(cl, form.Init)
 		cl.push().Jmp(condLabel)
 		cl.push().Label(bodyLabel)
 		compileBlock(cl, form.Body)
@@ -114,9 +114,10 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 		compileStmt(cl, form.Post)
 		cl.push().Label(condLabel)
 		compileExpr(cl, form.Cond)
+		cl.push().JmpNotNil(bodyLabel)
+		cl.push().Label(breakLabel)
 	}
-	cl.push().Jmp(bodyLabel)
-	cl.push().Label(breakLabel)
+	cl.push().ScopeLeave()
 
 	cl.innerBreak = prevBreak
 	cl.innerContinue = prevContinue
@@ -199,7 +200,6 @@ func compileLetStmt(cl *Compiler, form *sexp.Let) {
 }
 
 func compileGoto(cl *Compiler, form *sexp.Goto) {
-	cl.push().Empty("goto discard slot")
 	switch form.LabelName {
 	case "continue":
 		cl.push().Xgoto(cl.innerContinue)
