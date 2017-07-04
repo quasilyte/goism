@@ -124,7 +124,7 @@ var (
 		Name:   []byte("array-set"),
 		HasArg: false,
 		Input:  AttrTake3,
-		Output: AttrPushAndDiscard,
+		Output: AttrPushTmp,
 	}
 
 	substringEnc = Encoding{
@@ -174,7 +174,7 @@ var (
 	stackSetEnc = Encoding{
 		Name:   []byte("stack-set"),
 		HasArg: true,
-		Input:  AttrReplaceNth,
+		Input:  AttrTake1,
 	}
 
 	discardEnc = Encoding{
