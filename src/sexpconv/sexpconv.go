@@ -86,10 +86,6 @@ func (conv *converter) VarInit(lhs []*ast.Ident, rhs ast.Expr) sexp.Form {
 	return conv.genAssign(xast.ExprSlice(lhs), []ast.Expr{rhs})
 }
 
-func (conv *converter) VarZeroInit(sym string, typ types.Type) sexp.Form {
-	return &sexp.VarUpdate{Name: sym, Expr: ZeroValue(typ)}
-}
-
 func (conv *converter) valueOf(node ast.Expr) constant.Value {
 	return conv.info.Types[node].Value
 }
