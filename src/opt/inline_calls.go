@@ -11,12 +11,30 @@ func InlineCalls(fn *sexp.Func) sexp.Form {
 	return inl.rewrite(fn.Body)
 }
 
+// TryInline returns inlined function body or the call expression
+// itself if inlining is not possible/viable.
+func TryInline(form *sexp.Call) sexp.Form {
+	inl := inliner{fn: nil}
+	return inl.tryInline(form)
+}
+
 type inliner struct {
 	fn *sexp.Func // Needed to recognize recursive calls
 }
 
 func (inl *inliner) rewrite(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, inl.walkForm)
+}
+
+func (inl *inliner) tryInline(form *sexp.Call) sexp.Form {
+	if form.Fn == inl.fn {
+		// Recursive call. Impossible to inline.
+		return form
+	}
+	if form.Fn.IsInlineable() {
+		return inl.inlineCall(form.Fn, form.Args)
+	}
+	return form
 }
 
 func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
@@ -35,37 +53,15 @@ func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
 }
 
 func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
-	expr := inl.inlineableForm(fn)
-	if expr == nil {
-		return nil
+	// Check if whole function body is single node
+	// that can be inlined without LambdaCall.
+	if res := inl.inlineAsExpr(fn, args); res != nil {
+		return res
 	}
-
-	bindings := make([]*sexp.Bind, 0, len(fn.Params))
-	for i, param := range fn.Params {
-		arg := inl.rewrite(args[i])
-		if arg.Cost() == 1 {
-			expr = injectValue(param, arg, expr)
-		} else if countUsages(param, expr) == 1 {
-			expr = injectValue(param, arg, expr)
-		} else {
-			bindings = append(bindings, &sexp.Bind{
-				Name: param,
-				Init: arg,
-			})
-		}
-	}
-
-	if len(bindings) == 0 {
-		// Perfect inlining, no let wrapper is needed.
-		return expr
-	}
-	return &sexp.Let{
-		Bindings: bindings,
-		Expr:     expr,
-	}
+	return inl.inlineAsLambdaCall(fn, args)
 }
 
-func (inl *inliner) inlineableForm(fn *sexp.Func) sexp.Form {
+func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 	body := fn.Body
 	if len(body.Forms) == 0 {
 		return nil
@@ -102,4 +98,63 @@ func (inl *inliner) inlineableForm(fn *sexp.Func) sexp.Form {
 	}
 
 	return nil
+}
+
+func (inl *inliner) inlineAsExpr(fn *sexp.Func, args []sexp.Form) sexp.Form {
+	expr := inl.inlineableExpr(fn)
+	if expr == nil {
+		return nil
+	}
+
+	ctx := inlineCtx{body: expr}
+	inl.collectBindings(&ctx, fn.Params, args)
+
+	if len(ctx.bindings) == 0 {
+		// Perfect inlining, no let wrapper is needed.
+		return ctx.body
+	}
+	return &sexp.Let{
+		Bindings: ctx.bindings,
+		Expr:     ctx.body,
+	}
+}
+
+func (inl *inliner) inlineAsLambdaCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
+	if fn.Body.Cost() > cfg.CostInlineThreshold {
+		return nil
+	}
+
+	ctx := inlineCtx{body: fn.Body.Copy()}
+	inl.collectBindings(&ctx, fn.Params, args)
+
+	call := &sexp.LambdaCall{
+		Args: ctx.bindings,
+		Body: ctx.body.(*sexp.Block),
+		Typ:  fn.Results,
+	}
+	return call
+}
+
+type inlineCtx struct {
+	bindings []*sexp.Bind
+	body     sexp.Form
+}
+
+func (inl *inliner) collectBindings(ctx *inlineCtx, params []string, args []sexp.Form) {
+	ctx.bindings = make([]*sexp.Bind, 0, len(params))
+	for i, param := range params {
+		arg := inl.rewrite(args[i])
+
+		switch pk := inspectParam(param, ctx.body); {
+		case pk == pkUnused:
+			// Do nothing.
+		case pk == pkUsedOnce || (pk == pkUsedManyTimes && arg.Cost() == 1):
+			ctx.body = injectValue(param, arg, ctx.body)
+		default:
+			ctx.bindings = append(ctx.bindings, &sexp.Bind{
+				Name: param,
+				Init: arg,
+			})
+		}
+	}
 }

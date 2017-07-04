@@ -69,9 +69,15 @@ func (conv *converter) Ident(node *ast.Ident) sexp.Form {
 	}
 
 	if xtypes.IsGlobal(obj) {
-		return sexp.Var{Name: conv.env.InternVar(nil, node.Name), Typ: typ}
+		return sexp.Var{
+			Name: conv.env.InternVar(nil, node.Name),
+			Typ:  typ,
+		}
 	}
-	return sexp.Var{Name: node.Name, Typ: typ}
+	return sexp.Local{
+		Name: node.Name,
+		Typ:  typ,
+	}
 }
 
 func (conv *converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {

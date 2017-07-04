@@ -3,88 +3,120 @@ package compiler
 import (
 	"assert"
 	"backends/lapc"
-	"backends/lapc/instr"
-	"vmm"
+	"backends/lapc/ir"
+	"cfg"
 	"magic_pkg/emacs/rt"
 	"sexp"
+	"vmm"
 )
 
 func compileBlock(cl *Compiler, form *sexp.Block) {
-	depth := cl.st.Len()
+	cl.push().ScopeEnter()
 	compileStmtList(cl, form.Forms)
-	if scopeSize := cl.st.Len() - depth; scopeSize != 0 {
-		emit(cl, instr.Discard(scopeSize))
-	}
+	cl.push().ScopeLeave()
 }
 
 func compileReturn(cl *Compiler, form *sexp.Return) {
+	if cl.innerInlineRet.Kind == ir.XinlineRetLabel {
+		compileExpr(cl, form.Results[0])
+		for i := 1; i < len(form.Results); i++ {
+			compileExpr(cl, form.Results[i])
+			cl.push().XvarSet(rt.RetVars[i])
+		}
+		cl.push().Empty("inline-ref stack-set slot")
+		cl.push().Empty("inline-ret discard slot")
+		cl.push().XinlineRet(cl.innerInlineRet)
+		return
+	}
+
 	if len(form.Results) == 0 {
 		// Any function in Emacs Lisp must return a value.
 		// To avoid Emacs crash, we always return "nil" for void functions.
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
-		emit(cl, instr.Return)
+		cl.push().ConstRef(cl.cvec.InsertSym("nil"))
+		cl.push().Return()
 	} else {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
-			sym := rt.RetVars[i]
-			emit(cl, instr.VarSet(cl.cvec.InsertSym(sym)))
+			cl.push().XvarSet(rt.RetVars[i])
 		}
-		emit(cl, instr.Return)
+		cl.push().Return()
 	}
 }
 
 func compileIf(cl *Compiler, form *sexp.If) {
+	endifLabel := cl.unit.NewLabel("endif")
 	if form.Else == sexp.EmptyStmt {
-		endifLabel := labelCreate(cl, "endif")
 		compileExpr(cl, form.Cond)
-		emitJmpNil(cl, endifLabel)
+		cl.push().JmpNil(endifLabel)
 		compileBlock(cl, form.Then)
-		labelBind(cl, endifLabel)
 	} else {
-		elseLabel := labelCreate(cl, "else")
-		endifLabel := labelCreate(cl, "endif")
+		elseLabel := cl.unit.NewLabel("else")
 		compileExpr(cl, form.Cond)
-		emitJmpNil(cl, elseLabel)
+		cl.push().JmpNil(elseLabel)
 		compileBlock(cl, form.Then)
-		emitJmp(cl, endifLabel)
-		labelBind(cl, elseLabel)
+		cl.push().Jmp(endifLabel)
+		cl.push().Label(elseLabel)
 		compileStmt(cl, form.Else)
-		labelBind(cl, endifLabel)
 	}
+	cl.push().Label(endifLabel)
 }
 
 func compileRepeat(cl *Compiler, form *sexp.Repeat) {
-	assert.True(form.N <= 256)
+	assert.True(form.N <= cfg.ClUnrollHardLimit)
 	for i := int64(0); i < form.N; i++ {
 		compileBlock(cl, form.Body)
 	}
 }
 
-func compileWhile(cl *Compiler, form *sexp.While) {
-	condLabel := labelCreate(cl, "while-cond")
-	bodyLabel := labelCreate(cl, "while-body")
-	breakLabel := labelCreate(cl, "while-break")
-	continueLabel := labelCreate(cl, "while-continue")
+func compileLoop(cl *Compiler, form *sexp.Loop) {
+	bodyLabel := cl.unit.NewLabel("while-body")
+	breakLabel := cl.unit.NewLabel("while-break")
+	continueLabel := cl.unit.NewLabel("while-continue")
 
 	prevBreak := cl.innerBreak
 	prevContinue := cl.innerContinue
 	cl.innerBreak = breakLabel
 	cl.innerContinue = continueLabel
 
-	emitJmp(cl, condLabel)
-	labelBind(cl, bodyLabel)
+	cl.push().Label(bodyLabel)
 	compileBlock(cl, form.Body)
-	labelBind(cl, continueLabel)
+	cl.push().Label(continueLabel)
 	compileStmt(cl, form.Post)
-	labelBind(cl, condLabel)
+	cl.push().Jmp(bodyLabel)
+	cl.push().Label(breakLabel)
+
+	cl.innerBreak = prevBreak
+	cl.innerContinue = prevContinue
+}
+
+func compileWhile(cl *Compiler, form *sexp.While) {
+	bodyLabel := cl.unit.NewLabel("while-body")
+	breakLabel := cl.unit.NewLabel("while-break")
+	continueLabel := cl.unit.NewLabel("while-continue")
+
+	prevBreak := cl.innerBreak
+	prevContinue := cl.innerContinue
+	cl.innerBreak = breakLabel
+	cl.innerContinue = continueLabel
+
 	if form.Cond == nil {
-		emitJmp(cl, bodyLabel)
+		cl.push().Label(bodyLabel)
+		compileBlock(cl, form.Body)
+		cl.push().Label(continueLabel)
+		compileStmt(cl, form.Post)
 	} else {
+		condLabel := cl.unit.NewLabel("while-cond")
+		cl.push().Jmp(condLabel)
+		cl.push().Label(bodyLabel)
+		compileBlock(cl, form.Body)
+		cl.push().Label(continueLabel)
+		compileStmt(cl, form.Post)
+		cl.push().Label(condLabel)
 		compileExpr(cl, form.Cond)
-		emitJmpNotNil(cl, bodyLabel)
 	}
-	labelBind(cl, breakLabel)
+	cl.push().Jmp(bodyLabel)
+	cl.push().Label(breakLabel)
 
 	cl.innerBreak = prevBreak
 	cl.innerContinue = prevContinue
@@ -92,43 +124,37 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 
 func compileBind(cl *Compiler, form *sexp.Bind) {
 	compileExpr(cl, form.Init)
-	cl.st.Bind(form.Name)
+	cl.push().Xbind(form.Name)
 }
 
-func compileRebind(cl *Compiler, name string, expr sexp.Form) {
-	compileExpr(cl, expr)
-	stIndex := cl.st.Lookup(name)
-	emit(cl, instr.StackSet(stIndex))
-	// "-1" because we have just popped stask element.
-	cl.st.Rebind(stIndex-1, name)
+func compileRebind(cl *Compiler, form *sexp.Rebind) {
+	compileExpr(cl, form.Expr)
+	cl.push().XlocalSet(form.Name)
 }
 
-func compileVarUpdate(cl *Compiler, name string, expr sexp.Form) {
-	compileExpr(cl, expr)
-	emit(cl, instr.VarSet(cl.cvec.InsertSym(name)))
+func compileVarUpdate(cl *Compiler, form *sexp.VarUpdate) {
+	compileExpr(cl, form.Expr)
+	cl.push().XvarSet(form.Name)
 }
 
 func compileExprStmt(cl *Compiler, form *sexp.ExprStmt) {
 	compileExpr(cl, form.Expr)
 
 	if form, ok := form.Expr.(*lapc.InstrCall); ok {
-		if form.Instr.Output != instr.AttrPushTmp {
+		switch ir.EncodingOf(form.Instr.Kind).Output {
+		case ir.AttrPushAndDiscard, ir.AttrPushNothing:
 			return // No cleanup is needed
 		}
 	}
 
-	if sexp.IsThrow(form.Expr) {
-		cl.st.Discard(1)
-	} else {
-		emit(cl, instr.Discard(1))
-	}
+	cl.push().Discard(1)
 }
 
 func compileArrayUpdate(cl *Compiler, form *sexp.ArrayUpdate) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)
 	compileExpr(cl, form.Expr)
-	emit(cl, instr.ArraySet)
+	cl.push().Aset()
 }
 
 func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
@@ -136,23 +162,23 @@ func compileStructUpdate(cl *Compiler, form *sexp.StructUpdate) {
 	case vmm.StructUnit:
 		compileExpr(cl, form.Struct)
 		compileExpr(cl, form.Expr)
-		emit(cl, instr.SetCar)
+		cl.push().SetCar()
 
 	case vmm.StructCons:
 		compileExpr(cl, form.Struct)
 		if form.Index == 0 {
 			// First member.
 			compileExpr(cl, form.Expr)
-			emit(cl, instr.SetCar)
+			cl.push().SetCar()
 		} else if form.Typ.NumFields() == form.Index+1 {
 			// Last member.
-			emitN(cl, instr.Cdr, form.Index-1)
+			cl.pushN(ir.Instr{Kind: ir.Cdr}, form.Index-1)
 			compileExpr(cl, form.Expr)
-			emit(cl, instr.SetCdr)
+			cl.push().SetCdr()
 		} else {
-			emitN(cl, instr.Cdr, form.Index)
+			cl.pushN(ir.Instr{Kind: ir.Cdr}, form.Index-1)
 			compileExpr(cl, form.Expr)
-			emit(cl, instr.SetCar)
+			cl.push().SetCar()
 		}
 
 	case vmm.StructVec:
@@ -169,20 +195,21 @@ func compileLetStmt(cl *Compiler, form *sexp.Let) {
 		compileBind(cl, bind)
 	}
 	compileStmt(cl, form.Stmt)
-	emit(cl, instr.Discard(len(form.Bindings)))
+	cl.push().Discard(len(form.Bindings))
 }
 
 func compileGoto(cl *Compiler, form *sexp.Goto) {
-	switch name := form.LabelName; name {
+	cl.push().Empty("goto discard slot")
+	switch form.LabelName {
 	case "continue":
-		emitJmp(cl, cl.innerContinue)
+		cl.push().Xgoto(cl.innerContinue)
 	case "break":
-		emitJmp(cl, cl.innerBreak)
+		cl.push().Xgoto(cl.innerBreak)
 	default:
-		emitJmp(cl, label("&"+form.LabelName))
+		cl.push().Xgoto(cl.unit.NewUserLabel(form.LabelName))
 	}
 }
 
 func compileLabel(cl *Compiler, form *sexp.Label) {
-	labelBind(cl, label("&"+form.Name))
+	cl.push().Label(cl.unit.NewUserLabel(form.Name))
 }

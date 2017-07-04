@@ -2,7 +2,6 @@ package compiler
 
 import (
 	"backends/lapc"
-	"backends/lapc/instr"
 	"exn"
 	"sexp"
 )
@@ -24,13 +23,15 @@ func compileStmt(cl *Compiler, form sexp.Form) {
 	case *sexp.Bind:
 		compileBind(cl, form)
 	case *sexp.Rebind:
-		compileRebind(cl, form.Name, form.Expr)
+		compileRebind(cl, form)
 	case *sexp.VarUpdate:
-		compileVarUpdate(cl, form.Name, form.Expr)
+		compileVarUpdate(cl, form)
 	case *sexp.ExprStmt:
 		compileExprStmt(cl, form)
 	case *sexp.Repeat:
 		compileRepeat(cl, form)
+	case *sexp.Loop:
+		compileLoop(cl, form)
 	case *sexp.While:
 		compileWhile(cl, form)
 	case *sexp.ArrayUpdate:
@@ -57,17 +58,19 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 
 	switch form := form.(type) {
 	case sexp.Int:
-		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(form))))
+		compileInt(cl, int64(form))
 	case sexp.Float:
-		emit(cl, instr.ConstRef(cl.cvec.InsertFloat(float64(form))))
+		compileFloat(cl, float64(form))
 	case sexp.Str:
-		emit(cl, instr.ConstRef(cl.cvec.InsertString(string(form))))
+		compileString(cl, string(form))
 	case sexp.Symbol:
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym(form.Val)))
+		compileSym(cl, form.Val)
 	case sexp.Bool:
 		compileBool(cl, form)
 	case sexp.Var:
 		compileVar(cl, form)
+	case sexp.Local:
+		compileLocal(cl, form)
 
 	case *sexp.SparseArrayLit:
 		compileSparseArrayLit(cl, form)
@@ -75,10 +78,12 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.ArrayIndex:
 		compileArrayIndex(cl, form)
 
-	case *sexp.LispCall:
-		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.Call:
 		compileCall(cl, form.Fn.Name, form.Args)
+	case *sexp.LispCall:
+		compileCall(cl, form.Fn.Sym, form.Args)
+	case *sexp.LambdaCall:
+		compileLambdaCall(cl, form)
 	case *lapc.InstrCall:
 		compileInstrCall(cl, form)
 
@@ -96,7 +101,7 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileOr(cl, form)
 
 	case nil: // #REFS: 65
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
+		compileSym(cl, "nil")
 
 	default:
 		panic(exn.Logic("unexpected expr: %#v", form))

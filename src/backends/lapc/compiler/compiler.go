@@ -2,44 +2,62 @@ package compiler
 
 import (
 	"backends/lapc"
-	"bytes"
+	"backends/lapc/asm"
+	"backends/lapc/ir"
 	"dt"
 	"sexp"
 )
 
 type Compiler struct {
-	buf  bytes.Buffer
 	cvec *dt.ConstPool
-	st   *dt.DataStack
 
-	lastLabelID uint16
+	unit *ir.Unit
+	as   *asm.Assembler
 
-	innerBreak    label // Innermost "break" target label
-	innerContinue label // Innermost "continue" target label
+	innerBreak     ir.Instr // Innermost "break" target label
+	innerContinue  ir.Instr // Innermost "continue" target label
+	innerInlineRet ir.Instr // Innermost IIFE "return" target label
 }
 
 func New() *Compiler {
+	cvec := &dt.ConstPool{}
 	return &Compiler{
-		cvec: &dt.ConstPool{},
+		cvec: cvec,
+		unit: ir.NewUnit(),
+		as:   asm.NewAssembler(cvec),
 	}
 }
 
 func (cl *Compiler) CompileFunc(f *sexp.Func) *lapc.Object {
-	cl.reset(f.Params)
+	cl.reset()
 
 	compileStmtList(cl, f.Body.Forms)
 
+	asmObject := cl.as.Assemble(f.Params, cl.unit)
+
 	return &lapc.Object{
-		StackUsage: cl.st.MaxLen(),
-		Code:       cl.buf.Bytes(),
+		StackUsage: asmObject.StackUsage,
+		Code:       asmObject.Code,
 		ConstVec:   cl.cvec,
 	}
 }
 
 // Prepare compiler for re-use.
-func (cl *Compiler) reset(bindings []string) {
-	cl.buf.Truncate(0)
+func (cl *Compiler) reset() {
 	cl.cvec.Clear()
-	cl.st = dt.NewDataStack(bindings)
-	cl.lastLabelID = 0
+	cl.unit.Reset()
+}
+
+func (cl *Compiler) push() *ir.InstrPusher {
+	return cl.unit.InstrPusher()
+}
+
+func (cl *Compiler) pushN(ins ir.Instr, n int) {
+	for i := 0; i < n; i++ {
+		cl.pushInstr(ins)
+	}
+}
+
+func (cl *Compiler) pushInstr(ins ir.Instr) {
+	cl.push().PushInstr(ins)
 }

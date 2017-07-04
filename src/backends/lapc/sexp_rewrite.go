@@ -1,47 +1,52 @@
 package lapc
 
 import (
-	"backends/lapc/instr"
+	"backends/lapc/ir"
 	"exn"
 	"go/types"
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
+	"opt"
 	"sexp"
 	"sexpconv"
 )
 
-var funcToInstr map[*lisp.Func]instr.Instr
+var funcToInstr map[*lisp.Func]ir.Instr
 
 func init() {
-	funcToInstr = map[*lisp.Func]instr.Instr{
-		lisp.FnCons:     instr.Cons,
-		lisp.FnCar:      instr.Car,
-		lisp.FnCdr:      instr.Cdr,
-		lisp.FnAref:     instr.ArrayRef,
-		lisp.FnAset:     instr.ArraySet,
-		lisp.FnNumEq:    instr.NumEq,
-		lisp.FnNumLt:    instr.NumLt,
-		lisp.FnNumGt:    instr.NumGt,
-		lisp.FnNumLte:   instr.NumLte,
-		lisp.FnNumGte:   instr.NumGte,
-		lisp.FnAdd:      instr.NumAdd,
-		lisp.FnAdd1:     instr.Add1,
-		lisp.FnSub:      instr.NumSub,
-		lisp.FnSub1:     instr.Sub1,
-		lisp.FnMul:      instr.NumMul,
-		lisp.FnQuo:      instr.NumQuo,
-		lisp.FnMin:      instr.NumMin,
-		lisp.FnStrEq:    instr.StrEq,
-		lisp.FnStrLt:    instr.StrLt,
-		lisp.FnLen:      instr.Length,
-		lisp.FnNot:      instr.Not,
-		lisp.FnMemq:     instr.Memq,
-		lisp.FnMember:   instr.Member,
-		lisp.FnIsInt:    instr.IsInt,
-		lisp.FnIsStr:    instr.IsStr,
-		lisp.FnIsSymbol: instr.IsSymbol,
-		lisp.FnEq:       instr.Eq,
-		lisp.FnEqual:    instr.Equal,
+	kinds := map[*lisp.Func]ir.InstrKind{
+		lisp.FnCons:     ir.Cons,
+		lisp.FnCar:      ir.Car,
+		lisp.FnCdr:      ir.Cdr,
+		lisp.FnAref:     ir.Aref,
+		lisp.FnAset:     ir.Aset,
+		lisp.FnNumEq:    ir.NumEq,
+		lisp.FnNumLt:    ir.NumLt,
+		lisp.FnNumGt:    ir.NumGt,
+		lisp.FnNumLte:   ir.NumLte,
+		lisp.FnNumGte:   ir.NumGte,
+		lisp.FnAdd:      ir.Add,
+		lisp.FnAdd1:     ir.Add1,
+		lisp.FnSub:      ir.Sub,
+		lisp.FnSub1:     ir.Sub1,
+		lisp.FnMul:      ir.Mul,
+		lisp.FnQuo:      ir.Quo,
+		lisp.FnMin:      ir.Min,
+		lisp.FnStrEq:    ir.StrEq,
+		lisp.FnStrLt:    ir.StrLt,
+		lisp.FnLen:      ir.Length,
+		lisp.FnNot:      ir.Not,
+		lisp.FnMemq:     ir.Memq,
+		lisp.FnMember:   ir.Member,
+		lisp.FnIsInt:    ir.Integerp,
+		lisp.FnIsStr:    ir.Stringp,
+		lisp.FnIsSymbol: ir.Symbolp,
+		lisp.FnEq:       ir.Eq,
+		lisp.FnEqual:    ir.Equal,
+	}
+	funcToInstr = make(map[*lisp.Func]ir.Instr, len(kinds))
+	for fn, kind := range kinds {
+		funcToInstr[fn] = ir.Instr{Kind: kind}
 	}
 }
 
@@ -66,25 +71,34 @@ func simplifyList(forms []sexp.Form) []sexp.Form {
 func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.LispCall:
-		args := form.Args
+		args := simplifyList(form.Args)
 		switch form.Fn.Sym {
 		case "concat":
-			return &InstrCall{Instr: instr.Concat(len(args)), Args: args}
+			return &InstrCall{
+				Instr: ir.Instr{Kind: ir.Concat, Data: int32(len(args))},
+				Args:  args,
+			}
 		case "list":
-			return &InstrCall{Instr: instr.List(len(args)), Args: args}
+			return &InstrCall{
+				Instr: ir.Instr{Kind: ir.List, Data: int32(len(args))},
+				Args:  args,
+			}
 		case "substring":
 			for len(args) < 3 {
 				args = append(args, sexp.Symbol{Val: "nil"})
 			}
-			return &InstrCall{Instr: instr.Substr, Args: args}
+			return &InstrCall{
+				Instr: ir.Instr{Kind: ir.Substring},
+				Args:  args,
+			}
 		}
 		if instr, ok := funcToInstr[form.Fn]; ok {
 			return &InstrCall{
 				Instr: instr,
-				Args:  simplifyList(args),
+				Args:  args,
 			}
 		}
-		form.Args = simplifyList(args)
+		form.Args = args
 		return form
 
 	case *sexp.SwitchTrue:
@@ -96,48 +110,51 @@ func simplify(form sexp.Form) sexp.Form {
 
 	case *sexp.Switch:
 		typ := form.Expr.Type()
-		tag := sexp.Var{Name: "_it", Typ: typ}
+		tag := sexp.Local{Name: "_it", Typ: typ}
 		mkCond := func(rhs sexp.Form) sexp.Form {
-			cmp := comparatorEq(tag, rhs)
+			cmp := Simplify(comparatorEq(tag, rhs))
 			if cmp == nil {
 				panic(exn.NoImpl("can not switch over `%s'", typ))
 			}
 			return cmp
 		}
+		expr := Simplify(form.Expr)
 		return &sexp.Let{
-			Bindings: []*sexp.Bind{&sexp.Bind{Name: "_it", Init: form.Expr}},
+			Bindings: []*sexp.Bind{&sexp.Bind{Name: "_it", Init: expr}},
 			Stmt:     simplifySwitch(form.SwitchBody, mkCond, 0),
 		}
 
 	case *sexp.SliceLit:
-		return sexp.NewCall(
+		return simplifiedCall(
 			rt.FnArrayToSlice,
-			sexp.NewLispCall(lisp.FnVector, simplifyList(form.Vals)...),
+			sexp.NewLispCall(lisp.FnVector, form.Vals...),
 		)
 
 	case *sexp.ArrayLit:
 		return sexp.NewLispCall(lisp.FnVector, simplifyList(form.Vals)...)
 
 	case *sexp.ArraySlice:
+		array := form.Array
 		switch form.Kind() {
 		case sexp.SpanLowOnly:
-			return sexp.NewCall(rt.FnArraySliceLow, form.Array, form.Low)
+			return simplifiedCall(rt.FnArraySliceLow, array, form.Low)
 		case sexp.SpanHighOnly:
-			return sexp.NewCall(rt.FnArraySliceHigh, form.Array, form.High)
+			return simplifiedCall(rt.FnArraySliceHigh, array, form.High)
 		case sexp.SpanBoth:
-			return sexp.NewCall(rt.FnArraySlice2, form.Array, form.Low, form.High)
+			return simplifiedCall(rt.FnArraySlice2, array, form.Low, form.High)
 		case sexp.SpanWhole:
-			return sexp.NewCall(rt.FnArrayToSlice, form.Array)
+			return simplifiedCall(rt.FnArrayToSlice, array)
 		}
 
 	case *sexp.SliceSlice:
+		slice := form.Slice
 		switch form.Kind() {
 		case sexp.SpanLowOnly:
-			return sexp.NewCall(rt.FnSliceSliceLow, form.Slice, form.Low)
+			return simplifiedCall(rt.FnSliceSliceLow, slice, form.Low)
 		case sexp.SpanHighOnly:
-			return sexp.NewCall(rt.FnSliceSliceHigh, form.Slice, form.High)
+			return simplifiedCall(rt.FnSliceSliceHigh, slice, form.High)
 		case sexp.SpanBoth:
-			return sexp.NewCall(rt.FnSliceSlice2, form.Slice, form.Low, form.High)
+			return simplifiedCall(rt.FnSliceSlice2, slice, form.Low, form.High)
 		case sexp.SpanWhole:
 			return form.Slice
 		}
@@ -145,13 +162,10 @@ func simplify(form sexp.Form) sexp.Form {
 	case *sexp.TypeCast:
 		return form.Form
 
-	case *sexp.Loop:
-		return &sexp.While{
-			Post: Simplify(form.Post),
-			Body: Simplify(form.Body).(*sexp.Block),
-		}
-
 	case *sexp.DoTimes:
+		form.Body.Forms = simplifyList(form.Body.Forms)
+		form.N = Simplify(form.N)
+
 		bindKey := &sexp.Bind{
 			Name: form.Iter.Name,
 			Init: sexpconv.ZeroValue(form.Iter.Typ),
@@ -173,11 +187,19 @@ func simplify(form sexp.Form) sexp.Form {
 	return nil
 }
 
+func simplifiedCall(fn *sexp.Func, args ...sexp.Form) sexp.Form {
+	call := sexp.NewCall(fn, args...)
+	inlinedCall := opt.TryInline(call)
+	return Simplify(inlinedCall)
+}
+
 func simplifySwitch(b sexp.SwitchBody, mkCond func(sexp.Form) sexp.Form, i int) sexp.Form {
 	if i == len(b.Clauses) {
+		b.DefaultBody.Forms = simplifyList(b.DefaultBody.Forms)
 		return b.DefaultBody
 	}
 	cc := b.Clauses[i]
+	cc.Body.Forms = simplifyList(cc.Body.Forms)
 	return &sexp.If{
 		Cond: mkCond(Simplify(cc.Expr)),
 		Then: cc.Body,

@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"backends/lapc/instr"
 	"sexp"
 )
 
@@ -22,5 +21,17 @@ func compileExprList(cl *Compiler, forms []sexp.Form) {
 }
 
 func compileInt(cl *Compiler, val int64) {
-	emit(cl, instr.ConstRef(cl.cvec.InsertInt(val)))
+	cl.push().ConstRef(cl.cvec.InsertInt(val))
+}
+
+func compileFloat(cl *Compiler, val float64) {
+	cl.push().ConstRef(cl.cvec.InsertFloat(val))
+}
+
+func compileString(cl *Compiler, val string) {
+	cl.push().ConstRef(cl.cvec.InsertString(val))
+}
+
+func compileSym(cl *Compiler, name string) {
+	cl.push().ConstRef(cl.cvec.InsertSym(name))
 }

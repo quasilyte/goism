@@ -1,7 +1,7 @@
 package lapc
 
 import (
-	"backends/lapc/instr"
+	"backends/lapc/ir"
 	"go/types"
 	"sexp"
 	"vmm"
@@ -11,7 +11,7 @@ import (
 // InstrCall is optimized version of Call/Op.
 // Used when there is dedicated opcode available.
 type InstrCall struct {
-	Instr instr.Instr
+	Instr ir.Instr
 	Args  []sexp.Form
 }
 
@@ -23,7 +23,7 @@ func (call *InstrCall) Copy() sexp.Form {
 }
 
 func (call *InstrCall) Cost() int {
-	instrName := string(call.Instr.Name)
+	instrName := string(ir.EncodingOf(call.Instr.Kind).Name)
 	return sexp.CostOfList(call.Args) + vmm.InstrCallCost(instrName)
 }
 

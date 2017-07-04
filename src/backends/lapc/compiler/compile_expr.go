@@ -2,53 +2,69 @@ package compiler
 
 import (
 	"backends/lapc"
-	"backends/lapc/instr"
-	"vmm"
+	"backends/lapc/ir"
 	"sexp"
+	"vmm"
 )
 
 func compileBool(cl *Compiler, form sexp.Bool) {
 	if bool(form) {
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("t")))
+		cl.push().ConstRef(cl.cvec.InsertSym("t"))
 	} else {
-		emit(cl, instr.ConstRef(cl.cvec.InsertSym("nil")))
+		cl.push().ConstRef(cl.cvec.InsertSym("nil"))
 	}
 }
 
 func compileVar(cl *Compiler, form sexp.Var) {
-	if stIndex := cl.st.Lookup(form.Name); stIndex != -1 {
-		emit(cl, instr.StackRef(stIndex))
-	} else {
-		emit(cl, instr.VarRef(cl.cvec.InsertSym(form.Name)))
-	}
-	cl.st.Bind(form.Name)
+	cl.push().XvarRef(form.Name)
+}
+
+func compileLocal(cl *Compiler, form sexp.Local) {
+	cl.push().XlocalRef(form.Name)
 }
 
 func compileSparseArrayLit(cl *Compiler, form *sexp.SparseArrayLit) {
 	compileExpr(cl, form.Ctor)
+	cl.push().Xbind("array")
 	for i, val := range form.Vals {
-		emit(cl, instr.StackRef(0)) // Array
-		emit(cl, instr.ConstRef(cl.cvec.InsertInt(int64(i))))
+		cl.push().XlocalRef("array")
+		cl.push().ConstRef(cl.cvec.InsertInt(int64(i)))
 		compileExpr(cl, val)
-		emit(cl, instr.ArraySet)
+		cl.push().Aset()
 	}
 }
 
 func compileCall(cl *Compiler, name string, args []sexp.Form) {
-	emit(cl, instr.ConstRef(cl.cvec.InsertSym(name)))
+	cl.push().ConstRef(cl.cvec.InsertSym(name))
 	compileExprList(cl, args)
-	emit(cl, instr.Call(len(args)))
+	cl.push().Call(len(args), name)
+}
+
+func compileLambdaCall(cl *Compiler, form *sexp.LambdaCall) {
+	retLabel := cl.unit.NewInlineRetLabel()
+
+	prevRetLabel := cl.innerInlineRet
+	cl.innerInlineRet = retLabel
+
+	cl.push().XinlineEnter()
+	for _, arg := range form.Args {
+		compileBind(cl, arg)
+	}
+	compileStmtList(cl, form.Body.Forms)
+	cl.push().Label(retLabel)
+
+	cl.innerInlineRet = prevRetLabel
 }
 
 func compileInstrCall(cl *Compiler, form *lapc.InstrCall) {
 	compileExprList(cl, form.Args)
-	emit(cl, form.Instr)
+	cl.pushInstr(form.Instr)
 }
 
 func compileArrayIndex(cl *Compiler, form *sexp.ArrayIndex) {
 	compileExpr(cl, form.Array)
 	compileExpr(cl, form.Index)
-	emit(cl, instr.ArrayRef)
+	cl.push().Aref()
 }
 
 func compileLetExpr(cl *Compiler, form *sexp.Let) {
@@ -56,9 +72,9 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 		compileBind(cl, bind)
 	}
 	compileExpr(cl, form.Expr)
-	emit(cl, instr.StackSet(len(form.Bindings)))
+	cl.push().StackSet(len(form.Bindings))
 	if len(form.Bindings) > 1 {
-		emit(cl, instr.Discard(len(form.Bindings)-1))
+		cl.push().Discard(len(form.Bindings) - 1)
 	}
 }
 
@@ -66,11 +82,11 @@ func compileStructLit(cl *Compiler, form *sexp.StructLit) {
 	switch vmm.StructReprOf(form.Typ) {
 	case vmm.StructUnit:
 		compileExpr(cl, form.Vals[0])
-		emit(cl, instr.List(1))
+		cl.push().List(1)
 
 	case vmm.StructCons:
 		compileExprList(cl, form.Vals)
-		emitN(cl, instr.Cons, form.Typ.NumFields()-1)
+		cl.pushN(ir.Instr{Kind: ir.Cons}, form.Typ.NumFields()-1)
 
 	case vmm.StructVec:
 		call(cl, "vector", form.Vals...)
@@ -81,13 +97,13 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 	switch vmm.StructReprOf(form.Typ) {
 	case vmm.StructUnit:
 		compileExpr(cl, form.Struct)
-		emit(cl, instr.Car)
+		cl.push().Car()
 
 	case vmm.StructCons:
 		compileExpr(cl, form.Struct)
-		emitN(cl, instr.Cdr, form.Index)
+		cl.pushN(ir.Instr{Kind: ir.Cdr}, form.Index)
 		if form.Typ.NumFields() != form.Index+1 { // Not last index.
-			emit(cl, instr.Car)
+			cl.push().Car()
 		}
 
 	case vmm.StructVec:
@@ -99,17 +115,17 @@ func compileStructIndex(cl *Compiler, form *sexp.StructIndex) {
 }
 
 func compileAnd(cl *Compiler, form *sexp.And) {
-	resLabel := labelCreate(cl, "and")
+	resLabel := cl.unit.NewLabel("and")
 	compileExpr(cl, form.X)
-	emitJmpNilElsePop(cl, resLabel)
+	cl.push().JmpNilElsePop(resLabel)
 	compileExpr(cl, form.Y)
-	labelBind(cl, resLabel)
+	cl.push().Label(resLabel)
 }
 
 func compileOr(cl *Compiler, form *sexp.Or) {
-	resLabel := labelCreate(cl, "or")
+	resLabel := cl.unit.NewLabel("or")
 	compileExpr(cl, form.X)
-	emitJmpNotNilElsePop(cl, resLabel)
+	cl.push().JmpNotNilElsePop(resLabel)
 	compileExpr(cl, form.Y)
-	labelBind(cl, resLabel)
+	cl.push().Label(resLabel)
 }
