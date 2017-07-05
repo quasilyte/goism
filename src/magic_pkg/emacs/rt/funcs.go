@@ -27,6 +27,8 @@ var (
 	FnArraySliceLow  *sexp.Func
 	FnArraySliceHigh *sexp.Func
 
+	FnStringGet *sexp.Func
+
 	FnMakeMap    *sexp.Func
 	FnMakeMapCap *sexp.Func
 	FnMapInsert  *sexp.Func
@@ -67,6 +69,8 @@ func InitFuncs(ftab *symbols.FuncTable) {
 	FnArraySlice2 = mustFindFunc("ArraySlice2")
 	FnArraySliceLow = mustFindFunc("ArraySliceLow")
 	FnArraySliceHigh = mustFindFunc("ArraySliceHigh")
+
+	FnStringGet = mustFindFunc("StringGet")
 
 	FnMakeMap = mustFindFunc("MakeMap")
 	FnMakeMapCap = mustFindFunc("MakeMapCap")

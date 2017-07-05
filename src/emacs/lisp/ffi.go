@@ -70,6 +70,12 @@ func StrGr(string1 string, string2 string) bool
 //goism:"Vector"->"vector"
 func Vector(objects ...any) Object
 
+// StringBytes = Return the number of bytes in STRING.
+// If STRING is multibyte, this may be greater than the length of STRING.
+//
+//goism:"StringBytes"->"string-bytes"
+func StringBytes(s string) int
+
 // Not = Return t if OBJECT is nil, and return nil otherwise.
 //
 //goism:"Not"->"not"
@@ -120,6 +126,13 @@ func Length(sequence any) int
 //
 //goism:"Aref"->"aref"
 func Aref(array Object, idx int) Object
+
+// ArefString = Return the element of ARRAY at index IDX.
+// ARRAY may be a vector, a string, a char-table, a bool-vector,
+// or a byte-code object.  IDX starts at 0.
+//
+//goism:"ArefString"->"aref"
+func ArefString(array string, idx int) rune
 
 // Aset = Store into the element of ARRAY at index IDX the value NEWELT.
 // Return NEWELT.  ARRAY may be a vector, a string, a char-table or a
@@ -181,6 +194,12 @@ func IsString(object Object) bool
 //
 //goism:"IsSymbol"->"symbolp"
 func IsSymbol(object Object) bool
+
+// IsMultibyteString = Return t if OBJECT is a multibyte string.
+// Return nil if OBJECT is either a unibyte string, or not a string.
+//
+//goism:"IsMultibyteString"->"multibyte-string-p"
+func IsMultibyteString(object string) bool
 
 // MapConcat = Apply FUNCTION to each element of SEQUENCE, and concat the results as strings.
 // In between each pair of results, stick in SEPARATOR.  Thus, " " as

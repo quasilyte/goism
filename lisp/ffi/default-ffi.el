@@ -13,13 +13,16 @@
  (logxor Logxor (:int &args) :int)
  (string> StrGr (:string string1 :string string2) :bool)
  (vector Vector (:any &objects) :object)
- ;; Functions that are required by emacs/rt:
+ ;;; <RT>
+ ;;; Functions that are required by emacs/rt:
+ (string-bytes StringBytes (:string s) :int)
  (not Not (:any object) :bool)
  (substring Substring (:object s :int &fromAndTo) :object)
  (vconcat Vconcat (:object &sequences) :object)
  (concat Concat (:any &sequences) :string)
  (length Length (:any sequence) :int)
  (aref Aref (:object array :int idx) :object)
+ (aref ArefString (:string array :int idx) :char)
  (aset Aset (:object array :int idx :any newElt) :void)
  (signal Signal (:symbol errorSymbol :any data) :void)
  (error Error (:string format :any &args) :void)
@@ -28,6 +31,7 @@
  (floatp IsFloat (:object object) :bool)
  (stringp IsString (:object object) :bool)
  (symbolp IsSymbol (:object object) :bool)
+ (multibyte-string-p IsMultibyteString (:string object) :bool)
  (mapconcat MapConcat
             (:any function :object sequence :string separator)
             :object)

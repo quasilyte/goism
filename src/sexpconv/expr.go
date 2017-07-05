@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"assert"
 	"exn"
 	"go/ast"
 	"go/token"
@@ -254,7 +255,10 @@ func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	case *types.Slice:
 		return conv.call(rt.FnSliceGet, node.X, node.Index)
 
-	// #TODO: strings
+	case *types.Basic:
+		assert.True(typ.Kind() == types.String)
+		return conv.call(rt.FnStringGet, node.X, node.Index)
+
 	default:
 		panic(errUnexpectedExpr(conv, node))
 	}
