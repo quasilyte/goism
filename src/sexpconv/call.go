@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"assert"
 	"exn"
 	"go/ast"
 	"go/types"
@@ -106,6 +107,13 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		default:
 			return conv.callOrCoerce(conv.ftab.MasterPkg(), fn, args)
 		}
+
+	case *ast.ArrayType:
+		// Currently, support only "[]byte(s)" expressions.
+		typ := conv.typeOf(fn).(*types.Slice)
+		elemTyp := typ.Elem().(*types.Basic)
+		assert.True(elemTyp.Kind() == types.Byte)
+		return conv.callExprList(rt.FnStrToBytes, args)
 
 	default:
 		panic(errUnexpectedExpr(conv, node))

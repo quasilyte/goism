@@ -9,11 +9,16 @@ func ToBool(o lisp.Object) bool {
 }
 
 // BytesToStr converts slice of bytes to string.
-func BytesToStr(slice Slice) string {
+func BytesToStr(slice *Slice) string {
 	if slice.offset == 0 {
 		return arrayToStr(slice.data)
 	}
 	return arrayToStr(
 		lisp.Substring(slice.data, slice.offset, slice.offset+slice.len),
 	)
+}
+
+// StrToBytes converts string to slice of bytes.
+func StrToBytes(s lisp.Object) *Slice {
+	return ArrayToSlice(lisp.Vconcat(s))
 }

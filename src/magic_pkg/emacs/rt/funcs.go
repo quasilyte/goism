@@ -29,6 +29,9 @@ var (
 
 	FnStringGet *sexp.Func
 
+	FnBytesToStr *sexp.Func
+	FnStrToBytes *sexp.Func
+
 	FnMakeMap    *sexp.Func
 	FnMakeMapCap *sexp.Func
 	FnMapInsert  *sexp.Func
@@ -38,8 +41,6 @@ var (
 	FnCoerceFloat  *sexp.Func
 	FnCoerceString *sexp.Func
 	FnCoerceSymbol *sexp.Func
-
-	FnBytesToStr *sexp.Func
 )
 
 func InitFuncs(ftab *symbols.FuncTable) {
@@ -72,6 +73,9 @@ func InitFuncs(ftab *symbols.FuncTable) {
 
 	FnStringGet = mustFindFunc("StringGet")
 
+	FnBytesToStr = mustFindFunc("BytesToStr")
+	FnStrToBytes = mustFindFunc("StrToBytes")
+
 	FnMakeMap = mustFindFunc("MakeMap")
 	FnMakeMapCap = mustFindFunc("MakeMapCap")
 	FnMapInsert = mustFindFunc("MapInsert")
@@ -81,6 +85,4 @@ func InitFuncs(ftab *symbols.FuncTable) {
 	FnCoerceFloat = mustFindFunc("CoerceFloat")
 	FnCoerceString = mustFindFunc("CoerceString")
 	FnCoerceSymbol = mustFindFunc("CoerceSymbol")
-
-	FnBytesToStr = mustFindFunc("BytesToStr")
 }
