@@ -247,11 +247,16 @@ type Call struct {
 	Args []Form
 }
 
+// LispCall is extern function call.
+// Lisp call is never inlined.
 type LispCall struct {
 	Fn   *lisp.Func
 	Args []Form
 }
 
+// LambdaCall is IIFE (Immediately Invoked Function Expression).
+// Used for immediately invoked functions "func() {...}()"
+// and inlining.
 type LambdaCall struct {
 	Args []*Bind
 	Body Block
