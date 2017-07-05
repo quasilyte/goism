@@ -74,7 +74,7 @@ var (
 	FnStrEq  = &Func{Sym: "string="}
 	FnStrLt  = &Func{Sym: "string<"}
 	FnStrGt  = &Func{Sym: "string>"}
-	FnNot    = &Func{Sym: "!"}
+	FnNot    = &Func{Sym: "not"}
 )
 
 // InternFunc creates lisp function with lispSym name.
