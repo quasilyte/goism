@@ -12,7 +12,7 @@ func TestScopeEmpty(t *testing.T) {
 		if r := recover(); r != nil {
 			// Passed.
 		} else {
-			tst.Errorf(t, "PopScope()", depth, "panic")
+			tst.Blame(t, "PopScope()", depth, "panic")
 		}
 	}()
 	ss := dt.ScopeStack{}
@@ -24,7 +24,7 @@ func TestScopeStackSingle(t *testing.T) {
 	ss.PushScope()
 	ss.SetScopeDepth(10)
 	if res := ss.PopScope(); res != 10 {
-		tst.Errorf(t, "PopScope", res, 10)
+		tst.Blame(t, "PopScope", res, 10)
 	}
 }
 

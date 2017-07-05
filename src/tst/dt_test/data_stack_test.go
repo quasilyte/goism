@@ -69,7 +69,7 @@ func TestDataStackMaxLen(t *testing.T) {
 		pushN(&st, row.pushN)
 		st.Discard(uint16(row.discardN))
 		if st.MaxLen() != row.maxLenExpected {
-			tst.Errorf(t, "MaxLen", st.MaxLen(), row.maxLenExpected)
+			tst.Blame(t, "MaxLen", st.MaxLen(), row.maxLenExpected)
 		}
 	}
 }
