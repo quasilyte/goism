@@ -23,3 +23,24 @@ func max4(a, b, c, d float64) float64 {
 	}
 	return max
 }
+
+func replace(s string, replaced byte, replacement byte) string {
+	foundAt := 0
+	for i := 0; i < len(s); i++ {
+		if s[i] == replaced {
+			foundAt = i
+			goto replace
+		}
+	}
+	return s // No copy performed in case of no matches
+
+replace:
+	b := []byte(s)
+	b[foundAt] = replacement
+	for i := foundAt + 1; i < len(s); i++ {
+		if b[i] == replaced {
+			b[i] = replacement
+		}
+	}
+	return string(b)
+}
