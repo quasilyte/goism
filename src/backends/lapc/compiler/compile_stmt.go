@@ -44,7 +44,7 @@ func compileReturn(cl *Compiler, form *sexp.Return) {
 
 func compileIf(cl *Compiler, form *sexp.If) {
 	endifLabel := cl.unit.NewLabel("endif")
-	if form.Else == sexp.EmptyStmt {
+	if sexp.IsEmptyForm(form.Else) {
 		compileExpr(cl, form.Cond)
 		cl.push().JmpNil(endifLabel)
 		compileBlock(cl, form.Then)

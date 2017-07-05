@@ -34,7 +34,7 @@ func (conv *converter) Stmt(node ast.Stmt) sexp.Form {
 	case *ast.LabeledStmt:
 		return conv.LabeledStmt(node)
 	case *ast.EmptyStmt:
-		return sexp.EmptyStmt
+		return sexp.EmptyForm
 
 	default:
 		panic(errUnexpectedStmt(conv, node))
@@ -46,7 +46,7 @@ func (conv *converter) IfStmt(node *ast.IfStmt) sexp.Form {
 	then := conv.BlockStmt(node.Body)
 	form := &sexp.If{Cond: test, Then: then}
 	if node.Else == nil {
-		form.Else = sexp.EmptyStmt
+		form.Else = sexp.EmptyForm
 	} else {
 		form.Else = conv.Stmt(node.Else)
 	}

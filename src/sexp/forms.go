@@ -134,7 +134,7 @@ type (
 	If struct {
 		Cond Form
 		Then Block
-		Else Form // Can be EmptyStmt
+		Else Form // Can be EmptyForm
 	}
 
 	// Switch is "expression switch statement" defined by Go spec.
@@ -183,16 +183,16 @@ type (
 
 	// Loop = "while true".
 	Loop struct {
-		Init Form // Can be EmptyStmt
-		Post Form // Can be EmptyStmt
+		Init Form // Can be EmptyForm
+		Post Form // Can be EmptyForm
 		Body Block
 	}
 
 	// While is a generic (low level) looping construct.
 	While struct {
-		Init Form // Can be EmptyStmt
+		Init Form // Can be EmptyForm
 		Cond Form
-		Post Form // Can be EmptyStmt
+		Post Form // Can be EmptyForm
 		Body Block
 	}
 )
