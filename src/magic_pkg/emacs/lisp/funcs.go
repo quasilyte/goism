@@ -101,6 +101,14 @@ func initFuncs() error {
 	Funcs = make(map[string]*Func, 64)
 	{
 		funcs := []*Func{
+			FnCopySequence,
+			FnIntern,
+			FnGethash,
+			FnMakeVector,
+			FnRemhash,
+			FnHashTableCount,
+			FnVector,
+			FnStringBytes,
 			FnSubstr,
 			FnConcat,
 			FnNeg,
@@ -108,7 +116,10 @@ func initFuncs() error {
 			FnSub1,
 			FnMin,
 			FnLen,
-
+			FnIsStr,
+			FnIsInt,
+			FnIsSymbol,
+			FnList,
 			FnCons,
 			FnCar,
 			FnCdr,
@@ -120,17 +131,6 @@ func initFuncs() error {
 			FnLogand,
 			FnLogior,
 			FnLogxor,
-
-			FnCopySequence,
-			FnIntern,
-			FnGethash,
-			FnMakeVector,
-			FnRemhash,
-			FnHashTableCount,
-			FnVector,
-
-			FnStringBytes,
-
 			FnEq,
 			FnEqual,
 			FnNumEq,
