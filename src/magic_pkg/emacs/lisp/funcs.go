@@ -31,6 +31,8 @@ var (
 	FnHashTableCount = &Func{Sym: "hash-table-count"}
 	FnVector         = &Func{Sym: "vector"}
 
+	FnStringBytes = &Func{Sym: "string-bytes"}
+
 	FnSubstr   = &Func{Sym: "substring"}
 	FnConcat   = &Func{Sym: "concat"}
 	FnNeg      = &Func{Sym: "-"}
@@ -126,6 +128,8 @@ func initFuncs() error {
 			FnRemhash,
 			FnHashTableCount,
 			FnVector,
+
+			FnStringBytes,
 
 			FnEq,
 			FnEqual,

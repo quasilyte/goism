@@ -1,6 +1,7 @@
 package sexpconv
 
 import (
+	"assert"
 	"exn"
 	"go/ast"
 	"go/types"
@@ -19,6 +20,10 @@ func (conv *converter) lenBuiltin(arg ast.Expr) sexp.Form {
 
 	case *types.Slice:
 		return conv.call(rt.FnSliceLen, arg)
+
+	case *types.Basic:
+		assert.True(typ.Kind() == types.String)
+		return conv.lispCall(lisp.FnStringBytes, arg)
 
 	default:
 		panic(exn.Conv(conv.fileSet, "can't apply len", arg))
