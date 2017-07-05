@@ -192,6 +192,8 @@ func Test11Maps(t *testing.T) {
 		"testMapMake 10":      "10",
 		"testMapNilLookup 10": "10",
 		"testMapUpdate 10":    "10",
+		"testMapDelete 10":    "10",
+		"testMapLen 10":       "10",
 	})
 }
 
