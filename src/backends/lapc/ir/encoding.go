@@ -44,9 +44,9 @@ var kindToEncoding = [...]Encoding{
 	XscopeLeave: Encoding{Name: []byte("%scope-leave")},
 
 	Xgoto:           Encoding{Name: []byte("%xgoto")},
-	XlambdaRet:      Encoding{Name: []byte("%xinline-ret")},
-	XlambdaEnter:    Encoding{Name: []byte("%xinline-enter")},
-	XlambdaRetLabel: Encoding{Name: []byte("%xinline-ret-label")},
+	XlambdaRet:      Encoding{Name: []byte("%xlambda-ret")},
+	XlambdaEnter:    Encoding{Name: []byte("%xlambda-enter")},
+	XlambdaRetLabel: Encoding{Name: []byte("%xlambda-ret-label")},
 
 	Label:            Encoding{Name: []byte("label")},
 	Jmp:              Encoding{Name: []byte("goto")},
