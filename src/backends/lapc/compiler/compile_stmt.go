@@ -11,19 +11,19 @@ import (
 )
 
 func compileBlock(cl *Compiler, form sexp.Block) {
-	cl.push().ScopeEnter()
+	cl.push().XscopeEnter()
 	compileStmtList(cl, form)
-	cl.push().ScopeLeave()
+	cl.push().XscopeLeave()
 }
 
 func compileReturn(cl *Compiler, form *sexp.Return) {
-	if cl.innerInlineRet.Kind == ir.XinlineRetLabel {
+	if cl.innerLambdaRet.Kind == ir.XlambdaRetLabel {
 		compileExpr(cl, form.Results[0])
 		for i := 1; i < len(form.Results); i++ {
 			compileExpr(cl, form.Results[i])
 			cl.push().XvarSet(rt.RetVars[i])
 		}
-		cl.push().XinlineRet(cl.innerInlineRet)
+		cl.push().XlambdaRet(cl.innerLambdaRet)
 		return
 	}
 
@@ -77,7 +77,7 @@ func compileLoop(cl *Compiler, form *sexp.Loop) {
 	cl.innerBreak = breakLabel
 	cl.innerContinue = continueLabel
 
-	cl.push().ScopeEnter()
+	cl.push().XscopeEnter()
 	{
 		compileStmt(cl, form.Init)
 		cl.push().Label(bodyLabel)
@@ -87,7 +87,7 @@ func compileLoop(cl *Compiler, form *sexp.Loop) {
 		cl.push().Jmp(bodyLabel)
 		cl.push().Label(breakLabel)
 	}
-	cl.push().ScopeLeave()
+	cl.push().XscopeLeave()
 
 	cl.innerBreak = prevBreak
 	cl.innerContinue = prevContinue
@@ -104,7 +104,7 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 	cl.innerBreak = breakLabel
 	cl.innerContinue = continueLabel
 
-	cl.push().ScopeEnter()
+	cl.push().XscopeEnter()
 	{
 		compileStmt(cl, form.Init)
 		cl.push().Jmp(condLabel)
@@ -117,7 +117,7 @@ func compileWhile(cl *Compiler, form *sexp.While) {
 		cl.push().JmpNotNil(bodyLabel)
 		cl.push().Label(breakLabel)
 	}
-	cl.push().ScopeLeave()
+	cl.push().XscopeLeave()
 
 	cl.innerBreak = prevBreak
 	cl.innerContinue = prevContinue

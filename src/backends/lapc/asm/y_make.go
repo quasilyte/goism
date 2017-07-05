@@ -11,11 +11,11 @@ type yUnit *ir.Instr
 type converterY struct {
 	st *dt.DataStack
 
-	inlineRets []branchInfo
-	gotos      []branchInfo
-	labels     map[int32]labelInfo
-	scopes     *dt.ScopeStack
-	iifeDepths *dt.ScopeStack
+	labels       map[int32]labelInfo
+	gotos        []branchInfo
+	lambdaRets   []branchInfo
+	scopes       *dt.ScopeStack
+	lambdaDepths *dt.ScopeStack
 }
 
 type branchInfo struct {
@@ -29,10 +29,10 @@ type labelInfo struct {
 
 func makeY(params []string, u xUnit) (yUnit, int) {
 	conv := converterY{
-		st:         dt.NewDataStack(params),
-		scopes:     &dt.ScopeStack{},
-		iifeDepths: &dt.ScopeStack{},
-		labels:     make(map[int32]labelInfo),
+		st:           dt.NewDataStack(params),
+		scopes:       &dt.ScopeStack{},
+		lambdaDepths: &dt.ScopeStack{},
+		labels:       make(map[int32]labelInfo),
 	}
 	return conv.Convert(u)
 }
@@ -52,30 +52,30 @@ func (cy *converterY) convert(u xUnit) {
 
 func (cy *converterY) convertInstr(ins *ir.Instr) {
 	switch ins.Kind {
-	case ir.ScopeEnter:
+	case ir.XscopeEnter:
 		cy.scopes.PushScope()
 		cy.scopes.SetScopeDepth(cy.st.Len())
 		ins.Remove()
 
-	case ir.ScopeLeave:
+	case ir.XscopeLeave:
 		depth := cy.scopes.PopScope()
 		scopeSize := cy.st.Len() - depth
 		ins.Kind, ins.Data = ir.Discard, int32(scopeSize)
 
-	case ir.XinlineEnter:
-		cy.iifeDepths.PushScope()
-		cy.iifeDepths.SetScopeDepth(cy.st.Len())
+	case ir.XlambdaEnter:
+		cy.lambdaDepths.PushScope()
+		cy.lambdaDepths.SetScopeDepth(cy.st.Len())
 		ins.Remove()
 
-	case ir.XinlineRetLabel:
-		depth := cy.iifeDepths.PopScope()
+	case ir.XlambdaRetLabel:
+		depth := cy.lambdaDepths.PopScope()
 		cy.labels[ins.Data] = labelInfo{depth: depth}
 		ins.Kind = ir.Label
 		cy.st.Discard(uint16(cy.st.Len() - depth - 1))
 
-	case ir.XinlineRet:
+	case ir.XlambdaRet:
 		info := branchInfo{ins: ins, depth: cy.st.Len()}
-		cy.inlineRets = append(cy.inlineRets, info)
+		cy.lambdaRets = append(cy.lambdaRets, info)
 		ins.Kind = ir.Jmp
 
 	case ir.Xgoto:
@@ -120,7 +120,7 @@ func (cy *converterY) fixBranches() {
 		})
 	}
 
-	for _, br := range cy.inlineRets {
+	for _, br := range cy.lambdaRets {
 		label := cy.labels[br.ins.Data]
 		diff := int32(br.depth - label.depth)
 		assert.True(diff > 0)

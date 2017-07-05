@@ -16,7 +16,7 @@ type Compiler struct {
 
 	innerBreak     ir.Instr // Innermost "break" target label
 	innerContinue  ir.Instr // Innermost "continue" target label
-	innerInlineRet ir.Instr // Innermost IIFE "return" target label
+	innerLambdaRet ir.Instr // Innermost IIFE "return" target label
 }
 
 func New() *Compiler {

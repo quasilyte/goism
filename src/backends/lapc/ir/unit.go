@@ -33,9 +33,9 @@ func (u *Unit) InstrPusher() *InstrPusher {
 	return (*InstrPusher)(u)
 }
 
-func (u *Unit) NewInlineRetLabel() Instr {
+func (u *Unit) NewLambdaRetLabel() Instr {
 	u.lastLabelID++
-	return Instr{Kind: XinlineRetLabel, Data: u.lastLabelID, Meta: "inline-ret"}
+	return Instr{Kind: XlambdaRetLabel, Data: u.lastLabelID, Meta: "lambda-ret"}
 }
 
 func (u *Unit) NewLabel(name string) Instr {
@@ -75,17 +75,18 @@ func (p *InstrPusher) pushLabel(kind InstrKind, label Instr) {
 	p.PushInstr(Instr{Kind: kind, Data: label.Data, Meta: label.Meta})
 }
 
-func (p *InstrPusher) Empty()                 { p.push(Empty) }
+func (p *InstrPusher) Empty() { p.push(Empty) }
+
 func (p *InstrPusher) XvarRef(name string)    { p.pushMeta(XvarRef, name) }
 func (p *InstrPusher) XvarSet(name string)    { p.pushMeta(XvarSet, name) }
 func (p *InstrPusher) XlocalRef(name string)  { p.pushMeta(XlocalRef, name) }
 func (p *InstrPusher) XlocalSet(name string)  { p.pushMeta(XlocalSet, name) }
 func (p *InstrPusher) Xbind(name string)      { p.pushMeta(Xbind, name) }
-func (p *InstrPusher) ScopeEnter()            { p.push(ScopeEnter) }
-func (p *InstrPusher) ScopeLeave()            { p.push(ScopeLeave) }
+func (p *InstrPusher) XscopeEnter()           { p.push(XscopeEnter) }
+func (p *InstrPusher) XscopeLeave()           { p.push(XscopeLeave) }
 func (p *InstrPusher) Xgoto(label Instr)      { p.pushLabel(Xgoto, label) }
-func (p *InstrPusher) XinlineEnter()          { p.push(XinlineEnter) }
-func (p *InstrPusher) XinlineRet(label Instr) { p.pushLabel(XinlineRet, label) }
+func (p *InstrPusher) XlambdaEnter()          { p.push(XlambdaEnter) }
+func (p *InstrPusher) XlambdaRet(label Instr) { p.pushLabel(XlambdaRet, label) }
 
 func (p *InstrPusher) Label(label Instr)            { p.PushInstr(label) }
 func (p *InstrPusher) Jmp(label Instr)              { p.pushLabel(Jmp, label) }

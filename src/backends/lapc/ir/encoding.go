@@ -34,19 +34,19 @@ const (
 )
 
 var kindToEncoding = [...]Encoding{
-	Empty:      Encoding{Name: []byte("%empty")},
-	XvarRef:    Encoding{Name: []byte("%xvar-ref")},
-	XvarSet:    Encoding{Name: []byte("%xvar-set")},
-	XlocalRef:  Encoding{Name: []byte("%xlocal-ref")},
-	XlocalSet:  Encoding{Name: []byte("%xlocal-set")},
-	Xbind:      Encoding{Name: []byte("%xbind")},
-	ScopeEnter: Encoding{Name: []byte("%scope-enter")},
-	ScopeLeave: Encoding{Name: []byte("%scope-leave")},
+	Empty:       Encoding{Name: []byte("%empty")},
+	XvarRef:     Encoding{Name: []byte("%xvar-ref")},
+	XvarSet:     Encoding{Name: []byte("%xvar-set")},
+	XlocalRef:   Encoding{Name: []byte("%xlocal-ref")},
+	XlocalSet:   Encoding{Name: []byte("%xlocal-set")},
+	Xbind:       Encoding{Name: []byte("%xbind")},
+	XscopeEnter: Encoding{Name: []byte("%scope-enter")},
+	XscopeLeave: Encoding{Name: []byte("%scope-leave")},
 
 	Xgoto:           Encoding{Name: []byte("%xgoto")},
-	XinlineRet:      Encoding{Name: []byte("%xinline-ret")},
-	XinlineEnter:    Encoding{Name: []byte("%xinline-enter")},
-	XinlineRetLabel: Encoding{Name: []byte("%xinline-ret-label")},
+	XlambdaRet:      Encoding{Name: []byte("%xinline-ret")},
+	XlambdaEnter:    Encoding{Name: []byte("%xinline-enter")},
+	XlambdaRetLabel: Encoding{Name: []byte("%xinline-ret-label")},
 
 	Label:            Encoding{Name: []byte("label")},
 	Jmp:              Encoding{Name: []byte("goto")},

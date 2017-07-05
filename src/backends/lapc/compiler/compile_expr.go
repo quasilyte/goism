@@ -41,19 +41,19 @@ func compileCall(cl *Compiler, name string, args []sexp.Form) {
 }
 
 func compileLambdaCall(cl *Compiler, form *sexp.LambdaCall) {
-	retLabel := cl.unit.NewInlineRetLabel()
+	retLabel := cl.unit.NewLambdaRetLabel()
 
-	prevRetLabel := cl.innerInlineRet
-	cl.innerInlineRet = retLabel
+	prevRetLabel := cl.innerLambdaRet
+	cl.innerLambdaRet = retLabel
 
-	cl.push().XinlineEnter()
+	cl.push().XlambdaEnter()
 	for _, arg := range form.Args {
 		compileBind(cl, arg)
 	}
 	compileStmtList(cl, form.Body)
 	cl.push().Label(retLabel)
 
-	cl.innerInlineRet = prevRetLabel
+	cl.innerLambdaRet = prevRetLabel
 }
 
 func compileInstrCall(cl *Compiler, form *lapc.InstrCall) {

@@ -3,20 +3,21 @@ package ir
 type InstrKind int32
 
 const (
-	/* Pseudo instructions */
-
 	Empty InstrKind = iota
+
+	/* X-phase Pseudo instructions */
+
 	XvarRef
 	XvarSet
 	XlocalRef
 	XlocalSet
 	Xbind
-	ScopeEnter
-	ScopeLeave
+	XscopeEnter
+	XscopeLeave
 	Xgoto
-	XinlineEnter
-	XinlineRetLabel
-	XinlineRet
+	XlambdaEnter
+	XlambdaRetLabel
+	XlambdaRet
 
 	/* Emacs VM instructions */
 
