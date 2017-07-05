@@ -1,6 +1,7 @@
 package conformance
 
 import (
+	"strconv"
 	"testing"
 	"tst/goism"
 )
@@ -20,4 +21,8 @@ func q(xs ...string) []string {
 		xs[i] = `"` + x + `"`
 	}
 	return xs
+}
+
+func chr(ch rune) string {
+	return strconv.Itoa(int(ch))
 }

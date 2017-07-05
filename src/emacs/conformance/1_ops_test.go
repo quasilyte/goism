@@ -24,3 +24,4 @@ func decFloat(x float64) float64       { x--; return x }
 
 func concatStr(x, y, z string) string { return x + y + z }
 func ltStr(x, y string) bool          { return x < y }
+func eqStr(x, y string) bool          { return x == y }

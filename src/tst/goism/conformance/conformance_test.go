@@ -37,6 +37,8 @@ func Test1Ops(t *testing.T) {
 		`concatStr "a" "b" "c"`: `"abc"`,
 		`ltStr "abc" "foo"`:     "t",
 		`ltStr "foo" "abc"`:     "nil",
+		`eqStr "foo" "foo"`:     "t",
+		`eqStr "foo" "bar"`:     "nil",
 	})
 }
 
@@ -190,6 +192,37 @@ func Test11Maps(t *testing.T) {
 		"testMapMake 10":      "10",
 		"testMapNilLookup 10": "10",
 		"testMapUpdate 10":    "10",
+	})
+}
+
+func Test12Strings(t *testing.T) {
+	testCalls(t, goism.CallTests{
+		// Single-byte strings.
+		`stringGet "abc" 0`: chr('a'),
+		`stringGet "abc" 1`: chr('b'),
+		`stringGet "abc" 2`: chr('c'),
+		`stringLen "abc"`:   "3",
+		`stringLen ""`:      "0",
+		// Multi-byte strings.
+		`stringLen "丂a♞a"`:   "8",
+		`stringGet "丂a♞a" 0`: chr(rune("丂"[0])),
+		`stringGet "丂a♞a" 1`: chr(rune("丂"[1])),
+		`stringGet "丂a♞a" 2`: chr(rune("丂"[2])),
+		`stringGet "丂a♞a" 3`: chr('a'),
+		`stringGet "丂a♞a" 4`: chr(rune("♞"[0])),
+		`stringGet "丂a♞a" 5`: chr(rune("♞"[1])),
+		`stringGet "丂a♞a" 6`: chr(rune("♞"[2])),
+		`stringGet "丂a♞a" 7`: chr('a'),
+		`stringLen "𠜱a𠺢"`:    "9",
+		`stringGet "𠜱a𠺢" 0`:  chr(rune("𠜱"[0])),
+		`stringGet "𠜱a𠺢" 1`:  chr(rune("𠜱"[1])),
+		`stringGet "𠜱a𠺢" 2`:  chr(rune("𠜱"[2])),
+		`stringGet "𠜱a𠺢" 3`:  chr(rune("𠜱"[3])),
+		`stringGet "𠜱a𠺢" 4`:  chr('a'),
+		`stringGet "𠜱a𠺢" 5`:  chr(rune("𠺢"[0])),
+		`stringGet "𠜱a𠺢" 6`:  chr(rune("𠺢"[1])),
+		`stringGet "𠜱a𠺢" 7`:  chr(rune("𠺢"[2])),
+		`stringGet "𠜱a𠺢" 8`:  chr(rune("𠺢"[3])),
 	})
 }
 
