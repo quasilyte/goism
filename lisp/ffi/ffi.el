@@ -14,6 +14,7 @@
     (:symbol . "Symbol")
     (:bool . "bool")
     (:int . "int")
+    (:char . "rune")
     (:string . "string")
     (:float . "float64")))
 
