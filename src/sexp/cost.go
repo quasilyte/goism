@@ -126,9 +126,15 @@ func (form *If) Cost() int {
 	return form.Cond.Cost() + maxBranchCost + 2
 }
 func (form *Switch) Cost() int {
-	return form.Expr.Cost() + maxClauseCost(&form.SwitchBody) + 2
+	// #REFS: 90, 91.
+	// return form.Expr.Cost() + maxClauseCost(&form.SwitchBody) + 2
+	return -1
 }
-func (form *SwitchTrue) Cost() int { return maxClauseCost(&form.SwitchBody) + 2 }
+func (form *SwitchTrue) Cost() int {
+	// #REFS: 90, 91.
+	// return maxClauseCost(&form.SwitchBody) + 2
+	return -1
+}
 func (form *Return) Cost() int {
 	return CostOfList(form.Results) + len(form.Results)
 }
