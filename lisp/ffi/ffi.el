@@ -73,7 +73,7 @@
     (princ (concat "package lisp\n"
                    "\n"
                    "// This package is special.\n"
-                   "// It may not be a good idea to edit it by manually.\n"
+                   "// It may not be a good idea to edit it manually.\n"
                    "\n"))
     (dolist (decl decls)
       (let* ((lisp-sym (pop decl))
