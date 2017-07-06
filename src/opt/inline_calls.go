@@ -58,7 +58,8 @@ func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
 	if res := inl.inlineAsExpr(fn, args); res != nil {
 		return res
 	}
-	return inl.inlineAsLambdaCall(fn, args)
+	// return inl.inlineAsLambdaCall(fn, args)
+	return nil // #REFS: 90 (disable LambdaCall inlining until it is fixed)
 }
 
 func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
