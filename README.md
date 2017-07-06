@@ -46,11 +46,14 @@ so it is not going to be any slower than "native" Emacs Lisp.
 * [Features that are not implemented](docs/unimplemented.md)
 * [goism implementation design](docs/design.md)
 
-To see what features are going to be implemented in near future,
-check out [Projects](https://github.com/Quasilyte/goism/projects) tab.
+[PreRelease2](https://github.com/Quasilyte/goism/milestone/1) is
+the current milestone.
 
-[Roadmap 2](https://github.com/Quasilyte/goism/projects/2) is
-the current stage.
+To see what features are going to be implemented in near future,
+check out [milestones](https://github.com/Quasilyte/goism/milestones).
+
+[Projects](https://github.com/Quasilyte/goism/projects) may contain additional
+information in "stashed" column.
 
 ## Tags
 
