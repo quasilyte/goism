@@ -40,14 +40,16 @@ func CoerceSymbol(x lisp.Object) lisp.Object {
 }
 
 func objectTypeName(x lisp.Object) string {
-	if lisp.IsInt(x) {
-		return "int"
-	} else if lisp.IsFloat(x) {
-		return "float64"
-	} else if lisp.IsString(x) {
+	if lisp.IsString(x) {
 		return "string"
+	} else if lisp.IsInt(x) {
+		return "int"
 	} else if lisp.IsSymbol(x) {
 		return "lisp.Symbol"
+	} else if lisp.IsFloat(x) {
+		return "float64"
+	} else if lisp.IsBool(x) {
+		return "bool"
 	}
 	panic("unexpected type used in lisp.Object type assertion")
 }
