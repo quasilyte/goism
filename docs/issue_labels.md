@@ -11,6 +11,7 @@ This document explains every issue label type purpose.
 * "easy" - issue that does not require high goism knowledge. Good for new contributors;
 * "optimization" - task that improves goism generated code efficiency;
 * "refactoring" - task that aims to improve code quality and/or reduce technical debt;
+* "long-term" - tells that the task is not expected to be solved in near future;
 
 ## Default issue labels
 
