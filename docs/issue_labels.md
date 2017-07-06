@@ -12,6 +12,7 @@ This document explains every issue label type purpose.
 * "optimization" - task that improves goism generated code efficiency;
 * "refactoring" - task that aims to improve code quality and/or reduce technical debt;
 * "long-term" - tells that the task is not expected to be solved in near future;
+* "go-feature" - requests missing Go feature to be implemented in goism
 
 ## Default issue labels
 
