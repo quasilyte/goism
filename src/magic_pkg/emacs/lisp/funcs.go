@@ -23,6 +23,13 @@ var (
 )
 
 var (
+	FnError             = &Func{Sym: "error"}
+	FnSignal            = &Func{Sym: "signal"}
+	FnThrow             = &Func{Sym: "throw"}
+	FnMapconcat         = &Func{Sym: "mapconcat"}
+	FnIsMultibyteString = &Func{Sym: "multibyte-string-p"}
+	FnPrin1ToString     = &Func{Sym: "prin1-to-string"}
+
 	FnCopySequence   = &Func{Sym: "copy-sequence"}
 	FnIntern         = &Func{Sym: "intern"}
 	FnGethash        = &Func{Sym: "gethash"}
@@ -42,7 +49,9 @@ var (
 	FnLen      = &Func{Sym: "length"}
 	FnIsStr    = &Func{Sym: "stringp"}
 	FnIsInt    = &Func{Sym: "integerp"}
+	FnIsFloat  = &Func{Sym: "floatp"}
 	FnIsSymbol = &Func{Sym: "symbolp"}
+	FnIsBool   = &Func{Sym: "booleanp"}
 	FnList     = &Func{Sym: "list"}
 
 	FnCons   = &Func{Sym: "cons"}
@@ -52,10 +61,6 @@ var (
 	FnAset   = &Func{Sym: "aset"}
 	FnMemq   = &Func{Sym: "memq"}
 	FnMember = &Func{Sym: "member"}
-	FnLsh    = &Func{Sym: "lsh"}
-	FnLogand = &Func{Sym: "logand"}
-	FnLogior = &Func{Sym: "logior"}
-	FnLogxor = &Func{Sym: "logxor"}
 )
 
 // Operators-like functions.
@@ -75,6 +80,10 @@ var (
 	FnStrLt  = &Func{Sym: "string<"}
 	FnStrGt  = &Func{Sym: "string>"}
 	FnNot    = &Func{Sym: "not"}
+	FnLsh    = &Func{Sym: "lsh"}    // "<<"
+	FnLogand = &Func{Sym: "logand"} // "&"
+	FnLogior = &Func{Sym: "logior"} // "|"
+	FnLogxor = &Func{Sym: "logxor"} // "^"
 )
 
 // InternFunc creates lisp function with lispSym name.
@@ -101,6 +110,12 @@ func initFuncs() error {
 	Funcs = make(map[string]*Func, 64)
 	{
 		funcs := []*Func{
+			FnError,
+			FnSignal,
+			FnThrow,
+			FnMapconcat,
+			FnIsMultibyteString,
+			FnPrin1ToString,
 			FnCopySequence,
 			FnIntern,
 			FnGethash,
@@ -118,7 +133,9 @@ func initFuncs() error {
 			FnLen,
 			FnIsStr,
 			FnIsInt,
+			FnIsFloat,
 			FnIsSymbol,
+			FnIsBool,
 			FnList,
 			FnCons,
 			FnCar,
@@ -127,10 +144,6 @@ func initFuncs() error {
 			FnAset,
 			FnMemq,
 			FnMember,
-			FnLsh,
-			FnLogand,
-			FnLogior,
-			FnLogxor,
 			FnEq,
 			FnEqual,
 			FnNumEq,
@@ -146,6 +159,10 @@ func initFuncs() error {
 			FnStrLt,
 			FnStrGt,
 			FnNot,
+			FnLsh,
+			FnLogand,
+			FnLogior,
+			FnLogxor,
 		}
 		for _, fn := range funcs {
 			Funcs[fn.Sym] = fn

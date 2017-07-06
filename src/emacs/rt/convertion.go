@@ -14,11 +14,11 @@ func BytesToStr(slice *Slice) string {
 		return arrayToStr(slice.data)
 	}
 	return arrayToStr(
-		lisp.Substring(slice.data, slice.offset, slice.offset+slice.len),
+		substring(slice.data, slice.offset, slice.offset+slice.len),
 	)
 }
 
 // StrToBytes converts string to slice of bytes.
-func StrToBytes(s lisp.Object) *Slice {
-	return ArrayToSlice(lisp.Vconcat(s))
+func StrToBytes(s string) *Slice {
+	return ArrayToSlice(strToArray(s))
 }

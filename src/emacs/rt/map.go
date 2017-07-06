@@ -25,5 +25,5 @@ func MapInsert(key lisp.Object, val lisp.Object, m lisp.Object) {
 	if lisp.Eq(NilMap, m) {
 		panic("assignment to entry in nil map")
 	}
-	lisp.Puthash(key, val, m)
+	lisp.Call("puthash", key, val, m)
 }

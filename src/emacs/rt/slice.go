@@ -18,7 +18,7 @@ func SliceCap(slice *Slice) int { return slice.cap }
 // All values initialized to specified zero value.
 func MakeSlice(length int, zv lisp.Object) *Slice {
 	return &Slice{
-		data: lisp.MakeVector(length, zv),
+		data: lisp.Call("make-vector", length, zv),
 		len:  length,
 		cap:  length,
 	}
@@ -30,7 +30,7 @@ func MakeSliceCap(length, capacity int, zv lisp.Object) *Slice {
 	if length == capacity {
 		return MakeSlice(length, zv)
 	}
-	data := lisp.MakeVector(capacity, lisp.Intern("nil"))
+	data := lisp.Call("make-vector", capacity, lisp.Intern("nil"))
 	for i := 0; i < length; i++ {
 		lisp.Aset(data, i, zv)
 	}
@@ -46,7 +46,7 @@ func ArrayToSlice(data lisp.Object) *Slice {
 
 // SliceGet extract slice value using specified index.
 func SliceGet(slice *Slice, index int) lisp.Object {
-	return lisp.Aref(slice.data, slice.offset+index)
+	return aref(slice.data, slice.offset+index)
 }
 
 // SliceSet sets slice value at specified index.
@@ -61,15 +61,15 @@ func SlicePush(slice *Slice, val lisp.Object) *Slice {
 		// Need to extend slice storage.
 		// Create a new vector with 1st element set to "val"
 		// then re-set slice data with "oldData+newData".
-		newData := lisp.MakeVector(memExtendPush, lisp.Intern("nil"))
+		newData := lisp.Call("make-vector", memExtendPush, lisp.Intern("nil"))
 		lisp.Aset(newData, 0, val)
 		// For slices with offset a sub-vector should
 		// be taken to avoid memory leaks.
 		if slice.offset == 0 {
-			newData = lisp.Vconcat(slice.data, newData)
+			newData = vconcat2(slice.data, newData)
 		} else {
-			newData = lisp.Vconcat(
-				lisp.Substring(slice.data, slice.offset),
+			newData = vconcat2(
+				substringFrom(slice.data, slice.offset),
 				newData,
 			)
 		}
@@ -105,7 +105,7 @@ func SliceCopyFast(dst, src *Slice) {
 	srcData := src.data
 	count := lisp.MinInt(dst.len, src.len)
 	for i := 0; i < count; i++ {
-		lisp.Aset(dstData, i, lisp.Aref(srcData, i))
+		lisp.Aset(dstData, i, aref(srcData, i))
 	}
 }
 
