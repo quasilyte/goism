@@ -100,9 +100,6 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 	case *sexp.Or:
 		compileOr(cl, form)
 
-	case nil: // #REFS: 65
-		compileSym(cl, "nil")
-
 	default:
 		panic(exn.Logic("unexpected expr: %#v", form))
 	}

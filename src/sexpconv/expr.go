@@ -12,6 +12,13 @@ import (
 	"xtypes"
 )
 
+func (conv *converter) ExprOrNil(node ast.Expr) sexp.Form {
+	if node == nil {
+		return sexp.Nil
+	}
+	return conv.Expr(node)
+}
+
 func (conv *converter) Expr(node ast.Expr) sexp.Form {
 	switch node := node.(type) {
 	case *ast.ParenExpr:
@@ -265,13 +272,8 @@ func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 }
 
 func (conv *converter) SliceExpr(node *ast.SliceExpr) sexp.Form {
-	var low, high sexp.Form
-	if node.Low != nil {
-		low = conv.Expr(node.Low)
-	}
-	if node.High != nil {
-		high = conv.Expr(node.High)
-	}
+	low := conv.ExprOrNil(node.Low)
+	high := conv.ExprOrNil(node.High)
 	x := conv.Expr(node.X)
 	switch conv.typeOf(node.X).Underlying().(type) {
 	case *types.Array:

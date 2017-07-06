@@ -30,7 +30,7 @@ func basicTypeZeroValue(typ *types.Basic) sexp.Form {
 
 func ZeroValue(typ types.Type) sexp.Form {
 	if lisp.Package != nil && types.Identical(typ, lisp.TypSymbol) {
-		return sexp.Symbol{Val: "nil"}
+		return sexp.Nil
 	}
 
 	switch typ := typ.(type) {

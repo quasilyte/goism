@@ -85,7 +85,7 @@ func simplify(form sexp.Form) sexp.Form {
 			}
 		case "substring":
 			for len(args) < 3 {
-				args = append(args, sexp.Symbol{Val: "nil"})
+				args = append(args, sexp.Nil)
 			}
 			return &InstrCall{
 				Instr: ir.Instr{Kind: ir.Substring},

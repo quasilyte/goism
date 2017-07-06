@@ -162,7 +162,7 @@ func (sr strengthReducer) weakenConcat(form *sexp.LispCall) sexp.Form {
 
 func (sr strengthReducer) weakenList(form *sexp.LispCall) sexp.Form {
 	if len(form.Args) == 0 {
-		return sexp.Symbol{Val: "nil"}
+		return sexp.Nil
 	}
 	return form
 }
