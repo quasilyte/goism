@@ -251,5 +251,11 @@ func TestCombined(t *testing.T) {
 
 		`replace "hello" ?l ?d`: `"heddo"`,
 		`replace "hello" ?a ?z`: `"hello"`,
+
+		`substring "hello" -1 -1`: `"hello"`,
+		`substring "hello" 0 0`:   `""`,
+		`substring "hello" 1 -1`:  `"ello"`,
+		`substring "hello" -1 4`:  `"hell"`,
+		`substring "hello" 1 4`:   `"ell"`,
 	})
 }
