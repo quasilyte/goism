@@ -35,15 +35,26 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 		// convertion, so we ignore them.
 		return conv.Expr(args[0])
 
-	case "CallInt", "CallFloat", "CallStr", "CallBool", "CallSymbol":
-		fallthrough
+	case "DynCall":
+		return &sexp.DynCall{
+			Callable: conv.Expr(args[0]),
+			Args:     conv.exprList(args[1:]),
+			Typ:      lisp.TypObject,
+		}
+
 	case "Call":
-		// #FIXME: non-constant symbols should also be valid.
-		name := constant.StringVal(conv.valueOf(args[0]))
-		args := conv.copyValuesList(conv.exprList(args[1:]))
-		return &sexp.LispCall{
-			Fn:   lisp.InternFunc(name),
-			Args: args,
+		cv := conv.valueOf(args[0])
+		if cv != nil {
+			name := constant.StringVal(cv)
+			return conv.lispApply(
+				lisp.InternFunc(name),
+				conv.exprList(args[1:]),
+			)
+		}
+		return &sexp.DynCall{
+			Callable: conv.Expr(args[0]),
+			Args:     conv.exprList(args[1:]),
+			Typ:      lisp.TypObject,
 		}
 
 	case "Intern":

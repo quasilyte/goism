@@ -6,12 +6,15 @@ package lisp
 // so Emacs Lisp code can inspect values "as is".
 type any interface{}
 
-// Call invokes Emacs Lisp function.
+// Call invokes Emacs Lisp function by its name.
 //
 // Function existance or signature compatibility is
 // not checked during compilation.
 // If something is wrong, Emacs will complain during evaluation.
 func Call(fn string, args ...any) Object
+
+// DynCall is like Call, but permits wider range of callable arguments.
+func DynCall(callable Object, args ...any) Object
 
 // Object is unboxed Emacs Lisp object.
 // Go-compatible value can be extracted by
