@@ -15,7 +15,10 @@ func InlineCalls(fn *sexp.Func) sexp.Form {
 // itself if inlining is not possible/viable.
 func TryInline(form *sexp.Call) sexp.Form {
 	inl := inliner{fn: nil}
-	return inl.tryInline(form)
+	if res := inl.tryInline(form); res != nil {
+		return res
+	}
+	return form
 }
 
 type inliner struct {
@@ -69,7 +72,7 @@ func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 	}
 
 	worthToInline := func(form sexp.Form) bool {
-		return form.Cost() <= cfg.CostInlineThreshold
+		return width(form) <= cfg.InlineBudget
 	}
 
 	switch form := body[0].(type) {
@@ -121,7 +124,7 @@ func (inl *inliner) inlineAsExpr(fn *sexp.Func, args []sexp.Form) sexp.Form {
 }
 
 func (inl *inliner) inlineAsLambdaCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
-	if fn.Body.Cost() > cfg.CostInlineThreshold {
+	if width(fn.Body) > cfg.InlineBudget {
 		return nil
 	}
 
