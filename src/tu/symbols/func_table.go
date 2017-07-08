@@ -12,6 +12,7 @@ type FuncTable struct {
 	externFuncs map[funcKey]*sexp.Func
 	funcs       map[string]*sexp.Func
 	methods     map[methodKey]*sexp.Func
+	masterFuncs []*sexp.Func
 }
 
 type funcKey struct {
@@ -44,6 +45,7 @@ func (ftab *FuncTable) MasterPkg() *types.Package {
 func (ftab *FuncTable) InsertFunc(p *types.Package, name string, fn *sexp.Func) {
 	if p == ftab.masterPkg {
 		ftab.funcs[name] = fn
+		ftab.masterFuncs = append(ftab.masterFuncs, fn)
 	} else {
 		ftab.externFuncs[funcKey{pkg: p, name: name}] = fn
 	}
@@ -57,6 +59,9 @@ func (ftab *FuncTable) InsertMethod(recv *types.TypeName, name string, fn *sexp.
 		name:     name,
 	}
 	ftab.methods[key] = fn
+	if key.pkgName == ftab.masterPkg.Name() {
+		ftab.masterFuncs = append(ftab.masterFuncs, fn)
+	}
 }
 
 // LookupFunc returns stored function or nil if no entry is found.
@@ -91,14 +96,5 @@ func (ftab *FuncTable) ForEach(visit func(*sexp.Func)) {
 }
 
 func (ftab *FuncTable) MasterFuncs() []*sexp.Func {
-	funcs := make([]*sexp.Func, 0, len(ftab.funcs))
-	for _, fn := range ftab.funcs {
-		funcs = append(funcs, fn)
-	}
-	for k, fn := range ftab.methods {
-		if k.pkgName == ftab.masterPkg.Name() {
-			funcs = append(funcs, fn)
-		}
-	}
-	return funcs
+	return ftab.masterFuncs
 }
