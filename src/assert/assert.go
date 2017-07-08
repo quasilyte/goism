@@ -7,7 +7,9 @@ func True(x bool) {
 
 // Nil panics if argument is not nil
 func Nil(err error) {
-	assertTrue(err != nil)
+	if err != nil {
+		panic("internal error: assertion failed (" + err.Error() + ")")
+	}
 }
 
 // Unreachable panics unconditionally.
