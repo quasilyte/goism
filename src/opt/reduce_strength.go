@@ -9,18 +9,21 @@ import (
 
 // ReduceStrength replaces operations with their less expensive
 // equivalents.
-func ReduceStrength(form sexp.Form) sexp.Form {
+func ReduceStrength(fn *sexp.Func) int {
 	sr := strengthReducer{}
-	return sr.rewrite(form)
+	fn.Body = sr.rewrite(fn.Body).(sexp.Block)
+	return sr.score
 }
 
-type strengthReducer struct{}
+type strengthReducer struct {
+	score int
+}
 
-func (sr strengthReducer) rewrite(form sexp.Form) sexp.Form {
+func (sr *strengthReducer) rewrite(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, sr.walkForm)
 }
 
-func (sr strengthReducer) walkForm(form sexp.Form) sexp.Form {
+func (sr *strengthReducer) weakenForm(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.LispCall:
 		switch form.Fn {
@@ -50,7 +53,15 @@ func (sr strengthReducer) walkForm(form sexp.Form) sexp.Form {
 	return nil
 }
 
-func (sr strengthReducer) weakenAdd(form *sexp.LispCall) sexp.Form {
+func (sr *strengthReducer) walkForm(form sexp.Form) sexp.Form {
+	if form := sr.weakenForm(form); form != nil {
+		sr.score++
+		return form
+	}
+	return nil
+}
+
+func (sr *strengthReducer) weakenAdd(form *sexp.LispCall) sexp.Form {
 	weaken := func(a, b int) sexp.Form {
 		if numEq(form.Args[a], 1) {
 			return sexp.NewAdd1(form.Args[b])
@@ -76,10 +87,10 @@ func (sr strengthReducer) weakenAdd(form *sexp.LispCall) sexp.Form {
 	if form := weaken(1, 0); form != nil {
 		return form
 	}
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenSub(form *sexp.LispCall) sexp.Form {
+func (sr *strengthReducer) weakenSub(form *sexp.LispCall) sexp.Form {
 	if numEq(form.Args[1], 1) {
 		return sexp.NewSub1(form.Args[0])
 	}
@@ -93,16 +104,16 @@ func (sr strengthReducer) weakenSub(form *sexp.LispCall) sexp.Form {
 	if numEq(form.Args[1], -2) {
 		return sexp.NewAdd1(sexp.NewAdd1(form.Args[0]))
 	}
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenArrayLit(form *sexp.ArrayLit) sexp.Form {
+func (sr *strengthReducer) weakenArrayLit(form *sexp.ArrayLit) sexp.Form {
 	// #TODO: recognize array where all elements are the same.
 	//        Replace with "make-vector" call.
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
+func (sr *strengthReducer) weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.Form {
 	toArrayLit := func(form *sexp.SparseArrayLit) *sexp.ArrayLit {
 		zv := sexpconv.ZeroValue(form.Typ.Elem())
 		vals := make([]sexp.Form, int(form.Typ.Len()))
@@ -130,10 +141,10 @@ func (sr strengthReducer) weakenSparseArrayLit(form *sexp.SparseArrayLit) sexp.F
 		return toArrayLit(form)
 	}
 
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenBytesToStr(form *sexp.Call) sexp.Form {
+func (sr *strengthReducer) weakenBytesToStr(form *sexp.Call) sexp.Form {
 	if arg, ok := form.Args[0].(*sexp.ArraySlice); ok {
 		// It is possible to convert array to string without
 		// creating a slice.
@@ -146,30 +157,30 @@ func (sr strengthReducer) weakenBytesToStr(form *sexp.Call) sexp.Form {
 		}
 	}
 
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenConcat(form *sexp.LispCall) sexp.Form {
+func (sr *strengthReducer) weakenConcat(form *sexp.LispCall) sexp.Form {
 	switch len(form.Args) {
 	case 0:
 		return sexp.Str("")
 	case 1:
 		return form.Args[0]
 	default:
-		return form // #REFS: 32
+		return nil // #REFS: 32
 	}
 }
 
-func (sr strengthReducer) weakenList(form *sexp.LispCall) sexp.Form {
+func (sr *strengthReducer) weakenList(form *sexp.LispCall) sexp.Form {
 	if len(form.Args) == 0 {
 		return sexp.Nil
 	}
-	return form
+	return nil
 }
 
-func (sr strengthReducer) weakenSubstr(form *sexp.LispCall) sexp.Form {
+func (sr *strengthReducer) weakenSubstr(form *sexp.LispCall) sexp.Form {
 	if form.Args[1] == nil && form.Args[2] == nil {
 		return form.Args[0]
 	}
-	return form
+	return nil
 }

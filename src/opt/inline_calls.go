@@ -6,63 +6,60 @@ import (
 )
 
 // InlineCalls inlines suitable functions calls inside form.
-func InlineCalls(fn *sexp.Func) sexp.Form {
+func InlineCalls(fn *sexp.Func) int {
 	inl := inliner{fn: fn}
-	return inl.rewrite(fn.Body)
+	fn.Body = inl.rewrite(fn.Body).(sexp.Block)
+	return inl.score
 }
 
 // TryInline returns inlined function body or the call expression
 // itself if inlining is not possible/viable.
 func TryInline(form *sexp.Call) sexp.Form {
 	inl := inliner{fn: nil}
-	if res := inl.tryInline(form); res != nil {
+	if res := inl.inlineCall(form); res != nil {
 		return res
 	}
 	return form
 }
 
 type inliner struct {
-	fn *sexp.Func // Needed to recognize recursive calls
+	fn    *sexp.Func // Needed to recognize recursive calls
+	score int
 }
 
 func (inl *inliner) rewrite(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, inl.walkForm)
 }
 
-func (inl *inliner) tryInline(form *sexp.Call) sexp.Form {
-	if form.Fn == inl.fn {
-		// Recursive call. Impossible to inline.
-		return form
-	}
-	if form.Fn.IsInlineable() {
-		return inl.inlineCall(form.Fn, form.Args)
-	}
-	return form
-}
-
 func (inl *inliner) walkForm(form sexp.Form) sexp.Form {
 	return sexp.Rewrite(form, func(form sexp.Form) sexp.Form {
 		if form, ok := form.(*sexp.Call); ok {
-			if form.Fn == inl.fn {
-				// Recursive call. Impossible to inline.
-				return form
-			}
-			if form.Fn.IsInlineable() {
-				return inl.inlineCall(form.Fn, form.Args)
-			}
+			return inl.inlineCall(form)
 		}
 		return nil
 	})
 }
 
-func (inl *inliner) inlineCall(fn *sexp.Func, args []sexp.Form) sexp.Form {
+func (inl *inliner) inlineCall(form *sexp.Call) sexp.Form {
+	if !form.Fn.IsInlineable() {
+		return nil
+	}
+	if form.Fn == inl.fn {
+		// Recursive call. Impossible to inline.
+		inl.fn.SetInlineable(false)
+		return nil
+	}
 	// Check if whole function body is single node
 	// that can be inlined without LambdaCall.
-	if res := inl.inlineAsExpr(fn, args); res != nil {
-		return res
+	res := inl.inlineAsExpr(form.Fn, form.Args)
+	if res == nil {
+		return nil
 	}
-	// return inl.inlineAsLambdaCall(fn, args)
-	return nil // #REFS: 90 (disable LambdaCall inlining until it is fixed)
+	if width(res) > cfg.InlineBudget && !form.Fn.IsSubst() {
+		return nil
+	}
+	inl.score++
+	return res
 }
 
 func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
@@ -71,23 +68,14 @@ func (inl *inliner) inlineableExpr(fn *sexp.Func) sexp.Form {
 		return nil
 	}
 
-	worthToInline := func(form sexp.Form) bool {
-		return width(form) <= cfg.InlineBudget
-	}
-
 	switch form := body[0].(type) {
 	case *sexp.Return:
 		if len(form.Results) != 1 {
 			return nil
 		}
-		if worthToInline(form.Results[0]) {
-			return form.Results[0].Copy()
-		}
+		return form.Results[0].Copy()
 
 	case *sexp.ExprStmt:
-		if !worthToInline(form.Expr) {
-			return nil
-		}
 		// Sole statement is inlineable.
 		if len(body) == 1 {
 			return form.Expr.Copy()
