@@ -3,20 +3,10 @@ package goism
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 )
-
-// Directory that contains goism repository (sources, scripts, etc).
-var home = func() string {
-	res := os.Getenv("GOISM_DIR")
-	if res == "" {
-		panic("GOISM_DIR environment variable is not set")
-	}
-	return res
-}()
 
 var varReplaceRx = regexp.MustCompile(`\$(\w+)`)
 
@@ -45,7 +35,7 @@ func Eval(expr string) string {
 		stderr bytes.Buffer
 	)
 
-	cmd := exec.Command(home+"/script/tst/daemon_eval", expr)
+	cmd := exec.Command(Home+"/script/tst/daemon_eval", expr)
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
 
@@ -57,8 +47,8 @@ func Eval(expr string) string {
 }
 
 // LoadPackage loads package of specified name into Emacs daemon.
-func LoadPackage(pkg string) {
-	Eval(fmt.Sprintf(`(goism-load "%s")`, pkg))
+func LoadPackage(pkg string) string {
+	return Eval(fmt.Sprintf(`(goism-load "%s")`, pkg))
 }
 
 // EvalCall runs call evaluates function call expression.
