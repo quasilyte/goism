@@ -29,7 +29,7 @@ func getTestFileContents(name string) []byte {
 	return testFileContents[len("package pairwise"):]
 }
 
-func setTestInfoDefaults(info *testInfo, testFileContents []byte) {
+func setTestInfoDefaults(t *testing.T, info *testInfo, testFileContents []byte) {
 	// If funcs are not enumerated explicitly, build up a
 	// list by examining test file contents.
 	if info.Funcs == nil {
@@ -39,8 +39,8 @@ func setTestInfoDefaults(info *testInfo, testFileContents []byte) {
 			funcs = append(funcs, string(match[1]))
 		}
 		info.Funcs = funcs
+		t.Logf("%s: %d test functions found\n", info.Filename, len(info.Funcs))
 	}
-	fmt.Printf("%d funcs to test\n", len(info.Funcs))
 }
 
 func prepareGcgoProgram(info *testInfo, testFileContents []byte) string {
@@ -90,7 +90,7 @@ func testGoism(info *testInfo) []string {
 
 func testPairwise(t *testing.T, info testInfo) {
 	testFileContents := getTestFileContents(info.Filename)
-	setTestInfoDefaults(&info, testFileContents)
+	setTestInfoDefaults(t, &info, testFileContents)
 	gcgoProgramPath := prepareGcgoProgram(&info, testFileContents)
 	results := testGoism(&info)
 	correctResults := testGcgo(&info, gcgoProgramPath)
