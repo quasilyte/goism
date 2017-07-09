@@ -4,6 +4,7 @@ import (
 	"emacs/lisp"
 )
 
+// Slice - Go slice.
 type Slice struct {
 	data   lisp.Object
 	offset int
