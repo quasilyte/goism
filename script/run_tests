@@ -4,5 +4,6 @@ make all &&
     make install &&
     ./script/tst/daemon_restart &&
     go test -v tst/goism/conformance &&
+    go test -v tst/goism/conformance/pairwise &&
     go test -v tst/goism/regress &&
     echo '[OK] done'
