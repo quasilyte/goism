@@ -4,3 +4,5 @@
 /src/emacs/scratch
 /src/main/main.go
 /build
+
+/.vscode
