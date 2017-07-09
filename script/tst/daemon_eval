@@ -2,4 +2,4 @@
 
 # Evaluate script argument inside daemonized Emacs and print 
 # results to stdout.
-emacsclient -s goism-tst -eval "(prin1 ${1})"
+emacsclient -s goism-tst -eval "${1}"
