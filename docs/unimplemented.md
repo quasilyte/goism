@@ -13,6 +13,7 @@ it contains several roadmaps.
 * [1] Channels (along with `close`, `select` and other related features)
 * [1] `go` statements
 * Init functions
+* [Interface-to-interface type assertions](https://github.com/Quasilyte/goism/issues/110)
 
 [1] See [concurrency and multithreading](https://github.com/Quasilyte/goism/issues/52).
 
