@@ -6,10 +6,10 @@ import (
 )
 
 // InlineCalls inlines suitable functions calls inside form.
-func InlineCalls(fn *sexp.Func) int {
+func InlineCalls(fn *sexp.Func) bool {
 	inl := inliner{fn: fn}
 	fn.Body = inl.rewrite(fn.Body).(sexp.Block)
-	return inl.score
+	return inl.triggered
 }
 
 // TryInline returns inlined function body or the call expression
@@ -23,8 +23,8 @@ func TryInline(form *sexp.Call) sexp.Form {
 }
 
 type inliner struct {
-	fn    *sexp.Func // Needed to recognize recursive calls
-	score int
+	fn        *sexp.Func // Needed to recognize recursive calls
+	triggered bool
 }
 
 func (inl *inliner) rewrite(form sexp.Form) sexp.Form {
@@ -58,7 +58,7 @@ func (inl *inliner) inlineCall(form *sexp.Call) sexp.Form {
 	if width(res) > cfg.InlineBudget && !form.Fn.IsSubst() {
 		return nil
 	}
-	inl.score++
+	inl.triggered = true
 	return res
 }
 

@@ -9,14 +9,14 @@ import (
 
 // ReduceStrength replaces operations with their less expensive
 // equivalents.
-func ReduceStrength(fn *sexp.Func) int {
+func ReduceStrength(fn *sexp.Func) bool {
 	sr := strengthReducer{}
 	fn.Body = sr.rewrite(fn.Body).(sexp.Block)
-	return sr.score
+	return sr.triggered
 }
 
 type strengthReducer struct {
-	score int
+	triggered bool
 }
 
 func (sr *strengthReducer) rewrite(form sexp.Form) sexp.Form {
@@ -55,7 +55,7 @@ func (sr *strengthReducer) weakenForm(form sexp.Form) sexp.Form {
 
 func (sr *strengthReducer) walkForm(form sexp.Form) sexp.Form {
 	if form := sr.weakenForm(form); form != nil {
-		sr.score++
+		sr.triggered = true
 		return form
 	}
 	return nil

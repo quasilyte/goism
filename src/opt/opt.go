@@ -6,22 +6,22 @@ import (
 
 func OptimizeFuncs(funcs []*sexp.Func) {
 	for {
-		score := runOptPass(funcs)
-		if score == 0 {
+		if !runOptPass(funcs) {
 			return
 		}
 	}
 }
 
-func runOptPass(funcs []*sexp.Func) int {
-	score := 0
+func runOptPass(funcs []*sexp.Func) bool {
+	triggered := false
 	for _, fn := range funcs {
-		score += optimizeFunc(fn)
+		triggered = triggered || optimizeFunc(fn)
 	}
-	return score
+	return triggered
 }
 
-func optimizeFunc(fn *sexp.Func) int {
-	return InlineCalls(fn) +
+func optimizeFunc(fn *sexp.Func) bool {
+	return InlineCalls(fn) ||
+		FoldConstexpr(fn) ||
 		ReduceStrength(fn)
 }
