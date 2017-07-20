@@ -8,7 +8,7 @@ type any interface{}
 
 // Call invokes Emacs Lisp function by its name.
 //
-// Function existance or signature compatibility is
+// Function existence or signature compatibility is
 // not checked during compilation.
 // If something is wrong, Emacs will complain during evaluation.
 func Call(fn string, args ...any) Object

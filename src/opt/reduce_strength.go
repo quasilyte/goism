@@ -69,7 +69,7 @@ func (sr *strengthReducer) weakenAdd(form *sexp.LispCall) sexp.Form {
 		if numEq(form.Args[a], 2) {
 			return sexp.NewAdd1(sexp.NewAdd1(form.Args[b]))
 		}
-		// Addition of negative number = substraction.
+		// Addition of negative number = subtraction.
 		if numEq(form.Args[a], -1) {
 			return sexp.NewSub1(form.Args[b])
 		}
@@ -97,7 +97,7 @@ func (sr *strengthReducer) weakenSub(form *sexp.LispCall) sexp.Form {
 	if numEq(form.Args[1], 2) {
 		return sexp.NewSub1(sexp.NewSub1(form.Args[0]))
 	}
-	// Substraction of negative number = addition.
+	// Subtraction of negative number = addition.
 	if numEq(form.Args[1], -1) {
 		return sexp.NewAdd1(form.Args[0])
 	}

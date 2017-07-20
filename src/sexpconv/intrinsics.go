@@ -32,7 +32,7 @@ func (conv *converter) intrinFuncCall(sym string, args []ast.Expr) sexp.Form {
 	case "Int", "Float", "Str", "Symbol", "Bool":
 		// These types can be constructed only from
 		// typed values that does not require any
-		// convertion, so we ignore them.
+		// conversion, so we ignore them.
 		return conv.Expr(args[0])
 
 	case "DynCall":
