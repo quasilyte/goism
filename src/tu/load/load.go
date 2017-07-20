@@ -2,7 +2,6 @@ package load
 
 import (
 	"bytes"
-	"cfg"
 	"fmt"
 	"go/ast"
 	"go/build"
@@ -26,12 +25,12 @@ import (
 )
 
 type unit struct {
-	pkgs  []*xast.Package
-	env   *symbols.Env
-	funcs []*sexp.Func
-	ftab  *symbols.FuncTable
-	decls map[*sexp.Func]funcDeclData
-	conv  *sexpconv.Converter
+	pkgs    []*xast.Package
+	env     *symbols.Env
+	ins     *symbols.FuncTableInserter
+	itabEnv *symbols.ItabEnv
+	decls   map[*sexp.Func]funcDeclData
+	conv    *sexpconv.Converter
 }
 
 type funcDeclData struct {
@@ -44,14 +43,15 @@ type initData struct {
 	init *sexp.Func
 }
 
-func newUnit(masterPkg *types.Package, pkgPath string) *unit {
+func newUnit(ftab *symbols.FuncTable, masterPkg *types.Package, pkgPath string) *unit {
 	env := symbols.NewEnv(pkgPath)
-	ftab := symbols.NewFuncTable(masterPkg)
+	itabEnv := symbols.NewItabEnv(masterPkg)
 	return &unit{
-		env:   env,
-		ftab:  ftab,
-		decls: make(map[*sexp.Func]funcDeclData, 32),
-		conv:  sexpconv.NewConverter(ftab, env),
+		env:     env,
+		ins:     ftab.Inserter(),
+		itabEnv: itabEnv,
+		decls:   make(map[*sexp.Func]funcDeclData, 32),
+		conv:    sexpconv.NewConverter(ftab, env, itabEnv),
 	}
 }
 
@@ -61,13 +61,15 @@ func Runtime() error {
 	if err != nil {
 		return err
 	}
-	u := newUnit(pkg.TypPkg, pkgPath)
+	ftab := symbols.NewFuncTable(pkg.TypPkg)
+	u := newUnit(ftab, pkg.TypPkg, pkgPath)
 	u.pkgs = []*xast.Package{pkg}
 	collectFuncs(u)
 	rt.InitPackage(pkg.TypPkg)
-	rt.InitFuncs(u.ftab)
-	convertFuncs(pkg, u, true)
-	u.ftab.ForEach(opt.OptimizeFunc)
+	rt.InitFuncs(ftab)
+	funcs := u.ins.GetAllFuncs()
+	convertFuncs(u, funcs, true)
+	opt.OptimizeFuncs(funcs)
 	return nil
 }
 
@@ -79,41 +81,43 @@ func Package(pkgPath string, optimize bool) (*tu.Package, error) {
 	if err != nil {
 		return nil, err
 	}
-	u := newUnit(masterPkg.TypPkg, pkgPath)
+	ftab := symbols.NewFuncTable(masterPkg.TypPkg)
+	u := newUnit(ftab, masterPkg.TypPkg, pkgPath)
 	err = collectImports(u, masterPkg)
 	if err != nil {
 		return nil, err
 	}
 
 	collectFuncs(u)
-	convertFuncs(masterPkg, u, optimize)
+	funcs := u.ins.GetAllFuncs()
+	convertFuncs(u, funcs, optimize)
 	if optimize {
-		u.ftab.ForEach(opt.OptimizeFunc)
+		opt.OptimizeFuncs(funcs)
 	}
 
-	initializers := collectInitializers(masterPkg, u.conv)
+	initializers := collectInitializers(u, masterPkg)
+
 	return &tu.Package{
 		Name:    masterPkg.AstPkg.Name,
-		Funcs:   u.funcs,
+		Funcs:   u.ins.GetMasterFuncs(),
 		Init:    initializers.init,
 		Vars:    initializers.vars,
 		Comment: pkgComment(masterPkg.AstPkg.Files),
 	}, nil
 }
 
-func convertFuncs(masterPkg *xast.Package, u *unit, optimize bool) {
-	u.ftab.ForEach(func(fn *sexp.Func) {
+func convertFuncs(u *unit, funcs []*sexp.Func, optimize bool) {
+	for _, fn := range funcs {
 		data := u.decls[fn]
 		fn.Body = u.conv.FuncBody(&xast.Func{
 			Pkg:  data.pkg,
 			Ret:  fn.Results,
 			Body: data.decl.Body,
 		})
-		if optimize && isInlineable(fn) {
-			fn.MarkInlineable()
+		if optimize && !fn.IsNoinline() && isInlineable(fn) {
+			fn.SetInlineable(true)
 		}
-	})
-	u.funcs = u.ftab.MasterFuncs()
+	}
 }
 
 func collectFuncs(u *unit) {
@@ -128,28 +132,49 @@ func collectFuncs(u *unit) {
 	}
 }
 
+func parseFuncDocText(fn *sexp.Func, doc *ast.CommentGroup) string {
+	if doc == nil {
+		return ""
+	}
+	for _, line := range doc.List {
+		if strings.HasPrefix(line.Text, "//goism:") {
+			fn.LoadDirective(line.Text)
+			line.Text = "//" // Clear comment line
+		}
+	}
+	return doc.Text()
+}
+
+func getRecvType(recv *types.Var) *types.TypeName {
+	typ := recv.Type()
+	if ptr, ok := typ.(*types.Pointer); ok {
+		return ptr.Elem().(*types.Named).Obj()
+	}
+	return typ.(*types.Named).Obj()
+}
+
 func collectFunc(u *unit, p *xast.Package, decl *ast.FuncDecl) {
 	sig := declSignature(p.Info, decl)
 	name := decl.Name.Name
 	fn := &sexp.Func{
-		DocString: decl.Doc.Text(),
-		Variadic:  sig.Variadic(),
-		Results:   resultTuple(sig),
+		Variadic: sig.Variadic(),
+		Results:  resultTuple(sig),
 	}
+	fn.DocString = parseFuncDocText(fn, decl.Doc)
 	if recv := sig.Recv(); recv == nil {
 		// Function.
-		params := make([]string, 0, decl.Type.Params.NumFields())
+		fn.Params = make([]string, 0, decl.Type.Params.NumFields())
 		fn.Name = symbols.Mangle(p.FullName, name)
-		fn.Params = collectParamNames(params, decl)
-		u.ftab.InsertFunc(p.TypPkg, name, fn)
+		fillFuncParamsInfo(u, fn, sig)
+		u.ins.Func(p.TypPkg, name, fn)
 	} else {
 		// Method.
-		params := make([]string, 0, decl.Type.Params.NumFields()+1)
-		params = append(params, recv.Name()) // "recv" param
-		typ := recv.Type().(*types.Named).Obj()
+		fn.Params = make([]string, 0, decl.Type.Params.NumFields()+1)
+		fn.Params = append(fn.Params, recv.Name()) // "recv" param
+		typ := getRecvType(recv)
 		fn.Name = symbols.MangleMethod(p.FullName, typ.Name(), name)
-		fn.Params = collectParamNames(params, decl)
-		u.ftab.InsertMethod(typ, name, fn)
+		fillFuncParamsInfo(u, fn, sig)
+		u.ins.Method(typ, name, fn)
 	}
 	u.decls[fn] = funcDeclData{
 		decl: decl,
@@ -157,10 +182,48 @@ func collectFunc(u *unit, p *xast.Package, decl *ast.FuncDecl) {
 	}
 }
 
-func collectInitializers(p *xast.Package, conv *sexpconv.Converter) initData {
+func fillFuncParamsInfo(u *unit, fn *sexp.Func, sig *types.Signature) {
+	for i := 0; i < sig.Params().Len(); i++ {
+		param := sig.Params().At(i)
+		fn.Params = append(fn.Params, param.Name())
+
+		if types.IsInterface(param.Type()) {
+			if fn.InterfaceInputs == nil {
+				fn.InterfaceInputs = make(map[int]types.Type, sig.Params().Len()-i)
+			}
+			fn.InterfaceInputs[i] = param.Type()
+		}
+	}
+}
+
+func collectInitializers(u *unit, p *xast.Package) initData {
+	conv := u.conv
 	body := make([]sexp.Form, 0, 16)
 	vars := make([]string, 0, 8)
 	env := conv.Env()
+
+	// Initialize master package itabs.
+	for _, itab := range u.itabEnv.GetMasterItabs() {
+		vars = append(vars, itab.Name)
+		iface := itab.Iface
+		elems := make([]sexp.Form, iface.NumMethods()+1)
+		elems[0] = sexp.Symbol{Val: p.FullName + "." + itab.ImplName}
+		for i := 0; i < iface.NumMethods(); i++ {
+			sym := symbols.MangleMethod(
+				p.FullName,
+				itab.ImplName,
+				iface.Method(i).Name(),
+			)
+			elems[i+1] = sexp.Symbol{Val: sym}
+		}
+		body = append(body, &sexp.VarUpdate{
+			Name: itab.Name,
+			Expr: sexp.NewLispCall(
+				lisp.FnVector,
+				elems...,
+			),
+		})
+	}
 
 	blankIdent := &ast.Ident{Name: "_"}
 	for _, init := range p.InitOrder {
@@ -328,19 +391,23 @@ func pkgComment(files map[string]*ast.File) string {
 }
 
 func isInlineable(fn *sexp.Func) bool {
-	totalCost := 0
-	for _, form := range fn.Body {
-		cost := form.Cost()
-		if cost == -1 {
-			// Most probably has loops.
-			return false
-		}
-		totalCost += cost
-		if totalCost > cfg.CostInlineFilter {
-			// Give it up due to complexity.
-			return false
-		}
-	}
+	/*
+		totalCost := 0
 
-	return true
+		for _, form := range fn.Body {
+			cost := form.Cost()
+			if cost == -1 {
+				// Most probably has loops.
+				return false
+			}
+			totalCost += cost
+			if totalCost > cfg.CostInlineFilter {
+				// Give it up due to complexity.
+				return false
+			}
+		}
+
+		return true
+	*/
+	return true // #REFS: 90
 }

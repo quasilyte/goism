@@ -8,6 +8,7 @@ import (
 
 type Env struct {
 	masterPkgName string
+
 	symbols       map[string]string
 	externSymbols map[*types.Package]map[string]string
 }

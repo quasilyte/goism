@@ -16,14 +16,11 @@ func (lit *ArrayLit) Copy() Form {
 	return &ArrayLit{Vals: CopyList(lit.Vals), Typ: lit.Typ}
 }
 func (lit *SparseArrayLit) Copy() Form {
-	vals := make(map[int]Form, len(lit.Vals))
-	for i, val := range lit.Vals {
-		vals[i] = val.Copy()
-	}
 	return &SparseArrayLit{
-		Ctor: lit.Ctor.Copy(),
-		Vals: vals,
-		Typ:  lit.Typ,
+		Ctor:    lit.Ctor.Copy(),
+		Vals:    CopyList(lit.Vals),
+		Indexes: append([]int(nil), lit.Indexes...),
+		Typ:     lit.Typ,
 	}
 }
 func (lit *SliceLit) Copy() Form {
@@ -174,6 +171,13 @@ func (call *LambdaCall) Copy() Form {
 		Args: copyBindList(call.Args),
 		Body: call.Body.Copy().(Block),
 		Typ:  call.Typ,
+	}
+}
+func (call *DynCall) Copy() Form {
+	return &DynCall{
+		Callable: call.Callable.Copy(),
+		Args:     CopyList(call.Args),
+		Typ:      call.Typ,
 	}
 }
 

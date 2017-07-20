@@ -20,15 +20,6 @@ func resultTuple(sig *types.Signature) *types.Tuple {
 	return xtypes.EmptyTuple
 }
 
-func collectParamNames(params []string, decl *ast.FuncDecl) []string {
-	for _, p := range decl.Type.Params.List {
-		for _, ident := range p.Names {
-			params = append(params, ident.Name)
-		}
-	}
-	return params
-}
-
 func checkPkgPath(pkgPath string) error {
 	// Only "emacs/" prefix check is mandatory,
 	// but in order to provide better error message

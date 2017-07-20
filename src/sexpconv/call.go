@@ -8,35 +8,45 @@ import (
 	"magic_pkg/emacs/lisp"
 	"magic_pkg/emacs/rt"
 	"sexp"
+	"xtypes"
 )
 
-func (conv *converter) callExprList(fn *sexp.Func, args []ast.Expr) *sexp.Call {
-	return &sexp.Call{
-		Fn:   fn,
-		Args: conv.copyValuesList(conv.exprList(args)),
-	}
+func (conv *converter) apply(fn *sexp.Func, args []sexp.Form) *sexp.Call {
+	conv.copyArgList(args, fn.InterfaceInputs)
+	return &sexp.Call{Fn: fn, Args: args}
 }
 
-func (conv *converter) uniArgList(args []interface{}) []sexp.Form {
-	forms := make([]sexp.Form, len(args))
-	for i, arg := range args {
-		if node, ok := arg.(ast.Expr); ok {
-			forms[i] = conv.copyValue(conv.Expr(node))
+func (conv *converter) lispApply(fn *lisp.Func, args []sexp.Form) *sexp.LispCall {
+	conv.copyArgList(args, nil)
+	return &sexp.LispCall{Fn: fn, Args: args}
+}
+
+func (conv *converter) uniList(xs []interface{}) []sexp.Form {
+	res := make([]sexp.Form, len(xs))
+	for i, x := range xs {
+		if node, ok := x.(ast.Expr); ok {
+			res[i] = conv.Expr(node)
 		} else {
-			forms[i] = conv.copyValue(arg.(sexp.Form))
+			res[i] = x.(sexp.Form)
 		}
 	}
-	return forms
+	return res
+}
+
+func (conv *converter) copyArgList(args []sexp.Form, ifaceTypes map[int]types.Type) {
+	for i, arg := range args {
+		args[i] = conv.copyValue(arg, ifaceTypes[i])
+	}
 }
 
 // Convenient function to generate function call node.
 // Recognizes ast.Expr and sexp.Form as arguments.
 func (conv *converter) call(fn *sexp.Func, args ...interface{}) *sexp.Call {
-	return &sexp.Call{Fn: fn, Args: conv.uniArgList(args)}
+	return conv.apply(fn, conv.uniList(args))
 }
 
 func (conv *converter) lispCall(fn *lisp.Func, args ...interface{}) *sexp.LispCall {
-	return &sexp.LispCall{Fn: fn, Args: conv.uniArgList(args)}
+	return conv.lispApply(fn, conv.uniList(args))
 }
 
 func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
@@ -45,13 +55,28 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	case *ast.SelectorExpr: // x.sel()
 		sel := conv.info.Selections[fn]
 		if sel != nil {
-			recv := sel.Recv().(*types.Named)
+			recv := xtypes.AsNamedType(sel.Recv())
 			if recv == lisp.TypObject {
 				return conv.lispObjectMethod(fn.Sel.Name, fn.X, args)
 			}
-			return conv.callExprList(
-				conv.ftab.LookupMethod(recv.Obj(), fn.Sel.Name),
-				append([]ast.Expr{fn.X}, args...),
+			if !types.IsInterface(recv) {
+				// Direct method call.
+				return conv.apply(
+					conv.ftab.LookupMethod(recv.Obj(), fn.Sel.Name),
+					conv.exprList(append([]ast.Expr{fn.X}, args...)),
+				)
+			}
+			// Interface (polymorphic) method call.
+			if len(args) >= len(rt.FnIfaceCall) {
+				panic(exn.NoImpl("interface method call with more than %d arguments", len(rt.FnIfaceCall)-1))
+			}
+			iface := recv.Underlying().(*types.Interface)
+			return conv.apply(
+				rt.FnIfaceCall[len(args)],
+				append([]sexp.Form{
+					conv.Expr(fn.X),
+					sexp.Int(xtypes.LookupIfaceMethod(fn.Sel.Name, iface)),
+				}, conv.exprList(args)...),
 			)
 		}
 
@@ -113,7 +138,7 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		typ := conv.typeOf(fn).(*types.Slice)
 		elemTyp := typ.Elem().(*types.Basic)
 		assert.True(elemTyp.Kind() == types.Byte)
-		return conv.callExprList(rt.FnStrToBytes, args)
+		return conv.apply(rt.FnStrToBytes, conv.exprList(args))
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
@@ -124,7 +149,7 @@ func (conv *converter) callOrCoerce(p *types.Package, id *ast.Ident, args []ast.
 	fn := conv.ftab.LookupFunc(p, id.Name)
 	if fn != nil {
 		// Call.
-		return conv.callExprList(fn, args)
+		return conv.apply(fn, conv.exprList(args))
 	}
 	// Coerce.
 	arg := conv.Expr(args[0])

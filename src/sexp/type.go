@@ -87,6 +87,7 @@ func (call *LispCall) Type() types.Type {
 	}
 }
 func (call *LambdaCall) Type() types.Type { return call.Typ }
+func (call *DynCall) Type() types.Type    { return call.Typ }
 
 func (form *Let) Type() types.Type {
 	if form.Expr == nil {

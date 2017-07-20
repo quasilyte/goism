@@ -2,11 +2,16 @@ package rt
 
 import (
 	"exn"
+	"fmt"
 	"sexp"
 	"tu/symbols"
 )
 
+var FnIfaceCall [5]*sexp.Func
+
 var (
+	FnMakeIface *sexp.Func
+
 	FnPanic   *sexp.Func
 	FnPrint   *sexp.Func
 	FnPrintln *sexp.Func
@@ -50,6 +55,12 @@ func InitFuncs(ftab *symbols.FuncTable) {
 		}
 		panic(exn.Logic("`emacs/rt' misses `%s' function", name))
 	}
+
+	for i := range FnIfaceCall {
+		FnIfaceCall[i] = mustFindFunc(fmt.Sprintf("IfaceCall%d", i))
+	}
+
+	FnMakeIface = mustFindFunc("MakeIface")
 
 	FnPanic = mustFindFunc("Panic")
 	FnPrint = mustFindFunc("Print")

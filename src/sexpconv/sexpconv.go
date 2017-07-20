@@ -12,8 +12,9 @@ import (
 )
 
 type Converter struct {
-	ftab *symbols.FuncTable
-	env  *symbols.Env
+	env     *symbols.Env
+	ftab    *symbols.FuncTable
+	itabEnv *symbols.ItabEnv
 }
 
 func (conv *Converter) FuncTable() *symbols.FuncTable {
@@ -27,8 +28,10 @@ func (conv *Converter) Env() *symbols.Env {
 type converter struct {
 	info    *types.Info
 	fileSet *token.FileSet
+
 	env     *symbols.Env
 	ftab    *symbols.FuncTable
+	itabEnv *symbols.ItabEnv
 
 	// Context type is used to resolve "untyped" constants.
 	ctxType types.Type
@@ -36,16 +39,17 @@ type converter struct {
 	retType *types.Tuple
 }
 
-func NewConverter(ftab *symbols.FuncTable, env *symbols.Env) *Converter {
-	return &Converter{env: env, ftab: ftab}
+func NewConverter(ftab *symbols.FuncTable, env *symbols.Env, itabEnv *symbols.ItabEnv) *Converter {
+	return &Converter{env: env, ftab: ftab, itabEnv: itabEnv}
 }
 
 func (conv *Converter) newConverter(p *xast.Package) converter {
 	return converter{
-		env:     conv.env,
 		info:    p.Info,
 		fileSet: p.FileSet,
+		env:     conv.env,
 		ftab:    conv.ftab,
+		itabEnv: conv.itabEnv,
 	}
 }
 

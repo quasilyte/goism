@@ -127,6 +127,14 @@ func Rewrite(form Form, fn rewriteFunc) Form {
 			form.Args[i] = Rewrite(bind, fn).(*Bind)
 		}
 		form.Body = Rewrite(form.Body, fn).(Block)
+	case *DynCall:
+		if form := fn(form); form != nil {
+			return form
+		}
+		form.Callable = Rewrite(form.Callable, fn)
+		for i, arg := range form.Args {
+			form.Args[i] = Rewrite(arg, fn)
+		}
 
 	case *Let:
 		if form := fn(form); form != nil {

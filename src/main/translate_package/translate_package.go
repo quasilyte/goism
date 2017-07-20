@@ -105,7 +105,9 @@ func producePackage(pkg *tu.Package) {
 	}
 
 	for _, fn := range pkg.Funcs {
-		output.AddFunc(fn, compileFunc(cl, fn))
+		if !fn.IsSubst() {
+			output.AddFunc(fn, compileFunc(cl, fn))
+		}
 	}
 
 	if len(pkg.Init.Body) != 0 {

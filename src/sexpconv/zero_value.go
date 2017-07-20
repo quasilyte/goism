@@ -49,10 +49,10 @@ func ZeroValue(typ types.Type) sexp.Form {
 
 	case *types.Named:
 		utyp := typ.Underlying()
-		if typ, ok := utyp.(*types.Struct); ok {
-			vals := make([]sexp.Form, typ.NumFields())
+		if structTyp, ok := utyp.(*types.Struct); ok {
+			vals := make([]sexp.Form, structTyp.NumFields())
 			for i := range vals {
-				vals[i] = ZeroValue(typ.Field(i).Type())
+				vals[i] = ZeroValue(structTyp.Field(i).Type())
 			}
 			return &sexp.StructLit{Vals: vals, Typ: typ}
 		}

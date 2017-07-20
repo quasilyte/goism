@@ -59,9 +59,10 @@ type (
 
 	// SparseArrayLit is like ArrayLit, but does not store zero values.
 	SparseArrayLit struct {
-		Ctor Form
-		Vals map[int]Form
-		Typ  *types.Array
+		Ctor    Form
+		Vals    []Form
+		Indexes []int
+		Typ     *types.Array
 	}
 
 	// SliceLit = "[]T{Vals...}".
@@ -74,7 +75,7 @@ type (
 	// Each struct member (field) has explicit initializer.
 	StructLit struct {
 		Vals []Form
-		Typ  *types.Struct
+		Typ  *types.Named
 	}
 )
 
@@ -261,6 +262,13 @@ type LambdaCall struct {
 	Args []*Bind
 	Body Block
 	Typ  *types.Tuple
+}
+
+// DynCall is indirect function invocation.
+type DynCall struct {
+	Callable Form
+	Args     []Form
+	Typ      types.Type
 }
 
 // Let introduces bindings that are visible to a

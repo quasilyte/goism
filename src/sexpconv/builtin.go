@@ -68,6 +68,8 @@ func (conv *converter) appendBuiltin(args []ast.Expr) sexp.Form {
 		panic(exn.NoImpl("variadic append"))
 	}
 
-	x := conv.copyValue(conv.Expr(args[1]))
-	return conv.call(rt.FnSlicePush, args[0], x)
+	slice := args[0]
+	dstTyp := conv.typeOf(slice).(*types.Slice).Elem()
+	x := conv.copyValue(conv.Expr(args[1]), dstTyp)
+	return conv.call(rt.FnSlicePush, slice, x)
 }

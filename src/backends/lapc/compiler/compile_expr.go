@@ -3,6 +3,7 @@ package compiler
 import (
 	"backends/lapc"
 	"backends/lapc/ir"
+	"go/types"
 	"sexp"
 	"vmm"
 )
@@ -56,6 +57,12 @@ func compileLambdaCall(cl *Compiler, form *sexp.LambdaCall) {
 	cl.innerLambdaRet = prevRetLabel
 }
 
+func compileDynCall(cl *Compiler, form *sexp.DynCall) {
+	compileExpr(cl, form.Callable)
+	compileExprList(cl, form.Args)
+	cl.push().Call(len(form.Args), "%dyn-call")
+}
+
 func compileInstrCall(cl *Compiler, form *lapc.InstrCall) {
 	compileExprList(cl, form.Args)
 	cl.pushInstr(form.Instr)
@@ -79,14 +86,15 @@ func compileLetExpr(cl *Compiler, form *sexp.Let) {
 }
 
 func compileStructLit(cl *Compiler, form *sexp.StructLit) {
-	switch vmm.StructReprOf(form.Typ) {
+	structTyp := form.Type().Underlying().(*types.Struct)
+	switch vmm.StructReprOf(structTyp) {
 	case vmm.StructUnit:
 		compileExpr(cl, form.Vals[0])
 		cl.push().List(1)
 
 	case vmm.StructCons:
 		compileExprList(cl, form.Vals)
-		cl.pushN(ir.Instr{Kind: ir.Cons}, form.Typ.NumFields()-1)
+		cl.pushN(ir.Instr{Kind: ir.Cons}, structTyp.NumFields()-1)
 
 	case vmm.StructVec:
 		call(cl, "vector", form.Vals...)

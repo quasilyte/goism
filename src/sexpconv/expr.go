@@ -244,14 +244,12 @@ func (conv *converter) TypeAssertExpr(node *ast.TypeAssertExpr) sexp.Form {
 func (conv *converter) IndexExpr(node *ast.IndexExpr) sexp.Form {
 	switch typ := conv.typeOf(node.X).(type) {
 	case *types.Map:
-		return &sexp.LispCall{
-			Fn: lisp.FnGethash,
-			Args: conv.copyValuesList([]sexp.Form{
-				conv.Expr(node.Index),
-				conv.Expr(node.X),
-				ZeroValue(typ.Elem()),
-			}),
-		}
+		return conv.lispCall(
+			lisp.FnGethash,
+			node.Index,
+			node.X,
+			ZeroValue(typ.Elem()),
+		)
 
 	case *types.Array:
 		return &sexp.ArrayIndex{
@@ -292,7 +290,7 @@ func (conv *converter) CompositeLit(node *ast.CompositeLit) sexp.Form {
 	case *types.Slice:
 		return conv.sliceLit(node, typ)
 	case *types.Named:
-		return conv.structLit(node, typ.Underlying().(*types.Struct))
+		return conv.structLit(node, typ)
 
 	default:
 		panic(errUnexpectedExpr(conv, node))
@@ -311,11 +309,15 @@ func (conv *converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 	if len(node.Elts) == 0 {
 		return ZeroValue(typ)
 	}
+	elts := conv.exprList(node.Elts)
+	conv.copyValueList(elts, typ.Elem())
 
-	if len(node.Elts) != int(typ.Len()) {
-		vals := make(map[int]sexp.Form, len(node.Elts))
-		for i, elt := range node.Elts {
-			vals[i] = conv.Expr(elt)
+	if len(elts) != int(typ.Len()) {
+		vals := make([]sexp.Form, 0, len(elts))
+		indexes := make([]int, 0, len(elts))
+		for i, elt := range elts {
+			vals = append(vals, elt)
+			indexes = append(indexes, i)
 		}
 		ctor := &sexp.LispCall{
 			Fn: lisp.FnMakeVector,
@@ -325,26 +327,29 @@ func (conv *converter) arrayLit(node *ast.CompositeLit, typ *types.Array) sexp.F
 			},
 		}
 		return &sexp.SparseArrayLit{
-			Vals: vals,
-			Ctor: ctor,
-			Typ:  typ,
+			Ctor:    ctor,
+			Vals:    vals,
+			Indexes: indexes,
+			Typ:     typ,
 		}
 	}
 
 	// Each element has explicit initializer.
-	return &sexp.ArrayLit{Vals: conv.exprList(node.Elts), Typ: typ}
+	return &sexp.ArrayLit{Vals: elts, Typ: typ}
 }
 
-func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp.Form {
-	vals := make([]sexp.Form, typ.NumFields())
+func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Named) sexp.Form {
+	structTyp := typ.Underlying().(*types.Struct)
+	vals := make([]sexp.Form, structTyp.NumFields())
 	for _, elt := range node.Elts {
 		kv := elt.(*ast.KeyValueExpr)
 		key := kv.Key.(*ast.Ident)
-		vals[xtypes.LookupField(key.Name, typ)] = conv.copyValue(conv.Expr(kv.Value))
+		idx := xtypes.LookupField(key.Name, structTyp)
+		vals[idx] = conv.copyValue(conv.Expr(kv.Value), structTyp.Field(idx).Type())
 	}
 	for i, val := range vals {
 		if val == nil {
-			vals[i] = ZeroValue(typ.Field(i).Type())
+			vals[i] = ZeroValue(structTyp.Field(i).Type())
 		}
 	}
 	return &sexp.StructLit{Vals: vals, Typ: typ}
@@ -352,8 +357,8 @@ func (conv *converter) structLit(node *ast.CompositeLit, typ *types.Struct) sexp
 
 func (conv *converter) StarExpr(node *ast.StarExpr) sexp.Form {
 	typ := conv.typeOf(node.X).(*types.Pointer)
-	if derefTyp, ok := typ.Elem().Underlying().(*types.Struct); ok {
-		return conv.copyStruct(derefTyp, conv.Expr(node.X))
+	if derefTyp, ok := typ.Elem().(*types.Named); ok {
+		return conv.copyNamed(derefTyp, conv.Expr(node.X))
 	}
 	panic(errUnexpectedExpr(conv, node))
 }

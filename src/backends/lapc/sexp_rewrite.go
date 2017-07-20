@@ -160,7 +160,7 @@ func simplify(form sexp.Form) sexp.Form {
 		}
 
 	case *sexp.TypeCast:
-		return form.Form
+		return Simplify(form.Form)
 
 	case *sexp.DoTimes:
 		form.Body = simplifyList(form.Body)

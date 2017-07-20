@@ -73,13 +73,11 @@ func (conv *converter) ReturnStmt(node *ast.ReturnStmt) *sexp.Return {
 	// #FIXME: will not work for "naked" returns.
 	results := make([]sexp.Form, len(node.Results))
 	for i, node := range node.Results {
-		conv.ctxType = conv.retType.At(i).Type()
-		results[i] = conv.Expr(node)
+		typ := conv.retType.At(i).Type()
+		conv.ctxType = typ
+		results[i] = conv.copyValue(conv.Expr(node), typ)
 	}
-
-	return &sexp.Return{
-		Results: conv.copyValuesList(results),
-	}
+	return &sexp.Return{Results: results}
 }
 
 func (conv *converter) BlockStmt(node *ast.BlockStmt) sexp.Block {

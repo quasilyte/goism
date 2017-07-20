@@ -20,15 +20,6 @@ func CostOf(forms ...Form) int {
 	return CostOfList(forms)
 }
 
-// CostOfMap is like CostOfList, but operates on map instead of slice.
-func CostOfMap(forms map[int]Form) int {
-	total := 0
-	for _, form := range forms {
-		total += form.Cost()
-	}
-	return total
-}
-
 // costOfCall returns function invocation cost.
 // Does not account called function complexity.
 func costOfCall(args []Form) int {
@@ -82,7 +73,7 @@ func (lit *ArrayLit) Cost() int {
 	return CostOfList(lit.Vals) + 2
 }
 func (lit *SparseArrayLit) Cost() int {
-	return CostOfMap(lit.Vals)*3 + 2
+	return CostOfList(lit.Vals)*3 + 2
 }
 func (lit *SliceLit) Cost() int {
 	// #REFS: 76.
@@ -197,6 +188,9 @@ func (call *LispCall) Cost() int {
 }
 func (call *LambdaCall) Cost() int {
 	return call.Body.Cost() + costOfBindList(call.Args) + 1
+}
+func (call *DynCall) Cost() int {
+	return call.Callable.Cost() + costOfCall(call.Args)
 }
 
 func (form *Let) Cost() int {

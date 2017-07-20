@@ -84,6 +84,8 @@ func compileExpr(cl *Compiler, form sexp.Form) {
 		compileCall(cl, form.Fn.Sym, form.Args)
 	case *sexp.LambdaCall:
 		compileLambdaCall(cl, form)
+	case *sexp.DynCall:
+		compileDynCall(cl, form)
 	case *lapc.InstrCall:
 		compileInstrCall(cl, form)
 

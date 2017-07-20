@@ -8,11 +8,11 @@ import (
 // FuncTable contains all functions that are used in
 // a package that is being translated.
 type FuncTable struct {
-	masterPkg   *types.Package
-	externFuncs map[funcKey]*sexp.Func
+	masterPkg *types.Package
+
 	funcs       map[string]*sexp.Func
 	methods     map[methodKey]*sexp.Func
-	masterFuncs []*sexp.Func
+	externFuncs map[funcKey]*sexp.Func
 }
 
 type funcKey struct {
@@ -36,32 +36,15 @@ func NewFuncTable(masterPkg *types.Package) *FuncTable {
 	}
 }
 
+// Inserter returns FuncTableInserter that can be used to
+// add function table entries.
+func (ftab *FuncTable) Inserter() *FuncTableInserter {
+	return &FuncTableInserter{ftab: ftab}
+}
+
 // MasterPkg returns function table bound package.
 func (ftab *FuncTable) MasterPkg() *types.Package {
 	return ftab.masterPkg
-}
-
-// InsertFunc inserts a new function into table.
-func (ftab *FuncTable) InsertFunc(p *types.Package, name string, fn *sexp.Func) {
-	if p == ftab.masterPkg {
-		ftab.funcs[name] = fn
-		ftab.masterFuncs = append(ftab.masterFuncs, fn)
-	} else {
-		ftab.externFuncs[funcKey{pkg: p, name: name}] = fn
-	}
-}
-
-// InsertMethod inserts a new method into table.
-func (ftab *FuncTable) InsertMethod(recv *types.TypeName, name string, fn *sexp.Func) {
-	key := methodKey{
-		pkgName:  recv.Pkg().Name(),
-		typeName: recv.Name(),
-		name:     name,
-	}
-	ftab.methods[key] = fn
-	if key.pkgName == ftab.masterPkg.Name() {
-		ftab.masterFuncs = append(ftab.masterFuncs, fn)
-	}
 }
 
 // LookupFunc returns stored function or nil if no entry is found.
@@ -82,19 +65,48 @@ func (ftab *FuncTable) LookupMethod(recv *types.TypeName, name string) *sexp.Fun
 	return ftab.methods[key]
 }
 
-// ForEach apply "visit" callback to each stored function.
-func (ftab *FuncTable) ForEach(visit func(*sexp.Func)) {
-	for _, fn := range ftab.funcs {
-		visit(fn)
-	}
-	for _, fn := range ftab.externFuncs {
-		visit(fn)
-	}
-	for _, fn := range ftab.methods {
-		visit(fn)
+// FuncTableInserter collects functions to fill FunctionTable.
+type FuncTableInserter struct {
+	ftab *FuncTable
+
+	masterFuncs []*sexp.Func
+	otherFuncs  []*sexp.Func
+}
+
+// Func inserts a new function into table.
+func (ins *FuncTableInserter) Func(p *types.Package, name string, fn *sexp.Func) {
+	if p == ins.ftab.masterPkg {
+		ins.ftab.funcs[name] = fn
+		ins.masterFuncs = append(ins.masterFuncs, fn)
+	} else {
+		ins.ftab.externFuncs[funcKey{pkg: p, name: name}] = fn
+		ins.otherFuncs = append(ins.otherFuncs, fn)
 	}
 }
 
-func (ftab *FuncTable) MasterFuncs() []*sexp.Func {
-	return ftab.masterFuncs
+// Method inserts a new method into table.
+func (ins *FuncTableInserter) Method(recv *types.TypeName, name string, fn *sexp.Func) {
+	key := methodKey{
+		pkgName:  recv.Pkg().Name(),
+		typeName: recv.Name(),
+		name:     name,
+	}
+	ins.ftab.methods[key] = fn
+	if key.pkgName == ins.ftab.masterPkg.Name() {
+		ins.masterFuncs = append(ins.masterFuncs, fn)
+	} else {
+		ins.otherFuncs = append(ins.otherFuncs, fn)
+	}
+}
+
+// GetMasterFuncs returns functions that are defined inside master package.
+// Returned slice elements are sorted with in-source declaration order.
+func (ins *FuncTableInserter) GetMasterFuncs() []*sexp.Func {
+	return ins.masterFuncs
+}
+
+// GetAllFuncs returns all functons ever inserted into function table.
+// Returned slice elements are sorted with in-source declaration order.
+func (ins *FuncTableInserter) GetAllFuncs() []*sexp.Func {
+	return append(ins.otherFuncs, ins.masterFuncs...)
 }

@@ -108,7 +108,7 @@ func (conv *converter) singleValueAssign(lhs, rhs []ast.Expr) sexp.FormList {
 }
 
 func (conv *converter) assign(lhs ast.Expr, expr sexp.Form) sexp.Form {
-	expr = conv.copyValue(expr)
+	expr = conv.copyValue(expr, conv.typeOf(lhs))
 	switch lhs := lhs.(type) {
 	case *ast.Ident:
 		if lhs.Name == blankIdent {
