@@ -8,7 +8,7 @@ import (
 
 func (atom Bool) Type() types.Type   { return xtypes.TypBool }
 func (atom Int) Type() types.Type    { return xtypes.TypInt }
-func (atom Float) Type() types.Type  { return xtypes.TypFloat }
+func (atom Float) Type() types.Type  { return xtypes.TypFloat64 }
 func (atom Str) Type() types.Type    { return xtypes.TypString }
 func (atom Symbol) Type() types.Type { return lisp.TypSymbol }
 func (atom Var) Type() types.Type    { return atom.Typ }

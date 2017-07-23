@@ -116,13 +116,13 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.typeCast(args[0], xtypes.TypInt64)
 
 		// All float types are considered float64
-		case "float32", 
+		case "float32":
 			return conv.typeCast(args[0], xtypes.TypFloat32)
 		case "float64":
 			return conv.typeCast(args[0], xtypes.TypFloat64)
 
 		case "bool":
-			return conv.typeCast(conv.Expr(args[0]), xtypes.TypBool)
+			return conv.typeCast(args[0], xtypes.TypBool)
 
 		case "string":
 			// #REFS: 26.
