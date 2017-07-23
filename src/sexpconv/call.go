@@ -54,7 +54,6 @@ func (conv *converter) typeCast(node ast.Expr, typ types.Type) *sexp.TypeCast {
 }
 
 func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
-
 	// #REFS: 2.
 	switch args := node.Args; fn := node.Fun.(type) {
 	case *ast.SelectorExpr: // x.sel()
@@ -117,12 +116,18 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 			return conv.typeCast(args[0], xtypes.TypInt64)
 
 		// All float types are considered float64
-		case "float32", "float64":
-			return conv.Expr(args[0])
+		case "float32", 
+			return conv.typeCast(args[0], xtypes.TypFloat32)
+		case "float64":
+			return conv.typeCast(args[0], xtypes.TypFloat64)
+
 		case "bool":
-			return conv.Expr(args[0])
+			return conv.typeCast(conv.Expr(args[0]), xtypes.TypBool)
+
 		case "string":
+			// #REFS: 26.
 			return conv.call(rt.FnBytesToStr, args[0])
+
 		case "make":
 			return conv.makeBuiltin(args)
 		case "len":
