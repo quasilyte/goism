@@ -54,6 +54,11 @@ which implemented in terms of C `double`.
 
 * Most conforming types are: `uint8`/`byte`, `uint16`, `uint32`, `int`, `float64`
 
+If `int16` is boxed into `interface{}`, it can be type-matched
+with `int16` only; this also applies to floating point types.
+
+* Type assertions distinguish all numeric types
+
 ### (3) Functions
 
 Void-result GE functions return value is unspecified and should not be assigned
