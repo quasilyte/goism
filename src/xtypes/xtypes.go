@@ -8,9 +8,23 @@ var EmptyTuple = types.NewTuple()
 
 // Convenient common types accessors.
 var (
-	TypBool   = types.Typ[types.Bool]
-	TypInt    = types.Typ[types.Int64]
-	TypFloat  = types.Typ[types.Float64]
+	TypBool = types.Typ[types.Bool]
+
+	TypUint   = types.Typ[types.Uint]
+	TypUint8  = types.Typ[types.Uint]
+	TypUint16 = types.Typ[types.Uint]
+	TypUint32 = types.Typ[types.Uint]
+	TypUint64 = types.Typ[types.Uint]
+
+	TypInt   = types.Typ[types.Int]
+	TypInt8  = types.Typ[types.Int8]
+	TypInt16 = types.Typ[types.Int16]
+	TypInt32 = types.Typ[types.Int32]
+	TypInt64 = types.Typ[types.Int64]
+
+	TypFloat32 = types.Typ[types.Float32]
+	TypFloat64 = types.Typ[types.Float64]
+
 	TypString = types.Typ[types.String]
 	TypVoid   = types.Typ[types.Invalid]
 )

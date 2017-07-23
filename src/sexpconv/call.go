@@ -49,7 +49,12 @@ func (conv *converter) lispCall(fn *lisp.Func, args ...interface{}) *sexp.LispCa
 	return conv.lispApply(fn, conv.uniList(args))
 }
 
+func (conv *converter) typeCast(node ast.Expr, typ types.Type) *sexp.TypeCast {
+	return &sexp.TypeCast{Form: conv.Expr(node), Typ: typ}
+}
+
 func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
+
 	// #REFS: 2.
 	switch args := node.Args; fn := node.Fun.(type) {
 	case *ast.SelectorExpr: // x.sel()
@@ -89,12 +94,28 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 
 	case *ast.Ident: // f()
 		switch fn.Name {
-		// Unsigned types are not handled at this level.
-		case "uint", "uint8", "byte", "uint16", "uint32", "uint64":
-			return conv.Expr(args[0])
-		// All signed integer types are treated as aliases.
-		case "int", "int8", "int16", "int32", "rune", "int64":
-			return conv.Expr(args[0])
+		case "uint":
+			return conv.typeCast(args[0], xtypes.TypUint)
+		case "uint8", "byte":
+			return conv.typeCast(args[0], xtypes.TypUint8)
+		case "uint16":
+			return conv.typeCast(args[0], xtypes.TypUint16)
+		case "uint32":
+			return conv.typeCast(args[0], xtypes.TypUint32)
+		case "uint64":
+			return conv.typeCast(args[0], xtypes.TypUint64)
+
+		case "int":
+			return conv.typeCast(args[0], xtypes.TypInt)
+		case "int8":
+			return conv.typeCast(args[0], xtypes.TypInt8)
+		case "int16":
+			return conv.typeCast(args[0], xtypes.TypInt16)
+		case "int32", "rune":
+			return conv.typeCast(args[0], xtypes.TypInt32)
+		case "int64":
+			return conv.typeCast(args[0], xtypes.TypInt64)
+
 		// All float types are considered float64
 		case "float32", "float64":
 			return conv.Expr(args[0])
