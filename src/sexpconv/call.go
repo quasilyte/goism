@@ -53,6 +53,27 @@ func (conv *converter) typeCast(node ast.Expr, typ types.Type) *sexp.TypeCast {
 	return &sexp.TypeCast{Form: conv.Expr(node), Typ: typ}
 }
 
+var typeCasts = map[string]types.Type{
+	"uint":   xtypes.TypUint,
+	"uint8":  xtypes.TypUint8,
+	"byte":   xtypes.TypUint8,
+	"uint16": xtypes.TypUint16,
+	"uint32": xtypes.TypUint32,
+	"uint64": xtypes.TypUint64,
+
+	"int":   xtypes.TypInt,
+	"int8":  xtypes.TypInt8,
+	"int16": xtypes.TypInt16,
+	"int32": xtypes.TypInt32,
+	"rune":  xtypes.TypInt32,
+	"int64": xtypes.TypInt64,
+
+	"float32": xtypes.TypFloat32,
+	"float64": xtypes.TypFloat64,
+
+	"bool": xtypes.TypBool,
+}
+
 func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 	// #REFS: 2.
 	switch args := node.Args; fn := node.Fun.(type) {
@@ -92,38 +113,11 @@ func (conv *converter) CallExpr(node *ast.CallExpr) sexp.Form {
 		return conv.callOrCoerce(conv.info.ObjectOf(fn.Sel).Pkg(), fn.Sel, args)
 
 	case *ast.Ident: // f()
+		if castTyp := typeCasts[fn.Name]; castTyp != nil {
+			return conv.typeCast(args[0], castTyp)
+		}
+
 		switch fn.Name {
-		case "uint":
-			return conv.typeCast(args[0], xtypes.TypUint)
-		case "uint8", "byte":
-			return conv.typeCast(args[0], xtypes.TypUint8)
-		case "uint16":
-			return conv.typeCast(args[0], xtypes.TypUint16)
-		case "uint32":
-			return conv.typeCast(args[0], xtypes.TypUint32)
-		case "uint64":
-			return conv.typeCast(args[0], xtypes.TypUint64)
-
-		case "int":
-			return conv.typeCast(args[0], xtypes.TypInt)
-		case "int8":
-			return conv.typeCast(args[0], xtypes.TypInt8)
-		case "int16":
-			return conv.typeCast(args[0], xtypes.TypInt16)
-		case "int32", "rune":
-			return conv.typeCast(args[0], xtypes.TypInt32)
-		case "int64":
-			return conv.typeCast(args[0], xtypes.TypInt64)
-
-		// All float types are considered float64
-		case "float32":
-			return conv.typeCast(args[0], xtypes.TypFloat32)
-		case "float64":
-			return conv.typeCast(args[0], xtypes.TypFloat64)
-
-		case "bool":
-			return conv.typeCast(args[0], xtypes.TypBool)
-
 		case "string":
 			// #REFS: 26.
 			return conv.call(rt.FnBytesToStr, args[0])
