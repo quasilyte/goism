@@ -26,7 +26,7 @@ func (conv *converter) Expr(node ast.Expr) sexp.Form {
 	case *ast.Ident:
 		return conv.Ident(node)
 	case *ast.BasicLit:
-		return conv.Constant(node)
+		return sexpConst(conv, node)
 	case *ast.BinaryExpr:
 		return conv.BinaryExpr(node)
 	case *ast.CallExpr:
@@ -52,7 +52,7 @@ func (conv *converter) Expr(node ast.Expr) sexp.Form {
 }
 
 func (conv *converter) Ident(node *ast.Ident) sexp.Form {
-	if cv := conv.Constant(node); cv != nil {
+	if cv := sexpConst(conv, node); cv != nil {
 		return cv
 	}
 
@@ -89,7 +89,7 @@ func (conv *converter) Ident(node *ast.Ident) sexp.Form {
 }
 
 func (conv *converter) BinaryExpr(node *ast.BinaryExpr) sexp.Form {
-	if cv := conv.Constant(node); cv != nil {
+	if cv := sexpConst(conv, node); cv != nil {
 		return cv
 	}
 
@@ -173,7 +173,7 @@ func (conv *converter) structIndex(typ *types.Struct, node *ast.SelectorExpr) *s
 }
 
 func (conv *converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
-	if cv := conv.Constant(node); cv != nil {
+	if cv := sexpConst(conv, node); cv != nil {
 		return cv
 	}
 
@@ -204,7 +204,7 @@ func (conv *converter) SelectorExpr(node *ast.SelectorExpr) sexp.Form {
 }
 
 func (conv *converter) UnaryExpr(node *ast.UnaryExpr) sexp.Form {
-	if cv := conv.Constant(node); cv != nil {
+	if cv := sexpConst(conv, node); cv != nil {
 		return cv
 	}
 
