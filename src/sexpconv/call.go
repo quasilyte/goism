@@ -175,12 +175,12 @@ func (conv *converter) callOrCoerce(p *types.Package, id *ast.Ident, args []ast.
 	arg := conv.Expr(args[0])
 	dstTyp := arg.Type()
 	typ := conv.typeOf(id)
-	if _, ok := typ.Underlying().(*types.Basic); ok {
-		return arg // #REFS: 25
+	if types.Identical(typ, dstTyp) {
+		return arg // Optimization to avoid redundant TypeCast object
 	}
-	if types.Identical(typ.Underlying(), dstTyp) {
-		return arg // #REFS: 25
+	if _, ok := typ.Underlying().(*types.Struct); ok {
+		// #REFS: 44.
+		panic(exn.NoImpl("struct conversions"))
 	}
-	// #REFS: 44.
-	panic(exn.NoImpl("struct conversions"))
+	return &sexp.TypeCast{Form: arg, Typ: dstTyp}
 }
