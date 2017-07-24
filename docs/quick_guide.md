@@ -255,8 +255,9 @@ This has several consequences:
 * Passing `S` by value creates a copy, but passes a refential type
 * Objects are untagged (no type ID member)
 
-Using `*S` is more efficient than `S` in **all** cases.
+Using `*S` for structs is more efficient than `S` in **all** cases.
 Pass `S` only when you really need an object copy.
+For primitive types it is better to pass `T` by value.
 
 The `N=4` threshold may be changed in future.
 The main point is that you should not rely on the Go struct objects
