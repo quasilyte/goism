@@ -110,10 +110,10 @@ func width(form sexp.Form) int {
 	case *sexp.Call:
 		return widthOfList(form.Args) + 2
 	case *sexp.LispCall:
-		if vmm.InstrCallCost(form.Fn.Sym) != 0 {
+		if vmm.InstrCallCost(form.Fn.Name) != 0 {
 			return widthOfList(form.Args) + 1
 		}
-		if vmm.FuncIsThrowing(form.Fn.Sym) {
+		if vmm.FuncIsThrowing(form.Fn.Name) {
 			return cfg.InlineBudget + 1 // Exceed the limit; do not want to inline
 		}
 		return widthOfList(form.Args) + 2

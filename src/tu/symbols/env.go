@@ -46,7 +46,7 @@ func (env *Env) InternVar(pkg *types.Package, name string) string {
 		return env.internVar(env.symbols, env.masterPkgName, name)
 
 	case pkg == lisp.Package:
-		return lisp.FFI[name].Sym
+		return lisp.FFI[name].Name
 
 	default:
 		bucket := env.externSymbols[pkg]

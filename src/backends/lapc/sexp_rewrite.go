@@ -72,7 +72,7 @@ func simplify(form sexp.Form) sexp.Form {
 	switch form := form.(type) {
 	case *sexp.LispCall:
 		args := simplifyList(form.Args)
-		switch form.Fn.Sym {
+		switch form.Fn.Name {
 		case "concat":
 			return &InstrCall{
 				Instr: ir.Instr{Kind: ir.Concat, Data: int32(len(args))},

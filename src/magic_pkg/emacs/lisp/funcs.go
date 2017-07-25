@@ -8,7 +8,7 @@ import (
 
 // Func is an arbitrary Emacs Lisp function.
 type Func struct {
-	Sym string
+	Name string
 }
 
 var (
@@ -17,73 +17,73 @@ var (
 	Funcs map[string]*Func
 
 	// FFI stores {go sym}->{lisp func} mapping.
-	// If   "FFI[x].Sym == Funcs[y].Sym",
+	// If   "FFI[x].Name == Funcs[y].Name",
 	// then "FFI[x] == Funcs[y]" is also valid.
 	FFI map[string]*Func
 )
 
 var (
-	FnError             = &Func{Sym: "error"}
-	FnSignal            = &Func{Sym: "signal"}
-	FnThrow             = &Func{Sym: "throw"}
-	FnMapconcat         = &Func{Sym: "mapconcat"}
-	FnIsMultibyteString = &Func{Sym: "multibyte-string-p"}
-	FnPrin1ToString     = &Func{Sym: "prin1-to-string"}
+	FnError             = &Func{Name: "error"}
+	FnSignal            = &Func{Name: "signal"}
+	FnThrow             = &Func{Name: "throw"}
+	FnMapconcat         = &Func{Name: "mapconcat"}
+	FnIsMultibyteString = &Func{Name: "multibyte-string-p"}
+	FnPrin1ToString     = &Func{Name: "prin1-to-string"}
 
-	FnCopySequence   = &Func{Sym: "copy-sequence"}
-	FnIntern         = &Func{Sym: "intern"}
-	FnGethash        = &Func{Sym: "gethash"}
-	FnMakeVector     = &Func{Sym: "make-vector"}
-	FnRemhash        = &Func{Sym: "remhash"}
-	FnHashTableCount = &Func{Sym: "hash-table-count"}
-	FnVector         = &Func{Sym: "vector"}
+	FnCopySequence   = &Func{Name: "copy-sequence"}
+	FnIntern         = &Func{Name: "intern"}
+	FnGethash        = &Func{Name: "gethash"}
+	FnMakeVector     = &Func{Name: "make-vector"}
+	FnRemhash        = &Func{Name: "remhash"}
+	FnHashTableCount = &Func{Name: "hash-table-count"}
+	FnVector         = &Func{Name: "vector"}
 
-	FnStringBytes = &Func{Sym: "string-bytes"}
+	FnStringBytes = &Func{Name: "string-bytes"}
 
-	FnSubstr   = &Func{Sym: "substring"}
-	FnConcat   = &Func{Sym: "concat"}
-	FnNeg      = &Func{Sym: "-"}
-	FnAdd1     = &Func{Sym: "1+"}
-	FnSub1     = &Func{Sym: "1-"}
-	FnMin      = &Func{Sym: "min"}
-	FnLen      = &Func{Sym: "length"}
-	FnIsStr    = &Func{Sym: "stringp"}
-	FnIsInt    = &Func{Sym: "integerp"}
-	FnIsFloat  = &Func{Sym: "floatp"}
-	FnIsSymbol = &Func{Sym: "symbolp"}
-	FnIsBool   = &Func{Sym: "booleanp"}
-	FnList     = &Func{Sym: "list"}
+	FnSubstr   = &Func{Name: "substring"}
+	FnConcat   = &Func{Name: "concat"}
+	FnNeg      = &Func{Name: "-"}
+	FnAdd1     = &Func{Name: "1+"}
+	FnSub1     = &Func{Name: "1-"}
+	FnMin      = &Func{Name: "min"}
+	FnLen      = &Func{Name: "length"}
+	FnIsStr    = &Func{Name: "stringp"}
+	FnIsInt    = &Func{Name: "integerp"}
+	FnIsFloat  = &Func{Name: "floatp"}
+	FnIsSymbol = &Func{Name: "symbolp"}
+	FnIsBool   = &Func{Name: "booleanp"}
+	FnList     = &Func{Name: "list"}
 
-	FnCons   = &Func{Sym: "cons"}
-	FnCar    = &Func{Sym: "car"}
-	FnCdr    = &Func{Sym: "cdr"}
-	FnAref   = &Func{Sym: "aref"}
-	FnAset   = &Func{Sym: "aset"}
-	FnMemq   = &Func{Sym: "memq"}
-	FnMember = &Func{Sym: "member"}
+	FnCons   = &Func{Name: "cons"}
+	FnCar    = &Func{Name: "car"}
+	FnCdr    = &Func{Name: "cdr"}
+	FnAref   = &Func{Name: "aref"}
+	FnAset   = &Func{Name: "aset"}
+	FnMemq   = &Func{Name: "memq"}
+	FnMember = &Func{Name: "member"}
 )
 
 // Operators-like functions.
 var (
-	FnEq     = &Func{Sym: "eq"}
-	FnEqual  = &Func{Sym: "equal"}
-	FnNumEq  = &Func{Sym: "="}
-	FnNumLt  = &Func{Sym: "<"}
-	FnNumGt  = &Func{Sym: ">"}
-	FnNumLte = &Func{Sym: "<="}
-	FnNumGte = &Func{Sym: ">="}
-	FnAdd    = &Func{Sym: "+"}
-	FnSub    = &Func{Sym: "-"}
-	FnMul    = &Func{Sym: "*"}
-	FnQuo    = &Func{Sym: "/"}
-	FnStrEq  = &Func{Sym: "string="}
-	FnStrLt  = &Func{Sym: "string<"}
-	FnStrGt  = &Func{Sym: "string>"}
-	FnNot    = &Func{Sym: "not"}
-	FnLsh    = &Func{Sym: "lsh"}    // "<<"
-	FnLogand = &Func{Sym: "logand"} // "&"
-	FnLogior = &Func{Sym: "logior"} // "|"
-	FnLogxor = &Func{Sym: "logxor"} // "^"
+	FnEq     = &Func{Name: "eq"}
+	FnEqual  = &Func{Name: "equal"}
+	FnNumEq  = &Func{Name: "="}
+	FnNumLt  = &Func{Name: "<"}
+	FnNumGt  = &Func{Name: ">"}
+	FnNumLte = &Func{Name: "<="}
+	FnNumGte = &Func{Name: ">="}
+	FnAdd    = &Func{Name: "+"}
+	FnSub    = &Func{Name: "-"}
+	FnMul    = &Func{Name: "*"}
+	FnQuo    = &Func{Name: "/"}
+	FnStrEq  = &Func{Name: "string="}
+	FnStrLt  = &Func{Name: "string<"}
+	FnStrGt  = &Func{Name: "string>"}
+	FnNot    = &Func{Name: "not"}
+	FnLsh    = &Func{Name: "lsh"}    // "<<"
+	FnLogand = &Func{Name: "logand"} // "&"
+	FnLogior = &Func{Name: "logior"} // "|"
+	FnLogxor = &Func{Name: "logxor"} // "^"
 )
 
 // InternFunc creates lisp function with lispSym name.
@@ -92,7 +92,7 @@ func InternFunc(lispSym string) *Func {
 	if fn := Funcs[lispSym]; fn != nil {
 		return fn
 	}
-	fn := &Func{Sym: lispSym}
+	fn := &Func{Name: lispSym}
 	Funcs[lispSym] = fn
 	return fn
 }
@@ -165,7 +165,7 @@ func initFuncs() error {
 			FnLogxor,
 		}
 		for _, fn := range funcs {
-			Funcs[fn.Sym] = fn
+			Funcs[fn.Name] = fn
 		}
 	}
 

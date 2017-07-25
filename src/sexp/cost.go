@@ -178,10 +178,10 @@ func (call *Call) Cost() int {
 	return costOfCall(call.Args)
 }
 func (call *LispCall) Cost() int {
-	if cost := vmm.InstrCallCost(call.Fn.Sym); cost != 0 {
+	if cost := vmm.InstrCallCost(call.Fn.Name); cost != 0 {
 		return cost + CostOfList(call.Args)
 	}
-	if vmm.FuncIsThrowing(call.Fn.Sym) {
+	if vmm.FuncIsThrowing(call.Fn.Name) {
 		return costOfCall(call.Args) + cfg.CostThrowFuncPenalty
 	}
 	return costOfCall(call.Args)
