@@ -169,7 +169,7 @@ func initFuncs() error {
 		}
 	}
 
-	// Initialie FFI mappings.
+	// Initialize FFI mappings.
 	FFI = make(map[string]*Func, len(directives))
 	for _, d := range directives {
 		goSym, lispSym := d[1], d[2]
